@@ -5,7 +5,8 @@ description: "기준금리와 내 대출금리 사이에는 세 겹의 구조가
 question: "금리 인하 뉴스, 내 통장엔 언제 오나"
 publishedAt: 2026-11-16
 readingMinutes: 7
-app: "pension-tax"
+toolHref: "/posts/retire-fixed-cost"
+toolTitle: "이어 읽기 · 고정비"
 tags: ["기준금리", "대출금리", "COFIX", "변동금리", "고정금리", "재산정 주기"]
 sources:
   - label: "한국은행 기준금리 운용 관련 통화정책방향 자료"

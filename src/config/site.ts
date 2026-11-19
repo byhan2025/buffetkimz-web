@@ -38,8 +38,11 @@ export const site = {
   baseDateLabel: "2026년 11월 19일",
   /** 빌드 시점의 '오늘' (기준일과 같은 날로 고정) */
   today: new Date("2026-11-19T09:00:00+09:00"),
-  /** 카카오톡 채널 주소 — 확정되면 여기 한 곳만 채우면 푸터·소개의 링크가 살아난다 */
-  kakaoChannelUrl: "",
+  /**
+   * 카카오톡 채널 1:1 대화 주소 — 이 값 하나로 홈·푸터·소개의 링크가 함께 살아난다.
+   * http://pf.kakao.com/_UxkVxnn/chat 은 HTTPS로 308 리다이렉트되므로 https 주소를 쓴다(2026-11-19 확인).
+   */
+  kakaoChannelUrl: "https://pf.kakao.com/_UxkVxnn/chat",
   author: {
     name: "buffetkimz",
     bio: "보험과 금융을 현장에서 다루면서, 확인한 것과 계산한 것을 매일 글로 남깁니다. 설명이 막히는 지점을 도구로 옮기는 일도 함께 합니다.",

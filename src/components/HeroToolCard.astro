@@ -3,37 +3,41 @@
  * 첫 화면의 도구 증거 카드 — 실제 실행 화면(/apps/coverage-check/run)의 요약을
  * 같은 기준점 데이터로 그대로 그린다. 입력값은 실행 화면의 예시값(가상)이다.
  * 라벨은 실행 화면과 같은 3상태(lib/coverage.ts)를 쓴다.
+ *
+ * v3.2 — 첫 화면 안에 4대 축이 함께 들어오도록 세로 길이를 줄였다(장식 문단·중복 고지 제거).
  */
 import { site, withBase } from "@/config/site";
 import { COVERAGE_EXAMPLE, COVERAGE_LABEL, BAND_LABEL, coverageSummary } from "@/lib/coverage";
 
 const { rows, ok, check, band } = coverageSummary(COVERAGE_EXAMPLE.band);
 const pct = (r: number) => Math.max(4, Math.min(100, Math.round(r * 100)));
-const man = (v: number) => `${v.toLocaleString("ko-KR")}만`;
 const verdictColor = (key: string) =>
   key === "ok" ? "text-[#7fd8bb]" : key === "review" ? "text-[#f0cf8a]" : "text-[#f3a7b4]";
+const example = "예시: 암 5,000 · 뇌혈관 2,000 · 심장 1,000 · 수술 400 · 간병 5만/일";
 ---
 
-<div class="card-night hero-card p-5 md:p-6">
+<div class="card-night hero-card p-4 md:p-5">
   <div class="flex items-start justify-between gap-3">
     <div>
       <p class="mono text-[12px] tracking-[0.08em] text-[#a8c6dd]">TOOL · 실행 화면</p>
-      <p class="mt-1.5 text-[17px] font-semibold text-white">보장 점검 — {BAND_LABEL[band]} 기준</p>
+      <p class="mt-1 text-[15.5px] font-semibold leading-snug text-white">보장 점검 — {BAND_LABEL[band]} 기준</p>
     </div>
     <span class="chip !border-white/15 !bg-white/10 !text-[#dbe7f0]">가상 예시</span>
   </div>
 
-  <p class="mt-3 text-[12px] leading-relaxed text-[#c8d8e5]">
-    예시 입력값 · 암 5,000만 · 뇌혈관 2,000만 · 심장 1,000만 · 수술 400만 · 간병 5만/일
+  <p class="mono mt-2 text-[12px] leading-[1.5] text-[#c8d8e5]" title={example}>
+    <span class="clamp-1">{example}</span>
   </p>
 
-  <ul class="mt-4 space-y-2.5">
+  <ul class="mt-3 space-y-1.5">
     {
       rows.map((r) => (
-        <li class="grid grid-cols-[54px_1fr_auto] items-center gap-3">
-          <span class="text-[12.5px] text-[#e3edf4]">{r.name}</span>
-          <span class="gauge">
-            <span style={`--v:${pct(r.ratio)}%;background-color:${r.key === "ok" ? "#58c3a4" : r.key === "review" ? "#e8c887" : "#e39aa9"}`} />
+        <li class="grid grid-cols-[46px_1fr_auto] items-center gap-2.5">
+          <span class="text-[12px] text-[#e3edf4]">{r.name}</span>
+          <span class="gauge !h-[5px]">
+            <span
+              style={`--v:${pct(r.ratio)}%;background-color:${r.key === "ok" ? "#58c3a4" : r.key === "review" ? "#e8c887" : "#e39aa9"}`}
+            />
           </span>
           <span class={`mono whitespace-nowrap text-[12px] ${verdictColor(r.key)}`}>{r.label}</span>
         </li>
@@ -41,31 +45,17 @@ const verdictColor = (key: string) =>
     }
   </ul>
 
-  <p class="mt-3 text-[12px] leading-relaxed text-[#cbd5e1]">
-    입력한 가상 기준과의 단순 비교(보장 충분성 판정 아님) · 계산 근거·공식 출처는 실행 화면에
+  <p class="mono mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-white/10 pt-2.5 text-[12px] text-[#cbd5e1]">
+    <span>{COVERAGE_LABEL.ok} <strong class="font-semibold text-white">{ok}개</strong><span class="text-[#c8d8e5]"> / 5</span></span>
+    <span>{COVERAGE_LABEL.check} <strong class="font-semibold text-white">{check}</strong></span>
+    <span class="text-[#b9cddc]">기준일 {site.baseDate}</span>
   </p>
 
-  <div class="mt-3 grid grid-cols-3 gap-2 border-t border-white/10 pt-3.5">
-    <div>
-      <p class="text-[12px] text-[#cbd5e1]">{COVERAGE_LABEL.ok}</p>
-      <p class="mono mt-0.5 text-[19px] leading-none text-white">{ok}<span class="text-[12px] text-[#c8d8e5]"> / 5</span></p>
-    </div>
-    <div>
-      <p class="text-[12px] text-[#cbd5e1]">{COVERAGE_LABEL.check}</p>
-      <p class="mono mt-0.5 text-[19px] leading-none text-white">{check}<span class="text-[12px] text-[#c8d8e5]">개</span></p>
-    </div>
-    <div>
-      <p class="text-[12px] text-[#cbd5e1]">기준일</p>
-      <p class="mono mt-0.5 text-[13px] leading-none text-white">{site.baseDate}</p>
-    </div>
-  </div>
-
-  <p class="mt-3 text-[12px] leading-relaxed text-[#cbd5e1]">
-    5대 담보 현장 기준표(소비자용 단순화)<br />
-    참고용 · 약관·증권별 확인 필요
+  <p class="mt-1.5 text-[12px] leading-[1.55] text-[#b9cddc]">
+    가상 기준과의 단순 비교(보장 충분성 판정 아님) · 약관·증권별 확인 필요
   </p>
 
-  <a href={withBase("/apps/coverage-check/run")} class="btn btn-solid btn-sm mt-4 w-full">
+  <a href={withBase("/apps/coverage-check/run")} class="btn btn-solid btn-sm mt-3 w-full">
     실행 화면 열기
   </a>
 </div>

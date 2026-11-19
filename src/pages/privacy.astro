@@ -17,7 +17,7 @@ import { withBase, site } from "@/config/site";
       </nav>
       <h1 class="mt-5 text-[26px] font-bold tracking-[-0.035em] text-ink md:text-[32px]">개인정보처리방침</h1>
       <p class="mt-2 text-[13px] text-ink-muted">
-        시행일 <time datetime={site.baseDate}>{site.baseDateLabel}</time>
+        시행일 <time datetime={site.baseDate}>{site.baseDateLabel}</time> · 이 방침은 위 시행일부터 적용됩니다.
       </p>
     </div>
   </section>
@@ -50,10 +50,17 @@ import { withBase, site } from "@/config/site";
         함께 알립니다.
       </p>
 
-      <h2 id="p5">5. 외부 서비스</h2>
+      <h2 id="p5">5. 외부 앱과 외부 서비스</h2>
       <p>
-        앱 가운데 외부 주소로 열리는 것이 있습니다(예: 5대 담보 기준 가이드). 외부 앱에서의 정보 처리는
-        그 앱의 정책을 따릅니다. 이 사이트는 외부 앱에 방문자의 정보를 넘기지 않습니다.
+        앱 가운데 외부 주소로 열리는 것이 있습니다(예: 5대 담보 기준 가이드). 이 사이트의 도구는 입력값을
+        브라우저 안에서만 계산하고 서버로 보내지 않지만, 외부 앱에서는 기기 저장(브라우저 저장소)이나
+        계정 동기화 같은 별도 저장 방식이 적용될 수 있습니다. 그 저장과 처리는 그 앱의 정책을 따르며, 이
+        사이트가 관리하지 않습니다.
+      </p>
+      <p>
+        카카오톡 채널처럼 외부 서비스로 이동하는 링크도 같은 원칙입니다. 링크를 누르면 그 서비스의 약관과
+        개인정보처리방침이 적용됩니다. 이 사이트는 외부 앱이나 외부 서비스에 방문자의 정보를 넘기지
+        않습니다.
       </p>
 
       <h2 id="p6">6. 검색과 기록</h2>

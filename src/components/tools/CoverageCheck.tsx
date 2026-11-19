@@ -162,7 +162,7 @@ export default function CoverageCheck({ compact = false }: { compact?: boolean }
       </div>
 
       <div className="mt-4 grid gap-3 sm:grid-cols-3">
-        <ResultStat label={`${COVERAGE_LABEL.ok} 담보`} value={`${okCount} / 6`} tone="jade" sub="예시 기준점 이상" />
+        <ResultStat label="기준 도달 담보" value={`${okCount} / ${evaluated.length}`} tone="jade" sub="예시 기준점 이상" />
         <ResultStat
           label={COVERAGE_LABEL.check}
           value={`${priorities.length}개`}

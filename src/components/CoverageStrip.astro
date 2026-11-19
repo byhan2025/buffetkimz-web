@@ -1,0 +1,60 @@
+---
+/**
+ * 5대 담보 압축 스트립 — 홈 도구 섹션에서 세로 길이를 줄이기 위해
+ * 기존 5행 게이지를 가로 5칸(모바일 2칸) 타일로 접었다. 숫자·라벨은 실행 화면과 같은
+ * lib/coverage.ts 를 그대로 쓰고, 칸 하나가 도구 실행 화면으로 이어진다.
+ */
+import { COVERAGE_EXAMPLE, COVERAGE_LABEL, COVERAGE_NOTE, BAND_LABEL, coverageSummary } from "@/lib/coverage";
+import { site, withBase } from "@/config/site";
+
+const { rows, band } = coverageSummary(COVERAGE_EXAMPLE.band);
+const pct = (r: number) => Math.max(3, Math.min(100, Math.round(r * 100)));
+const man = (v: number) => v.toLocaleString("ko-KR");
+/* 막대는 도형(넓은 면), 라벨은 12px 글자 — 글자는 4.5:1을 넘는 어두운 톤을 따로 쓴다. */
+const barTone = (key: string) =>
+  key === "ok" ? "#2f8f6f" : key === "review" ? "#c0a05c" : "#b57e8b";
+const textTone = (key: string) =>
+  key === "ok" ? "#1f6f55" : key === "review" ? "#7d5f18" : "#8f3549";
+const unit = (key: string) => (key === "nursing" ? "만/일" : "만");
+---
+
+<div class="card overflow-hidden">
+  <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b border-line px-4 py-2.5 md:px-5">
+    <p class="text-[12.5px] font-semibold text-ink">
+      <span class="text-brand">5대 담보</span> · {BAND_LABEL[band]} 기준점과 예시 보유액
+    </p>
+    <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-ink-muted">
+      <span class="flex items-center gap-1"><i class="h-2 w-2 rounded-full" style="background:#2f8f6f"></i>{COVERAGE_LABEL.ok}</span>
+      <span class="flex items-center gap-1"><i class="h-2 w-2 rounded-full" style="background:#c0a05c"></i>{COVERAGE_LABEL.review}</span>
+      <span class="flex items-center gap-1"><i class="h-2 w-2 rounded-full" style="background:#b57e8b"></i>{COVERAGE_LABEL.check}</span>
+      <span class="mono text-ink-faint">예시 입력값(가상) · 기준일 {site.baseDate}</span>
+    </div>
+  </div>
+
+  <ul class="grid grid-cols-2 md:grid-cols-5">
+    {
+      rows.map((r, i) => (
+        <li class={`border-line-soft ${i < rows.length - 1 ? "md:border-r" : ""} ${i % 2 === 0 ? "border-r md:border-r" : ""}`}>
+          <a
+            href={withBase("/apps/coverage-check")}
+            class="group block h-full px-4 py-2.5 transition-colors hover:bg-paper-deep/40 md:px-4"
+            aria-label={`${r.name} 기준 ${man(r.need)}${unit(r.key)}, 예시 ${man(r.have)}${unit(r.key)} — ${r.label} (보장 점검 도구에서 확인)`}
+          >
+            <span class="text-[12.5px] font-semibold text-ink">{r.name}</span>
+            <span class="mono mt-0.5 block text-[12px] text-ink-soft">
+              {man(r.have)}<span class="text-ink-faint"> / {man(r.need)}{unit(r.key)}</span>
+            </span>
+            <span class="mt-1.5 block h-1.5 w-full overflow-hidden rounded-full bg-[#eef2f5]">
+              <span class="block h-full rounded-full" style={`width:${pct(r.ratio)}%;background-color:${barTone(r.key)}`} />
+            </span>
+            <span class="mt-1 block text-[12px] font-semibold" style={`color:${textTone(r.key)}`}>{r.label}</span>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+
+  <p class="border-t border-line-soft bg-paper-deep/50 px-4 py-2 text-[12px] leading-[1.6] text-ink-muted md:px-5">
+    {COVERAGE_NOTE} 가로 막대는 기준점을 100으로 놓았을 때의 예시 보유액입니다. 칸을 누르면 같은 기준점으로 내 숫자를 넣어 보는 화면이 열립니다.
+  </p>
+</div>
