@@ -7,6 +7,8 @@ import { apps } from "@/data/apps";
 import { hubTools } from "@/data/tools";
 
 const external = apps.filter((a) => !a.internal);
+/** 홈과 같은 기준의 도구 수 — 계산 도구 + 제도 일정 달력 */
+const calcToolCount = hubTools.filter((t) => t.runHref).length;
 
 const jsonLd = {
   "@context": "https://schema.org",
@@ -44,7 +46,7 @@ const jsonLd = {
       </p>
 
       <div class="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-[12.5px] text-ink-muted">
-        <span>도구 <strong class="font-semibold text-ink">{hubTools.length}종</strong></span>
+        <span data-tool-count={hubTools.length}>도구 <strong class="font-semibold text-ink">{hubTools.length}종</strong> <span class="text-ink-faint">(계산 {calcToolCount} + 달력 {hubTools.length - calcToolCount})</span></span>
         <span>입력값 서버 미전송</span>
         <span class="mono">기준일 <time datetime={site.baseDate}>{site.baseDate}</time></span>
       </div>
@@ -96,8 +98,9 @@ const jsonLd = {
         <div class="card p-5">
           <p class="text-[12px] font-semibold text-brand">계산 기준과 출처</p>
           <p class="mt-2 text-[13px] leading-[1.72] text-ink-muted">
-            각 도구는 공개된 1차 자료(법령·감독 당국 안내·기준표)를 근거로 계산하며, 기준일을 화면에
-            함께 표시합니다.
+            각 도구는 공개된 1차 자료(법령·감독 당국 안내)를 근거로 계산하며, 기준일을 화면에 함께
+            표시합니다. 5대 담보 기준점은 참고용 내부 예시 기준(공식 약관·보험사 기준 아님)임을 같은
+            화면에서 밝힙니다.
           </p>
         </div>
         <div class="card p-5">

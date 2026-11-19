@@ -89,7 +89,7 @@ const jsonLd = {
               <ul class="mt-10 flex flex-wrap gap-x-3 gap-y-1 border-t border-line pt-4">
                 {post.data.tags.map((tag) => (
                   <li>
-                    <a href={withBase(`/search?q=${encodeURIComponent(tag)}`)} class="text-[12.5px] text-ink-muted link">
+                    <a href={withBase("/search")} data-search-query={tag} class="text-[12.5px] text-ink-muted link">
                       {tag}
                     </a>
                   </li>

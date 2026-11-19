@@ -176,6 +176,41 @@ export function splitHighlight(text: string, terms: string[]): { text: string; h
   return out;
 }
 
+/*
+ * 검색어는 주소창·브라우저 기록·서버 요청 어디에도 남기지 않는다.
+ * 첫 화면에서 검색 화면으로 넘어갈 때만, 같은 탭의 메모리(sessionStorage)로 한 번 건넨다.
+ */
+const SEARCH_QUERY_KEY = "buffetkimz:search-query";
+
+export function rememberQuery(query: string) {
+  try {
+    const q = query.trim();
+    if (q) sessionStorage.setItem(SEARCH_QUERY_KEY, q);
+    else sessionStorage.removeItem(SEARCH_QUERY_KEY);
+  } catch {
+    /* 저장이 막힌 브라우저에서는 검색 화면이 빈 입력으로 시작할 뿐이다. */
+  }
+}
+
+export function peekQuery(): string {
+  try {
+    return sessionStorage.getItem(SEARCH_QUERY_KEY) ?? "";
+  } catch {
+    return "";
+  }
+}
+
+/** 한 번 건넨 검색어는 바로 지운다 — 다음에 검색 화면을 열 때 되살아나지 않게. */
+export function takeQuery(): string {
+  const q = peekQuery();
+  try {
+    sessionStorage.removeItem(SEARCH_QUERY_KEY);
+  } catch {
+    /* 무시 */
+  }
+  return q;
+}
+
 export const popularQueries = ["연금", "실손", "5세대", "세액공제", "고지의무", "금리", "환율", "간병비"];
 
 export const typeLabels: Record<SearchDoc["type"], string> = {

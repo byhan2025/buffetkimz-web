@@ -69,6 +69,18 @@ const { title, description, path, noindex, type, publishedTime, jsonLd } = Astro
     </main>
     <Footer />
     <script>
+      /*
+       * 검색어를 주소(?q=…)로 넘기지 않는다 — 태그 링크도 같은 탭의 메모리로만 건넨다.
+       */
+      import { rememberQuery } from "@/lib/search";
+      document.addEventListener("click", (event) => {
+        const target = event.target as HTMLElement | null;
+        const link = target?.closest?.("[data-search-query]") as HTMLElement | null;
+        if (!link) return;
+        rememberQuery(link.getAttribute("data-search-query") ?? "");
+      });
+    </script>
+    <script>
       const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       const items = document.querySelectorAll<HTMLElement>(".reveal");
       if (reduce || !("IntersectionObserver" in window)) {

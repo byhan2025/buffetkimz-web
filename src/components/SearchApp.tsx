@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { withBase } from "@/config/site";
 import {
+  takeQuery,
   popularQueries,
   queryTerms,
+  rememberQuery,
   searchDocs,
   splitHighlight,
   typeLabels,
@@ -116,16 +118,16 @@ export default function SearchApp({ variant = "page", onClose }: Props) {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const isPage = variant === "page";
 
-  /* 페이지에서는 주소의 q·category·type을 읽어 시작한다. */
+  /*
+   * 검색어는 이 컴포넌트의 상태로만 둔다.
+   * 주소창(?q=…)·브라우저 기록에는 쓰지 않는다(개인정보처리방침 6장과 같은 원칙).
+   * 첫 화면에서 넘어온 검색어만 같은 탭의 메모리에서 한 번 받는다.
+   */
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const q = params.get("q") ?? "";
+    if (!isPage) return;
+    const q = takeQuery();
     if (q) setQuery(q);
-    const g = params.get("category");
-    if (g) setGroup(g);
-    const t = params.get("type") as TypeFilter | null;
-    if (t && TYPE_TABS.some((x) => x.value === t)) setType(t);
-  }, []);
+  }, [isPage]);
 
   useEffect(() => {
     let alive = true;
@@ -149,17 +151,6 @@ export default function SearchApp({ variant = "page", onClose }: Props) {
   }, [docs, query, type, group]);
 
   useEffect(() => setActive(0), [query, type, group]);
-
-  /* 결과가 바뀌면 주소도 조용히 맞춰 둔다(공유 가능한 링크). */
-  useEffect(() => {
-    if (!isPage) return;
-    const params = new URLSearchParams();
-    if (query.trim()) params.set("q", query.trim());
-    if (type !== "all") params.set("type", type);
-    if (group !== "all") params.set("category", group);
-    const qs = params.toString();
-    window.history.replaceState(null, "", qs ? `/search?${qs}` : "/search");
-  }, [query, type, group, isPage]);
 
   const groups = useMemo(() => {
     if (!docs) return [] as string[];
@@ -377,12 +368,16 @@ export default function SearchApp({ variant = "page", onClose }: Props) {
       </div>
 
       {!isPage && query.trim() !== "" && hits.length > 0 && (
-        <a
-          href={withBase(`/search?q=${encodeURIComponent(query.trim())}`)}
+        <button
+          type="button"
+          onClick={() => {
+            rememberQuery(query);
+            window.location.assign(withBase("/search"));
+          }}
           className="mt-2 inline-flex min-h-[40px] items-center text-[12.5px] font-semibold text-brand link"
         >
           전체 결과 {hits.length}건 보기
-        </a>
+        </button>
       )}
 
       <p className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-[12px] text-ink-faint">

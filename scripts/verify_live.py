@@ -91,13 +91,56 @@ def main():
             """() => {
               const kakao = document.querySelector('a[href*="pf.kakao.com"]');
               const axes = [...document.querySelectorAll('main a.card')].slice(0, 4).map((a) => a.innerText.replace(/\\n/g, ' | ').trim());
+              const toolCount = document.querySelector('[data-tool-count]');
+              const legendBox = document.querySelector('[data-coverage-legend]');
+              const legend = legendBox ? [...legendBox.querySelectorAll('[data-legend-state]')].map((e) => e.getAttribute('data-legend-state')) : [];
+              const rowStates = [...new Set([...document.querySelectorAll('main [data-row-state]')].map((e) => e.getAttribute('data-row-state')))];
+              const cv = document.getElementById('channels');
+              const ft = document.querySelector('footer');
+              const parse = (c) => { const m = c && c.match(/rgba?\\(([^)]+)\\)/); if (!m) return null;
+                const p = m[1].split(',').map((v) => parseFloat(v)); return [p[0], p[1], p[2], p.length > 3 ? p[3] : 1]; };
+              const lin = (v) => { v /= 255; return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+              const lum = ([r, g, b]) => 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
+              const ratio = (a, b) => { const la = lum(a), lb = lum(b);
+                return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05); };
+              const small = [];
+              for (const [zone, root, fallback] of [['band', cv, [11, 27, 41]], ['footer', ft, [250, 247, 239]]]) {
+                if (!root) continue;
+                root.querySelectorAll('p, span, a, li, div, strong, time').forEach((el) => {
+                  const own = Array.from(el.childNodes).some((n) => n.nodeType === 3 && n.textContent.trim().length > 1);
+                  if (!own) return;
+                  const r = el.getBoundingClientRect();
+                  if (r.width === 0 || r.height === 0) return;
+                  const cs = getComputedStyle(el);
+                  const fg = parse(cs.color);
+                  if (!fg || fg[3] < 0.5) return;
+                  let bg = null, e = el;
+                  while (e) { const b = parse(getComputedStyle(e).backgroundColor); if (b && b[3] > 0.9) { bg = b; break; } e = e.parentElement; }
+                  if (!bg) bg = fallback;
+                  small.push({ zone, text: el.textContent.trim().slice(0, 20), px: Math.round(parseFloat(cs.fontSize) * 10) / 10,
+                               ratio: Math.round(ratio(fg, bg) * 100) / 100 });
+                });
+              }
+              small.sort((a, b) => a.ratio - b.ratio);
               return {
                 height_px: document.documentElement.scrollHeight,
                 axes,
                 kakao_href: kakao ? kakao.getAttribute('href') : null,
                 kakao_text: kakao ? kakao.innerText.replace(/\\n/g, ' ').trim() : null,
+                kakao_escaped: kakao ? kakao.getAttribute('href').includes('%5F') : null,
                 record_cards: document.querySelectorAll('[data-post-cards] li').length,
                 tool_tiles: document.querySelectorAll('main section:nth-of-type(3) li.card').length,
+                tool_count: toolCount ? toolCount.getAttribute('data-tool-count') : null,
+                tool_count_text: toolCount ? toolCount.innerText.replace(/\\s+/g, ' ').trim() : null,
+                legend,
+                row_states: rowStates,
+                legend_match: legend.length === rowStates.length && legend.every((v) => rowStates.includes(v)),
+                band_footer_sampled: small.length,
+                band_footer_min_ratio: small.length ? small[0].ratio : null,
+                band_footer_min_px: small.length ? Math.min(...small.map((o) => o.px)) : null,
+                band_footer_under_12: small.filter((o) => o.px < 12).length,
+                band_footer_fails: small.filter((o) => o.ratio < 4.5).length,
+                band_footer_worst: small.slice(0, 4),
               };
             }"""
         )
@@ -165,6 +208,25 @@ def main():
             code = http_status(ORIGIN + PREFIX + path)
             if code != 200:
                 report["links"]["failed"].append({"path": path, "status": code})
+
+        # 카카오톡 채널 링크가 실제로 열리는지 (HTTP)
+        kakao_href = (report.get("home") or {}).get("kakao_href") or "https://pf.kakao.com/_UxkVxnn/chat"
+        report["kakao_link"] = {"url": kakao_href, "status": http_status(kakao_href)}
+
+        # 모바일 390 · 360 첫 화면
+        m390ctx = browser.new_context(
+            viewport={"width": 390, "height": 844}, device_scale_factor=2, is_mobile=True, has_touch=True, locale="ko-KR"
+        )
+        m390 = m390ctx.new_page()
+        m390.goto(BASE + "/", wait_until="networkidle", timeout=60000)
+        m390.wait_for_timeout(800)
+        m390.screenshot(path=str(OUT / "mobile390-home-fold.png"))
+        report["screenshots"].append(str(OUT / "mobile390-home-fold.png"))
+        report["mobile390"] = {
+            "overflow_px": m390.evaluate("() => document.documentElement.scrollWidth - window.innerWidth"),
+            "h1": m390.evaluate("() => document.querySelector('main h1')?.innerText?.replace(/\\s+/g,' ').trim()"),
+        }
+        m390ctx.close()
 
         # 모바일 360 첫 화면
         mctx = browser.new_context(

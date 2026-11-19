@@ -128,6 +128,79 @@ CONTRAST_JS = """
 }
 """
 
+LEGEND_JS = """
+() => {
+  const box = document.querySelector('[data-coverage-legend]');
+  const legend = box ? [...box.querySelectorAll('[data-legend-state]')].map((e) => e.getAttribute('data-legend-state')) : [];
+  const rows = [...document.querySelectorAll('main [data-row-state]')].map((e) => e.getAttribute('data-row-state'));
+  const rowStates = [...new Set(rows)];
+  return {
+    legend,
+    row_states: rowStates,
+    row_counts: rows.reduce((a, s) => ((a[s] = (a[s] || 0) + 1), a), {}),
+    match: legend.length === rowStates.length && legend.every((v) => rowStates.includes(v)),
+  };
+}
+"""
+
+BAND_FOOTER_JS = """
+() => {
+  const parse = (c) => {
+    const m = c && c.match(/rgba?\\(([^)]+)\\)/);
+    if (!m) return null;
+    const p = m[1].split(',').map((v) => parseFloat(v));
+    return [p[0], p[1], p[2], p.length > 3 ? p[3] : 1];
+  };
+  const lin = (v) => { v /= 255; return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+  const lum = ([r, g, b]) => 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
+  const ratio = (a, b) => {
+    const la = lum(a), lb = lum(b);
+    return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
+  };
+  const out = [];
+  const zones = [
+    ['band', document.getElementById('channels'), [11, 27, 41]],
+    ['footer', document.querySelector('footer'), [250, 247, 239]],
+  ];
+  for (const [zone, root, fallback] of zones) {
+    if (!root) continue;
+    root.querySelectorAll('p, span, a, li, div, strong, time').forEach((el) => {
+      const own = Array.from(el.childNodes).some((n) => n.nodeType === 3 && n.textContent.trim().length > 1);
+      if (!own) return;
+      const r = el.getBoundingClientRect();
+      if (r.width === 0 || r.height === 0) return;
+      const cs = getComputedStyle(el);
+      const fg = parse(cs.color);
+      if (!fg || fg[3] < 0.5) return;
+      let bg = null, e = el;
+      while (e) {
+        const b = parse(getComputedStyle(e).backgroundColor);
+        if (b && b[3] > 0.9) { bg = b; break; }
+        e = e.parentElement;
+      }
+      if (!bg) bg = fallback;
+      out.push({
+        zone,
+        text: el.textContent.trim().slice(0, 24),
+        px: Math.round(parseFloat(cs.fontSize) * 10) / 10,
+        fg: cs.color,
+        bg: `rgb(${bg[0]}, ${bg[1]}, ${bg[2]})`,
+        ratio: Math.round(ratio(fg, bg) * 100) / 100,
+      });
+    });
+  }
+  out.sort((a, b) => a.ratio - b.ratio);
+  return {
+    sampled: out.length,
+    min_ratio: out.length ? out[0].ratio : null,
+    fails_below_4_5: out.filter((o) => o.ratio < 4.5),
+    min_px: out.length ? Math.min(...out.map((o) => o.px)) : null,
+    under_12px: out.filter((o) => o.px < 12),
+    worst: out.slice(0, 6),
+  };
+}
+"""
+
 TOUCH_JS = """
 () => {
   const controls = [];
@@ -267,6 +340,17 @@ def main():
                 "단순 비교 고지": "보장 충분성 판정 아님" in home_text,
             }
             report["interactions"]["card_meta_texts"] = page.locator("[data-card-meta]").all_inner_texts()
+            report["labels"]["home_legend"] = page.evaluate(LEGEND_JS)
+            report["contrast"]["band_footer_home"] = page.evaluate(BAND_FOOTER_JS)
+            report["labels"]["home_tool_count"] = page.evaluate(
+                """() => { const el = document.querySelector('[data-tool-count]');
+                   return el ? { value: el.getAttribute('data-tool-count'), text: el.innerText.replace(/\\s+/g, ' ').trim() } : null; }"""
+            )
+            report["labels"]["home_kakao"] = page.evaluate(
+                """() => { const a = document.querySelector('a[href*="pf.kakao.com"]');
+                   return a ? { href: a.getAttribute('href'), text: a.innerText.replace(/\\s+/g, ' ').trim(),
+                                escaped: a.getAttribute('href').includes('%5F') } : null; }"""
+            )
 
             # 글 카드 → 도구 실행 직결
             first_tool = page.locator("[data-post-cards] a.btn").first
@@ -284,6 +368,7 @@ def main():
             page.click('button[aria-label="사이트 검색 열기"]')
             page.wait_for_timeout(500)
             page.screenshot(path=str(OUT / "desktop-search-overlay.png"))
+            url_before_typing = page.url
             page.fill("#search-input-overlay", "실손")
             page.wait_for_timeout(450)
             report["search"].append(
@@ -294,6 +379,8 @@ def main():
                         "() => document.querySelector('#search-results li a')?.innerText?.slice(0,60) || ''"
                     ),
                     "overlay_has_ms": "ms" in page.locator('[role="dialog"]').inner_text(),
+                    "url_unchanged_while_typing": page.url == url_before_typing,
+                    "url": page.url.replace(BASE, ""),
                 }
             )
             page.screenshot(path=str(OUT / "desktop-search-overlay-results.png"))
@@ -308,15 +395,73 @@ def main():
             page.keyboard.press("Escape")
             page.wait_for_timeout(250)
 
-            # 검색 페이지 (색인 제외)
-            goto(page, "search", "/search?q=연금")
+            # 검색 페이지 (색인 제외) — 검색어는 주소에 남기지 않는다
+            goto(page, "search", "/search")
+            page.wait_for_timeout(400)
+            page.fill("#search-input-page", "연금")
             page.wait_for_timeout(600)
             page.screenshot(path=str(OUT / "desktop-search.png"), full_page=True)
+            search_text = page.locator("main").inner_text()
             report["search"].append(
                 {
                     "query": "연금",
                     "results": page.eval_on_selector_all("#search-results li", "e => e.length"),
-                    "timing_text_present": bool(re.search(r"\dms|1ms", page.locator("main").inner_text())),
+                    "url": page.url.replace(BASE, ""),
+                    "url_has_query": "?" in page.url or "q=" in page.url,
+                    "input_value": page.input_value("#search-input-page"),
+                    "timing_text_present": bool(re.search(r"\dms|1ms", search_text)),
+                }
+            )
+            # 다른 검색어로 바꿔도 주소가 그대로인지
+            page.fill("#search-input-page", "고지의무")
+            page.wait_for_timeout(450)
+            report["search"].append(
+                {
+                    "query": "고지의무",
+                    "results": page.eval_on_selector_all("#search-results li", "e => e.length"),
+                    "url": page.url.replace(BASE, ""),
+                    "url_has_query": "?" in page.url or "q=" in page.url,
+                }
+            )
+
+            # 오버레이 '전체 결과 보기' → /search (주소에 검색어 없이 이어지는지)
+            goto(page, "home-search", "/")
+            page.click('button[aria-label="사이트 검색 열기"]')
+            page.wait_for_timeout(400)
+            page.fill("#search-input-overlay", "실손")
+            page.wait_for_timeout(500)
+            overlay_more = page.locator('#search-results ~ *').filter(has_text="전체 결과").first
+            page.locator('button:has-text("전체 결과")').first.click()
+            page.wait_for_load_state("networkidle")
+            page.wait_for_timeout(700)
+            report["search"].append(
+                {
+                    "flow": "overlay -> /search",
+                    "url": page.url.replace(BASE, ""),
+                    "url_has_query": "?" in page.url or "q=" in page.url,
+                    "input_value": page.input_value("#search-input-page") if page.locator("#search-input-page").count() else None,
+                    "results": page.eval_on_selector_all("#search-results li", "e => e.length"),
+                }
+            )
+
+            # 글의 태그 링크 → /search (검색어는 주소에 없이 이어짐)
+            goto(page, "post-tag", "/posts/insurance-silson-5th")
+            tag_link = page.locator("[data-search-query]").first
+            tag_value = tag_link.get_attribute("data-search-query")
+            tag_href = tag_link.get_attribute("href") or ""
+            tag_link.click()
+            page.wait_for_load_state("networkidle")
+            page.wait_for_timeout(600)
+            report["search"].append(
+                {
+                    "flow": "post tag -> /search",
+                    "tag": tag_value,
+                    "href": tag_href,
+                    "href_has_query": "?q=" in tag_href,
+                    "url": page.url.replace(BASE, ""),
+                    "url_has_query": "?" in page.url or "q=" in page.url,
+                    "input_value": page.input_value("#search-input-page") if page.locator("#search-input-page").count() else None,
+                    "results": page.eval_on_selector_all("#search-results li", "e => e.length"),
                 }
             )
 
@@ -343,6 +488,11 @@ def main():
                 "보험 기준표": apps_text.count("보험 기준표"),
                 "보림(오타, 금지)": apps_text.count("보림"),
             }
+            report["labels"]["apps_legend"] = page.evaluate(LEGEND_JS)
+            report["labels"]["apps_tool_count"] = page.evaluate(
+                """() => { const el = document.querySelector('[data-tool-count]');
+                   return el ? { value: el.getAttribute('data-tool-count'), text: el.innerText.replace(/\\s+/g, ' ').trim() } : null; }"""
+            )
             report["contrast"]["apps"] = page.evaluate(CONTRAST_JS)
             report["touch"]["apps_desktop"] = page.evaluate(TOUCH_JS)
 

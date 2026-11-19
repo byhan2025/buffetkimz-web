@@ -5,11 +5,17 @@
 export type CoverageBand = "30" | "40" | "50" | "60";
 
 /**
+ * 기준점의 성격을 한 문장으로 고정한다. 홈·/apps·근거 화면·실행 화면이 모두 이 표현을 쓴다.
+ * "현장 기준표"처럼 공식 기준으로 읽힐 여지를 두지 않는다.
+ */
+export const COVERAGE_BASIS_LABEL = "참고용 내부 예시 기준(공식 약관·보험사 기준 아님)";
+
+/**
  * 결과 숫자·상태 옆에 붙는 문구. 보장 충분성 판정으로 읽히지 않게 하고,
- * 계산 근거와 공식 출처를 같은 줄에서 밝힌다.
+ * 계산 근거와 기준의 성격을 같은 줄에서 밝힌다.
  */
 export const COVERAGE_NOTE =
-  "입력한 가상 기준과의 단순 비교(보장 충분성 판정 아님) · 기준점은 공개 약관·감독 자료를 참고해 소비자용으로 단순화한 값이며 공식 기준표가 아닙니다";
+  `입력한 가상 기준과의 단순 비교(보장 충분성 판정 아님) · 기준점은 ${COVERAGE_BASIS_LABEL}이며, 공개 약관·감독 자료와 비교해 소비자용으로 단순화한 값입니다`;
 
 export type CoverageBasis = {
   cancer: number;
@@ -49,6 +55,21 @@ export const COVERAGE_EXAMPLE = {
 };
 
 export type CoverageVerdict = { label: string; key: "ok" | "review" | "check" };
+
+/** 점·막대·글자 색 — 범례와 행 라벨이 같은 색을 쓰도록 한 곳에 둔다. */
+export const COVERAGE_TONE: Record<CoverageVerdict["key"], { dot: string; text: string }> = {
+  ok: { dot: "#2f8f6f", text: "#1f6f55" },
+  review: { dot: "#c0a05c", text: "#7d5f18" },
+  check: { dot: "#b57e8b", text: "#8f3549" },
+};
+
+/**
+ * 범례는 화면에 실제로 나온 상태만 보여 준다.
+ * 쓰이지 않는 상태를 범례에 남기면 라벨과 범례가 어긋나기 때문이다.
+ */
+export function presentVerdicts(rows: { verdict: CoverageVerdict["key"] }[]) {
+  return (["ok", "review", "check"] as const).filter((key) => rows.some((r) => r.verdict === key));
+}
 
 /**
  * 3상태 라벨 — 홈 미리보기·게이지 도해·실행 화면이 같은 말을 쓴다.

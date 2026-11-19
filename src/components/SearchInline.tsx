@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { withBase } from "@/config/site";
-import { searchDocs, splitHighlight, typeLabels, type SearchDoc, type SearchHit } from "../lib/search";
+import { searchDocs, rememberQuery, splitHighlight, typeLabels, type SearchDoc, type SearchHit } from "../lib/search";
 
 let inlineCache: SearchDoc[] | null = null;
 
@@ -64,13 +64,22 @@ export default function SearchInline({ placeholder }: { placeholder?: string }) 
         if (!e.currentTarget.contains(e.relatedTarget as Node)) setOpen(false);
       }}
     >
-      <form action="/search" method="get" role="search">
+      <form
+        action={withBase("/search")}
+        method="get"
+        role="search"
+        onSubmit={(e) => {
+          /* 검색어를 주소로 넘기지 않는다 — 같은 탭 메모리로만 건넨다. */
+          e.preventDefault();
+          rememberQuery(value);
+          window.location.assign(withBase("/search"));
+        }}
+      >
         <label htmlFor="hero-search" className="sr-only">
           사이트 안에서 검색
         </label>
         <input
           id="hero-search"
-          name="q"
           type="search"
           value={value}
           onChange={(e) => {
@@ -148,7 +157,8 @@ export default function SearchInline({ placeholder }: { placeholder?: string }) 
             </ul>
           )}
           <a
-            href={withBase(`/search?q=${encodeURIComponent(value.trim())}`)}
+            href={withBase("/search")}
+            onClick={() => rememberQuery(value)}
             className="flex min-h-[44px] items-center justify-between border-t border-line px-4 text-[12px] font-semibold text-ink-soft hover:text-ink"
           >
             전체 결과 보기

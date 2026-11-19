@@ -238,8 +238,9 @@ export default function CoverageCheck({ compact = false }: { compact?: boolean }
       )}
 
       <Note>
-        기준점은 현장에서 쓰는 5대 담보 기준표를 소비자용으로 단순화한 값입니다. 가입 시기·상품·특약에
-        따라 지급 조건이 다르므로, 이 결과는 <strong>가입 판정이 아니라 확인할 항목</strong>입니다.
+        기준점은 참고용 내부 예시 기준(공식 약관·보험사 기준 아님)으로, 5대 담보를 소비자용으로
+        단순화한 값입니다. 가입 시기·상품·특약에 따라 지급 조건이 다르므로, 이 결과는
+        <strong>가입 판정이 아니라 확인할 항목</strong>입니다.
       </Note>
     </RunnerShell>
   );
