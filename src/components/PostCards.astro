@@ -66,12 +66,12 @@ const grid = columns === 2 ? "sm:grid-cols-2" : "sm:grid-cols-2 lg:grid-cols-3";
 
           <div class="mt-auto flex items-center justify-between gap-2 pt-4">
             {item.toolUrl ? (
-              <a href={withBase(item.toolUrl)} class="btn btn-soft btn-sm">
+              <a href={withBase(item.toolUrl)} class="btn btn-secondary btn-xs">
                 {item.toolName ?? "도구로 확인"}
               </a>
             ) : (
-              <a href={withBase(item.url)} class="text-[12.5px] font-semibold text-brand-deep link">
-                읽기
+              <a href={withBase(item.url)} class="btn btn-tertiary-quiet btn-xs">
+                글 읽기
               </a>
             )}
             <span class="text-[12px] text-ink-faint">{item.readingMinutes}분</span>

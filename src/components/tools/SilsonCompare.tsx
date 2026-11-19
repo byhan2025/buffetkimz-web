@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Bar, MoneySlider, Note, ResultStat, RunnerShell, Segmented, formatMan } from "./ui";
+import { Bar, MoneySlider, Note, ResultStat, RunnerShell, Segmented, StickySummary, formatMan } from "./ui";
 
 type Hospital = "clinic" | "hospital" | "general" | "tertiary";
 
@@ -218,6 +218,13 @@ export default function SilsonCompare({ compact = false }: { compact?: boolean }
           </ul>
         </div>
       )}
+
+      <StickySummary
+        items={[
+          { label: "4세대 자기부담", value: formatMan(g4.selfPay / 10000) },
+          { label: "5세대 자기부담", value: formatMan(g5.selfPay / 10000) },
+        ]}
+      />
 
       <Note>
         모든 비급여를 입원 치료로 가정하고, 연간 한도(중증 5천만원·비중증 1천만원)는 넘지 않는다고 보고

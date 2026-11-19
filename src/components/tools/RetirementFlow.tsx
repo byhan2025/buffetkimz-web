@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Bar, MoneySlider, Note, ResultStat, RunnerShell, formatMan } from "./ui";
+import { Bar, MoneySlider, Note, ResultStat, RunnerShell, StickySummary, formatMan } from "./ui";
 import {
   PRIVATE_PENSION_TAX,
   PUBLIC_PENSION_HEALTH_LIMIT,
@@ -308,6 +308,13 @@ export default function RetirementFlow({ compact = false }: { compact?: boolean 
         </a>
         에서 이어서 계산할 수 있습니다.
       </p>
+
+      <StickySummary
+        items={[
+          { label: "월 수령액(오늘 가치)", value: manLabel(real.total) },
+          { label: "목표 대비", value: `${gap >= 0 ? "+" : "−"}${manLabel(Math.abs(gap))}` },
+        ]}
+      />
 
       <Note>
         참고용 단순 시뮬레이션(실제 수령액·세율과 다름). 세금, 건강보험료 피부양자 탈락, 연금 수수료, 중도

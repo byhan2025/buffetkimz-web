@@ -1,0 +1,111 @@
+---
+/**
+ * 도구 카드 안의 미니 UI 미리보기 — 장식이 아니라 '이 화면에서 무엇을 넣고 무엇을 보는지'를
+ * 실제 실행 화면의 구성 그대로 축소해 보여 준다. 값을 조작할 수는 없다.
+ * 카드마다 '화면 예시' 라벨을 반드시 붙인다(실제 화면으로 오해하지 않게).
+ * 숫자는 lib/finance.ts의 예시값에서 가져온다.
+ */
+import {
+  COMPOUND_EXAMPLE,
+  PENSION_RULE,
+  RETIREMENT_EXAMPLE,
+  compoundProjection,
+  manLabel,
+  retirementProjection,
+} from "@/lib/finance";
+import { calendar } from "@/data/calendar";
+
+interface Props {
+  variant: "pension" | "retirement" | "compound" | "calendar";
+  label?: string;
+}
+
+const { variant, label = "화면 예시" } = Astro.props;
+
+const ret = retirementProjection(RETIREMENT_EXAMPLE);
+const comp = compoundProjection(COMPOUND_EXAMPLE);
+const month = 11;
+const monthItems = calendar.filter((c) => c.month === month);
+
+/** 한도 × 공제율 — 히어로 카드와 같은 값(만원 단위 소수 1자리) */
+const pensionCredit = (PENSION_RULE.totalLimit * PENSION_RULE.rateLow * 1).toFixed(1);
+---
+
+<div class="mini">
+  <div class="flex items-center justify-between gap-2">
+    <span class="text-[12px] font-semibold text-ink-soft">{label}</span>
+    <span class="mono text-[12px] text-ink-faint">조작 없음</span>
+  </div>
+
+  {
+    variant === "pension" && (
+      <div class="mt-2 space-y-1.5">
+        <div class="mini-row">
+          <span class="text-[12px] text-ink-muted">연금저축</span>
+          <span class="mini-track"><i style="width:67%" /></span>
+        </div>
+        <div class="mini-row">
+          <span class="text-[12px] text-ink-muted">IRP</span>
+          <span class="mini-track"><i style="width:33%" /></span>
+        </div>
+        <p class="mono pt-0.5 text-[12px] text-ink">
+          예상 공제액 <strong class="font-semibold text-brand-deep">{pensionCredit}만원</strong>
+          <span class="text-ink-faint"> · 한도 {PENSION_RULE.totalLimit}만</span>
+        </p>
+      </div>
+    )
+  }
+
+  {
+    variant === "retirement" && (
+      <div class="mt-2">
+        <div class="mini-bars">
+          <i style="height:32%" />
+          <i style="height:62%" />
+          <i style="height:48%" />
+          <i style="height:78%" />
+          <i style="height:100%" />
+        </div>
+        <p class="mono mt-1.5 text-[12px] text-ink">
+          월 {manLabel(ret.nominal.total)}
+          <span class="text-ink-faint"> · 오늘 가치 {manLabel(ret.real.total)}</span>
+        </p>
+      </div>
+    )
+  }
+
+  {
+    variant === "compound" && (
+      <div class="mt-2">
+        <div class="mini-bars">
+          <i style="height:22%" />
+          <i style="height:40%" />
+          <i style="height:58%" />
+          <i style="height:76%" />
+          <i style="height:96%" />
+          <i style="height:100%" />
+        </div>
+        <p class="mono mt-1.5 text-[12px] text-ink">
+          세후 {manLabel(comp.net)}
+          <span class="text-ink-faint"> · 원금 {manLabel(comp.principal)}</span>
+        </p>
+      </div>
+    )
+  }
+
+  {
+    variant === "calendar" && (
+      <div class="mt-2">
+        <div class="mini-cal" aria-hidden="true">
+          {Array.from({ length: 28 }).map((_, i) => (
+            <i data-on={[3, 11, 19, 26].includes(i + 1) ? "1" : "0"} />
+          ))}
+        </div>
+        <p class="mono mt-1.5 text-[12px] text-ink">
+          {month}월 <strong class="font-semibold text-brand-deep">{monthItems.length}건</strong>
+          <span class="text-ink-faint"> · 1~12월 기한과 절차</span>
+        </p>
+      </div>
+    )
+  }
+</div>

@@ -1,9 +1,12 @@
 """
-GitHub Pages 라이브 실측 — https://byhan2025.github.io/buffetkimz-web/
+GitHub Pages 라이브 실측 — https://byhan2025.github.io/buffetkimz-web/ (v4.1)
 
 사용: python3 scripts/verify_live.py
-결과: reports/buffetkimz-web/v3/live-home.png, live-home-mid.png, live-mobile360.png, live-report.json
-확인: HTTP 200, CSS/JS 로드, 서브패스 링크 정합, 내부 링크 전수 200, 검색·도구 동작, 콘솔 오류 0
+결과: reports/buffetkimz-web/v4.1/ 아래
+      live-home.png · live-home-full.png · live-apps.png · live-run-retirement-flow.png
+      mobile360-home-fold.png · mobile390-home-fold.png · mobile390-run-retirement-flow-adjusted.png · live-report.json
+확인: HTTP 200, CSS/JS 로드, 서브패스 링크 정합, 내부 링크 전수 200, 검색·도구 동작, 콘솔 오류 0,
+      v4.1 5영역·버튼 3단계·1:1 상담문의 표기, 모바일 /run 하단 요약 바와 눈금 12px
 """
 import json
 import os
@@ -19,7 +22,7 @@ from playwright.sync_api import sync_playwright
 ORIGIN = "https://byhan2025.github.io"
 PREFIX = "/buffetkimz-web"
 BASE = ORIGIN + PREFIX
-OUT = pathlib.Path(os.environ.get("LIVE_OUT") or "/workspace/reports/buffetkimz-web/v3")
+OUT = pathlib.Path(os.environ.get("LIVE_OUT") or "/workspace/reports/buffetkimz-web/v4.1")
 OUT.mkdir(parents=True, exist_ok=True)
 
 report = {
@@ -85,6 +88,60 @@ def main():
         report["screenshots"].append(str(OUT / "live-home.png"))
         page.screenshot(path=str(OUT / "live-home-full.png"), full_page=True)
         report["screenshots"].append(str(OUT / "live-home-full.png"))
+
+        # v4.1 — 5영역·프레임드 히어로·버튼 3단계·1:1 상담문의 표기
+        report["home_v41"] = page.evaluate(
+            """() => {
+              const txt = (el) => (el ? el.innerText.replace(/\\s+/g, ' ').trim() : '');
+              const areas = [...document.querySelectorAll('main > section')].map((sec) => ({
+                area: sec.getAttribute('data-area'),
+                bg: getComputedStyle(sec).backgroundColor,
+              }));
+              const contact = document.querySelector('main a[href*="pf.kakao.com"]');
+              return {
+                areas,
+                framed_hero: !!document.querySelector('.hero-shell'),
+                sim: !!document.querySelector('.hero-shell .sim'),
+                sec_heads: document.querySelectorAll('.sec-head').length,
+                accent_cards: document.querySelectorAll('.accent-card').length,
+                mini: [...document.querySelectorAll('[data-main-tools] .mini')].map((m) => txt(m).slice(0, 12)),
+                tiers: {
+                  primary: document.querySelectorAll('.btn-primary').length,
+                  secondary: document.querySelectorAll('.btn-secondary').length,
+                  tertiary: document.querySelectorAll('.btn-tertiary, .btn-tertiary-quiet').length,
+                },
+                contact_text: contact ? txt(contact) : null,
+                contact_href: contact ? contact.getAttribute('href') : null,
+                contact_disclaimer:
+                  txt(document.querySelector('main')).includes('가입 권유·중개가 아닌 일반 안내·문의 채널') &&
+                  txt(document.querySelector('footer')).includes('가입 권유·중개가 아닌 일반 안내·문의 채널'),
+                height: document.documentElement.scrollHeight,
+              };
+            }"""
+        )
+        v41 = report["home_v41"]
+        checks_v41 = {
+            "areas_5": [a["area"] for a in v41["areas"]] == ["1", "2", "3", "4", "5"],
+            "areas_distinct_bg": len({a["bg"] for a in v41["areas"]}) == 5,
+            "framed_hero": v41["framed_hero"] and v41["sim"],
+            "sec_heads": v41["sec_heads"] >= 3,
+            "single_accent": v41["accent_cards"] == 1,
+            "mini_previews": len(v41["mini"]) == 4 and all("화면 예시" in m for m in v41["mini"]),
+            "btn_tiers": all(v41["tiers"][k] > 0 for k in ("primary", "secondary", "tertiary")),
+            "contact_1to1": "1:1 상담문의" in (v41["contact_text"] or ""),
+            "contact_href": "pf.kakao.com/_UxkVxnn/chat" in (v41["contact_href"] or ""),
+            "contact_disclaimer": v41["contact_disclaimer"],
+            "height_budget": 3400 <= v41["height"] <= 4000,
+        }
+        report["checks_v41"] = checks_v41
+
+        # /apps 라이브 화면
+        page.goto(f"{BASE}/apps/", wait_until="networkidle", timeout=60000)
+        page.wait_for_timeout(800)
+        page.screenshot(path=str(OUT / "live-apps.png"), full_page=True)
+        report["screenshots"].append(str(OUT / "live-apps.png"))
+        page.goto(BASE + "/", wait_until="networkidle", timeout=60000)
+        page.wait_for_timeout(800)
 
         # v3.2 — 압축 레이아웃·4대 축 인덱스·카카오톡 채널 링크 확인
         report["home"] = page.evaluate(
@@ -369,6 +426,34 @@ def main():
             "overflow_px": m390.evaluate("() => document.documentElement.scrollWidth - window.innerWidth"),
             "h1": m390.evaluate("() => document.querySelector('main h1')?.innerText?.replace(/\\s+/g,' ').trim()"),
         }
+
+        # v4.1 — 390px 실행 화면: 슬라이더를 움직이는 동안 하단 요약 바가 숫자를 비추는지
+        m390.goto(f"{BASE}/apps/retirement-flow/run/", wait_until="networkidle", timeout=60000)
+        m390.wait_for_timeout(900)
+        bar_before = m390.evaluate("() => document.querySelector('[data-sticky-summary]')?.innerText || ''")
+        m390.evaluate(
+            """() => { const r = document.querySelectorAll('input[type=range]')[3];
+               const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+               setter.call(r, '150'); r.dispatchEvent(new Event('input', {bubbles: true})); }"""
+        )
+        m390.wait_for_timeout(600)
+        bar_after = m390.evaluate("() => document.querySelector('[data-sticky-summary]')?.innerText || ''")
+        scales = m390.evaluate(
+            """() => [...document.querySelectorAll('input[type=range]')].map((r) => {
+                 const box = r.nextElementSibling;
+                 const spans = box ? [...box.querySelectorAll('span')] : [];
+                 return spans.length ? Math.min(...spans.map((el) => parseFloat(getComputedStyle(el).fontSize))) : null;
+               }).filter((v) => v !== null)"""
+        )
+        m390.screenshot(path=str(OUT / "mobile390-run-retirement-flow-adjusted.png"))
+        report["screenshots"].append(str(OUT / "mobile390-run-retirement-flow-adjusted.png"))
+        report["run_sticky"] = {
+            "visible": m390.evaluate("() => { const b = document.querySelector('[data-sticky-summary]'); const r = b && b.getBoundingClientRect(); return !!r && r.height > 0 && r.bottom <= window.innerHeight + 1; }"),
+            "before": bar_before.replace(/\\s+/g, " ").strip(),
+            "after": bar_after.replace(/\\s+/g, " ").strip(),
+            "changed": bar_before != bar_after,
+            "scale_min_px": min(scales) if scales else None,
+        }
         m390ctx.close()
 
         # 모바일 360 첫 화면
@@ -378,6 +463,8 @@ def main():
         m = mctx.new_page()
         m.goto(BASE + "/", wait_until="networkidle", timeout=60000)
         m.wait_for_timeout(800)
+        m.screenshot(path=str(OUT / "mobile360-home-fold.png"))
+        report["screenshots"].append(str(OUT / "mobile360-home-fold.png"))
         m.screenshot(path=str(OUT / "live-mobile360.png"))
         report["screenshots"].append(str(OUT / "live-mobile360.png"))
         report["mobile360"] = {
@@ -397,7 +484,16 @@ def main():
         for t in (report.get("mobile360_compound") or {}).get("tables", [])
     )
     print("MOBILE360_TABLES_OK:", table_ok)
-    if not (report.get("consistency") or {}).get("ok") or not table_ok:
+    print("CHECKS_V41:", json.dumps(report.get("checks_v41"), ensure_ascii=False))
+    sticky = report.get("run_sticky") or {}
+    sticky_ok = (
+        sticky.get("visible") is True
+        and sticky.get("changed") is True
+        and (sticky.get("scale_min_px") or 0) >= 12
+    )
+    print("RUN_STICKY_OK:", sticky_ok, json.dumps(sticky, ensure_ascii=False))
+    v41_ok = all((report.get("checks_v41") or {}).values()) and bool(report.get("checks_v41"))
+    if not (report.get("consistency") or {}).get("ok") or not table_ok or not v41_ok or not sticky_ok:
         raise SystemExit(1)
 
 

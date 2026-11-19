@@ -1,11 +1,15 @@
 """
-buffetkimz v4.0 실측 검증 — dist를 로컬 서버로 열어 실제 브라우저로 확인한다.
+buffetkimz v4.1 실측 검증 — dist를 로컬 서버로 열어 실제 브라우저로 확인한다.
 
 사용: python3 scripts/verify_v4.py            (루트 배포 빌드 dist)
       VERIFY_BASE=/buffetkimz-web python3 scripts/verify_v4.py   (GitHub Pages 서브패스 빌드)
 
-결과: reports/buffetkimz-web/v4/ 스크린샷 + verify-report.json
+결과: reports/buffetkimz-web/v4.1/ 스크린샷 + verify-report.json
 확인:
+  · 홈 5영역(프레임드 히어로 → 기록 → 미스트 도구 쇼케이스 → 2단 스플릿 → 채널·상담문의)과 배경 교차
+  · 영역 머리글 2단(라벨+두 줄 제목/두 줄 설명), 카드 안 '화면 예시' 미리보기, 단색 강조 카드 1장
+  · 버튼 3단계(Primary·Secondary·Tertiary) 규격과 카드 액션 통일(최소 44px)
+  · 1:1 상담문의 표기·면책, 모바일 /run 하단 요약 바와 슬라이더 눈금 12px 이상
   · 홈 비중 역전(은퇴 현금흐름 히어로 · 금융 연금 스트립 · 메인 도구 4 · 리스크 도구 한 줄)
   · 기록 4칸의 카테고리 구성(보험글이 1번에 오지 않고, 3칸 이상 금융·투자·경제·연금·노후·AI)
   · /apps 메인 4(금융·연금 3 + 달력 1) + 서브 리스크 3 = 7종 표기
@@ -34,7 +38,7 @@ PREFIX = f"/{SUBPATH}" if SUBPATH else ""
 BASE = f"http://127.0.0.1:{PORT}" + PREFIX
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 DIST = ROOT / "dist"
-OUT = pathlib.Path(os.environ.get("VERIFY_OUT") or "/workspace/reports/buffetkimz-web/v4")
+OUT = pathlib.Path(os.environ.get("VERIFY_OUT") or "/workspace/reports/buffetkimz-web/v4.1")
 OUT.mkdir(parents=True, exist_ok=True)
 
 report = {
@@ -275,11 +279,85 @@ def main():
                     trust_text: trust ? trust.textContent : null,
                     trust_height: trustRect ? Math.round(trustRect.height) : null,
                     risk_line_text: txt(document.querySelector('[data-risk-tools]')),
+                    areas: [...document.querySelectorAll('main > section')].map((sec) => ({
+                      area: sec.getAttribute('data-area'),
+                      bg: getComputedStyle(sec).backgroundColor,
+                      h: Math.round(sec.getBoundingClientRect().height),
+                    })),
+                    framed_hero: !!document.querySelector('.hero-shell'),
+                    sim_window: !!document.querySelector('.hero-shell .sim'),
+                    sec_heads: document.querySelectorAll('.sec-head').length,
+                    eyebrows: [...document.querySelectorAll('.eyebrow')].map(txt),
+                    mini_previews: [...document.querySelectorAll('[data-main-tools] .mini')].map((m) => txt(m).slice(0, 24)),
+                    accent_cards: document.querySelectorAll('.accent-card').length,
+                    contact: (() => {
+                      const a = document.querySelector('main a[href*="pf.kakao.com"]');
+                      return a ? { href: a.getAttribute('href'), text: txt(a) } : null;
+                    })(),
+                    contact_disclaimer: txt(document.querySelector('main')).includes('가입 권유·중개가 아닌 일반 안내·문의 채널'),
+                    footer_contact_disclaimer: txt(document.querySelector('footer')).includes('가입 권유·중개가 아닌 일반 안내·문의 채널'),
+                    btn_tiers: {
+                      primary: document.querySelectorAll('.btn-primary').length,
+                      secondary: document.querySelectorAll('.btn-secondary').length,
+                      tertiary: document.querySelectorAll('.btn-tertiary, .btn-tertiary-quiet').length,
+                    },
+                    card_actions: [...document.querySelectorAll('[data-post-cards] li > div:last-child a')].map((a) => ({
+                      cls: a.className, text: txt(a), h: Math.round(a.getBoundingClientRect().height),
+                    })),
+                    section_btn_heights: [...document.querySelectorAll('main .btn')].map((b) => Math.round(b.getBoundingClientRect().height)),
                   };
                 }"""
             )
             report["home"] = home
-            check("home.height_2200_2500", 2200 <= home["height"] <= 2500, home["height"])
+            # v4.0은 4장면(2200~2500)이었다. v4.1은 5영역 + 3열 쇼케이스(미리보기·일정 밴드)로
+            # 영역이 하나 늘었으므로 상한을 예산 기준으로 다시 잡는다(영역별 상한의 합 ≤ 4,000).
+            check("home.height_budget_5areas", 3400 <= home["height"] <= 4000, home["height"])
+            check(
+                "home.areas_5",
+                [a["area"] for a in home["areas"]] == ["1", "2", "3", "4", "5"],
+                home["areas"],
+            )
+            check(
+                "home.areas_alternate_bg",
+                len({a["bg"] for a in home["areas"]}) == 5,
+                [a["bg"] for a in home["areas"]],
+            )
+            check("home.framed_hero", home["framed_hero"] and home["sim_window"], {"shell": home["framed_hero"], "sim": home["sim_window"]})
+            check("home.sec_head_2col", home["sec_heads"] >= 3, home["sec_heads"])
+            check(
+                "home.mini_preview_labels",
+                len(home["mini_previews"]) == 4 and all("화면 예시" in m for m in home["mini_previews"]),
+                home["mini_previews"],
+            )
+            check("home.single_accent_card", home["accent_cards"] == 1, home["accent_cards"])
+            check(
+                "home.contact_1to1",
+                bool(home["contact"]) and "1:1 상담문의" in (home["contact"] or {}).get("text", ""),
+                home["contact"],
+            )
+            check(
+                "home.contact_disclaimer",
+                home["contact_disclaimer"] and home["footer_contact_disclaimer"],
+                {"main": home["contact_disclaimer"], "footer": home["footer_contact_disclaimer"]},
+            )
+            check(
+                "home.btn_tiers",
+                all(home["btn_tiers"].get(k, 0) > 0 for k in ("primary", "secondary", "tertiary")),
+                home["btn_tiers"],
+            )
+            check(
+                "home.card_actions_uniform",
+                len(home["card_actions"]) == 4
+                and all("btn" in a["cls"] and a["h"] >= 44 for a in home["card_actions"])
+                and len({a["h"] for a in home["card_actions"]}) == 1
+                and len({a["cls"] for a in home["card_actions"]}) == 1,
+                home["card_actions"],
+            )
+            check(
+                "home.btn_min_44",
+                min(home["section_btn_heights"]) >= 44 if home["section_btn_heights"] else False,
+                sorted(home["section_btn_heights"])[:4],
+            )
             check("home.hero_retirement_card", home["hero_has_retirement_card"] and home["hero_rows"] == 3, home["hero_rows"])
             check("home.hero_no_coverage_card", not home["hero_has_coverage_card"], home["hero_text"][:80])
             check("home.hero_verdict_line", bool(home["hero_verdict"]) and "추가 확인 필요" in home["hero_verdict"], home["hero_verdict"])
@@ -320,7 +398,7 @@ def main():
 
             home_text = page.locator("main").inner_text()
             report["copy_scan"]["home_forbidden"] = [
-                w for w in ["상담", "만족도", "후기", "누적", "최고", "100%", "보장 확정", "추천", "best"]
+                w for w in ["만족도", "후기", "누적", "최고", "100%", "보장 확정", "추천", "best", "무료 상담", "상담 신청"]
                 if w in home_text
             ]
             check("home.copy_forbidden_none", len(report["copy_scan"]["home_forbidden"]) == 0, report["copy_scan"]["home_forbidden"])
@@ -402,6 +480,10 @@ def main():
                     has_2000: body.includes('2,000만원'),
                     has_separate_choice: body.includes('15% 분리과세') && body.includes('16.5%'),
                     has_old_tax_error: body.includes('최대 16.5%') || body.includes('16.5% 수준의 종합과세'),
+                    sticky_hidden_desktop: (() => {
+                      const bar = document.querySelector('[data-sticky-summary]');
+                      return !bar || getComputedStyle(bar).display === 'none';
+                    })(),
                     stats: [...document.querySelectorAll('main p')]
                       .filter((el) => ['은퇴 시 월 수령액', '오늘 가치(추정)', '목표 월 생활비와의 차이'].some((k) => el.textContent.includes(k)))
                       .map((el) => ({
@@ -423,6 +505,7 @@ def main():
             check("run.retirement.controls", retire["range_count"] >= 8, retire["range_count"])
             check("run.retirement.primary_inputs_4", retire["visible_ranges"] == 4 and not retire["more_open"], {"visible": retire["visible_ranges"], "open": retire["more_open"]})
             check("run.retirement.tax_notes", retire["has_1500"] and retire["has_125"] and retire["has_2000"], retire["tax_text"][:120])
+            check("run.retirement.sticky_hidden_desktop", retire["sticky_hidden_desktop"], retire["sticky_hidden_desktop"])
             check("run.retirement.no_judgement_words", not retire["has_judgement"], retire["has_judgement"])
             report["contrast"]["run_retirement"] = page.evaluate(CONTRAST_JS)
             report["touch"]["run_retirement"] = page.evaluate(TOUCH_JS)
@@ -770,10 +853,56 @@ def main():
                     m.screenshot(path=str(OUT / f"{tag}-run-{slug}.png"), full_page=True)
                     o = m.evaluate("() => document.documentElement.scrollWidth - window.innerWidth")
                     touch = m.evaluate(TOUCH_JS)
+                    # v4.1 — 슬라이더를 조작하는 동안 하단 요약 바에 핵심 숫자가 머무는지,
+                    # 슬라이더 최소·최대 눈금 라벨이 12px 이상인지 실측한다.
+                    _runbar_js = "\n".join([
+        '() => {',
+        "  const bar = document.querySelector('[data-sticky-summary]');",
+        '  const rect = bar ? bar.getBoundingClientRect() : null;',
+        "  const scales = Array.from(document.querySelectorAll('input[type=range]')).map(function (r) {",
+        '    const box = r.nextElementSibling;',
+        "    const spans = box ? Array.from(box.querySelectorAll('span')) : [];",
+        '    if (!spans.length) return null;',
+        '    return Math.min.apply(null, spans.map(function (el) { return parseFloat(getComputedStyle(el).fontSize); }));',
+        '  }).filter(function (v) { return v !== null; });',
+        '  return {',
+        '    present: !!bar,',
+        '    visible: rect ? rect.height > 0 && rect.bottom <= window.innerHeight + 1 : false,',
+        '    height: rect ? Math.round(rect.height) : 0,',
+        "    text: bar ? bar.innerText : \"\",",
+        '    scale_min_px: scales.length ? Math.min.apply(null, scales) : null,',
+        '    scale_labels: scales.length,',
+        '  };',
+        '}',
+    ])
+                    runbar = m.evaluate(_runbar_js)
+                    runbar["text"] = " ".join((runbar.get("text") or "").split())
+                    if tag == "mobile390" and slug == "retirement-flow":
+                        # 실제 조작 장면 — 슬라이더를 움직인 뒤 요약 바가 함께 바뀌는지 캡처
+                        before_bar = runbar["text"]
+                        m.evaluate(
+                            """() => { const r = document.querySelectorAll('input[type=range]')[3];
+                               const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+                               setter.call(r, '150'); r.dispatchEvent(new Event('input', {bubbles:true})); }"""
+                        )
+                        m.wait_for_timeout(500)
+                        after_raw = m.evaluate("() => document.querySelector('[data-sticky-summary]')?.innerText || ''")
+                        after_bar = " · ".join([line.strip() for line in after_raw.splitlines() if line.strip()])
+                        m.screenshot(path=str(OUT / "mobile390-run-retirement-flow-adjusted.png"))
+                        report.setdefault("screenshots", []).append(str(OUT / "mobile390-run-retirement-flow-adjusted.png"))
+                        report["mobile"]["sticky_reactive"] = {"before": before_bar, "after": after_bar, "changed": before_bar != after_bar}
+                        check("mobile390.run.sticky_reactive", before_bar != after_bar, report["mobile"]["sticky_reactive"])
                     report["mobile"].setdefault(tag, {})[f"run_{slug}"] = {
                         "overflow_px": o,
                         "under_44": touch["under_44"][:4],
+                        "runbar": runbar,
                     }
+                    check(f"{tag}.run.{slug}.sticky_summary", runbar["present"] and runbar["visible"], runbar)
+                    check(
+                        f"{tag}.run.{slug}.scale_labels_12px",
+                        runbar["scale_labels"] > 0 and runbar["scale_min_px"] >= 12,
+                        {"labels": runbar["scale_labels"], "min_px": runbar["scale_min_px"]},
+                    )
                     tables = m.evaluate(
                         """() => [...document.querySelectorAll('table')].map((t) => ({
                           inner: t.scrollWidth - t.clientWidth,

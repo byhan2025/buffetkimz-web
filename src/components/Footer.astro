@@ -43,6 +43,14 @@ const policyLinks = [
             </a>
           ))
         }
+        <a
+          href={site.contact.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex min-h-[44px] items-center font-semibold text-brand-deep hover:text-brand"
+        >
+          {site.contact.label}
+        </a>
       </nav>
     </div>
 
@@ -71,8 +79,9 @@ const policyLinks = [
     </p>
 
     <p class="mt-2 max-w-[96ch] text-[12px] leading-[1.8] text-ink-soft">
-      buffetkimz는 금융·보험 정보를 정리해 남기는 개인 기록입니다. 모든 글과 도구는 정보 제공을 목적으로 하며,
-      특정 상품의 추천·중개·가입 권유가 아닙니다. 보장 판정과 지급 여부는 약관과 보험회사의 심사에 따릅니다.
+      buffetkimz는 금융·보험 정보를 정리해 남기는 개인 기록입니다. 모든 글과 도구는 정보 제공을
+      목적으로 합니다. {site.contact.disclaimer}
+      보장 판정과 지급 여부는 약관과 보험회사의 심사에 따릅니다.
       도구에 입력한 값은 브라우저 안에서만 계산되며 서버로 전송·저장되지 않습니다.
     </p>
 

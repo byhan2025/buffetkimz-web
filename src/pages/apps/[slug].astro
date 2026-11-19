@@ -75,11 +75,11 @@ const jsonLd = {
           <div class="mt-6 flex flex-wrap items-center gap-3">
             {
               app.externalUrl ? (
-                <a href={app.externalUrl} target="_blank" rel="noopener noreferrer" class="btn btn-solid">
+                <a href={app.externalUrl} target="_blank" rel="noopener noreferrer" class="btn btn-primary">
                   앱 열기
                 </a>
               ) : (
-                <a href={withBase(`/apps/${app.slug}/run`)} class="btn btn-solid">
+                <a href={withBase(`/apps/${app.slug}/run`)} class="btn btn-primary">
                   지금 실행하기
                 </a>
               )

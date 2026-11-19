@@ -14,6 +14,7 @@ import {
   ResultStat,
   RunnerShell,
   Segmented,
+  StickySummary,
   formatMan,
 } from "./ui";
 
@@ -257,6 +258,13 @@ export default function CoverageCheck({ compact = false }: { compact?: boolean }
           </ol>
         </div>
       )}
+
+      <StickySummary
+        items={[
+          { label: "기준점 충족", value: `${okCount} / ${evaluated.length}` },
+          { label: "먼저 볼 항목", value: priorities[0]?.name ?? "없음" },
+        ]}
+      />
 
       <Note>
         기준점은 참고용 내부 예시 기준(공식 약관·보험사 기준 아님)으로, 5대 담보를 소비자용으로

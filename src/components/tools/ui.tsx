@@ -212,6 +212,30 @@ export function ResultStat({
   );
 }
 
+/**
+ * 모바일 실행 화면 하단 요약 바 — 슬라이더를 움직이는 동안 핵심 숫자가 화면에 머문다.
+ * 결과 카드와 같은 값을 그대로 비춰 주기만 한다(새로 계산하지 않는다).
+ * 화면 낭독기에는 결과 카드의 숫자가 이미 있으므로 aria-hidden으로 중복 낭독을 막는다.
+ */
+export function StickySummary({ items }: { items: { label: string; value: string }[] }) {
+  return (
+    <>
+      <div className="sticky-summary" data-sticky-summary aria-hidden="true">
+        <div className="wrap flex items-center gap-3 !px-4">
+          {items.map((it) => (
+            <div key={it.label} className="min-w-0 flex-1">
+              <span className="block text-[12px] leading-none text-ink-faint">{it.label}</span>
+              <span className="mt-1 block truncate text-[14px] font-bold tabular-nums text-ink">
+                {it.value}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </>
+  );
+}
+
 export function RunnerShell({
   title,
   subtitle,

@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Bar, MoneySlider, Note, ResultStat, RunnerShell, Segmented, formatKrw, formatMan } from "./ui";
+import { Bar, MoneySlider, Note, ResultStat, RunnerShell, Segmented, StickySummary, formatKrw, formatMan } from "./ui";
 
 type Bracket = "low" | "high";
 
@@ -159,6 +159,13 @@ export default function PensionTax({ compact = false }: { compact?: boolean }) {
           </table>
         </div>
       )}
+
+      <StickySummary
+        items={[
+          { label: "예상 세액공제", value: formatKrw(calc.credit) },
+          { label: "남은 한도", value: formatMan(calc.remainingTotal) },
+        ]}
+      />
 
       <Note>
         소득세법 제59조의3 기준(기준일 2026-11-19). 실제 환급액은 산출세액과 다른 공제에 따라 달라지며,

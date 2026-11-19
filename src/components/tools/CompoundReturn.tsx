@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Bar, MoneySlider, Note, ResultStat, RunnerShell, Segmented, formatMan } from "./ui";
+import { Bar, MoneySlider, Note, ResultStat, RunnerShell, Segmented, StickySummary, formatMan } from "./ui";
 import {
   COMPOUND_DOWNSIDE_RATE,
   COMPOUND_EXAMPLE,
@@ -359,6 +359,13 @@ export default function CompoundReturn({ compact = false }: { compact?: boolean 
           </table>
         </div>
       )}
+
+      <StickySummary
+        items={[
+          { label: "세후 평가액", value: manLabel(result.net) },
+          { label: "세전 평가액", value: manLabel(result.gross) },
+        ]}
+      />
 
       <Note>
         참고용 단순 복리 계산(원금 손실 가능·실제 세법 요건 별도 확인). 수익률은 보장된 값이 아니며, 같은

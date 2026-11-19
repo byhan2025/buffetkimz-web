@@ -161,13 +161,16 @@ const jsonLd = {
         {site.kakaoChannelUrl && (
           <li class="grid grid-cols-[1fr_auto] items-baseline gap-3 border-b border-line py-3">
             <span class="flex flex-wrap items-baseline gap-x-3">
-              <span class="text-[14px] font-semibold text-ink">카카오톡 채널</span>
-              <span class="text-[12.5px] text-ink-muted">1:1 대화로 문의</span>
+              <span class="text-[14px] font-semibold text-ink">1:1 상담문의</span>
+              <span class="text-[12.5px] text-ink-muted">1:1 대화로 문의 · 상품 가입 권유·중개 아님</span>
             </span>
-            <a href={site.kakaoChannelUrl} target="_blank" rel="noopener noreferrer" class="text-[12px] font-semibold text-brand-deep link">열기</a>
+            <a href={site.kakaoChannelUrl} target="_blank" rel="noopener noreferrer" class="btn btn-tertiary btn-xs">열기</a>
           </li>
         )}
       </ul>
+      <p class="mt-4 max-w-[88ch] text-[12px] leading-[1.8] text-ink-muted">
+        {site.contact.disclaimer}
+      </p>
       <p class="mt-4 flex flex-wrap gap-4 text-[12px]">
         <a href={withBase("/privacy")} class="text-ink-muted link">개인정보처리방침</a>
         <a href={withBase("/terms")} class="text-ink-muted link">이용약관</a>

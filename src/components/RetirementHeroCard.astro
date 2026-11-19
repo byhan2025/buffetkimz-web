@@ -1,10 +1,11 @@
 ---
 /**
- * 첫 화면의 증거 카드 — 실제 실행 화면(/apps/retirement-flow/run)의 예시값을
+ * 첫 화면의 증거 창 — 실제 실행 화면(/apps/retirement-flow/run)의 예시값을
  * 같은 계산(lib/finance.ts)으로 그린다. 금액은 전부 만원 단위.
  *
  * v4.0 — 보장 점검 카드를 내리고 은퇴 현금흐름 카드를 올렸다.
- * 첫 화면에서 '보험 사이트'가 아니라 '금융·연금 도구'로 읽히게 하는 것이 목적이다.
+ * v4.1 — 밝은 톤으로 바꾸고 브라우저 창 모양(.sim) 안에 넣었다.
+ *        어두운 면·글로우 없이 흰 창 + 스카이블루 막대로 읽힌다.
  */
 import { site, withBase } from "@/config/site";
 import {
@@ -33,55 +34,64 @@ const oneLine = `예시 가정 기준 월 ${manLabel(r.nominal.total)} · 오늘
 )} 차이, 추가 확인 필요`;
 ---
 
-<div class="card-night hero-card p-4 md:p-5">
-  <div class="flex items-start justify-between gap-3">
-    <div>
-      <p class="mono text-[12px] tracking-[0.08em] text-[#a8c6dd]">TOOL · 은퇴 시뮬레이터</p>
-      <p class="mt-1 text-[15.5px] font-semibold leading-snug text-white">은퇴 월 현금흐름</p>
-      <p class="mt-0.5 text-[12px] text-[#c8d8e5]">
-        {RETIREMENT_EXAMPLE.currentAge}세 → {RETIREMENT_EXAMPLE.retireAge}세 은퇴 · {r.payoutYears}년 수령 가정
-      </p>
-    </div>
-    <span class="chip !border-white/15 !bg-white/10 !text-[#dbe7f0]">가상 예시</span>
+<div class="sim hero-card">
+  <div class="sim-bar">
+    <span class="sim-dots" aria-hidden="true"><span></span><span></span><span></span></span>
+    <span class="sim-url">buffetkimz.com/apps/retirement-flow</span>
+    <span class="chip !min-h-0 !border-sky-deep/25 !bg-sky !px-2 !py-0.5 !text-[12px] !text-brand-deep">
+      가상 예시
+    </span>
   </div>
 
-  <p class="mt-2 text-[12.5px] font-semibold leading-[1.5] text-white" data-hero-verdict>
-    {oneLine}
-  </p>
+  <div class="sim-body p-4 md:p-5">
+    <div class="flex items-start justify-between gap-3">
+      <div>
+        <p class="mono text-[12px] tracking-[0.06em] text-brand">TOOL · 은퇴 시뮬레이터</p>
+        <p class="mt-1 text-[16px] font-bold leading-snug tracking-[-0.02em] text-ink">은퇴 월 현금흐름</p>
+        <p class="mt-0.5 text-[12px] leading-[1.5] text-ink-muted">
+          {RETIREMENT_EXAMPLE.currentAge}세 → {RETIREMENT_EXAMPLE.retireAge}세 은퇴 · {r.payoutYears}년 수령 가정
+        </p>
+      </div>
+    </div>
 
-  <ul class="mt-3 space-y-2">
-    {
-      rows.map((row) => (
-        <li class="grid grid-cols-[54px_1fr_auto] items-center gap-2.5" data-hero-row={row.key}>
-          <span class="text-[12px] text-[#e3edf4]">{row.name}</span>
-          <span class="gauge !h-[5px]">
-            <span style={`--v:${pct(row.value)}%;background-color:#6fb8d8`} />
-          </span>
-          <span class="mono whitespace-nowrap text-[12px] text-white">
-            {Math.round(row.value).toLocaleString("ko-KR")}만
-            <span class="ml-1 text-[#a8c6dd]">/ {Math.round(row.real).toLocaleString("ko-KR")}만</span>
-          </span>
-        </li>
-      ))
-    }
-  </ul>
+    <p class="mt-2.5 rounded-lg bg-sky-soft px-2.5 py-2 text-[12.5px] font-semibold leading-[1.55] text-ink-soft" data-hero-verdict>
+      {oneLine}
+    </p>
 
-  <p class="mono mt-2.5 flex flex-wrap items-baseline gap-x-2 gap-y-0.5 text-[12px] text-[#cbd5e1]">
-    <span>합계 <strong class="font-semibold text-white">{manLabel(r.nominal.total)}</strong>/월</span>
-    <span class="text-[#a8c6dd]">· 오늘 가치 <strong class="font-semibold text-white">{manLabel(r.real.total)}</strong></span>
-  </p>
+    <ul class="mt-3 space-y-2.5">
+      {
+        rows.map((row) => (
+          <li class="grid grid-cols-[54px_1fr_auto] items-center gap-2.5" data-hero-row={row.key}>
+            <span class="text-[12px] text-ink-muted">{row.name}</span>
+            <span class="mini-track !h-[6px]">
+              <i style={`width:${pct(row.value)}%`} />
+            </span>
+            <span class="mono whitespace-nowrap text-[12px] text-ink">
+              {Math.round(row.value).toLocaleString("ko-KR")}만
+              <span class="ml-1 text-ink-faint">/ {Math.round(row.real).toLocaleString("ko-KR")}만</span>
+            </span>
+          </li>
+        ))
+      }
+    </ul>
 
-  <p class="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 border-t border-white/10 pt-2 text-[12px] text-[#cbd5e1]">
-    <span class="text-[#a8c6dd]">세액공제</span>
-    <span>연 {PENSION_RULE.totalLimit}만원 × {pctLabel(PENSION_RULE.rateLow)} = <strong class="font-semibold text-white">{creditLabel}</strong></span>
-    <span class="text-[12px] text-[#a8c6dd]">(총급여 5,500만 이하 · 지방소득세 포함)</span>
-  </p>
+    <p class="mono mt-2.5 flex flex-wrap items-baseline gap-x-2 gap-y-0.5 text-[12px] text-ink-muted">
+      <span>합계 <strong class="font-semibold text-ink">{manLabel(r.nominal.total)}</strong>/월</span>
+      <span class="text-ink-faint">· 오늘 가치 <strong class="font-semibold text-ink">{manLabel(r.real.total)}</strong></span>
+    </p>
+  </div>
 
-  <p class="mt-1.5 text-[12px] leading-[1.55] text-[#b9cddc]">
-    참고용 내부 예시 기준(공식 연금공단·금융사 확정액 아님) · 기준일 {site.baseDate}
-  </p>
-
-  <a href={withBase("/apps/retirement-flow/run")} class="btn btn-solid btn-sm mt-3 w-full">
-    시뮬레이터 열기
-  </a>
+  <div class="sim-foot p-4 pt-3 md:px-5">
+    <p class="flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-ink-muted">
+      <span class="font-semibold text-brand-deep">세액공제</span>
+      <span>연 {PENSION_RULE.totalLimit}만원 × {pctLabel(PENSION_RULE.rateLow)} = <strong class="font-semibold text-ink">{creditLabel}</strong></span>
+      <span class="text-ink-faint">(총급여 5,500만 이하 · 지방소득세 포함)</span>
+    </p>
+    <p class="mt-1 text-[12px] leading-[1.55] text-ink-faint">
+      참고용 내부 예시 기준(공식 연금공단·금융사 확정액 아님) · 기준일 {site.baseDate}
+    </p>
+    <a href={withBase("/apps/retirement-flow/run")} class="btn btn-primary btn-sm mt-3 w-full">
+      시뮬레이터 열기
+    </a>
+  </div>
 </div>
