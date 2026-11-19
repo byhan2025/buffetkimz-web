@@ -9,10 +9,10 @@
  * 퀵 탭 그리드 비율은 config/site.ts의 `weight`(글자 수 비례)를 그대로 받아 쓴다.
  * 그래서 '도구자료실' 다섯 글자가 좁은 폰에서도 잘리지 않고, 나머지 칸도 44px 터치 폭을 지킨다.
  */
-import { withBase, site, nav, quickTabs, quickTabColumns } from "@/config/site";
+import { withBase, site, nav, quickTabs, quickTabColumns, stripBase } from "@/config/site";
 import HeaderSearch from "@/components/HeaderSearch.tsx";
 
-const path = Astro.url.pathname.replace(/\/$/, "") || "/";
+const path = stripBase(Astro.url.pathname);
 const isActive = (match: string) =>
   match === "/" ? path === "/" : path === match || path.startsWith(match + "/");
 ---

@@ -13,6 +13,18 @@ export function withBase(path: string): string {
   return `${basePrefix}${path}`;
 }
 
+/**
+ * 현재 주소에서 배포 접두(/buffetkimz-web)를 떼어 낸 논리 경로.
+ * GitHub Pages 서브패스로 올라가도 메뉴 활성 표시가 맞도록 Header가 이 값을 쓴다.
+ */
+export function stripBase(pathname: string): string {
+  let p = pathname;
+  if (basePrefix && (p === basePrefix || p.startsWith(`${basePrefix}/`))) {
+    p = p.slice(basePrefix.length) || "/";
+  }
+  return p.replace(/\/$/, "") || "/";
+}
+
 const origin = (import.meta.env.SITE ?? "https://buffetkimz.com").replace(/\/+$/, "");
 
 /** canonical·OG·RSS·JSON-LD에 쓰는 절대 주소 (배포 접두 포함) */
