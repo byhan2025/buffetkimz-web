@@ -55,9 +55,11 @@ const tiles = [
   },
   {
     key: "compound",
-    label: "장기 투자 복리 (월 50만·20년·5%)",
+    label: `장기 투자 복리 (월 ${COMPOUND_EXAMPLE.monthly}만·${COMPOUND_EXAMPLE.years}년·${(
+      COMPOUND_EXAMPLE.rate * 100
+    ).toFixed(1)}%)`,
     value: manLabel(c.gross),
-    sub: `세후 ${manLabel(c.net)} · 원금 ${manLabel(c.principal)} · 보수 0.3% 반영`,
+    sub: `세후 ${manLabel(c.net)} · 원금 ${manLabel(c.principal)} · 보수 ${pctLabel(c.feeRate, 2)} 반영`,
     href: "/apps/compound-return/run",
     tone: "jade",
   },

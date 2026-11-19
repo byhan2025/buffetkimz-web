@@ -177,10 +177,11 @@ const jsonLd = {
           </div>
 
           <p class="hero-soft mono mt-2.5 text-[12px] leading-relaxed text-ink-muted" data-tool-count={hubTools.length}>
-            기록 <strong class="font-semibold text-ink">{posts.length}편</strong> · 도구{" "}
-            <strong class="font-semibold text-ink">{hubTools.length}종</strong>(금융·연금 {mainCalcCount} + 달력{" "}
-            {mainTools.length - mainCalcCount} + 리스크 관리 {riskCalcCount}) · 제도 일정{" "}
-            <strong class="font-semibold text-ink">{sourcedCalendar.length}건</strong>
+            <span class="whitespace-nowrap">기록 <strong class="font-semibold text-ink">{posts.length}편</strong></span> ·{" "}
+            <span class="whitespace-nowrap">도구 <strong class="font-semibold text-ink">{hubTools.length}종</strong></span>{" "}
+            <span class="whitespace-nowrap">(금융·연금 {mainCalcCount} + 달력 {mainTools.length - mainCalcCount} + 리스크 관리{" "}
+            {riskCalcCount})</span> ·{" "}
+            <span class="whitespace-nowrap">제도 일정 <strong class="font-semibold text-ink">{sourcedCalendar.length}건</strong></span>
             <span class="text-ink-faint" data-trust-line> · <span class="whitespace-nowrap">모든 글에 기준일·1차 출처</span></span>
           </p>
         </div>

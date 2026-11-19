@@ -182,32 +182,53 @@ export default function CoverageCheck({ compact = false }: { compact?: boolean }
       </p>
 
       <div className="mt-5 overflow-hidden rounded-xl border border-line bg-white">
-        <table className="w-full border-collapse text-[12.5px]">
+        <table className="w-full table-fixed border-collapse text-[12.5px]">
           <caption className="sr-only">담보별 기준점과 보유 금액 비교</caption>
           <thead>
             <tr className="border-b border-line bg-paper-deep text-left">
-              <th scope="col" className="px-3 py-2.5 font-semibold text-ink-soft">담보</th>
-              <th scope="col" className="px-3 py-2.5 text-right font-semibold text-ink-soft">필요</th>
-              <th scope="col" className="px-3 py-2.5 text-right font-semibold text-ink-soft">보유</th>
-              <th scope="col" className="px-3 py-2.5 text-right font-semibold text-ink-soft">비교</th>
+              <th scope="col" className="w-[42%] px-2 py-2.5 font-semibold text-ink-soft sm:w-[34%] sm:px-3">
+                담보
+              </th>
+              <th
+                scope="col"
+                className="hidden px-3 py-2.5 text-right font-semibold text-ink-soft sm:table-cell sm:w-[22%]"
+              >
+                필요
+              </th>
+              <th
+                scope="col"
+                className="w-[29%] px-2 py-2.5 text-right font-semibold text-ink-soft sm:w-[22%] sm:px-3"
+              >
+                보유
+              </th>
+              <th
+                scope="col"
+                className="w-[29%] px-2 py-2.5 text-right font-semibold text-ink-soft sm:w-[22%] sm:px-3"
+              >
+                비교
+              </th>
             </tr>
           </thead>
           <tbody>
             {shown.map((r) => (
               <tr key={r.key} className="border-b border-line-soft last:border-0">
-                <td className="px-3 py-2.5">
+                <td className="px-2 py-2.5 sm:px-3">
                   <span className="font-semibold text-ink">{r.name}</span>
-                  <div className="mt-1.5 w-28">
+                  {/* 좁은 화면에서는 '필요' 열 대신 이름 아래에 한 줄로 둔다 */}
+                  <span className="mt-0.5 block text-[12px] tabular-nums text-ink-muted sm:hidden">
+                    필요 {r.key === "nursing" ? `${r.need}만/일` : formatMan(r.need)}
+                  </span>
+                  <div className="mt-1.5 w-full sm:w-28">
                     <Bar ratio={r.ratio} tone={r.tone} />
                   </div>
                 </td>
-                <td className="px-3 py-2.5 text-right tabular-nums text-ink-muted">
+                <td className="hidden px-3 py-2.5 text-right tabular-nums text-ink-muted sm:table-cell">
                   {r.key === "nursing" ? `${r.need}만/일` : formatMan(r.need)}
                 </td>
-                <td className="px-3 py-2.5 text-right font-semibold tabular-nums text-ink">
+                <td className="whitespace-nowrap px-2 py-2.5 text-right font-semibold tabular-nums text-ink sm:px-3">
                   {r.key === "nursing" ? `${r.have}만/일` : formatMan(r.have)}
                 </td>
-                <td className={`px-3 py-2.5 text-right font-bold ${r.cls}`}>{r.label}</td>
+                <td className={`px-2 py-2.5 text-right font-bold ${r.cls} sm:px-3`}>{r.label}</td>
               </tr>
             ))}
           </tbody>

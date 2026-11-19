@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Bar, MoneySlider, Note, ResultStat, RunnerShell, Segmented, formatMan } from "./ui";
 import {
+  COMPOUND_DOWNSIDE_RATE,
   COMPOUND_EXAMPLE,
   TAX_MODE,
   compoundProjection,
@@ -38,18 +39,29 @@ export default function CompoundReturn({ compact = false }: { compact?: boolean 
   const principalShare = result.gross > 0 ? result.principal / result.gross : 0;
 
   /* 같은 조건에서 수익률만 -3%였을 때 — 원금 손실이 얼마인지 보여 주기 위한 계산 */
-  const downside = compoundProjection({ initial, monthly, years, rate: -0.03, fee: fee / 100, mode });
+  const downside = compoundProjection({
+    initial,
+    monthly,
+    years,
+    rate: COMPOUND_DOWNSIDE_RATE,
+    fee: fee / 100,
+    mode,
+  });
   const downsideLoss = Math.max(0, result.principal - downside.net);
+  /* 손실 가상의 실제 적용 수익률(보수 차감 후) — 표기와 계산이 같은 값에서 나오게 한다 */
+  const downsideRatePct = (COMPOUND_DOWNSIDE_RATE * 100).toFixed(1);
+  const downsideNetPct = Math.abs(downside.netRate * 100).toFixed(2);
+  const appliedFeePct = pctFine(result.feeRate * 100);
 
-  const verdict = `${years}년 뒤 원금 ${manLabel(result.principal)}은 보수 ${pctFine(fee)}와 세금을 빼면 ${manLabel(
+  const verdict = `${years}년 뒤 원금 ${manLabel(result.principal)}은 보수 ${appliedFeePct}와 세금을 빼면 ${manLabel(
     result.net
   )}으로 추정됩니다(연 ${rate.toFixed(1)}% 가정·보장 아님).`;
 
   const checks = [
-    `수익률 ${rate.toFixed(1)}%는 기대값이지 보장이 아닙니다. 같은 기간 연 -3.0%였다면(보수 차감 후 -${(
-      3 + fee
-    ).toFixed(2)}%) 세후 평가액은 ${manLabel(downside.net)}으로 원금보다 ${manLabel(downsideLoss)} 적습니다.`,
-    `빠지는 돈은 두 가지입니다. 보수 ${pctFine(fee)}(누적 ${manLabel(result.feeCost)})와 세금 ${pctLabel(
+    `수익률 ${rate.toFixed(1)}%는 기대값이지 보장이 아닙니다. 같은 기간 연 ${downsideRatePct}%였다면(보수 차감 후 -${downsideNetPct}%) 세후 평가액은 ${manLabel(
+      downside.net
+    )}으로 원금보다 ${manLabel(downsideLoss)} 적습니다.`,
+    `빠지는 돈은 두 가지입니다. 보수 ${appliedFeePct}(누적 ${manLabel(result.feeCost)})와 세금 ${pctLabel(
       result.taxRate
     )}(평가손익에만 부과, ${manLabel(result.tax)}). 둘을 뺀 뒤가 세후 평가액입니다.`,
     mode === "pension"
@@ -63,7 +75,11 @@ export default function CompoundReturn({ compact = false }: { compact?: boolean 
     <RunnerShell
       title="투자 복리·세후 수익률 계산"
       subtitle="보수와 세금을 뺀 뒤 계좌에 남는 금액을 추정합니다."
-      example="초기 1,000만원·월 50만원·20년·연 5.0%·연 보수 0.30%·일반과세 15.4%로 시작합니다."
+      example={`초기 ${manLabel(COMPOUND_EXAMPLE.initial)}·월 ${manLabel(COMPOUND_EXAMPLE.monthly)}·${
+        COMPOUND_EXAMPLE.years
+      }년·연 ${(COMPOUND_EXAMPLE.rate * 100).toFixed(1)}%·연 보수 ${pctFine(
+        (COMPOUND_EXAMPLE.fee ?? 0) * 100
+      )}·${TAX_MODE[COMPOUND_EXAMPLE.mode].label}로 시작합니다.`}
     >
       {/* 1줄 결론 → 먼저 확인할 항목 → 기준일·출처·한계 */}
       <div className="rounded-xl border border-line bg-white p-4">
@@ -111,7 +127,7 @@ export default function CompoundReturn({ compact = false }: { compact?: boolean 
         <summary className="flex min-h-[44px] cursor-pointer list-none items-center justify-between gap-2 text-[13px] font-semibold text-ink-soft">
           가정 더 보기 — 과세 방식·운용 보수
           <span className="text-[12px] font-normal text-ink-faint">
-            {TAX_MODE[mode].short} · 보수 {pctFine(fee)}
+            {TAX_MODE[mode].short} · 보수 {appliedFeePct}
           </span>
         </summary>
         <div className="grid gap-1 border-t border-line-soft pb-2 md:grid-cols-2 md:gap-x-8">
@@ -159,11 +175,11 @@ export default function CompoundReturn({ compact = false }: { compact?: boolean 
             {manLabel(downside.net)} ~ {manLabel(result.net)}
           </p>
           <p className="mt-1.5 text-[12px] leading-[1.65] text-ink-muted">
-            수익률 -3.0% ~ +{rate.toFixed(1)}% 가정 범위입니다. 확정 금액이 아니며, 기준 가정에서는{" "}
+            수익률 {downsideRatePct}% ~ +{rate.toFixed(1)}% 가정 범위입니다. 확정 금액이 아니며, 기준 가정에서는{" "}
             <strong className="font-semibold text-ink">{manLabel(result.net)}</strong>입니다.
           </p>
           <p className="mt-1 text-[12px] text-ink-faint">
-            가정: 기대 수익률 {pctPoint(rate)} · 연 보수 {pctFine(fee)} · {TAX_MODE[mode].short}{" "}
+            가정: 기대 수익률 {pctPoint(rate)} · 연 보수 {appliedFeePct} · {TAX_MODE[mode].short}{" "}
             {pctLabel(result.taxRate)} · 보수·세금 차감 후
           </p>
         </div>
@@ -174,7 +190,7 @@ export default function CompoundReturn({ compact = false }: { compact?: boolean 
             −{manLabel(downsideLoss)}
           </p>
           <p className="mt-1.5 text-[12px] leading-[1.65] text-[#4a4636]">
-            같은 기간 연 -3.0%(보수 차감 후 -{(3 + fee).toFixed(2)}%)라면 세후 평가액은{" "}
+            같은 기간 연 {downsideRatePct}%(보수 차감 후 -{downsideNetPct}%)라면 세후 평가액은{" "}
             <strong className="font-semibold text-ink">{manLabel(downside.net)}</strong>으로 원금보다 적습니다. 원금
             손실은 세금으로 되돌려 받지 못하며, 손실 이월 공제도 이 계산에 넣지 않았습니다.
           </p>
@@ -189,7 +205,7 @@ export default function CompoundReturn({ compact = false }: { compact?: boolean 
         className="mt-2 rounded-lg border border-line bg-paper-deep/70 px-3 py-2 text-[12px] leading-[1.6] text-ink-muted"
         data-compound-assumptions
       >
-        적용 가정: 기대 수익률 {pctPoint(rate)} · 연 보수 {pctFine(fee)} · {TAX_MODE[mode].short}{" "}
+        적용 가정: 기대 수익률 {pctPoint(rate)} · 연 보수 {appliedFeePct} · {TAX_MODE[mode].short}{" "}
         {pctLabel(result.taxRate)} · 분배금 전액 재투자 · 월 복리 · 물가상승 미반영 · 기준일 {site.baseDate}
       </p>
 
@@ -251,14 +267,16 @@ export default function CompoundReturn({ compact = false }: { compact?: boolean 
           <p className="text-[12px] font-bold tracking-[0.1em] text-ink-faint">계좌 종류별 세후 비교</p>
           <p className="text-[12px] text-ink-faint">같은 납입·수익률·보수, 세금만 다르게</p>
         </div>
-        <table className="w-full border-collapse text-[12.5px]">
+        <table className="w-full table-fixed border-collapse text-[12.5px]">
           <caption className="sr-only">일반계좌·ISA·연금저축의 세후 평가액 비교</caption>
           <thead>
             <tr className="border-b border-line bg-paper-deep text-left">
-              <th scope="col" className="px-3 py-2 font-semibold text-ink-soft">계좌</th>
-              <th scope="col" className="px-3 py-2 text-right font-semibold text-ink-soft">세율</th>
-              <th scope="col" className="px-3 py-2 text-right font-semibold text-ink-soft">세금</th>
-              <th scope="col" className="px-3 py-2 text-right font-semibold text-ink-soft">세후 평가액</th>
+              <th scope="col" className="px-2.5 py-2 font-semibold text-ink-soft sm:px-3">계좌</th>
+              <th scope="col" className="hidden px-3 py-2 text-right font-semibold text-ink-soft sm:table-cell">세율</th>
+              <th scope="col" className="px-2 py-2 text-right font-semibold text-ink-soft sm:px-3">세금</th>
+              <th scope="col" className="px-2.5 py-2 text-right font-semibold text-ink-soft sm:px-3">
+                세후<span className="sm:hidden"> 평가액</span>
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -267,16 +285,22 @@ export default function CompoundReturn({ compact = false }: { compact?: boolean 
                 key={c.mode}
                 className={`border-b border-line-soft last:border-0 ${c.mode === mode ? "bg-brand-soft/40" : ""}`}
               >
-                <td className="px-3 py-2 font-semibold text-ink">
+                <td className="px-2.5 py-2 font-semibold text-ink sm:px-3">
                   {c.short}
                   {c.mode === mode && <span className="ml-1.5 text-[11.5px] font-normal text-brand-deep">선택</span>}
+                  <span className="mt-0.5 block text-[12px] font-normal tabular-nums text-ink-muted sm:hidden">
+                    <span className="whitespace-nowrap">{pctLabel(c.rate)}</span>
+                    {c.exempt > 0 && <span className="block whitespace-nowrap">비과세 {c.exempt}만</span>}
+                  </span>
                 </td>
-                <td className="px-3 py-2 text-right tabular-nums text-ink-muted">
+                <td className="hidden px-3 py-2 text-right tabular-nums text-ink-muted sm:table-cell">
                   {pctLabel(c.rate)}
                   {c.exempt > 0 && <span className="ml-1 text-[11.5px] text-ink-faint">비과세 {c.exempt}만</span>}
                 </td>
-                <td className="px-3 py-2 text-right tabular-nums text-ink-muted">{manLabel(c.projection.tax)}</td>
-                <td className="px-3 py-2 text-right font-semibold tabular-nums text-ink">{manLabel(c.projection.net)}</td>
+                <td className="whitespace-nowrap px-2 py-2 text-right tabular-nums text-ink-muted sm:px-3">{manLabel(c.projection.tax)}</td>
+                <td className="whitespace-nowrap px-2.5 py-2 text-right font-semibold tabular-nums text-ink sm:px-3">
+                  {manLabel(c.projection.net)}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -289,17 +313,23 @@ export default function CompoundReturn({ compact = false }: { compact?: boolean 
       </div>
 
       {!compact && (
-        <div className="mt-3 overflow-x-auto rounded-xl border border-line bg-white">
-          <table className="w-full border-collapse text-[12.5px]">
+        <div className="mt-3 overflow-hidden rounded-xl border border-line bg-white">
+          <table className="w-full table-fixed border-collapse text-[12.5px]">
             <caption className="border-b border-line bg-paper-deep px-3 py-2.5 text-left text-[12px] text-ink-muted">
               연차별 원금·세전·세후 평가액(표로 읽는 같은 값 · 모두 추정치)
             </caption>
             <thead>
               <tr className="border-b border-line bg-paper-deep text-left">
-                <th scope="col" className="px-3 py-2.5 font-semibold text-ink-soft">기간</th>
-                <th scope="col" className="px-3 py-2.5 text-right font-semibold text-ink-soft">납입 원금</th>
-                <th scope="col" className="px-3 py-2.5 text-right font-semibold text-ink-soft">세전 평가액</th>
-                <th scope="col" className="px-3 py-2.5 text-right font-semibold text-ink-soft">세후 평가액</th>
+                <th scope="col" className="px-2.5 py-2.5 font-semibold text-ink-soft sm:px-3">기간</th>
+                <th scope="col" className="hidden px-3 py-2.5 text-right font-semibold text-ink-soft sm:table-cell">
+                  납입 원금
+                </th>
+                <th scope="col" className="px-2 py-2.5 text-right font-semibold text-ink-soft sm:px-3">
+                  세전<span className="sm:hidden"> 평가액</span>
+                </th>
+                <th scope="col" className="px-2.5 py-2.5 text-right font-semibold text-ink-soft sm:px-3">
+                  세후<span className="sm:hidden"> 평가액</span>
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -314,12 +344,14 @@ export default function CompoundReturn({ compact = false }: { compact?: boolean 
                 });
                 return (
                   <tr key={y} className="border-b border-line-soft last:border-0">
-                    <td className="px-3 py-2.5 font-semibold text-ink">
+                    <td className="px-2.5 py-2.5 font-semibold text-ink sm:px-3">
                       {y}년{y === years && <span className="ml-1.5 text-[12px] font-normal text-ink-faint">내 입력</span>}
                     </td>
-                    <td className="px-3 py-2.5 text-right tabular-nums text-ink-muted">{manLabel(row.principal)}</td>
-                    <td className="px-3 py-2.5 text-right tabular-nums text-ink-muted">{manLabel(row.gross)}</td>
-                    <td className="px-3 py-2.5 text-right tabular-nums text-ink-muted">{manLabel(row.net)}</td>
+                    <td className="hidden px-3 py-2.5 text-right tabular-nums text-ink-muted sm:table-cell">
+                      {manLabel(row.principal)}
+                    </td>
+                    <td className="whitespace-nowrap px-2 py-2.5 text-right tabular-nums text-ink-muted sm:px-3">{manLabel(row.gross)}</td>
+                    <td className="whitespace-nowrap px-2.5 py-2.5 text-right tabular-nums text-ink-muted sm:px-3">{manLabel(row.net)}</td>
                   </tr>
                 );
               })}

@@ -189,14 +189,22 @@ export const TAX_MODE: Record<
   },
 };
 
-/** 사적연금(연금저축·IRP) 수령액의 분리과세 기준 — 연 1,500만원(월 125만원) */
+/**
+ * 사적연금(연금저축·IRP) 수령액의 과세 기준 — 연 1,500만원(월 125만원).
+ *
+ * 국세청 안내(연금소득 과세표준 확정신고): 사적연금 합계액이 연 1,500만원을 넘으면
+ * ① 다른 소득과 합산해 종합소득세로 신고하거나 ② 15% 분리과세(지방소득세 포함 16.5%) 중
+ * 하나를 고를 수 있다. 16.5%는 '종합과세 세율'이 아니라 이때 고를 수 있는 분리과세율이다.
+ */
 export const PRIVATE_PENSION_TAX = {
   annualThreshold: 1500,
   monthlyThreshold: 125,
   lowRate: 0.033,
   highRate: 0.055,
-  /** 초과 시 다른 소득과 합산되어 최대 16.5% 수준까지 오를 수 있다 */
-  combinedRate: 0.165,
+  /** 초과 시 선택 가능한 분리과세율 15%(소득세법 제64조의4) */
+  overThresholdSeparateRate: 0.15,
+  /** 위 15%에 지방소득세 10%를 더한 16.5% */
+  overThresholdSeparateRateWithLocal: 0.165,
 } as const;
 
 /** 공적연금 소득이 연 2,000만원을 넘으면 건강보험 피부양자 자격을 잃을 수 있다 */
@@ -234,6 +242,8 @@ export type CompoundResult = {
   net: number;
   /** 적용 세율 */
   taxRate: number;
+  /** 보수 차감 후 실제로 적용한 연 수익률(화면 표기가 계산과 어긋나지 않도록 함께 돌려준다) */
+  netRate: number;
   /** 비과세로 뺀 금액(ISA 일반형 200만원 등) */
   exempt: number;
   /** 원금 대비 세후 수익률 */
@@ -276,6 +286,7 @@ export function compoundProjection(input: CompoundInput): CompoundResult {
     net,
     taxRate,
     exempt,
+    netRate,
     netReturn: principal > 0 ? net / principal - 1 : 0,
     grossReturn: principal > 0 ? gross / principal - 1 : 0,
     months,
@@ -298,6 +309,9 @@ export const RETIREMENT_EXAMPLE: RetirementInput = {
   returnRate: FINANCE_DEFAULTS.returnRate,
   targetMonthly: 250,
 };
+
+/** 복리 계산기의 손실 가정 — 기대 수익률과 분리해 '같은 기간 연 -3.0%'를 보여 준다 */
+export const COMPOUND_DOWNSIDE_RATE = -0.03;
 
 export const COMPOUND_EXAMPLE: CompoundInput = {
   initial: 1000,

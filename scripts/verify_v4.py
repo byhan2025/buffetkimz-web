@@ -57,6 +57,22 @@ checks = {}
 failures = []
 
 
+def man_tokens(text):
+    """'441만원', '2억 731만원' 같은 표기를 만원 단위 정수 목록으로 바꾼다(화면 간 숫자 비교용)."""
+    out = []
+    for m in re.finditer(r"(?:(\d+)억\s*)?([\d,]+)\s*만원", text or ""):
+        eok = int(m.group(1) or 0)
+        man = int(m.group(2).replace(",", ""))
+        out.append(eok * 10000 + man)
+    return out
+
+
+def won_from(text):
+    """문장 안의 첫 금액을 만원 단위 정수로 — 없으면 None."""
+    vals = man_tokens(text)
+    return vals[0] if vals else None
+
+
 def check(name, ok, detail=None):
     checks[name] = {"pass": bool(ok), "detail": detail}
     if not ok:
@@ -384,6 +400,14 @@ def main():
                     has_1500: body.includes('1,500만원'),
                     has_125: body.includes('125만원'),
                     has_2000: body.includes('2,000만원'),
+                    has_separate_choice: body.includes('15% 분리과세') && body.includes('16.5%'),
+                    has_old_tax_error: body.includes('최대 16.5%') || body.includes('16.5% 수준의 종합과세'),
+                    stats: [...document.querySelectorAll('main p')]
+                      .filter((el) => ['은퇴 시 월 수령액', '오늘 가치(추정)', '목표 월 생활비와의 차이'].some((k) => el.textContent.includes(k)))
+                      .map((el) => ({
+                        label: el.textContent.trim(),
+                        value: el.nextElementSibling ? el.nextElementSibling.textContent.trim() : '',
+                      })),
                   };
                 }"""
             )
@@ -444,6 +468,17 @@ def main():
                     range_height: Math.round(document.querySelector('[data-compound-range]').getBoundingClientRect().height),
                     risk_height: Math.round(document.querySelector('[data-compound-risk]').getBoundingClientRect().height),
                     has_judgement: /부족|충분/.test(body),
+                    range_text: txt(document.querySelector('[data-compound-range]')),
+                    has_fee_030: body.includes('0.30%'),
+                    has_down_330: body.includes('-3.30%'),
+                    has_fee_130: body.includes('1.30%'),
+                    has_down_430: body.includes('-4.30%'),
+                    stats: [...document.querySelectorAll('main p')]
+                      .filter((el) => el.textContent.trim() === '총 납입 원금' || el.textContent.includes('세전 평가액 (보수 차감 후)'))
+                      .map((el) => ({
+                        label: el.textContent.trim(),
+                        value: el.nextElementSibling ? el.nextElementSibling.textContent.trim() : '',
+                      })),
                   };
                 }"""
             )
@@ -484,6 +519,73 @@ def main():
             report["run"]["compound_reactive"] = {"before": before, "after": after, "changed": before != after}
             check("run.compound.reactive", before != after, report["run"]["compound_reactive"])
             page.screenshot(path=str(OUT / "desktop-run-compound-return-open.png"), full_page=True)
+
+            # ---------------- 계산 일치: 홈 · 스트립 · 실행 화면이 같은 수 ----------------
+            def stat_value(stats, needle):
+                for item in stats or []:
+                    if needle in item["label"]:
+                        return item["value"]
+                return None
+
+            home_ret = man_tokens(home["hero_verdict"])
+            run_nominal = won_from(stat_value(retire["stats"], "은퇴 시 월 수령액"))
+            run_real = won_from(stat_value(retire["stats"], "오늘 가치"))
+            run_gap = won_from(stat_value(retire["stats"], "목표 월 생활비와의 차이"))
+            run_verdict_amounts = man_tokens(retire["verdict"])
+            consistency = {
+                "home_hero_amounts": home_ret,
+                "run_nominal": run_nominal,
+                "run_real": run_real,
+                "run_gap": run_gap,
+                "run_verdict_amounts": run_verdict_amounts,
+                "strip_nominal": f"{home_ret[0]:,}만원" in home["strip_text"] if home_ret else False,
+                "strip_real": f"{home_ret[1]:,}만원" in home["strip_text"] if len(home_ret) > 1 else False,
+            }
+            report["run"]["consistency"] = consistency
+            check(
+                "consistency.retirement_home_vs_run",
+                bool(home_ret) and run_nominal == home_ret[0] and run_real == home_ret[1] and run_gap == home_ret[3],
+                consistency,
+            )
+            check(
+                "consistency.retirement_run_verdict_same",
+                run_real in run_verdict_amounts and run_gap in run_verdict_amounts and home_ret[2] in run_verdict_amounts,
+                {"verdict": run_verdict_amounts, "real": run_real, "gap": run_gap, "target": home_ret[2]},
+            )
+            check(
+                "consistency.retirement_strip_same",
+                consistency["strip_nominal"] and consistency["strip_real"],
+                {"nominal": consistency["strip_nominal"], "real": consistency["strip_real"], "hero": home_ret},
+            )
+
+            comp_principal = won_from(stat_value(comp["stats"], "총 납입 원금"))
+            comp_gross = won_from(stat_value(comp["stats"], "세전 평가액"))
+            comp_net = man_tokens(comp["range_text"])[-1] if man_tokens(comp["range_text"]) else None
+            strip_amounts = man_tokens(home["strip_text"])
+            comp_consistency = {
+                "run_principal": comp_principal,
+                "run_gross": comp_gross,
+                "run_net": comp_net,
+                "strip_has_gross": comp_gross in strip_amounts,
+                "strip_has_net": comp_net in strip_amounts,
+                "strip_fee_030": "0.30%" in home["strip_text"],
+            }
+            report["run"]["compound_consistency"] = comp_consistency
+            check(
+                "consistency.compound_strip_vs_run",
+                comp_consistency["strip_has_gross"] and comp_consistency["strip_has_net"] and comp_consistency["strip_fee_030"],
+                comp_consistency,
+            )
+            check(
+                "consistency.compound_fee_030_down_330",
+                comp["has_fee_030"] and comp["has_down_330"] and not comp["has_fee_130"] and not comp["has_down_430"],
+                {"fee": comp["has_fee_030"], "down": comp["has_down_330"], "old_fee": comp["has_fee_130"], "old_down": comp["has_down_430"]},
+            )
+            check(
+                "run.retirement.tax_separate_wording",
+                retire["has_separate_choice"] and not retire["has_old_tax_error"],
+                {"choice": retire["has_separate_choice"], "old_error": retire["has_old_tax_error"]},
+            )
 
             # 기존 도구도 그대로 동작하는지
             goto(page, "run-coverage", "/apps/coverage-check/run")
@@ -672,7 +774,17 @@ def main():
                         "overflow_px": o,
                         "under_44": touch["under_44"][:4],
                     }
+                    tables = m.evaluate(
+                        """() => [...document.querySelectorAll('table')].map((t) => ({
+                          inner: t.scrollWidth - t.clientWidth,
+                          wrap: t.parentElement.scrollWidth - t.parentElement.clientWidth,
+                          clipped: [...t.querySelectorAll('td,th')].filter((c) => c.scrollWidth - c.clientWidth > 1).length,
+                          caption: t.caption ? t.caption.innerText.trim().slice(0, 24) : '',
+                        }))"""
+                    )
+                    report["mobile"][tag][f"run_{slug}"]["tables"] = tables
                     check(f"{tag}.run.{slug}.overflow_0", o == 0, o)
+                    check(f"{tag}.run.{slug}.table_fit", all(t["inner"] == 0 and t["wrap"] == 0 and t["clipped"] == 0 for t in tables), tables)
                     check(f"{tag}.run.{slug}.touch_44", len(touch["under_44"]) == 0, touch["under_44"][:4])
 
                 goto(m, f"{tag}-apps", "/apps")
@@ -765,6 +877,23 @@ def main():
     js_text = "".join(f.read_text(encoding="utf-8", errors="ignore") for f in DIST.rglob("*.js"))
     report["search"]["dist_js_session_storage_refs"] = js_text.count("sessionStorage")
     check("search.dist_js_no_session_storage", js_text.count("sessionStorage") == 0, js_text.count("sessionStorage"))
+
+    # ---------------- 세법 문구·계산 표기의 정적 검사(빌드 산출물 전체) ----------------
+    html_text = "".join(f.read_text(encoding="utf-8", errors="ignore") for f in DIST.rglob("*.html"))
+    page_text = html_text + js_text
+    copy_scan = {
+        "old_combined_tax_wording": page_text.count("16.5% 수준의 종합과세") + page_text.count("최대 16.5% 수준"),
+        "separate_choice_wording": "15% 분리과세" in page_text and "지방소득세 포함 16.5%" in page_text,
+        "fee_030": "0.30%" in page_text,
+        "fee_130_bad": "1.30%" in page_text,
+        "down_430_bad": "4.30%" in page_text,
+        "retirement_441": "441만원" in html_text,
+        "retirement_269": "269만원" in html_text,
+    }
+    report["copy_scan"] = copy_scan
+    check("copy.no_combined_tax_mixup", copy_scan["old_combined_tax_wording"] == 0, copy_scan["old_combined_tax_wording"])
+    check("copy.separate_tax_choice", copy_scan["separate_choice_wording"], copy_scan["separate_choice_wording"])
+    check("copy.fee_default_030", copy_scan["fee_030"] and not copy_scan["fee_130_bad"] and not copy_scan["down_430_bad"], copy_scan)
 
     check("console.no_errors", len(report["console_errors"]) == 0, report["console_errors"][:6])
 

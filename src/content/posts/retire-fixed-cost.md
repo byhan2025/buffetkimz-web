@@ -5,7 +5,9 @@ description: "은퇴 후 30년을 버티게 하는 것은 목돈이 아니라 �
 question: "은퇴 후 매달 나가는 돈은 얼마일까"
 publishedAt: 2026-11-12
 readingMinutes: 9
-app: "coverage-check"
+app: "retirement-flow"
+toolTitle: "은퇴 계산 열기"
+toolHref: "/apps/retirement-flow/run"
 tags: ["노후준비", "건강보험료", "피부양자", "간병비", "은퇴설계", "고정비"]
 sources:
   - label: "국민건강보험공단 — 지역가입자 보험료 부과 안내"

@@ -226,13 +226,16 @@ export default function RetirementFlow({ compact = false }: { compact?: boolean 
               · <strong className="font-semibold text-ink">사적연금 과세</strong> — 연금저축·IRP 수령액이 연{" "}
               {PRIVATE_PENSION_TAX.annualThreshold.toLocaleString("ko-KR")}만원(월{" "}
               {PRIVATE_PENSION_TAX.monthlyThreshold}만원) 이하면 {pctLabel(PRIVATE_PENSION_TAX.lowRate)}~
-              {pctLabel(PRIVATE_PENSION_TAX.highRate)} 분리과세, 넘으면 다른 소득과 합산돼 최대{" "}
-              {pctLabel(PRIVATE_PENSION_TAX.combinedRate)} 수준의 종합과세가 될 수 있습니다.
+              {pctLabel(PRIVATE_PENSION_TAX.highRate)} 분리과세. 넘으면 종합소득세 신고 때 다른 소득과{" "}
+              합산해 신고하거나 {pctLabel(PRIVATE_PENSION_TAX.overThresholdSeparateRate)} 분리과세(지방소득세 포함{" "}
+              {pctLabel(PRIVATE_PENSION_TAX.overThresholdSeparateRateWithLocal)}) 중 선택합니다.
             </li>
             <li>
               · <strong className="font-semibold text-ink">이 계산의 사적연금</strong> — 월{" "}
               {manLabel(nominal.dc + nominal.personal)}(연 {manLabel(privateAnnual)}).{" "}
-              {overPrivate ? "기준을 넘습니다 — 종합과세 대상이 될 수 있습니다." : "기준 이하입니다."}
+              {overPrivate
+                ? "기준을 넘습니다 — 종합소득세 신고 또는 15% 분리과세(지방소득세 포함 16.5%) 중 선택 대상입니다."
+                : "기준 이하입니다."}
             </li>
             <li>
               · <strong className="font-semibold text-ink">건강보험 피부양자</strong> — 공적연금 소득이 연{" "}
@@ -246,41 +249,46 @@ export default function RetirementFlow({ compact = false }: { compact?: boolean 
       </div>
 
       {!compact && (
-        <div className="mt-4 overflow-x-auto rounded-xl border border-line bg-white">
-          <table className="w-full border-collapse text-[12.5px]">
+        <div className="mt-4 overflow-hidden rounded-xl border border-line bg-white">
+          <table className="w-full table-fixed border-collapse text-[12.5px]">
             <caption className="border-b border-line bg-paper-deep px-3 py-2.5 text-left text-[12px] text-ink-muted">
               월 수령액 비교 — 명목 금액과 오늘 가치(표로 읽는 같은 값)
             </caption>
             <thead>
               <tr className="border-b border-line bg-paper-deep text-left">
-                <th scope="col" className="px-3 py-2.5 font-semibold text-ink-soft">항목</th>
-                <th scope="col" className="px-3 py-2.5 text-right font-semibold text-ink-soft">명목(은퇴 시점)</th>
-                <th scope="col" className="px-3 py-2.5 text-right font-semibold text-ink-soft">오늘 가치</th>
-                <th scope="col" className="px-3 py-2.5 text-right font-semibold text-ink-soft">비중</th>
+                <th scope="col" className="px-2.5 py-2.5 font-semibold text-ink-soft sm:px-3">항목</th>
+                <th scope="col" className="px-2 py-2.5 text-right font-semibold text-ink-soft sm:px-3">
+                  명목<span className="sm:hidden">(은퇴)</span><span className="hidden sm:inline">(은퇴 시점)</span>
+                </th>
+                <th scope="col" className="px-2 py-2.5 text-right font-semibold text-ink-soft sm:px-3">오늘 가치</th>
+                <th scope="col" className="px-2.5 py-2.5 text-right font-semibold text-ink-soft sm:px-3">비중</th>
               </tr>
             </thead>
             <tbody>
               {rows.map((r) => (
                 <tr key={r.key} className="border-b border-line-soft">
-                  <td className="px-3 py-2.5 font-semibold text-ink">{r.name}</td>
-                  <td className="px-3 py-2.5 text-right tabular-nums text-ink-muted">{manLabel(r.nominal)}</td>
-                  <td className="px-3 py-2.5 text-right tabular-nums text-ink-muted">{manLabel(r.real)}</td>
-                  <td className="px-3 py-2.5 text-right tabular-nums text-ink-faint">
+                  <td className="px-2.5 py-2.5 font-semibold text-ink sm:px-3">{r.name}</td>
+                  <td className="whitespace-nowrap px-2 py-2.5 text-right tabular-nums text-ink-muted sm:px-3">{manLabel(r.nominal)}</td>
+                  <td className="whitespace-nowrap px-2 py-2.5 text-right tabular-nums text-ink-muted sm:px-3">{manLabel(r.real)}</td>
+                  <td className="px-2.5 py-2.5 text-right tabular-nums text-ink-faint sm:px-3">
                     {nominal.total > 0 ? pctLabel(r.nominal / nominal.total, 0) : "—"}
                   </td>
                 </tr>
               ))}
               <tr className="bg-paper-deep/60">
-                <td className="px-3 py-2.5 font-bold text-ink">합계</td>
-                <td className="px-3 py-2.5 text-right font-bold tabular-nums text-ink">{manLabel(nominal.total)}</td>
-                <td className="px-3 py-2.5 text-right font-bold tabular-nums text-ink">{manLabel(real.total)}</td>
-                <td className="px-3 py-2.5 text-right tabular-nums text-ink-faint">100%</td>
+                <td className="px-2.5 py-2.5 font-bold text-ink sm:px-3">합계</td>
+                <td className="px-2 py-2.5 text-right font-bold tabular-nums text-ink sm:px-3">{manLabel(nominal.total)}</td>
+                <td className="px-2 py-2.5 text-right font-bold tabular-nums text-ink sm:px-3">{manLabel(real.total)}</td>
+                <td className="px-2.5 py-2.5 text-right tabular-nums text-ink-faint sm:px-3">100%</td>
               </tr>
               <tr>
-                <td className="px-3 py-2.5 text-ink-muted">목표 월 생활비(오늘 가치)</td>
-                <td className="px-3 py-2.5 text-right tabular-nums text-ink-faint">—</td>
-                <td className="px-3 py-2.5 text-right tabular-nums text-ink-muted">{manLabel(target)}</td>
-                <td className="px-3 py-2.5 text-right tabular-nums text-ink-faint">
+                <td className="px-2.5 py-2.5 text-ink-muted sm:px-3">
+                  목표<span className="sm:hidden"> 생활비</span>
+                  <span className="hidden sm:inline"> 월 생활비(오늘 가치)</span>
+                </td>
+                <td className="px-2 py-2.5 text-right tabular-nums text-ink-faint sm:px-3">—</td>
+                <td className="px-2 py-2.5 text-right tabular-nums text-ink-muted sm:px-3">{manLabel(target)}</td>
+                <td className="px-2.5 py-2.5 text-right tabular-nums text-ink-faint sm:px-3">
                   {gap >= 0 ? `+${manLabel(gap)}` : `−${manLabel(-gap)}`}
                 </td>
               </tr>
