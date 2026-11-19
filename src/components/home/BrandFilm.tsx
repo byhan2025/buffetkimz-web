@@ -322,10 +322,13 @@ export default function BrandFilm({ appsHref = "/apps" }: { appsHref?: string })
               <div className="fs2-stack">
                 {WORDS.map((w, i) => (
                   <div className="fs2-word" data-fs2-word={i} key={w.kr}>
-                    <span className="fs2-en">{w.en}</span>
+                    <span className="fs2-meta">
+                      <span className="fs2-en">{w.en}</span>
+                      <span className="fs2-sep" aria-hidden="true" />
+                      <span className="fs2-no film-mono">{`${pad2(i + 1)} / 05`}</span>
+                    </span>
                     <span className="fs2-kr">{w.kr}</span>
                     <span className="fs2-line">{w.line}</span>
-                    <span className="fs2-no film-mono">{`${pad2(i + 1)} / 05`}</span>
                   </div>
                 ))}
               </div>
@@ -913,13 +916,13 @@ function buildTimeline(gsap: any, root: HTMLElement) {
   /* Scene 2 — 0.46초 단위 키네틱 타이포 ------------------------------ */
   qa("[data-fs2-word]").forEach((el, i) => {
     const start = 1.5 + i * SLOT;
-    const out = start + SLOT - 0.06;
+    const out = start + SLOT - 0.17;
     tl.fromTo(
       el,
       { yPercent: 118, autoAlpha: 0, skewY: 2.6 },
       { yPercent: 0, autoAlpha: 1, skewY: 0, duration: 0.15, ease: "power4.out" },
       start
-    ).to(el, { yPercent: -108, autoAlpha: 0, duration: 0.11, ease: "power3.in" }, out);
+    ).to(el, { yPercent: -112, autoAlpha: 0, duration: 0.1, ease: "power3.in" }, out);
   });
   const kicker2 = q(".fs2-kicker");
   if (kicker2) {

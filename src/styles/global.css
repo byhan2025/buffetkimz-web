@@ -1650,9 +1650,11 @@
   }
 
   .fs2-stack {
+    /* 글자 크기에 맞춰 마스크 높이를 정한다 — 짧은 화면에서도 잘리지 않게 */
     position: relative;
-    height: clamp(168px, 30vh, 268px);
+    height: calc(clamp(70px, 16vw, 168px) * 0.94 + 58px);
     margin-top: 10px;
+    overflow: hidden;
   }
 
   .fs2-word {
@@ -1666,12 +1668,24 @@
     opacity: 0;
   }
 
+  .fs2-meta {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+
   .fs2-en {
     font-family: var(--font-mono);
     font-size: 12px;
     letter-spacing: 0.42em;
     text-indent: 0.42em;
     color: #7fe3c4;
+  }
+
+  .fs2-sep {
+    width: 14px;
+    height: 1px;
+    background-color: rgb(255 255 255 / 0.28);
   }
 
   .fs2-kr {
@@ -1691,17 +1705,7 @@
   }
 
   .fs2-no {
-    position: absolute;
-    right: 0;
-    top: 4px;
-    color: #8099ab;
-  }
-
-  @media (max-width: 640px) {
-    .fs2-no {
-      right: 2px;
-      top: -2px;
-    }
+    color: #8fa8ba;
   }
 
   /* ---------- Scene 3 — 시간의 곡선 ---------- */
