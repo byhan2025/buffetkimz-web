@@ -201,6 +201,15 @@ CONTRAST_JS = r"""
 """
 
 
+def element_shot(page, selector, path):
+    """구역 캡처 — sticky 헤더가 구역 위에 겹쳐 찍히지 않도록 캡처 동안만 숨긴다."""
+    page.evaluate("() => { const h = document.querySelector('header'); if (h) h.style.visibility = 'hidden'; }")
+    page.wait_for_timeout(120)
+    page.locator(selector).screenshot(path=path)
+    page.evaluate("() => { const h = document.querySelector('header'); if (h) h.style.visibility = ''; }")
+    page.wait_for_timeout(80)
+
+
 def full_shot(page, path):
     """전체 페이지 캡처 — sticky 헤더가 중간에 찍히지 않도록 캡처 동안만 static으로 둔다."""
     page.evaluate("() => { const h = document.querySelector('header'); if (h) h.style.position = 'static'; }")
@@ -531,8 +540,8 @@ def main():
             check("mobile390.contrast_aa", len(contrast) == 0, contrast[:8])
 
             # 도입부 2페이지·CTA 캡처
-            m.locator('[data-area="2"]').screenshot(path=str(OUT / "mobile390-intro2.png"))
-            m.locator('#channels').screenshot(path=str(OUT / "mobile390-channels.png"))
+            element_shot(m, '[data-area="2"]', str(OUT / "mobile390-intro2.png"))
+            element_shot(m, '#channels', str(OUT / "mobile390-channels.png"))
 
             # ---------------- 실행 화면 하단 요약 바 ----------------
             goto(m, "run-retirement-m390", "/apps/retirement-flow/run")
@@ -625,7 +634,7 @@ def main():
             page.evaluate("window.scrollTo(0,0)")
             goto(page, "home-final", "/")
             page.screenshot(path=str(OUT / "live-home.png") if LIVE else str(OUT / "desktop-home-fold.png"))
-            page.locator('[data-area="2"]').screenshot(path=str(OUT / "live-intro2.png") if LIVE else str(OUT / "desktop-intro2.png"))
+            element_shot(page, '[data-area="2"]', str(OUT / "live-intro2.png") if LIVE else str(OUT / "desktop-intro2.png"))
             full_shot(page, str(OUT / ("live-home-full.png" if LIVE else "desktop-home-full.png")))
 
             browser.close()

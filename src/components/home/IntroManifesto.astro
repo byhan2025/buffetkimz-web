@@ -48,7 +48,9 @@ const identities = [
   },
 ];
 
-const channelLine = channels.map((c) => c.name).join(" · ");
+/** 채널 이름은 5곳만 보이고 나머지는 '등 7곳'으로 줄인다 — 한 줄에 서게. */
+const channelNames = channels.map((c) => (c.name === "네이버 블로그" ? "블로그" : c.name));
+const channelLine = `${channelNames.slice(0, 5).join(" · ")} 등 ${channels.length}곳`;
 ---
 
 <section class="scene-white border-b border-line" data-area="2" id="about">
