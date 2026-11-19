@@ -1,35 +1,32 @@
 import { useMemo, useState } from "react";
 import { Note, RunnerShell, Toggle } from "./ui";
 
+type QuestionKey = "q3m" | "q2y" | "q5y" | "q10";
+
 type Question = {
-  key: string;
+  key: QuestionKey;
   label: string;
   description: string;
-  months: 3 | 24 | 60 | 0;
 };
 
 const QUESTIONS: Question[] = [
   {
     key: "q3m",
-    months: 3,
     label: "최근 3개월 이내 입원·수술·추가검사 소견",
     description: "질병 확정 진단, 의심 소견, 추가(재)검사 필요 소견, 7일 이상 투약 등",
   },
   {
     key: "q2y",
-    months: 24,
     label: "최근 2년 이내 입원 또는 수술",
     description: "제왕절개 포함. 통원 치료만 받은 경우는 보통 해당하지 않습니다.",
   },
   {
     key: "q5y",
-    months: 60,
     label: "최근 5년 이내 7일 이상 치료 또는 30일 이상 약 복용",
     description: "입원·수술·통원 치료를 포함해 기간 기준을 넘는 경우",
   },
   {
     key: "q10",
-    months: 60,
     label: "최근 5년 이내 10대 질병 진단·치료",
     description: "암, 백혈병, 고혈압, 협심증, 심근경색, 심장판막증, 간경화증, 뇌졸중, 당뇨병, 에이즈",
   },
@@ -37,11 +34,34 @@ const QUESTIONS: Question[] = [
 
 type ProductType = "305" | "325" | "355";
 
-/** 간편고지 유형별 질문 구성(일반적 구성): 3개월 / 2년 / 5년 */
-const PRODUCTS: Record<ProductType, { months: (3 | 24 | 60)[]; note: string }> = {
-  "305": { months: [3, 60], note: "2년 이력 질문이 없는 유형" },
-  "325": { months: [3, 24, 60], note: "3개월·2년·5년을 묻는 표준 유형" },
-  "355": { months: [3, 60], note: "2년 대신 5년 기준을 쓰는 유형" },
+/**
+ * 간편고지 유형별 질문 구성(일반적 구성).
+ * 305는 5년 질문이 '10대 질병'이고, 5년 이내 입원·수술은 상품에 따라 함께 묻기도 한다(약관 확인).
+ * 355·325의 5년 질문은 '입원·수술·7일 이상 치료'다.
+ */
+const PRODUCTS: Record<ProductType, { questions: QuestionKey[]; note: string }> = {
+  "305": {
+    questions: ["q3m", "q10"],
+    note: "2년 이력 질문이 없는 유형 · 5년 이내 입원·수술을 함께 묻는 상품은 약관 확인",
+  },
+  "325": { questions: ["q3m", "q2y", "q5y"], note: "3개월·2년·5년을 묻는 표준 유형" },
+  "355": { questions: ["q3m", "q5y"], note: "2년 대신 5년 기준을 쓰는 유형" },
+};
+
+/** 체크한 이력이 실제로 답이 되는 질문 — 2년 이내 입원·수술은 5년 이내 입원·수술(치료) 질문에도 들어간다.
+ *  10대 질병 질문(q10)은 별개다. */
+const COVERS: Record<QuestionKey, QuestionKey[]> = {
+  q3m: ["q3m"],
+  q2y: ["q2y", "q5y"],
+  q5y: ["q5y"],
+  q10: ["q10"],
+};
+
+const REASON: Record<QuestionKey, string> = {
+  q3m: "3개월 이내 항목",
+  q2y: "2년 이내 항목",
+  q5y: "5년 이내 입원·수술·치료 항목",
+  q10: "5년 이내 10대 질병 항목",
 };
 
 export default function DisclosureCheck() {
@@ -54,20 +74,18 @@ export default function DisclosureCheck() {
   );
 
   const result = useMemo(() => {
-    const has3m = hits.some((h) => h.months === 3);
-    const has24 = hits.some((h) => h.months === 24);
-    const has60 = hits.some((h) => h.months === 60);
-    /* 2년 이내 입원·수술은 5년 기준에도 들어간다 — 2년 질문이 없는 유형(305·355)에서도
-       같은 이력이 '해당 없음'으로 뒤집히지 않도록 5년 판정에 함께 넣는다. */
+    const checkedKeys = hits.map((h) => h.key);
 
     return (Object.keys(PRODUCTS) as ProductType[]).map((p) => {
-      const asked = PRODUCTS[p].months;
+      const asked = PRODUCTS[p].questions;
       const reasons: string[] = [];
-      if (has3m && asked.includes(3)) reasons.push("3개월 이내 항목");
-      if (has24 && asked.includes(24)) reasons.push("2년 이내 항목");
-      if (asked.includes(60)) {
-        if (has60) reasons.push("5년 이내 항목");
-        else if (has24 && !asked.includes(24)) reasons.push("2년 이내 입원·수술(5년 기준 포함)");
+      for (const k of checkedKeys) {
+        /* 그 유형이 같은 질문을 직접 하면 그 라벨로, 아니면 이 이력을 담는 질문의 라벨로 적는다.
+           (예: 2년 이내 입원·수술 → 355에서는 '5년 이내 입원·수술·치료 항목') */
+        const direct = asked.includes(k);
+        const covering = direct ? undefined : asked.find((q) => COVERS[k].includes(q));
+        const label = direct ? REASON[k] : covering ? REASON[covering] : undefined;
+        if (label && !reasons.includes(label)) reasons.push(label);
       }
       return { type: p, asked, reasons, flagged: reasons.length > 0 };
     });
@@ -166,8 +184,10 @@ export default function DisclosureCheck() {
 
       <Note>
         이 도구는 <strong>가입 가능 여부를 판정하지 않습니다.</strong> 간편고지 유형별 질문 구성은 보험회사
-        상품마다 다르며, 실제 판정은 청약서 질문표와 보험회사 심사에 따릅니다. 고지는 설계사에게 구두로
-        알리는 것이 아니라 청약서에 직접 기재해야 효력이 있습니다.
+        상품마다 다르며, 실제 판정은 청약서 질문표와 보험회사 심사에 따릅니다. 2년 이내 입원·수술은 5년 이내
+        입원·수술·치료 질문에 포함되지만, 5년 이내 10대 질병 질문과는 별개입니다(305 유형 일부 상품은 5년
+        이내 입원·수술도 함께 묻습니다). 고지는 설계사에게 구두로 알리는 것이 아니라 청약서에 직접
+        기재해야 효력이 있습니다.
       </Note>
     </RunnerShell>
   );
