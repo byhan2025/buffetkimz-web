@@ -449,8 +449,8 @@ def main():
         report["screenshots"].append(str(OUT / "mobile390-run-retirement-flow-adjusted.png"))
         report["run_sticky"] = {
             "visible": m390.evaluate("() => { const b = document.querySelector('[data-sticky-summary]'); const r = b && b.getBoundingClientRect(); return !!r && r.height > 0 && r.bottom <= window.innerHeight + 1; }"),
-            "before": bar_before.replace(/\\s+/g, " ").strip(),
-            "after": bar_after.replace(/\\s+/g, " ").strip(),
+            "before": " ".join(bar_before.split()),
+            "after": " ".join(bar_after.split()),
             "changed": bar_before != bar_after,
             "scale_min_px": min(scales) if scales else None,
         }
