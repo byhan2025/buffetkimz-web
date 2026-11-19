@@ -1,0 +1,86 @@
+---
+/**
+ * 첫 화면의 증거 카드 — 실제 실행 화면(/apps/retirement-flow/run)의 예시값을
+ * 같은 계산(lib/finance.ts)으로 그린다. 금액은 전부 만원 단위.
+ *
+ * v4.0 — 보장 점검 카드를 내리고 은퇴 현금흐름 카드를 올렸다.
+ * 첫 화면에서 '보험 사이트'가 아니라 '금융·연금 도구'로 읽히게 하는 것이 목적이다.
+ */
+import { site, withBase } from "@/config/site";
+import {
+  PENSION_MAX_CREDIT,
+  PENSION_RULE,
+  RETIREMENT_EXAMPLE,
+  manLabel,
+  pctLabel,
+  retirementProjection,
+} from "@/lib/finance";
+
+const r = retirementProjection(RETIREMENT_EXAMPLE);
+const rows = [
+  { key: "nps", name: "국민연금", value: r.nominal.nps, real: r.real.nps },
+  { key: "dc", name: "퇴직연금", value: r.nominal.dc, real: r.real.dc },
+  { key: "personal", name: "개인연금", value: r.nominal.personal, real: r.real.personal },
+];
+const maxBar = Math.max(...rows.map((row) => row.value), 1);
+const pct = (v: number) => Math.max(3, Math.min(100, Math.round((v / maxBar) * 100)));
+const creditLabel = `${PENSION_MAX_CREDIT.toLocaleString("ko-KR")}원`;
+/** 첫 화면 카드의 1줄 결론 — 판정이 아니라 가정 기준 점검 */
+const oneLine = `예시 가정 기준 월 ${manLabel(r.nominal.total)} · 오늘 가치 ${manLabel(
+  r.real.total
+)} — 목표 ${manLabel(RETIREMENT_EXAMPLE.targetMonthly)}과 ${manLabel(
+  Math.abs(r.gap)
+)} 차이, 추가 확인 필요`;
+---
+
+<div class="card-night hero-card p-4 md:p-5">
+  <div class="flex items-start justify-between gap-3">
+    <div>
+      <p class="mono text-[12px] tracking-[0.08em] text-[#a8c6dd]">TOOL · 은퇴 시뮬레이터</p>
+      <p class="mt-1 text-[15.5px] font-semibold leading-snug text-white">은퇴 월 현금흐름</p>
+      <p class="mt-0.5 text-[12px] text-[#c8d8e5]">
+        {RETIREMENT_EXAMPLE.currentAge}세 → {RETIREMENT_EXAMPLE.retireAge}세 은퇴 · {r.payoutYears}년 수령 가정
+      </p>
+    </div>
+    <span class="chip !border-white/15 !bg-white/10 !text-[#dbe7f0]">가상 예시</span>
+  </div>
+
+  <p class="mt-2 text-[12.5px] font-semibold leading-[1.5] text-white" data-hero-verdict>
+    {oneLine}
+  </p>
+
+  <ul class="mt-3 space-y-2">
+    {
+      rows.map((row) => (
+        <li class="grid grid-cols-[54px_1fr_auto] items-center gap-2.5" data-hero-row={row.key}>
+          <span class="text-[12px] text-[#e3edf4]">{row.name}</span>
+          <span class="gauge !h-[5px]">
+            <span style={`--v:${pct(row.value)}%;background-color:#6fb8d8`} />
+          </span>
+          <span class="mono whitespace-nowrap text-[12px] text-white">
+            {Math.round(row.value).toLocaleString("ko-KR")}만
+            <span class="ml-1 text-[#a8c6dd]">/ {Math.round(row.real).toLocaleString("ko-KR")}만</span>
+          </span>
+        </li>
+      ))
+    }
+  </ul>
+
+  <p class="mono mt-2.5 flex flex-wrap items-baseline gap-x-2 gap-y-0.5 text-[12px] text-[#cbd5e1]">
+    <span>합계 <strong class="font-semibold text-white">{manLabel(r.nominal.total)}</strong>/월</span>
+    <span class="text-[#a8c6dd]">· 오늘 가치 <strong class="font-semibold text-white">{manLabel(r.real.total)}</strong></span>
+  </p>
+
+  <p class="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 border-t border-white/10 pt-2 text-[12px] text-[#cbd5e1]">
+    <span class="text-[#a8c6dd]">세액공제</span>
+    <span>연 {PENSION_RULE.totalLimit}만원 × {pctLabel(PENSION_RULE.rateLow)} = <strong class="font-semibold text-white">{creditLabel}</strong></span>
+  </p>
+
+  <p class="mt-1.5 text-[12px] leading-[1.55] text-[#b9cddc]">
+    참고용 내부 예시 기준(공식 연금공단·금융사 확정액 아님) · 기준일 {site.baseDate}
+  </p>
+
+  <a href={withBase("/apps/retirement-flow/run")} class="btn btn-solid btn-sm mt-3 w-full">
+    시뮬레이터 열기
+  </a>
+</div>

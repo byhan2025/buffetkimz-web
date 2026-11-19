@@ -1,8 +1,10 @@
 import { calendar } from "./calendar";
 
 /**
- * 홈 도구 허브가 보여 주는 다섯 가지.
- * 네 개는 사이트 안에서 바로 계산하는 도구, 하나는 1~12월 제도 일정을 보는 달력 보드다.
+ * 홈·/apps 도구 허브가 보여 주는 일곱 가지.
+ *
+ * v4.0 — 금융·투자·연금 도구 3종과 제도 일정 달력을 '메인'에 두고,
+ * 보험 3종은 '리스크 관리 참고 도구'로 내려 비중을 줄였다.
  * 문구는 '무엇을 확인·계산하는가'만 쓴다(추천·가입 유도 문구 없음).
  */
 export type HubTool = {
@@ -14,9 +16,50 @@ export type HubTool = {
   meta: string;
   href: string;
   runHref?: string;
+  /** main: 금융·투자·연금·제도 일정 / risk: 리스크 관리(보험) 참고 */
+  group: "main" | "risk";
 };
 
 export const hubTools: HubTool[] = [
+  {
+    key: "pension",
+    name: "연금저축·IRP 세액공제 계산기",
+    what: "총급여 구간과 올해 납입액으로 예상 세액공제액과 12월 31일 전에 채울 금액을 계산합니다.",
+    short: "올해 세액공제액과 12월 전 채울 금액을 계산합니다.",
+    meta: "소득세법 제59조의3 기준",
+    href: "/apps/pension-tax",
+    runHref: "/apps/pension-tax/run",
+    group: "main",
+  },
+  {
+    key: "retirement-flow",
+    name: "은퇴 월 현금흐름 시뮬레이터",
+    what: "국민·퇴직·개인연금을 합쳐 은퇴 시점의 월 수령액을 명목과 오늘 가치로 나눠 계산합니다.",
+    short: "은퇴 후 매달 쓸 수 있는 돈을 오늘 가치로 계산합니다.",
+    meta: "단순 시뮬레이션 · 물가·수익률 가정",
+    href: "/apps/retirement-flow",
+    runHref: "/apps/retirement-flow/run",
+    group: "main",
+  },
+  {
+    key: "compound-return",
+    name: "투자 복리·세후 수익률 계산기",
+    what: "초기 투자금과 매달 적립액이 투자 기간 뒤 세전·세후 얼마가 되는지 계산합니다.",
+    short: "적립식 투자의 세전·세후 평가액을 계산합니다.",
+    meta: "월 복리 가정 · 과세 방식 3종",
+    href: "/apps/compound-return",
+    runHref: "/apps/compound-return/run",
+    group: "main",
+  },
+  {
+    key: "calendar",
+    name: "제도 일정 달력",
+    what: "연말정산·연금 납입 마감·건보료 정산처럼 날짜를 놓치면 손해가 생기는 절차를 1~12월로 봅니다.",
+    short: "놓치면 손해인 기한과 절차를 1~12월로 확인합니다.",
+    meta: `일정 ${calendar.length}건 · 월별 분류`,
+    href: "/calendar",
+    group: "main",
+  },
   {
     key: "coverage",
     name: "보장 점검 시뮬레이터",
@@ -25,6 +68,7 @@ export const hubTools: HubTool[] = [
     meta: "예시 입력값 · 브라우저에서만 계산",
     href: "/apps/coverage-check",
     runHref: "/apps/coverage-check/run",
+    group: "risk",
   },
   {
     key: "disclosure",
@@ -34,6 +78,7 @@ export const hubTools: HubTool[] = [
     meta: "판정하지 않음 · 확인 항목만",
     href: "/apps/disclosure-check",
     runHref: "/apps/disclosure-check/run",
+    group: "risk",
   },
   {
     key: "silson",
@@ -43,22 +88,14 @@ export const hubTools: HubTool[] = [
     meta: "급여·비급여 구간별 계산",
     href: "/apps/silson-compare",
     runHref: "/apps/silson-compare/run",
-  },
-  {
-    key: "pension",
-    name: "연금저축·IRP 세액공제 계산기",
-    what: "총급여 구간과 올해 납입액으로 예상 세액공제액과 12월 31일 전에 채울 금액을 계산합니다.",
-    short: "올해 세액공제액과 12월 전 채울 금액을 계산합니다.",
-    meta: "소득세법 제59조의3 기준",
-    href: "/apps/pension-tax",
-    runHref: "/apps/pension-tax/run",
-  },
-  {
-    key: "calendar",
-    name: "제도 일정 달력",
-    what: "연말정산·연금 납입 마감·건보료 정산처럼 날짜를 놓치면 손해가 생기는 절차를 1~12월로 봅니다.",
-    short: "놓치면 손해인 기한과 절차를 1~12월로 확인합니다.",
-    meta: `일정 ${calendar.length}건 · 월별 분류`,
-    href: "/calendar",
+    group: "risk",
   },
 ];
+
+/** 메인 — 금융·투자·연금 계산 3종 + 제도 일정 달력 1종 */
+export const mainTools = hubTools.filter((t) => t.group === "main");
+/** 서브 — 리스크 관리(보험) 참고 도구 3종 */
+export const riskTools = hubTools.filter((t) => t.group === "risk");
+
+/** 홈 메인 도구 상단 4칸 (요청된 순서: 세액공제 → 은퇴 현금흐름 → 복리 → 달력) */
+export const homeMainTools = mainTools;

@@ -153,6 +153,26 @@ def main():
         page.evaluate("window.scrollTo(0, 0)")
         page.wait_for_timeout(200)
 
+        # v4.0 — 홈 비중 역전(은퇴 현금흐름 히어로 · 금융 스트립 · 메인 4 · 리스크 한 줄)
+        report["home_v4"] = page.evaluate(
+            """() => {
+              const txt = (el) => (el ? el.innerText.replace(/\\s+/g, ' ').trim() : '');
+              const hero = document.querySelector('main section');
+              const cards = [...document.querySelectorAll('[data-post-cards] li')].map((li) => txt(li.querySelector('span')));
+              const strip = document.querySelector('[data-finance-strip]');
+              return {
+                hero_rows: document.querySelectorAll('[data-hero-row]').length,
+                hero_has_coverage: txt(hero).includes('보장 점검'),
+                strip_tiles: strip ? strip.querySelectorAll('li').length : 0,
+                main_tools: [...document.querySelectorAll('[data-main-tools] li h3')].map(txt),
+                risk_tools: [...document.querySelectorAll('[data-risk-tools] li a')].map(txt),
+                card_categories: cards,
+                tool_count: txt(document.querySelector('[data-tool-count]')),
+                trust: txt(document.querySelector('[data-trust-line]')),
+              };
+            }"""
+        )
+
         # 서브패스 정합: 모든 내부 링크가 /buffetkimz-web 으로 시작하는지
         hrefs = page.eval_on_selector_all("a[href]", "els => els.map(e => e.getAttribute('href'))")
         internal = [h for h in hrefs if h and h.startswith("/")]
@@ -171,8 +191,40 @@ def main():
         }
         page.screenshot(path=str(OUT / "live-search.png"))
         report["screenshots"].append(str(OUT / "live-search.png"))
+        report["search"]["storage"] = page.evaluate(
+            "() => ({ session: Object.keys(sessionStorage), local: Object.keys(localStorage), query: location.search })"
+        )
         page.keyboard.press("Escape")
         page.wait_for_timeout(300)
+
+        # v4.0 신규 도구 2종 — 라이브 실행 화면
+        report["new_tools"] = {}
+        for slug, verdict_sel in [
+            ("retirement-flow", "[data-retirement-verdict]"),
+            ("compound-return", "[data-compound-verdict]"),
+        ]:
+            page.goto(f"{BASE}/apps/{slug}/run/", wait_until="networkidle", timeout=60000)
+            page.wait_for_timeout(900)
+            before = page.locator(verdict_sel).inner_text()
+            page.evaluate(
+                """() => { const r = document.querySelectorAll('input[type=range]');
+                   const target = r[r.length - 1];
+                   const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+                   setter.call(target, String(Number(target.value) + 1));
+                   target.dispatchEvent(new Event('input', {bubbles:true})); }"""
+            )
+            page.wait_for_timeout(500)
+            after = page.locator(verdict_sel).inner_text()
+            report["new_tools"][slug] = {
+                "status": page.evaluate("() => performance.getEntriesByType('navigation')[0]?.responseStatus || 200"),
+                "verdict": before[:110],
+                "reactive": before != after,
+                "checks": page.locator("[data-retirement-checks] li, [data-compound-checks] li").count(),
+                "assumptions": page.locator("[data-retirement-assumptions], [data-compound-assumptions]").count(),
+                "source_line": "기준일 2026-11-19" in page.locator("main").inner_text(),
+            }
+            page.screenshot(path=str(OUT / f"live-run-{slug}.png"), full_page=False)
+            report["screenshots"].append(str(OUT / f"live-run-{slug}.png"))
 
         # 도구 실행 화면 동작(슬라이더 → 결과 변화)
         page.goto(BASE + "/apps/coverage-check/run/", wait_until="networkidle", timeout=60000)

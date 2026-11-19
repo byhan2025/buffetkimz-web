@@ -1,10 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { withBase } from "@/config/site";
 import {
-  takeQuery,
   popularQueries,
   queryTerms,
-  rememberQuery,
   searchDocs,
   splitHighlight,
   typeLabels,
@@ -107,26 +105,21 @@ const SECTION_ORDER: { type: SearchDoc["type"]; label: string }[] = [
 type Props = {
   variant?: "page" | "overlay";
   onClose?: () => void;
+  /** 오버레이를 열 때 함께 넘기는 검색어(예: 글의 태그) — 컴포넌트 안에서만 쓰고 저장하지 않는다. */
+  initialQuery?: string;
 };
 
-export default function SearchApp({ variant = "page", onClose }: Props) {
+export default function SearchApp({ variant = "page", onClose, initialQuery = "" }: Props) {
   const [docs, setDocs] = useState<SearchDoc[] | null>(null);
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(initialQuery);
   const [type, setType] = useState<TypeFilter>("all");
   const [group, setGroup] = useState<string>("all");
   const [active, setActive] = useState(0);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const isPage = variant === "page";
 
-  /*
-   * 검색어는 이 컴포넌트의 상태로만 둔다.
-   * 주소창(?q=…)·브라우저 기록에는 쓰지 않는다(개인정보처리방침 6장과 같은 원칙).
-   * 첫 화면에서 넘어온 검색어만 같은 탭의 메모리에서 한 번 받는다.
-   */
   useEffect(() => {
-    if (!isPage) return;
-    const q = takeQuery();
-    if (q) setQuery(q);
+    if (!isPage) inputRef.current?.focus();
   }, [isPage]);
 
   useEffect(() => {
@@ -371,7 +364,6 @@ export default function SearchApp({ variant = "page", onClose }: Props) {
         <button
           type="button"
           onClick={() => {
-            rememberQuery(query);
             window.location.assign(withBase("/search"));
           }}
           className="mt-2 inline-flex min-h-[40px] items-center text-[12.5px] font-semibold text-brand link"

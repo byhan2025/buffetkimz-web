@@ -1,0 +1,109 @@
+---
+/**
+ * 홈 도구 섹션의 가로 스트립 — 금융·투자·연금 핵심 지표 다섯 칸.
+ *
+ * v4.0에서 5대 담보 스트립(CoverageStrip)을 내리고 이 스트립을 올렸다.
+ * 숫자는 모두 실행 화면의 예시 입력값을 lib/finance.ts로 계산한 값이다(손으로 적지 않는다).
+ * 칸 하나가 그 값을 그대로 시작값으로 여는 실행 화면으로 이어진다.
+ */
+import { site, withBase } from "@/config/site";
+import {
+  COMPOUND_EXAMPLE,
+  PENSION_RULE,
+  RETIREMENT_EXAMPLE,
+  compoundProjection,
+  manLabel,
+  pctLabel,
+  retirementProjection,
+} from "@/lib/finance";
+
+const r = retirementProjection(RETIREMENT_EXAMPLE);
+const c = compoundProjection(COMPOUND_EXAMPLE);
+
+const tiles = [
+  {
+    key: "limit",
+    label: "연금저축·IRP 공제 한도",
+    value: `${PENSION_RULE.totalLimit}만원`,
+    sub: `연금저축 단독 ${PENSION_RULE.selfLimit}만 · ISA 이전 +${PENSION_RULE.isaLimit}만`,
+    href: "/apps/pension-tax/run",
+    tone: "brand",
+  },
+  {
+    key: "rate",
+    label: "세액공제율",
+    value: `${pctLabel(PENSION_RULE.rateLow, 1)} / ${pctLabel(PENSION_RULE.rateHigh, 1)}`,
+    sub: "총급여 5,500만원 기준 · 지방소득세 포함",
+    href: "/apps/pension-tax/run",
+    tone: "brand",
+  },
+  {
+    key: "target",
+    label: "목표 은퇴 월 현금흐름",
+    value: manLabel(RETIREMENT_EXAMPLE.targetMonthly),
+    sub: "오늘 가치 기준 · 예시 입력값",
+    href: "/apps/retirement-flow/run",
+    tone: "night",
+  },
+  {
+    key: "retire",
+    label: "예시 월 수령액",
+    value: manLabel(r.nominal.total),
+    sub: `오늘 가치 ${manLabel(r.real.total)} · 국민+퇴직+개인`,
+    href: "/apps/retirement-flow/run",
+    tone: "night",
+  },
+  {
+    key: "compound",
+    label: "장기 투자 복리 (월 50만·20년·5%)",
+    value: manLabel(c.gross),
+    sub: `세후 ${manLabel(c.net)} · 원금 ${manLabel(c.principal)} · 보수 0.3% 반영`,
+    href: "/apps/compound-return/run",
+    tone: "jade",
+  },
+];
+---
+
+<div class="card overflow-hidden" data-finance-strip>
+  <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b border-line px-4 py-2.5 md:px-5">
+    <p class="text-[12.5px] font-semibold text-ink">
+      <span class="text-brand">금융·투자·연금</span> 한눈에 — 예시값으로 계산한 핵심 숫자
+    </p>
+    <p class="mono text-[12px] text-ink-faint">예시 입력값(가상) · 기준일 {site.baseDate}</p>  </div>
+
+  <ul class="grid grid-cols-2 md:grid-cols-5">
+    {
+      tiles.map((t, i) => (
+        <li
+          class={`border-line-soft ${i < tiles.length - 1 ? "md:border-r" : ""} ${i % 2 === 0 ? "border-r md:border-r" : ""} ${
+            i < tiles.length - 2 ? "border-b md:border-b-0" : ""
+          }`}
+        >
+          <a
+            href={withBase(t.href)}
+            class="group flex h-full flex-col px-4 py-3 transition-colors hover:bg-paper-deep/40"
+            data-finance-tile={t.key}
+          >
+            <span class="text-[12px] font-semibold leading-snug text-ink-muted">{t.label}</span>
+            <span
+              class={`mono mt-1.5 text-[19px] font-bold leading-none tracking-[-0.02em] ${
+                t.tone === "night" ? "text-ink" : t.tone === "jade" ? "text-jade" : "text-brand-deep"
+              }`}
+            >
+              {t.value}
+            </span>
+            <span class="mt-1.5 text-[12px] leading-[1.55] text-ink-faint">{t.sub}</span>
+            <span class="mt-auto pt-2 text-[12px] font-semibold text-brand-deep opacity-100 transition-opacity md:opacity-0 md:group-hover:opacity-100">
+              계산해 보기 →
+            </span>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+
+  <p class="border-t border-line-soft bg-paper-deep/50 px-4 py-2 text-[12px] leading-[1.6] text-ink-muted md:px-5">
+    칸을 누르면 같은 예시값으로 시작하는 실행 화면이 열립니다. 모든 숫자는 가정을 단순화한 참고용
+    계산이며, 실제 수령액·세율은 계약과 소득에 따라 달라집니다.
+  </p>
+</div>

@@ -5,12 +5,29 @@ import ToolRunner from "@/components/tools/ToolRunner.tsx";
 import AdSlot from "@/components/AdSlot.astro";
 import { withBase, site } from "@/config/site";
 import { apps } from "@/data/apps";
+import { hubTools } from "@/data/tools";
 import { allPosts, postPath, formatDate } from "@/lib/posts";
 
+/** 도구 허브 키 → 앱 slug. '다음 앱'은 메인 도구 → 리스크 도구 → 외부 앱 순으로 이어진다. */
 export async function getStaticPaths() {
-  return apps.map((app, i) => ({
+  const HUB_TO_SLUG: Record<string, string> = {
+    pension: "pension-tax",
+    "retirement-flow": "retirement-flow",
+    "compound-return": "compound-return",
+    coverage: "coverage-check",
+    disclosure: "disclosure-check",
+    silson: "silson-compare",
+  };
+  const ordered = [
+    ...hubTools.map((t) => HUB_TO_SLUG[t.key]).filter(Boolean),
+    ...apps.filter((a) => !a.internal).map((a) => a.slug),
+  ]
+    .map((slug) => apps.find((a) => a.slug === slug))
+    .filter((a): a is (typeof apps)[number] => Boolean(a));
+
+  return ordered.map((app, i) => ({
     params: { slug: app.slug },
-    props: { app, next: apps[(i + 1) % apps.length] },
+    props: { app, next: ordered[(i + 1) % ordered.length] },
   }));
 }
 
@@ -145,8 +162,8 @@ const jsonLd = {
           <p>
             <strong class="font-semibold text-ink">결과는 판정이 아닙니다.</strong>
             입력한 값과 공개된 기준을 비교해 확인할 항목을 정리하는 도구입니다. 보험금 지급 여부, 가입
-            가능 여부, 세액공제 확정 여부를 판단하지 않습니다. 최종 판단은 약관·증권과 관계 기관 안내에
-            따릅니다.
+            가능 여부, 세액공제·연금 수령액 확정 여부를 판단하지 않습니다. 최종 판단은 약관·증권과 관계
+            기관 안내에 따릅니다.
           </p>
         </div>
 

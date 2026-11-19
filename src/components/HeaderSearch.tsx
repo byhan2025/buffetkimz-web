@@ -4,10 +4,16 @@ import SearchApp from "./SearchApp";
 
 /**
  * 헤더의 검색 버튼 + 전체 화면 검색 오버레이.
- * 오래 걸리지 않아야 해서 첫 렌더 뒤 인덱스를 미리 받아 둔다.
+ *
+ * 페이지 안의 `data-search-query` 요소(태그·첫 화면 검색 버튼)를 누르면
+ * 이 오버레이가 열리고, 그 값은 컴포넌트 메모리로만 건네진다.
+ * 저장소(브라우저 저장소 등)·주소창·서버 어디에도 검색어를 남기지 않는다.
  */
 export default function HeaderSearch() {
   const [open, setOpen] = useState(false);
+  const [seed, setSeed] = useState("");
+  /** 같은 태그를 다시 눌러도 새 검색어로 시작하도록 오버레이를 다시 마운트하는 열쇠 */
+  const [seedKey, setSeedKey] = useState(0);
   const closeRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
@@ -24,6 +30,18 @@ export default function HeaderSearch() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  /* 페이지 안의 검색 진입점 — 첫 화면 검색 버튼, 글의 태그 */
+  useEffect(() => {
+    const onOpen = (event: Event) => {
+      const detail = (event as CustomEvent<string>).detail ?? "";
+      setSeed(typeof detail === "string" ? detail : "");
+      setSeedKey((k) => k + 1);
+      setOpen(true);
+    };
+    window.addEventListener("buffetkimz:open-search", onOpen as EventListener);
+    return () => window.removeEventListener("buffetkimz:open-search", onOpen as EventListener);
   }, []);
 
   useEffect(() => {
@@ -76,7 +94,7 @@ export default function HeaderSearch() {
               </div>
 
               <div className="mx-auto mt-8 max-w-[720px]">
-                <SearchApp variant="overlay" onClose={() => setOpen(false)} />
+                <SearchApp key={seedKey} variant="overlay" initialQuery={seed} onClose={() => setOpen(false)} />
               </div>
             </div>
           </div>,

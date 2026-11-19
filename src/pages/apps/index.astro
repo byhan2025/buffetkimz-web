@@ -4,26 +4,29 @@ import AdSlot from "@/components/AdSlot.astro";
 import CoverageGauge from "@/components/CoverageGauge.astro";
 import { withBase, site } from "@/config/site";
 import { apps } from "@/data/apps";
-import { hubTools } from "@/data/tools";
+import { hubTools, mainTools, riskTools } from "@/data/tools";
 
 const external = apps.filter((a) => !a.internal);
-/** 홈과 같은 기준의 도구 수 — 계산 도구 + 제도 일정 달력 */
-const calcToolCount = hubTools.filter((t) => t.runHref).length;
+/** 홈과 같은 기준의 도구 수 — 금융·연금 계산 3 + 제도 일정 달력 1 + 리스크 관리 3 */
+const mainCalcCount = mainTools.filter((t) => t.runHref).length;
+const calendarCount = mainTools.length - mainCalcCount;
+const riskCalcCount = riskTools.filter((t) => t.runHref).length;
+const totalCount = hubTools.length;
 
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "ItemList",
   name: "buffetkimz 도구",
-  itemListElement: apps.map((a, i) => ({
+  itemListElement: hubTools.map((t, i) => ({
     "@type": "ListItem",
     position: i + 1,
     item: {
       "@type": "SoftwareApplication",
-      name: a.name,
-      description: a.summary,
+      name: t.name,
+      description: t.what,
       applicationCategory: "FinanceApplication",
       operatingSystem: "Web",
-      url: `${site.url}/apps/${a.slug}`,
+      url: `${site.url}${t.href}`,
       offers: { "@type": "Offer", price: "0", priceCurrency: "KRW" },
     },
   })),
@@ -31,40 +34,54 @@ const jsonLd = {
 ---
 
 <Base
-  title="도구 — 입력하면 확인할 것이 남는 다섯 가지"
-  description="보장 점검, 고지 항목 자가체크, 실손 세대별 비교, 연금저축·IRP 세액공제 계산기, 1~12월 제도 일정 달력. 가입 없이 브라우저에서 실행하고, 입력값은 서버로 보내지 않습니다."
+  title="도구 — 금융·투자·연금 계산과 리스크 관리"
+  description="연금저축·IRP 세액공제, 은퇴 월 현금흐름, 투자 복리·세후 수익률, 1~12월 제도 일정 달력. 보험은 리스크 관리 참고 도구로 따로 모았습니다. 가입 없이 브라우저에서 실행하고 입력값은 서버로 보내지 않습니다."
   path="/apps"
   jsonLd={jsonLd}
 >
   <section class="scene-sky border-b border-line/70">
     <div class="wrap py-10 md:py-14">
       <p class="kicker">도구</p>
-      <h1 class="h-display mt-3 max-w-[16ch] text-ink">가진 숫자를 넣으면,<br />확인할 것이 남습니다.</h1>
-      <p class="lede mt-5 max-w-[52ch]">
-        계산이 되풀이되는 지점을 도구로 옮겼습니다. 다섯 가지 모두 가입 없이 열리고, 입력한 값은 그
-        탭 안에서만 계산됩니다. 결과는 판정이 아니라 확인할 항목입니다.
+      <h1 class="h-display mt-3 max-w-[18ch] text-ink">가진 숫자를 넣으면,<br />확인할 것이 남습니다.</h1>
+      <p class="lede mt-5 max-w-[54ch]">
+        금융·투자·연금 계산 세 가지와 제도 일정 달력을 앞에 두고, 보험은 리스크 관리 참고 도구로 뒤에
+        모았습니다. 모두 가입 없이 열리고, 입력한 값은 그 탭 안에서만 계산됩니다.
       </p>
 
       <div class="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-[12.5px] text-ink-muted">
-        <span data-tool-count={hubTools.length}>도구 <strong class="font-semibold text-ink">{hubTools.length}종</strong> <span class="text-ink-faint">(계산 {calcToolCount} + 달력 {hubTools.length - calcToolCount})</span></span>
+        <span data-tool-count={totalCount}>
+          도구 <strong class="font-semibold text-ink">{totalCount}종</strong>{" "}
+          <span class="text-ink-faint">
+            (금융·연금 {mainCalcCount} + 달력 {calendarCount} + 리스크 관리 {riskCalcCount})
+          </span>
+        </span>
         <span>입력값 서버 미전송</span>
         <span class="mono">기준일 <time datetime={site.baseDate}>{site.baseDate}</time></span>
       </div>
     </div>
   </section>
 
-  <section class="scene-white">
-    <div class="wrap py-10 md:py-14">
+  <!-- 메인 — 금융·투자·연금 도구 3종 + 제도 일정 달력 -->
+  <section class="scene-white" data-tool-grid="main">
+    <div class="wrap pb-8 pt-10 md:pt-12">
       <div class="flex flex-wrap items-end justify-between gap-3">
-        <h2 class="h-section">무엇을 확인·계산하는가</h2>
-        <a href={withBase("/calendar")} class="inline-flex min-h-[44px] items-center text-[13.5px] font-semibold text-ink-soft link">제도 일정 보기</a>
+        <div>
+          <p class="kicker">메인</p>
+          <h2 class="h-section mt-1">금융 · 투자 · 연금 도구</h2>
+        </div>
+        <p class="text-[12.5px] text-ink-muted">계산 {mainCalcCount}종 + 제도 일정 달력 {calendarCount}종</p>
       </div>
 
-      <ul class="mt-6 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+      <ul class="mt-5 grid gap-3 md:grid-cols-2">
         {
-          hubTools.map((t) => (
-            <li class="card card-lift flex flex-col p-5 md:p-6">
-              <h3 class="text-[17px] font-bold leading-snug tracking-[-0.03em] text-ink">{t.name}</h3>
+          mainTools.map((t) => (
+            <li class="card card-lift flex flex-col p-5 md:p-6" data-main-tool={t.key}>
+              <div class="flex items-start justify-between gap-3">
+                <h3 class="text-[17px] font-bold leading-snug tracking-[-0.03em] text-ink">{t.name}</h3>
+                <span class="chip shrink-0 !text-[11.5px]">
+                  {t.runHref ? "계산 도구" : "일정 보기"}
+                </span>
+              </div>
               <p class="mt-2 text-[13.5px] leading-[1.72] text-ink-muted">{t.what}</p>
               <p class="mt-3 text-[12px] text-ink-faint">{t.meta}</p>
               <div class="mt-auto flex flex-wrap items-center gap-2 pt-4">
@@ -75,7 +92,44 @@ const jsonLd = {
                   href={withBase(t.href)}
                   class="inline-flex min-h-[44px] items-center text-[12.5px] font-semibold text-ink-muted hover:text-ink"
                 >
-                  계산 근거·출처
+                  {t.runHref ? "계산 근거·출처" : "일정 기준·출처"}
+                </a>
+              </div>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- 서브 — 리스크 관리(보험) 참고 도구 3종 -->
+  <section class="scene-cream border-y border-line" data-tool-grid="risk">
+    <div class="wrap py-8 md:py-10">
+      <div class="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <p class="kicker text-clay">서브 · 리스크 관리</p>
+          <h2 class="h-sub mt-1">보험 참고 도구</h2>
+        </div>
+        <p class="text-[12.5px] text-ink-muted">보장 점검 · 고지 항목 · 실손 세대 비교 {riskCalcCount}종</p>
+      </div>
+      <p class="mt-2 max-w-[62ch] text-[12.5px] leading-[1.7] text-ink-muted">
+        보험은 없애지 않고 순서를 바꿨습니다. 담보 금액을 확인하고, 고지 항목을 정리하고, 실손 세대별
+        자기부담을 비교하는 세 가지를 참고 도구로 모았습니다. 판정하지 않고 확인할 항목만 정리합니다.
+      </p>
+
+      <ul class="mt-4 grid gap-2.5 md:grid-cols-3">
+        {
+          riskTools.map((t) => (
+            <li class="card flex flex-col p-4" data-risk-tool={t.key}>
+              <h3 class="text-[14.5px] font-bold leading-snug tracking-[-0.02em] text-ink">{t.name}</h3>
+              <p class="clamp-2 mt-1.5 text-[12.5px] leading-[1.65] text-ink-muted">{t.short}</p>
+              <p class="mt-2 text-[12px] text-ink-faint">{t.meta}</p>
+              <div class="mt-auto flex flex-wrap items-center gap-x-3 pt-3">
+                <a href={withBase(t.runHref ?? t.href)} class="text-[12.5px] font-semibold text-brand-deep link">
+                  실행 화면 →
+                </a>
+                <a href={withBase(t.href)} class="inline-flex min-h-[24px] items-center text-[12px] text-ink-muted link hover:text-ink">
+                  기준·출처
                 </a>
               </div>
             </li>
@@ -83,11 +137,15 @@ const jsonLd = {
         }
       </ul>
 
-      <div class="mt-6">
+      <div class="mt-5">
         <CoverageGauge />
       </div>
+    </div>
+  </section>
 
-      <div class="mt-8 grid gap-3 md:grid-cols-3">
+  <section class="scene-white">
+    <div class="wrap py-8 md:py-12">
+      <div class="grid gap-3 md:grid-cols-3">
         <div class="card p-5">
           <p class="text-[12px] font-semibold text-brand">예시 입력값</p>
           <p class="mt-2 text-[13px] leading-[1.72] text-ink-muted">
@@ -99,15 +157,14 @@ const jsonLd = {
           <p class="text-[12px] font-semibold text-brand">계산 기준과 출처</p>
           <p class="mt-2 text-[13px] leading-[1.72] text-ink-muted">
             각 도구는 공개된 1차 자료(법령·감독 당국 안내)를 근거로 계산하며, 기준일을 화면에 함께
-            표시합니다. 5대 담보 기준점은 참고용 내부 예시 기준(공식 약관·보험사 기준 아님)임을 같은
-            화면에서 밝힙니다.
+            표시합니다. 연금·은퇴 시뮬레이션은 가정을 단순화한 참고용 값임을 같은 화면에서 밝힙니다.
           </p>
         </div>
         <div class="card p-5">
           <p class="text-[12px] font-semibold text-brand">하지 않는 일</p>
           <p class="mt-2 text-[13px] leading-[1.72] text-ink-muted">
-            보험금 지급, 가입 가능 여부, 세액공제 확정을 판단하지 않습니다. 최종 확인은 약관·증권과
-            관계 기관 안내에 따릅니다.
+            보험금 지급, 가입 가능 여부, 세액공제·연금 수령액 확정을 판단하지 않습니다. 최종 확인은
+            약관·증권과 관계 기관 안내에 따릅니다.
           </p>
         </div>
       </div>

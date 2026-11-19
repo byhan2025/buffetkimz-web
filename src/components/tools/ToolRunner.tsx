@@ -2,12 +2,16 @@ import CoverageCheck from "./CoverageCheck";
 import DisclosureCheck from "./DisclosureCheck";
 import SilsonCompare from "./SilsonCompare";
 import PensionTax from "./PensionTax";
+import RetirementFlow from "./RetirementFlow";
+import CompoundReturn from "./CompoundReturn";
 
 const MAP: Record<string, (props: { compact?: boolean }) => React.ReactElement> = {
+  "pension-tax": PensionTax,
+  "retirement-flow": RetirementFlow,
+  "compound-return": CompoundReturn,
   "coverage-check": CoverageCheck,
   "disclosure-check": DisclosureCheck,
   "silson-compare": SilsonCompare,
-  "pension-tax": PensionTax,
 };
 
 export default function ToolRunner({ slug, compact = false }: { slug: string; compact?: boolean }) {

@@ -123,7 +123,7 @@ export default function PensionTax({ compact = false }: { compact?: boolean }) {
         </div>
 
         <div className="rounded-lg border border-line bg-paper-deep p-4">
-          <p className="text-[12px] font-bold tracking-[0.1em] text-[#8a6a1e]">계산 전 확인</p>
+          <p className="text-[12px] font-bold tracking-[0.1em] text-[#7a5c17]">계산 전 확인</p>
           <ul className="mt-2 space-y-1.5 text-[12px] leading-relaxed text-[#4a4636]">
             <li>· 세액공제는 그해 산출세액을 넘을 수 없습니다.</li>
             <li>· 퇴직금 이전액·계좌 간 이전액·회사 부담금은 공제 대상이 아닙니다.</li>

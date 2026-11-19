@@ -2,12 +2,30 @@
 /**
  * 앱 카드의 도해. 화면 캡처 대신 구조를 선과 숫자로만 그린다.
  */
+import { RETIREMENT_EXAMPLE, COMPOUND_EXAMPLE, compoundProjection, retirementProjection } from "@/lib/finance";
+
 interface Props {
-  art: "guide" | "coverage" | "disclosure" | "silson" | "pension";
+  art: "guide" | "coverage" | "disclosure" | "silson" | "pension" | "retirement" | "compound";
   compact?: boolean;
 }
 const { art, compact = false } = Astro.props;
 const pad = compact ? "p-4" : "p-5 md:p-6";
+
+const retire = retirementProjection(RETIREMENT_EXAMPLE);
+const compound = compoundProjection(COMPOUND_EXAMPLE);
+const retireRows = [
+  { label: "국민연금", value: retire.nominal.nps },
+  { label: "퇴직연금", value: retire.nominal.dc },
+  { label: "개인연금", value: retire.nominal.personal },
+];
+const retireMax = Math.max(...retireRows.map((r) => r.value), 1);
+const compoundRows = [
+  { label: "납입 원금", value: compound.principal },
+  { label: "세전", value: compound.gross },
+  { label: "세후", value: compound.net },
+];
+const compoundMax = Math.max(...compoundRows.map((r) => r.value), 1);
+const man = (v: number) => Math.round(v).toLocaleString("ko-KR");
 ---
 
 <div class={`relative h-full w-full overflow-hidden border border-line bg-paper-deep ${pad}`} aria-hidden="true">
@@ -132,6 +150,62 @@ const pad = compact ? "p-4" : "p-5 md:p-6";
           </div>
         </div>
         <p class="mt-3 text-[12px] text-ink-faint">단위 만원 · 12월 31일까지</p>
+      </div>
+    )
+  }
+
+  {
+    art === "retirement" && (
+      <div class="relative">
+        <p class="text-[12px] font-semibold tracking-[0.12em] text-ink-faint">은퇴 후 월 수령액</p>
+        <ul class="mt-4 space-y-3">
+          {retireRows.map((row) => (
+            <li>
+              <div class="flex items-baseline justify-between text-[12px]">
+                <span class="font-medium text-ink-soft">{row.label}</span>
+                <span class="tabular-nums text-ink-faint">{man(row.value)}만</span>
+              </div>
+              <div class="mt-1.5 h-[6px] w-full bg-line-soft">
+                <div
+                  class="h-full bg-brand/85"
+                  style={`width:${Math.max(4, Math.round((row.value / retireMax) * 100))}%`}
+                />
+              </div>
+            </li>
+          ))}
+        </ul>
+        <div class="mt-4 flex items-baseline justify-between border-t border-line pt-2">
+          <span class="text-[12px] text-ink-faint">합계(명목)</span>
+          <span class="text-[17px] font-bold tabular-nums text-ink">{man(retire.nominal.total)}만원</span>
+        </div>
+        <p class="mt-2 text-[12px] text-ink-faint">오늘 가치 {man(retire.real.total)}만 · 65세 은퇴 가정</p>
+      </div>
+    )
+  }
+
+  {
+    art === "compound" && (
+      <div class="relative">
+        <p class="text-[12px] font-semibold tracking-[0.12em] text-ink-faint">원금에서 세후까지</p>
+        <ul class="mt-4 space-y-3.5">
+          {compoundRows.map((row, i) => (
+            <li>
+              <div class="flex items-baseline justify-between text-[12px]">
+                <span class="font-medium text-ink-soft">{row.label}</span>
+                <span class="tabular-nums text-ink-faint">{man(row.value)}만</span>
+              </div>
+              <div class="mt-1.5 h-[8px] w-full bg-line-soft">
+                <div
+                  class={`h-full ${i === 2 ? "bg-brand" : "bg-brand/60"}`}
+                  style={`width:${Math.max(4, Math.round((row.value / compoundMax) * 100))}%`}
+                />
+              </div>
+            </li>
+          ))}
+        </ul>
+        <p class="mt-4 text-[12px] leading-relaxed text-ink-faint">
+          월 50만·20년·연 5.0% 가정 · 세금 {man(compound.tax)}만 제외
+        </p>
       </div>
     )
   }

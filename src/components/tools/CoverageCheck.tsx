@@ -33,7 +33,7 @@ type Row = {
 /* 홈 미리보기·도해와 같은 3상태 라벨을 쓴다 — "충족"은 보장 충분 판정으로 읽힌다. */
 function judge(ratio: number) {
   if (ratio >= 1) return { label: COVERAGE_LABEL.ok, cls: "text-jade", tone: "jade" as const };
-  if (ratio >= 0.7) return { label: COVERAGE_LABEL.review, cls: "text-[#8a6a1e]", tone: "brand" as const };
+  if (ratio >= 0.7) return { label: COVERAGE_LABEL.review, cls: "text-[#7a5c17]", tone: "brand" as const };
   return { label: COVERAGE_LABEL.check, cls: "text-[#a8455c]", tone: "rose" as const };
 }
 
