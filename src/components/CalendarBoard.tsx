@@ -86,7 +86,7 @@ export default function CalendarBoard({ items, initialMonth, note }: Props) {
                 type="button"
                 aria-pressed={active}
                 onClick={() => setTag(t as CalendarTag | "전체")}
-                className={`inline-flex min-h-[40px] items-center gap-1.5 text-[13px] transition-colors ${
+                className={`inline-flex min-h-[44px] items-center gap-1.5 text-[13px] transition-colors ${
                   active ? "font-bold text-ink underline underline-offset-4" : "text-ink-muted hover:text-ink"
                 }`}
               >
