@@ -1,39 +1,37 @@
 ---
 import Base from "@/layouts/Base.astro";
-import RetirementHeroCard from "@/components/RetirementHeroCard.astro";
+import HeroSim from "@/components/HeroSim.tsx";
+import IntroManifesto from "@/components/home/IntroManifesto.astro";
+import ArchiveLibrary from "@/components/home/ArchiveLibrary.astro";
+import TrustSplit from "@/components/home/TrustSplit.astro";
+import ChannelBand from "@/components/home/ChannelBand.astro";
 import FinanceStrip from "@/components/FinanceStrip.astro";
 import ToolPreview from "@/components/ToolPreview.astro";
-import AdSlot from "@/components/AdSlot.astro";
 import { withBase, site } from "@/config/site";
-import { apps } from "@/data/apps";
-import { calendar } from "@/data/calendar";
-import { channels, confirmedLinks } from "@/data/channels";
+import { channels } from "@/data/channels";
 import { hubTools, mainTools, riskTools } from "@/data/tools";
-import { categoryName, type CategorySlug } from "@/data/categories";
-import {
-  allPosts,
-  postPath,
-  formatDateShort,
-  koreanDate,
-  shouldShowQuestion,
-  sourceOrgLine,
-} from "@/lib/posts";
+import { calendar } from "@/data/calendar";
+import { allPosts, koreanDate } from "@/lib/posts";
 
 /**
- * v4.1 홈 — 도입부에서 마무리까지 다섯 영역으로 나누고 배경을 교차한다.
- *  ① 프레임드 히어로(화이트·스카이블루) + 은퇴 월 현금흐름 시뮬레이터 창
- *  ② 요즘 확인한 것 — 기록 4칸 (AIMAX식 2단 머리글 + 균일 카드)
- *  ③ 브라우저 도구 쇼케이스 (미스트 배경, 3열 카드 + '화면 예시' 미리보기 + 리스크 3종 1줄)
- *  ④ 제도 일정 + 신뢰 기준 2단 스플릿 (단색 강조 카드 1장은 페이지에서 여기 하나)
- *  ⑤ 7대 채널 + 1:1 상담문의 배너 (푸터는 컴포넌트)
+ * buffetkimz v5.0 — 도입부 2페이지 + 아카이브 + 도구 + 신뢰 + 채널.
  *
- * 보험은 없애지 않고 '리스크 관리'로 한 단계 내린다 — 다루는 영역은 그대로, 비중만 바꾼다.
- * 버튼은 세 단계뿐이다: Primary(실행) · Secondary(근거·전체 보기·카드 액션) · Tertiary(검색·일정·상담문의).
+ *  ① 1페이지 히어로 — 프레임 안의 화이트·스카이블루, 오른쪽은 '조작되는' 은퇴 시뮬레이터 창
+ *  ② 2페이지 서사 — 이곳이 무엇을 하는 곳인지(7대 주제·편집 원칙 4·자료→기록→도구 3단계)
+ *  ③ 아카이브 — 7대 주제·6개 시리즈·처음 읽을 글·자주 찾는 계산
+ *  ④ 도구 쇼케이스 — 금융·투자·연금 메인 4 + 리스크 관리 3
+ *  ⑤ 신뢰 2단 스플릿 — 딥그린 강조 카드 + 공식 출처·기준일 데이터 카드 + 이번 달 일정
+ *  ⑥ 채널 7곳 + 딥그린 1:1 상담문의 배너
+ *
+ * 배경 리듬: 스카이(1) → 화이트(2) → 크림(3) → 미스트(4) → 스카이밴드(5) → 화이트+딥그린(6)
  */
 const posts = await allPosts();
-const thisMonth = site.today.getMonth() + 1;
 
-/** 카드 버튼은 짧게 — 도구 정식 이름은 도구 섹션에 그대로 있다. */
+const sourcedCalendar = calendar.filter((c) => Boolean(c.source));
+const calcToolCount = mainTools.filter((t) => t.runHref).length;
+const riskCalcCount = riskTools.filter((t) => t.runHref).length;
+const channelCount = channels.length;
+
 const shortToolLabel: Record<string, string> = {
   "pension-tax": "세액공제 계산 열기",
   "retirement-flow": "은퇴 계산 열기",
@@ -43,7 +41,6 @@ const shortToolLabel: Record<string, string> = {
   "silson-compare": "실손 비교 열기",
 };
 
-/** 도구 카드 미리보기 종류 */
 const previewVariant: Record<string, "pension" | "retirement" | "compound" | "calendar"> = {
   pension: "pension",
   "retirement-flow": "retirement",
@@ -51,78 +48,18 @@ const previewVariant: Record<string, "pension" | "retirement" | "compound" | "ca
   calendar: "calendar",
 };
 
-/**
- * 홈 4칸은 최신순 그대로 두지 않는다.
- * 금융·투자·연금·노후를 먼저 채우고, 보험 색채가 강한 글은 아래로 내린다.
- */
-const HOME_CARD_ORDER: CategorySlug[] = [
-  "invest",
-  "pension",
-  "retire",
-  "finance",
-  "economy",
-  "ai",
-  "philosophy",
-  "insurance",
-];
-/** 보험 도구를 소개하는 AI 글 — 홈 첫 화면 4칸에서는 내린다 */
-const HOME_CARD_HOLD = new Set(["ai-coverage-tool"]);
-
-const picked: typeof posts = [];
-for (const category of HOME_CARD_ORDER) {
-  const found = posts.find((p) => p.data.category === category && !HOME_CARD_HOLD.has(p.id));
-  if (found) picked.push(found);
-  if (picked.length === 4) break;
-}
-
-const cardItems = picked.map((p) => {
-  const app = p.data.app ? apps.find((a) => a.slug === p.data.app) : undefined;
-  const toolUrl =
-    p.data.toolHref ?? (app?.internal ? `/apps/${app.slug}/run` : app ? `/apps/${app.slug}` : undefined);
-  const toolName = p.data.toolTitle ?? (app ? (shortToolLabel[app.slug] ?? `${app.name} 열기`) : undefined);
-  return {
-    url: postPath(p),
-    title: p.data.title,
-    question: shouldShowQuestion(p.data.question, p.data.title) ? p.data.question : undefined,
-    categoryName: categoryName(p.data.category),
-    date: formatDateShort(p.data.publishedAt),
-    readingMinutes: p.data.readingMinutes,
-    baseDate: site.baseDate,
-    sourceOrgLine: sourceOrgLine(p.data.sources),
-    sourceCount: p.data.sources.length,
-    toolUrl,
-    toolName,
-  };
-});
-
-/**
- * 실측 수치 — 글 컬렉션·도구 배열·제도 일정 데이터에서 빌드 시점에 그대로 센다.
- * 손으로 적은 숫자를 두지 않는다. 제도 일정은 공식 출처(source)가 적힌 항목만 센다.
- */
-const sourcedCalendar = calendar.filter((c) => Boolean(c.source));
-const calcToolCount = mainTools.filter((t) => t.runHref).length;
-const mainCalcCount = calcToolCount;
-const riskCalcCount = riskTools.filter((t) => t.runHref).length;
-const channelCount = channels.length;
-
-/** 4대 축 — 첫 화면 인덱스. 도구 수는 /apps와 같은 기준으로 센다. */
+/** 4대 축 — 첫 화면 인덱스 */
 const axes = [
   { href: "/posts", label: "블로그 기록", note: "기준일·출처 표기", count: `${posts.length}편` },
   {
     href: "/apps",
     label: "도구",
-    note: `금융·연금 ${mainCalcCount} + 달력 ${mainTools.length - mainCalcCount} + 리스크 관리 ${riskCalcCount}`,
+    note: `금융·연금 ${calcToolCount} + 달력 ${mainTools.length - calcToolCount} + 리스크 관리 ${riskCalcCount}`,
     count: `${hubTools.length}종`,
   },
   { href: "/calendar", label: "제도 일정 달력", note: "1~12월 기한과 절차", count: `${sourcedCalendar.length}건` },
   { href: "/#channels", label: "연결 채널", note: `채널 ${channelCount}곳 + 코드 보관소`, count: `${channelCount}곳` },
 ];
-
-const monthItems = calendar.filter((c) => c.month === thisMonth);
-const upcoming = [
-  ...monthItems.filter((c) => c.key),
-  ...monthItems.filter((c) => !c.key),
-].slice(0, 3);
 
 const jsonLd = {
   "@context": "https://schema.org",
@@ -152,28 +89,28 @@ const jsonLd = {
   path="/"
   jsonLd={jsonLd}
 >
-  <!-- ① 도입부 — 둥근 프레임 안의 히어로(화이트·스카이블루) + 시뮬레이터 창 -->
+  <!-- ① 1페이지 — 프레임드 히어로(화이트·스카이블루) + 조작되는 시뮬레이터 창 -->
   <section class="scene-sky-soft pb-6 pt-4 md:pb-8 md:pt-6" data-area="1">
     <div class="wrap">
       <div class="hero-shell">
         <div class="flex flex-wrap items-baseline justify-between gap-2 border-b border-ink/10 px-5 py-3 md:px-8">
           <p class="text-[12.5px] font-semibold tracking-[-0.01em] text-ink-soft">
-            금융 · 투자 · 연금 · 노후 · AI
+            금융·투자·연금·노후·경제·AI·보험
           </p>
           <p class="mono text-[12px] text-ink-faint">
             <time datetime={site.baseDate}>{koreanDate(site.today)}</time> 기준
           </p>
         </div>
 
-        <div class="grid items-center gap-6 px-5 pb-6 pt-6 md:px-8 md:pt-8 lg:grid-cols-[1.02fr_0.98fr] lg:gap-x-12">
+        <div class="grid items-center gap-6 px-5 pb-6 pt-6 md:px-8 md:pt-8 lg:grid-cols-[0.98fr_1.02fr] lg:gap-x-10">
           <div>
             <p class="eyebrow">기록하는 금융 도구</p>
-            <h1 class="hero-title mt-3 max-w-[15ch] text-[clamp(31px,4vw,52px)] font-bold leading-[1.08] tracking-[-0.045em] text-ink">
+            <h1 class="hero-title mt-3 max-w-[15ch] text-[clamp(32px,4.1vw,54px)] font-bold leading-[1.08] tracking-[-0.045em] text-ink">
               숫자를 확인하고,<br />기록으로 남깁니다.
             </h1>
             <p class="lede hero-soft mt-3 max-w-[44ch] text-[15px] leading-[1.7]">
-              금리와 환율, 투자와 연금, 은퇴 후 매달 나가는 돈. 공개된 1차 자료로 확인한 기준과 출처를 붙여
-              남기고, 되풀이되는 계산은 브라우저에서 바로 쓰는 도구로 옮겼습니다.
+              금리와 환율, 투자와 연금, 은퇴 후 매달 나가는 돈. 공개된 1차 자료로 확인한 기준과 출처를
+              붙여 남기고, 되풀이되는 계산은 브라우저에서 바로 쓰는 도구로 옮겼습니다.
             </p>
 
             <div class="hero-actions hero-soft mt-5 flex flex-wrap items-center gap-2">
@@ -195,15 +132,15 @@ const jsonLd = {
             <p class="hero-soft mono mt-3 text-[12px] leading-relaxed text-ink-muted" data-tool-count={hubTools.length}>
               <span class="whitespace-nowrap">기록 <strong class="font-semibold text-ink">{posts.length}편</strong></span> ·{" "}
               <span class="whitespace-nowrap">도구 <strong class="font-semibold text-ink">{hubTools.length}종</strong></span>{" "}
-              <span class="whitespace-nowrap">(금융·연금 {mainCalcCount} + 달력 {mainTools.length - mainCalcCount} + 리스크 관리{" "}
+              <span class="whitespace-nowrap">(금융·연금 {calcToolCount} + 달력 {mainTools.length - calcToolCount} + 리스크 관리{" "}
               {riskCalcCount})</span> ·{" "}
               <span class="whitespace-nowrap">제도 일정 <strong class="font-semibold text-ink">{sourcedCalendar.length}건</strong></span>
               <span class="text-ink-faint" data-trust-line> · <span class="whitespace-nowrap">모든 글에 기준일·1차 출처</span></span>
             </p>
           </div>
 
-          <div class="hero-soft mx-auto w-full max-w-[440px] lg:mx-0 lg:max-w-none">
-            <RetirementHeroCard />
+          <div class="hero-soft mx-auto w-full max-w-[460px] lg:mx-0 lg:max-w-none">
+            <HeroSim client:idle />
           </div>
         </div>
 
@@ -227,74 +164,25 @@ const jsonLd = {
     </div>
   </section>
 
-  <!-- ② 크림 — 요즘 확인한 것 (기록 4칸) -->
-  <section class="scene-cream border-y border-line/70" data-area="2">
-    <div class="wrap py-7 md:py-10">
-      <div class="sec-head">
-        <div>
-          <p class="eyebrow">기록 · RECENT</p>
-          <h2 class="sec-title">요즘 확인한 것,<br />네 편의 기록</h2>
-        </div>
-        <div class="sec-head-side">
-          <p class="sec-desc">금리·연금·보험의 숫자를 공개된 1차 자료로 확인해 남깁니다.<br />모든 글에 기준일과 출처를 붙였습니다.</p>
-          <div class="sec-head-actions">
-            <a href={withBase("/posts")} class="btn btn-secondary btn-sm">기록 {posts.length}편 전체</a>
-          </div>
-        </div>
-      </div>
+  <!-- ② 2페이지 — 이곳은 무엇을 하는 곳인가 (원칙·3단계 연결) -->
+  <IntroManifesto />
 
-      <ul class="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4" data-post-cards>
-        {
-          cardItems.map((item) => (
-            <li class="card card-lift flex flex-col p-4">
-              <div class="flex items-baseline justify-between gap-2">
-                <span class="text-[12px] font-semibold tracking-[0.02em] text-brand">{item.categoryName}</span>
-                <span class="mono text-[12px] text-ink-faint">{item.date}</span>
-              </div>
+  <!-- ③ 아카이브 — 7대 주제·시리즈·처음 읽을 글 -->
+  <ArchiveLibrary />
 
-              {item.question && (
-                <p class="clamp-2 mt-2 text-[12.5px] font-semibold leading-snug text-ink-muted">
-                  <span class="text-brand">Q.</span> {item.question}
-                </p>
-              )}
-
-              <h3 class="clamp-2 mt-1.5 text-[15px] font-bold leading-[1.42] tracking-[-0.03em] text-ink">
-                <a href={withBase(item.url)} class="hover:text-brand-deep">{item.title}</a>
-              </h3>
-
-              <p class="mono mt-auto pt-2 text-[12px] leading-[1.5] text-ink-faint" data-card-meta>
-                확인 기준일 {item.baseDate} · {item.sourceOrgLine || `출처 ${item.sourceCount}건`}
-              </p>
-
-              <div class="flex items-center justify-between gap-2 pt-2.5">
-                {item.toolUrl ? (
-                  <a href={withBase(item.toolUrl)} class="btn btn-secondary btn-xs">
-                    {item.toolName}
-                  </a>
-                ) : (
-                  <a href={withBase(item.url)} class="btn btn-secondary btn-xs">글 읽기</a>
-                )}
-                <span class="text-[12px] text-ink-faint">{item.readingMinutes}분</span>
-              </div>
-            </li>
-          ))
-        }
-      </ul>
-
-      <AdSlot id="home-feed-bottom" size="leaderboard" />
-    </div>
-  </section>
-
-  <!-- ③ 미스트 — 브라우저 도구 쇼케이스 -->
-  <section class="scene-mist border-b border-line" data-area="3">
-    <div class="wrap py-7 md:py-10">
+  <!-- ④ 미스트 — 브라우저 도구 쇼케이스 -->
+  <section class="scene-mist border-b border-line" data-area="4" id="tools">
+    <div class="wrap py-10 md:py-14">
       <div class="sec-head">
         <div>
           <p class="eyebrow">도구 · TOOLS</p>
           <h2 class="sec-title">가입 없이,<br />브라우저에서 바로</h2>
         </div>
         <div class="sec-head-side">
-          <p class="sec-desc">입력한 값은 서버로 보내지 않고 그 탭 안에서만 계산합니다.<br />모든 도구에 예시 입력값·계산 기준·출처·기준일을 함께 적었습니다.</p>
+          <p class="sec-desc">
+            입력한 값은 서버로 보내지 않고 그 탭 안에서만 계산합니다.<br />
+            모든 도구에 예시 입력값·계산 기준·출처·기준일을 함께 적었습니다.
+          </p>
           <div class="sec-head-actions">
             <a href={withBase("/apps")} class="btn btn-secondary btn-sm">도구 소개 전체</a>
           </div>
@@ -367,183 +255,9 @@ const jsonLd = {
     </div>
   </section>
 
-  <!-- ④ 화이트 — 제도 일정 + 신뢰 기준 2단 스플릿 -->
-  <section class="scene-white border-b border-line" data-area="4">
-    <div class="wrap py-7 md:py-10">
-      <div class="sec-head">
-        <div>
-          <p class="eyebrow">기준 · POLICY</p>
-          <h2 class="sec-title">지키는 기준과,<br />다가오는 일정</h2>
-        </div>
-        <div class="sec-head-side">
-          <p class="sec-desc">계산의 근거가 되는 세 가지 원칙과, 다가오는 제도 일정을<br />한 화면에 나란히 두었습니다. 기준일 {site.baseDate}.</p>
-        </div>
-      </div>
+  <!-- ⑤ 신뢰 2단 스플릿 + 이번 달 일정 -->
+  <TrustSplit postsCount={posts.length} toolCount={hubTools.length} channelCount={channelCount} />
 
-      <div class="mt-5 grid gap-3 lg:grid-cols-[0.92fr_1.08fr]">
-        <!-- 페이지에서 유일한 단색 강조 카드 -->
-        <div class="accent-card">
-          <p class="mono text-[12px] tracking-[0.08em] text-[#c9e6dd]">이 사이트가 지키는 세 가지</p>
-          <h3 class="mt-1.5 text-[19px] font-bold leading-snug tracking-[-0.03em] text-white">
-            입력값 브라우저 내 계산 ·<br />서버 저장 0건 · 1차 출처 기준
-          </h3>
-
-          <ul class="mt-4 space-y-3">
-            <li class="flex gap-3">
-              <span class="accent-mark" aria-hidden="true">
-                <svg viewBox="0 0 24 24" class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2.4">
-                  <path d="m5 12.5 4.2 4.2L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
-                </svg>
-              </span>
-              <span>
-                <span class="block text-[13.5px] font-semibold text-white">입력값 브라우저 내 계산</span>
-                <span class="mt-0.5 block text-[12px] leading-[1.65] text-[#dbeee8]">
-                  입력한 금액은 그 탭의 메모리에서만 계산되고 어디로도 전송되지 않습니다.
-                </span>
-              </span>
-            </li>
-            <li class="flex gap-3">
-              <span class="accent-mark" aria-hidden="true">
-                <svg viewBox="0 0 24 24" class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2.4">
-                  <path d="m5 12.5 4.2 4.2L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
-                </svg>
-              </span>
-              <span>
-                <span class="block text-[13.5px] font-semibold text-white">서버 저장 0건</span>
-                <span class="mt-0.5 block text-[12px] leading-[1.65] text-[#dbeee8]">
-                  로그인도, 계정도, 저장소도 두지 않았습니다. 주소창에도 검색어를 남기지 않습니다.
-                </span>
-              </span>
-            </li>
-            <li class="flex gap-3">
-              <span class="accent-mark" aria-hidden="true">
-                <svg viewBox="0 0 24 24" class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2.4">
-                  <path d="m5 12.5 4.2 4.2L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
-                </svg>
-              </span>
-              <span>
-                <span class="block text-[13.5px] font-semibold text-white">1차 출처 기준</span>
-                <span class="mt-0.5 block text-[12px] leading-[1.65] text-[#dbeee8]">
-                  법령·감독 당국 안내를 먼저 보고, 모든 글과 도구에 기준일을 남깁니다.
-                </span>
-              </span>
-            </li>
-          </ul>
-
-          <div class="accent-line mt-4 flex flex-wrap items-center gap-2 pt-3">
-            <a href={withBase("/about")} class="btn btn-sm btn-on-solid">기준과 소개 보기</a>
-            <a href={withBase("/privacy")} class="btn btn-sm btn-on-solid">개인정보처리방침</a>
-          </div>
-        </div>
-
-        <!-- 흰 카드 — 다가오는 제도 일정 근거 -->
-        <div class="card p-5 md:p-6">
-          <div class="flex flex-wrap items-baseline justify-between gap-2">
-            <p class="mono text-[12px] tracking-[0.06em] text-brand">제도 일정 · {thisMonth}월</p>
-            <a href={withBase("/calendar")} class="btn btn-tertiary-quiet btn-xs !px-2">1~12월 {calendar.length}건</a>
-          </div>
-          <h3 class="mt-1 h-sub">다가오는 제도 일정</h3>
-          <p class="mt-1.5 max-w-[48ch] text-[13px] leading-[1.7] text-ink-muted">
-            날짜를 놓쳐서 생기는 손해가 있습니다. 연말정산·연금 납입 마감·건보료 정산처럼 매달 반복되는
-            기한과 절차를 한 장에 모았습니다.
-          </p>
-
-          <ul class="mt-3 divide-y divide-line border-y border-line">
-            {
-              upcoming.map((item) => (
-                <li class="grid gap-0.5 py-2.5 sm:grid-cols-[92px_1fr] sm:gap-4">
-                  <p class="mono text-[12px] text-brand-deep">{item.when}</p>
-                  <div>
-                    <p class="text-[13.5px] font-semibold leading-snug text-ink">{item.title}</p>
-                    <p class="clamp-2 mt-0.5 text-[12px] leading-[1.6] text-ink-muted">{item.action}</p>
-                  </div>
-                </li>
-              ))
-            }
-          </ul>
-
-          <div class="mt-4 flex flex-wrap items-center gap-3">
-            <a href={withBase("/calendar")} class="btn btn-primary btn-sm">제도 일정 달력 열기</a>
-            <span class="text-[12px] text-ink-faint">기준일 {site.baseDate}</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ⑤ 하늘 — 7대 채널 + 마무리 1:1 상담문의 배너 -->
-  <section id="channels" class="scene-sky-band border-b border-line" data-area="5">
-    <div class="wrap py-7 md:py-10">
-      <div class="sec-head">
-        <div>
-          <p class="eyebrow">채널 · {channelCount}곳</p>
-          <h2 class="sec-title">글은 여기에 모이고,<br />채널은 각자의 결로</h2>
-        </div>
-        <div class="sec-head-side">
-          <p class="sec-desc">이 사이트가 본진입니다. 긴 글과 기록은 여기에 남깁니다.<br />짧은 글은 각 채널에, 확정된 주소부터 순차 연결합니다.</p>
-        </div>
-      </div>
-
-      <ul class="mt-5 grid gap-2 sm:grid-cols-2" data-channel-list>
-        {
-          channels.map((c) => (
-            <li class="flex items-center justify-between gap-3 rounded-xl border border-line bg-white/85 px-3.5 py-2">
-              <span class="min-w-0">
-                <span class="block text-[13.5px] font-semibold text-ink">{c.name}</span>
-                <span class="block truncate text-[12px] text-ink-muted">{c.note}</span>
-              </span>
-              {c.url ? (
-                <a href={c.url} target="_blank" rel="noopener noreferrer" class="btn btn-tertiary btn-xs shrink-0">
-                  열기
-                </a>
-              ) : (
-                <span class="shrink-0 text-[12px] text-ink-faint">주소 정리 중</span>
-              )}
-            </li>
-          ))
-        }
-      </ul>
-
-      <div class="mt-2 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-dashed border-line bg-white/60 px-3.5 py-2">
-        <span class="text-[12px] text-ink-muted">
-          <span class="font-semibold text-ink-soft">코드 보관소</span> · 앱의 코드와 배포 기록
-        </span>
-        <a
-          href={confirmedLinks[0].url}
-          target="_blank"
-          rel="noopener noreferrer"
-          class="btn btn-tertiary btn-xs"
-        >
-          {confirmedLinks[0].name} 코드 열기
-        </a>
-      </div>
-
-      <!-- 마무리 배너 — 1:1 상담문의 -->
-      <div class="cta-banner mt-4" data-contact-banner>
-        <div class="grid gap-4 md:grid-cols-[1fr_auto] md:items-center md:gap-8">
-          <div>
-            <p class="eyebrow">{site.contact.label}</p>
-            <h3 class="mt-2 text-[18px] font-bold leading-snug tracking-[-0.03em] text-ink md:text-[21px]">
-              도구 사용법이나 기준·출처가 궁금하면 1:1 상담문의로 남겨 주세요.
-            </h3>
-            <p class="mt-1.5 text-[12.5px] leading-[1.7] text-ink-muted">
-              답변은 확인 가능한 범위에서 드립니다.
-            </p>
-            <p class="mt-0.5 text-[12px] leading-[1.7] text-ink-faint">{site.contact.disclaimer}</p>
-          </div>
-          <a
-            href={site.contact.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="btn btn-tertiary w-full md:w-auto"
-          >
-            <svg viewBox="0 0 24 24" class="h-4 w-4" fill="currentColor" aria-hidden="true">
-              <path d="M12 4c-4.4 0-8 2.6-8 5.8 0 2 1.3 3.8 3.4 4.9-.2.7-.7 2.3-.8 2.7 0 .3.2.4.4.3.4-.2 2.3-1.6 3-2.1.6.1 1.3.1 2 .1 4.4 0 8-2.6 8-5.9S16.4 4 12 4Z" />
-            </svg>
-            {site.contact.label}
-          </a>
-        </div>
-      </div>
-    </div>
-  </section>
+  <!-- ⑥ 7개 채널 + 딥그린 상담문의 배너 -->
+  <ChannelBand />
 </Base>

@@ -29,7 +29,17 @@ const policyLinks = [
   <div class="wrap py-6 md:py-8">
     <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
       <div class="max-w-[46ch]">
-        <a href={withBase("/")} class="serif text-[22px] leading-none text-ink">buffetkimz</a>
+        <a href={withBase("/")} class="inline-flex min-h-[44px] items-center" aria-label="buffetkimz 홈">
+          <img
+            src={withBase("/brand/logo-buffetkimz-96.png")}
+            width="315"
+            height="96"
+            alt="버핏킴즈"
+            class="h-[26px] w-auto"
+            loading="lazy"
+            decoding="async"
+          />
+        </a>
         <p class="mt-1.5 text-[12.5px] leading-[1.7] text-ink-muted">
           금융과 돈에 관한 기록, 그리고 직접 만든 도구. 확인한 기준과 출처를 붙여 남깁니다.
         </p>
@@ -55,7 +65,7 @@ const policyLinks = [
     </div>
 
     <p class="mt-1 border-t border-line/70 pt-2 text-[12.5px] leading-[1.9] text-ink-muted md:mt-2">
-      <span class="text-ink-muted">기록</span>
+      <span class="mr-1 font-semibold text-ink">기록</span>
       {
         categories.map((c, i) => (
           <>
@@ -65,7 +75,7 @@ const policyLinks = [
         ))
       }
       <span class="mx-2 text-line" aria-hidden="true">|</span>
-      <span class="text-ink-muted">도구</span>
+      <span class="mr-1 font-semibold text-ink">도구</span>
       {
         internalApps.map((a, i) => (
           <>

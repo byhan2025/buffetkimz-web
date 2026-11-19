@@ -1,0 +1,139 @@
+---
+/**
+ * 도입부 2페이지 — 이 사이트가 무엇을 하는 곳인지, 어떤 원칙으로 쓰는지.
+ *
+ * 히어로(1페이지)에서 바로 이어지는 '서사' 층이다.
+ * 개인 신상·가족·수익 약속은 넣지 않는다. 확인한 방식과 다루는 범위만 적는다.
+ */
+import { channels } from "@/data/channels";
+
+const principles = [
+  {
+    no: "01",
+    title: "공식 원문 확인",
+    body: "금융위·금감원·국세청·공단의 원문을 먼저 보고, 보도자료의 요약은 원문과 대조합니다.",
+  },
+  {
+    no: "02",
+    title: "기준일 명시",
+    body: "모든 글과 도구에 확인한 날짜를 붙입니다. 기준일 없는 숫자는 싣지 않습니다.",
+  },
+  {
+    no: "03",
+    title: "가정과 한계 공개",
+    body: "계산에 넣은 가정과 넣지 못한 것(세금·수수료·물가 등)을 결과 옆에 함께 적습니다.",
+  },
+  {
+    no: "04",
+    title: "영업·과장 배제",
+    body: "가입 권유, 수익률 약속, '무조건' 같은 단정 표현을 쓰지 않습니다.",
+  },
+];
+
+const identities = [
+  {
+    no: "01",
+    title: "금융 · 투자 · 연금 · 노후준비",
+    body: "돈이 들어오고 나가고 쌓이는 구조를 중심에 둡니다.",
+  },
+  {
+    no: "02",
+    title: "리스크 관리로서의 보험",
+    body: "보험은 없애지 않고, 한 걸음 뒤에서 지급 조건과 고지를 봅니다.",
+  },
+  {
+    no: "03",
+    title: "기록과 계산 도구",
+    body: "글로 남긴 기준을, 되풀이되는 계산은 브라우저 도구로 옮깁니다.",
+  },
+];
+
+const channelLine = channels.map((c) => c.name).join(" · ");
+---
+
+<section class="scene-white border-b border-line" data-area="2" id="about">
+  <div class="wrap py-10 md:py-14">
+    <div class="grid gap-8 lg:grid-cols-[0.96fr_1.04fr] lg:gap-14">
+      <div>
+        <p class="eyebrow">이곳은 · WHAT THIS IS</p>
+        <h2 class="mt-3 max-w-[20ch] text-[clamp(28px,3.5vw,42px)] font-bold leading-[1.18] tracking-[-0.04em] text-ink">
+          확인한 것과,<br />계산한 것으로만 씁니다.
+        </h2>
+        <p class="mt-4 max-w-[46ch] text-[15px] leading-[1.78] text-ink-muted">
+          돈의 숫자를 다룹니다. 금융·투자·연금·노후준비를 중심에 두고, 보험은 리스크 관리로 한 걸음
+          뒤에 둡니다. 뉴스의 결론을 그대로 옮기지 않고, 공개된 자료에서 확인한 기준과 그 기준일을 함께
+          적습니다.
+        </p>
+
+        <ul class="mt-6 space-y-3" data-intro-identity>
+          {
+            identities.map((item) => (
+              <li class="flex gap-3">
+                <span class="mono mt-0.5 shrink-0 text-[12px] font-semibold text-brand">{item.no}</span>
+                <span class="min-w-0">
+                  <span class="block text-[14px] font-bold leading-snug tracking-[-0.02em] text-ink">{item.title}</span>
+                  <span class="mt-0.5 block text-[12.5px] leading-[1.65] text-ink-muted">{item.body}</span>
+                </span>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <div>
+        <div class="flex items-baseline justify-between gap-3">
+          <p class="text-[13px] font-bold tracking-[-0.02em] text-ink">편집 원칙 네 가지</p>
+          <span class="mono text-[12px] text-ink-faint">EDITORIAL RULES</span>
+        </div>
+        <ul class="principle-grid mt-2.5" data-intro-principles>
+          {
+            principles.map((p) => (
+              <li class="principle">
+                <span class="mono text-[12px] font-semibold text-brand">{p.no}</span>
+                <h3 class="mt-1 text-[14.5px] font-bold leading-snug tracking-[-0.025em] text-ink">{p.title}</h3>
+                <p class="mt-1.5 text-[12.5px] leading-[1.68] text-ink-muted">{p.body}</p>
+              </li>
+            ))
+          }
+        </ul>
+        <p class="mt-2 text-[12px] leading-[1.65] text-ink-faint">
+          판정·추천·가입 권유가 아닙니다. 확인할 항목과 계산의 근거를 정리하는 곳입니다.
+        </p>
+      </div>
+    </div>
+
+    <!-- 3단계 연결 도식 — 자료 → 기록 → 도구 -->
+    <div class="flow-panel" data-intro-flow>
+      <div class="flex flex-wrap items-baseline justify-between gap-2">
+        <p class="text-[13px] font-bold tracking-[-0.02em] text-ink">한 편의 글이 도구가 되기까지</p>
+        <span class="mono text-[12px] text-ink-faint">SOURCE → RECORD → TOOL</span>
+      </div>
+      <ol class="flow-steps mt-4">
+        <li class="flow-step">
+          <span class="flow-no">01</span>
+          <div>
+            <h3 class="flow-title">1차 공식 자료</h3>
+            <p class="flow-body">법령·감독 당국·공단의 원문에서 기준을 확인합니다.</p>
+            <p class="flow-tags">금융위 · 금감원 · 국세청 · 공단 · 한국은행</p>
+          </div>
+        </li>
+        <li class="flow-step">
+          <span class="flow-no">02</span>
+          <div>
+            <h3 class="flow-title">기록 — {channels.length}개 채널</h3>
+            <p class="flow-body">같은 내용을 채널의 길이에 맞게 나눠 남깁니다.</p>
+            <p class="flow-tags">{channelLine}</p>
+          </div>
+        </li>
+        <li class="flow-step">
+          <span class="flow-no">03</span>
+          <div>
+            <h3 class="flow-title">브라우저 계산 도구</h3>
+            <p class="flow-body">되풀이되는 계산은 입력값이 기기 안에서만 도는 도구로 옮깁니다.</p>
+            <p class="flow-tags">서버 저장 0건 · 기준일 표기</p>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </div>
+</section>

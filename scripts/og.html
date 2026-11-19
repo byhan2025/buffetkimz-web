@@ -2,76 +2,78 @@
 <html lang="ko">
   <head>
     <meta charset="utf-8" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap"
       rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
     />
     <style>
       * { margin: 0; padding: 0; box-sizing: border-box; }
       body {
         width: 1200px;
         height: 630px;
-        background: #fbf9f4;
-        color: #191612;
-        font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
-        padding: 56px 72px;
+        position: relative;
+        overflow: hidden;
+        background: #ffffff;
+        background-image:
+          radial-gradient(90% 80% at 100% 0%, rgb(190 224 252 / 0.62) 0%, rgb(255 255 255 / 0) 62%),
+          linear-gradient(180deg, #ffffff 0%, #f5faff 58%, #eaf4ff 100%);
+        color: #0b1b29;
+        font-family: "Pretendard Variable", Pretendard, -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+        padding: 54px 68px 46px;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
         word-break: keep-all;
       }
-      .top {
+      .frame {
+        border: 1px solid #d5e4f0;
+        border-radius: 26px;
+        background: rgb(255 255 255 / 0.72);
+        padding: 30px 34px 28px;
         display: flex;
+        flex-direction: column;
+        gap: 20px;
+        height: 100%;
         justify-content: space-between;
-        align-items: baseline;
-        border-bottom: 1px solid #191612;
-        padding-bottom: 20px;
-        font-size: 19px;
-        color: #6b6357;
-        letter-spacing: -0.01em;
       }
-      .brand {
-        font-family: "Instrument Serif", Georgia, serif;
-        font-size: 46px;
-        color: #191612;
-        letter-spacing: -0.01em;
-      }
+      .top { display: flex; justify-content: space-between; align-items: center; }
+      .brand img { height: 46px; width: auto; display: block; }
+      .tag { font-size: 17px; color: #3f4b57; letter-spacing: -0.01em; }
       h1 {
-        font-size: 74px;
-        line-height: 1.18;
+        font-size: 68px;
+        line-height: 1.16;
         letter-spacing: -0.045em;
-        font-weight: 750;
-        margin-top: 8px;
+        font-weight: 700;
       }
-      .rule { height: 1px; background: #dcd5c7; margin: 34px 0 22px; }
+      h1 em { font-style: normal; color: #0e5344; }
+      .sub { font-size: 21px; line-height: 1.6; color: #3f4b57; max-width: 860px; margin-top: 10px; }
       .bottom {
-        display: flex;
-        justify-content: space-between;
-        align-items: baseline;
-        font-size: 20px;
-        color: #5c544a;
-        letter-spacing: -0.01em;
+        display: flex; justify-content: space-between; align-items: center;
+        border-top: 1px solid #dbe6ef; padding-top: 16px;
+        font-size: 16px; color: #55626e;
       }
-      .cat { font-size: 20px; color: #9c4a2f; font-weight: 600; }
+      .cat { color: #0e5344; font-weight: 600; }
+      .mono { font-family: ui-monospace, "SF Mono", Menlo, monospace; letter-spacing: 0.04em; }
     </style>
   </head>
   <body>
-    <div>
+    <div class="frame">
       <div class="top">
-        <span class="brand">buffetkimz</span>
-        <span>금융과 돈에 관한 기록, 그리고 직접 만든 도구</span>
+        <span class="brand"><img src="../public/brand/logo-buffetkimz-240.png" alt="버핏킴즈" /></span>
+        <span class="tag">금융 · 투자 · 연금 · 노후준비의 기록과 도구</span>
       </div>
-      <h1>기록이 쌓이고,<br />도구가 늘어나는 곳.</h1>
-      <div class="rule"></div>
-      <p style="font-size: 24px; line-height: 1.6; color: #2e2924; max-width: 900px">
-        금리와 환율, 보험과 연금, 노후와 AI. 매일 쌓는 글과 현장에서 만든 계산 도구를 한곳에.
-      </p>
-    </div>
-    <div class="bottom">
-      <span class="cat">금융 · 투자 · 경제 · 보험 · 노후준비 · 연금 · AI · 철학</span>
-      <span>buffetkimz.com</span>
+      <div>
+        <h1>확인한 것과,<br /><em>계산한 것으로만</em> 씁니다.</h1>
+        <p class="sub">
+          공개된 1차 자료로 확인한 기준과 기준일을 붙여 남기고, 되풀이되는 계산은 브라우저에서 바로 쓰는
+          도구로 옮겼습니다.
+        </p>
+      </div>
+      <div class="bottom">
+        <span class="cat">금융 · 투자 · 연금 · 노후 · 경제 · AI · 보험</span>
+        <span class="mono">buffetkimz.com · 2026. 11. 19.</span>
+      </div>
     </div>
   </body>
 </html>

@@ -23,6 +23,7 @@ import { withBase, site } from "@/config/site";
   </section>
 
   <section class="wrap py-9 md:py-12">
+    <div class="grid gap-10 lg:grid-cols-[minmax(0,70ch)_216px] lg:justify-between">
     <div class="prose-article max-w-[70ch] text-[15px]">
       <h2 id="p1">1. 수집하지 않는 정보</h2>
       <p>
@@ -36,21 +37,32 @@ import { withBase, site } from "@/config/site";
         전송하지 않고, 사이트가 저장하지 않습니다. 페이지를 새로 고치거나 닫으면 사라집니다.
       </p>
 
-      <h2 id="p3">3. 자동으로 남는 정보</h2>
+      <h2 id="p3">3. 외부 글꼴과 라이브러리</h2>
+      <p>
+        화면에 쓰는 글꼴은 외부 CDN인 jsDelivr(Pretendard)와 Google Fonts(Instrument Serif)에서
+        내려받습니다. 이 과정에서 방문자의 IP 주소, 브라우저 종류, 요청 시각 같은 접속 정보가 해당
+        사업자에게 전달될 수 있습니다. 글꼴을 내려받지 못하면 기기에 있는 글꼴로 표시됩니다.
+      </p>
+      <p>
+        검색어와 도구에 입력한 값은 이 경로로 전달되지 않습니다. 검색과 계산은 지금처럼 방문자의
+        브라우저 안에서만 처리됩니다.
+      </p>
+
+      <h2 id="p4">4. 자동으로 남는 정보</h2>
       <p>
         정적 사이트를 제공하는 호스팅 사업자가 접속 기록(IP 주소, 브라우저 종류, 접속 시각, 요청 경로)을
         서비스 운영과 보안 목적으로 남길 수 있습니다. 이는 사이트가 별도로 수집·보관하는 정보가
         아닙니다.
       </p>
 
-      <h2 id="p4">4. 쿠키와 광고</h2>
+      <h2 id="p5">5. 쿠키와 광고</h2>
       <p>
         현재 이 사이트는 방문자를 추적하는 쿠키를 사용하지 않습니다. 다만 글 하단에 광고나 협찬 영역을
         여는 경우, 해당 사업자의 정책에 따라 쿠키가 사용될 수 있으며, 그때는 이 문서와 광고 영역에
         함께 알립니다.
       </p>
 
-      <h2 id="p5">5. 외부 앱과 외부 서비스</h2>
+      <h2 id="p6">6. 외부 앱과 외부 서비스</h2>
       <p>
         앱 가운데 외부 주소로 열리는 것이 있습니다(예: 5대 담보 기준 가이드). 이 사이트의 도구는 입력값을
         브라우저 안에서만 계산하고 서버로 보내지 않지만, 외부 앱에서는 기기 저장(브라우저 저장소)이나
@@ -63,7 +75,7 @@ import { withBase, site } from "@/config/site";
         않습니다.
       </p>
 
-      <h2 id="p6">6. 검색과 기록</h2>
+      <h2 id="p7">7. 검색과 기록</h2>
       <p>
         사이트 내 검색은 방문자의 브라우저가 내려받은 색인 파일에서 이루어집니다. 검색어는 서버로
         전송되지 않습니다. 검색어는 브라우저 메모리에서만 처리되며 저장소(sessionStorage 등)나
@@ -71,16 +83,43 @@ import { withBase, site } from "@/config/site";
         시작합니다.
       </p>
 
-      <h2 id="p7">7. 이용자의 권리와 문의</h2>
+      <h2 id="p8">8. 이용자의 권리와 문의</h2>
       <p>
         사이트가 보관하는 개인정보가 없으므로 열람·정정·삭제를 요청할 대상이 제한적입니다. 그럼에도
         개인정보와 관련한 문의가 있으면 <a href={withBase("/about")}>소개 페이지</a>에 적힌 채널로 알려 주세요.
       </p>
 
-      <h2 id="p8">8. 방침의 변경</h2>
+      <h2 id="p9">9. 방침의 변경</h2>
       <p>
         내용이 바뀌면 이 페이지에 시행일과 함께 반영합니다. 중요한 변경은 글과 함께 알립니다.
       </p>
+    </div>
+
+    <aside class="hidden lg:block">
+      <nav class="sticky top-[calc(var(--header-h)+28px)] rounded-2xl border border-line bg-white p-4" aria-label="목차">
+        <p class="mono text-[12px] tracking-[0.08em] text-ink-faint">목차 · CONTENTS</p>
+        <ol class="mt-2 space-y-0.5">
+          {[
+            ["p1", "수집하지 않는 정보"],
+            ["p2", "도구에 입력한 값"],
+            ["p3", "외부 글꼴과 라이브러리"],
+            ["p4", "자동으로 남는 정보"],
+            ["p5", "쿠키와 광고"],
+            ["p6", "외부 앱과 외부 서비스"],
+            ["p7", "검색과 기록"],
+            ["p8", "이용자의 권리와 문의"],
+            ["p9", "방침의 변경"],
+          ].map(([id, label], i) => (
+            <li>
+              <a href={`#${id}`} class="flex min-h-[32px] items-baseline gap-2 rounded-md px-1.5 py-1 text-[12.5px] text-ink-muted hover:bg-ink/[0.04] hover:text-ink">
+                <span class="mono text-[12px] text-ink-faint">{String(i + 1).padStart(2, "0")}</span>
+                <span>{label}</span>
+              </a>
+            </li>
+          ))}
+        </ol>
+      </nav>
+    </aside>
     </div>
   </section>
 </Base>

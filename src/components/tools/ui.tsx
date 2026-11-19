@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { site } from "@/config/site";
 
 export function formatWon(value: number): string {
   if (!Number.isFinite(value)) return "0원";
@@ -217,11 +218,18 @@ export function ResultStat({
  * 결과 카드와 같은 값을 그대로 비춰 주기만 한다(새로 계산하지 않는다).
  * 화면 낭독기에는 결과 카드의 숫자가 이미 있으므로 aria-hidden으로 중복 낭독을 막는다.
  */
-export function StickySummary({ items }: { items: { label: string; value: string }[] }) {
+export function StickySummary({
+  items,
+  note,
+}: {
+  items: { label: string; value: string }[];
+  /** 하단 바 맨 아래 한 줄 — 계산의 성격과 기준일을 바 안에서 밝힌다 */
+  note?: string;
+}) {
   return (
-    <>
-      <div className="sticky-summary" data-sticky-summary aria-hidden="true">
-        <div className="wrap flex items-center gap-3 !px-4">
+    <div className="sticky-summary" data-sticky-summary aria-hidden="true">
+      <div className="wrap !px-4">
+        <div className="flex items-center gap-3">
           {items.map((it) => (
             <div key={it.label} className="min-w-0 flex-1">
               <span className="block text-[12px] leading-none text-ink-faint">{it.label}</span>
@@ -231,8 +239,11 @@ export function StickySummary({ items }: { items: { label: string; value: string
             </div>
           ))}
         </div>
+        <p className="mt-1 truncate text-[12px] leading-[1.4] text-ink-faint" data-sticky-note>
+          {note ?? `예시 가정 · 확인 기준일 ${site.baseDate}`}
+        </p>
       </div>
-    </>
+    </div>
   );
 }
 

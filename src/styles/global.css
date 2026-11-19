@@ -427,10 +427,22 @@
 
   /* 좁은 화면의 히어로 액션 — 세 버튼이 한 줄에 서도록 살짝 줄인다(높이는 44px 유지) */
   @media (max-width: 480px) {
+    .hero-actions {
+      gap: 6px;
+    }
+
     .hero-actions .btn {
       min-height: 44px;
       padding-inline: 13px;
       font-size: 13.5px;
+    }
+  }
+
+  /* 360px에서도 세 버튼이 한 줄에 서도록 — 높이는 44px 유지 */
+  @media (max-width: 400px) {
+    .hero-actions .btn {
+      padding-inline: 10px;
+      font-size: 13px;
     }
   }
 
@@ -745,7 +757,7 @@
   }
 
   .sticky-summary-spacer {
-    height: 68px;
+    height: 100px;
   }
 
   @media (min-width: 768px) {
@@ -757,8 +769,357 @@
   /* 하단 요약 바가 마지막 줄(푸터)을 가리지 않게 모바일에서만 여백을 둔다 */
   @media (max-width: 767px) {
     body:has([data-sticky-summary]) footer {
-      padding-bottom: 64px;
+      padding-bottom: 112px;
     }
+  }
+
+
+  /* ---------- v5.0 브랜드 록업 (붓글씨 마크 + 산세리프 워드) ----------
+     로고 PNG는 흰 배경을 투명으로 바꾸고 영문자를 덜어낸 자산이다.
+     작은 크기에서 뭉개지지 않도록 영문은 이미지가 아니라 실제 글자로 둔다. */
+  .brand-lockup {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 44px;
+    line-height: 1;
+  }
+
+  .brand-mark {
+    height: 34px;
+    width: auto;
+    max-width: none;
+  }
+
+  .brand-word {
+    margin-top: 3px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: 0.16em;
+    color: var(--color-ink-faint);
+  }
+
+  @media (max-width: 767px) {
+    .brand-mark {
+      height: 30px;
+    }
+  }
+
+  /* ---------- v5.0 2페이지 — 편집 원칙 4칸 (헤어라인 그리드) ---------- */
+  .principle-grid {
+    display: grid;
+    gap: 1px;
+    overflow: hidden;
+    border: 1px solid var(--color-line);
+    border-radius: 16px;
+    background-color: var(--color-line);
+  }
+
+  @media (min-width: 380px) {
+    .principle-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 479px) {
+    .principle {
+      padding: 13px 12px 14px;
+    }
+  }
+
+  .principle {
+    background-color: #ffffff;
+    padding: 15px 16px 16px;
+  }
+
+  /* ---------- v5.0 자료 → 기록 → 도구 3단계 ---------- */
+  .flow-panel {
+    margin-top: 28px;
+    border: 1px solid #d9e7f2;
+    border-radius: 18px;
+    background-color: #fbfdff;
+    background-image: linear-gradient(180deg, #ffffff 0%, #f4faff 100%);
+    padding: 18px 18px 20px;
+  }
+
+  @media (min-width: 768px) {
+    .flow-panel {
+      padding: 22px 24px 24px;
+    }
+  }
+
+  .flow-steps {
+    display: grid;
+    gap: 14px;
+  }
+
+  @media (min-width: 900px) {
+    .flow-steps {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0;
+    }
+  }
+
+  .flow-step {
+    position: relative;
+    display: flex;
+    gap: 11px;
+    min-width: 0;
+  }
+
+  @media (min-width: 900px) {
+    .flow-step {
+      padding-right: 26px;
+    }
+
+    .flow-step + .flow-step {
+      padding-left: 26px;
+      border-left: 1px dashed #c4d9e8;
+    }
+
+    .flow-step + .flow-step::before {
+      content: "→";
+      position: absolute;
+      left: -11px;
+      top: 4px;
+      display: grid;
+      place-items: center;
+      width: 22px;
+      height: 22px;
+      border: 1px solid #d3e3f0;
+      border-radius: 999px;
+      background-color: #ffffff;
+      color: #0e5344;
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1;
+      box-shadow: 0 2px 6px -4px rgb(11 27 41 / 0.5);
+    }
+  }
+
+  .flow-no {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 999px;
+    background-color: var(--color-brand);
+    color: #fff;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .flow-title {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    color: var(--color-ink);
+  }
+
+  .flow-body {
+    margin-top: 3px;
+    font-size: 12.5px;
+    line-height: 1.62;
+    color: var(--color-ink-muted);
+  }
+
+  .flow-tags {
+    margin-top: 5px;
+    font-size: 12px;
+    line-height: 1.55;
+    color: var(--color-ink-faint);
+  }
+
+  /* ---------- v5.0 아카이브 ---------- */
+  .recent-strip {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 10px;
+    margin-top: 16px;
+    border-top: 1px solid var(--color-line);
+    border-bottom: 1px solid var(--color-line);
+    padding: 8px 0;
+  }
+
+  .recent-link {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 7px;
+    min-height: 32px;
+    transition: color 160ms ease;
+  }
+
+  .recent-link:hover {
+    color: var(--color-brand-deep);
+  }
+
+  .topic-card {
+    display: block;
+    height: 100%;
+    border: 1px solid var(--color-line);
+    border-radius: 14px;
+    background-color: #ffffff;
+    padding: 13px 14px 12px;
+    transition: transform 200ms var(--ease-out-soft), border-color 200ms var(--ease-out-soft),
+      box-shadow 200ms var(--ease-out-soft);
+  }
+
+  .topic-card:hover,
+  .topic-card:focus-visible {
+    transform: translateY(-2px);
+    border-color: #b9c9d4;
+    box-shadow: 0 1px 2px rgb(11 27 41 / 0.04), 0 18px 30px -26px rgb(11 27 41 / 0.45);
+  }
+
+  .topic-card.is-sub {
+    background-color: #fdfdfb;
+  }
+
+  .topic-card.is-all {
+    border-color: #cfe3da;
+    background-color: #eef7f2;
+    background-image: linear-gradient(160deg, #f3faf7 0%, #e5f1ec 100%);
+  }
+
+  .topic-sub {
+    display: inline-block;
+    border-radius: 999px;
+    background-color: var(--color-brand-soft);
+    padding: 1px 7px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.5;
+    color: var(--color-brand-deep);
+  }
+
+  .series-card {
+    border: 1px solid var(--color-line);
+    border-radius: 14px;
+    background-color: #ffffff;
+    padding: 13px 14px;
+  }
+
+  .series-link {
+    display: flex;
+    align-items: baseline;
+    gap: 7px;
+    min-height: 32px;
+    border-radius: 4px;
+    transition: color 160ms ease;
+  }
+
+  .series-link:hover {
+    color: var(--color-brand-deep);
+  }
+
+  .curation-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    min-height: 44px;
+    border: 1px solid var(--color-line);
+    border-radius: 12px;
+    background-color: #ffffff;
+    padding: 9px 12px;
+    transition: border-color 160ms ease, box-shadow 160ms ease;
+  }
+
+  .curation-row:hover,
+  .curation-row:focus-visible {
+    border-color: #b9c9d4;
+    box-shadow: 0 10px 22px -20px rgb(11 27 41 / 0.5);
+  }
+
+  /* ---------- v5.0 신뢰 데이터 카드 ---------- */
+  .trust-data {
+    border: 1px solid var(--color-line);
+    border-radius: 18px;
+    background-color: #ffffff;
+    padding: 18px;
+    box-shadow: 0 1px 2px rgb(11 27 41 / 0.04), 0 22px 44px -40px rgb(11 27 41 / 0.5);
+  }
+
+  @media (min-width: 768px) {
+    .trust-data {
+      padding: 24px 26px;
+    }
+  }
+
+  .trust-stat {
+    border-radius: 12px;
+    background-color: #f6fafc;
+    border: 1px solid #e6eef4;
+    padding: 9px 10px 8px;
+  }
+
+  .trust-stat dt {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-ink-muted);
+  }
+
+  .trust-stat dd {
+    margin-top: 2px;
+    font-family: var(--font-mono);
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--color-ink);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .trust-stat dd span {
+    margin-left: 2px;
+    font-family: var(--font-sans);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-ink-faint);
+  }
+
+  .calendar-strip {
+    margin-top: 12px;
+    border: 1px solid #d9e7f2;
+    border-radius: 16px;
+    background-color: rgb(255 255 255 / 0.72);
+    padding: 13px 14px;
+  }
+
+  /* ---------- v5.0 마무리 딥그린 배너 ---------- */
+  .cta-band {
+    position: relative;
+    overflow: hidden;
+    border-radius: 24px;
+    background-color: #0e5344;
+    background-image:
+      radial-gradient(80% 120% at 100% 0%, rgb(73 170 143 / 0.45) 0%, rgb(14 83 68 / 0) 62%),
+      linear-gradient(150deg, #146c58 0%, #0c4a3d 100%);
+    padding: 22px;
+    box-shadow: 0 28px 52px -40px rgb(12 74 61 / 0.7);
+  }
+
+  @media (min-width: 768px) {
+    .cta-band {
+      border-radius: 28px;
+      padding: 30px 34px;
+    }
+  }
+
+  .cta-outline {
+    border-color: rgb(255 255 255 / 0.5);
+    background-color: transparent;
+    color: #ffffff;
+  }
+
+  .cta-outline:hover {
+    border-color: rgb(255 255 255 / 0.85);
+    background-color: rgb(255 255 255 / 0.1);
+    color: #ffffff;
   }
 
   /* ---------- 카드 ---------- */
@@ -885,6 +1246,7 @@
 
   .prose-article h2 {
     margin-top: 2.5em;
+    scroll-margin-top: calc(var(--header-h) + 20px);
     font-size: 1.34rem;
     letter-spacing: -0.03em;
     padding-top: 1.1em;

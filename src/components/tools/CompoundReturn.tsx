@@ -168,6 +168,24 @@ export default function CompoundReturn({ compact = false }: { compact?: boolean 
         />
       </div>
 
+      {/* 계산 결과 바로 옆에 세율의 기준을 붙인다 — 15.4%가 '이자·배당소득' 기준임을 분명히 */}
+      <p
+        className="mt-2 rounded-lg border border-line bg-white px-3 py-2 text-[12px] leading-[1.65] text-ink-muted"
+        data-tax-basis
+      >
+        <strong className="font-semibold text-ink">세율 기준</strong>{" "}
+        {mode === "general" ? (
+          <>
+            일반계좌 15.4%는 이자·배당소득세(소득세 14% + 지방소득세 1.4%) 기준입니다. 금융소득이 연
+            2,000만원을 넘으면 종합과세 대상이 되어 세율이 달라집니다.
+          </>
+        ) : mode === "isa" ? (
+          <>ISA 9.9%는 이익 200만원을 넘는 부분에 적용하는 분리과세율입니다(서민형·농어민형 400만원).</>
+        ) : (
+          <>연금저축은 운용 중 과세이연, 인출 시 연금소득세 3.3~5.5%를 가정했습니다(55세·5년 이상 납입 요건).</>
+        )}
+      </p>
+
       <div className="mt-3 grid gap-3 md:grid-cols-2" data-compound-range-risk>
         <div className="rounded-xl border border-line bg-white p-4" data-compound-range>
           <p className="text-[12px] font-bold tracking-[0.1em] text-ink-faint">세후 예상 구간</p>

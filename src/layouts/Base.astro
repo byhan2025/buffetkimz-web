@@ -40,6 +40,8 @@ const { title, description, path, noindex, type, publishedTime, jsonLd } = Astro
       href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap"
     />
     <link rel="icon" href={withBase("/favicon.svg")} type="image/svg+xml" />
+    <link rel="icon" href={withBase("/favicon-32.png")} sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href={withBase("/apple-touch-icon.png")} />
     <link rel="alternate" hreflang="ko" href={absolute(path === "/" ? "/" : path.replace(/\/$/, "") + "/")} />
     <link rel="alternate" type="application/rss+xml" title={`${site.brand} 기록`} href={withBase("/rss.xml")} />
     {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}

@@ -44,7 +44,8 @@ const { app } = Astro.props;
   </section>
 
   <section class="scene-white">
-    <div class="wrap py-6 md:py-10">
+    <!-- 모바일 하단 요약 바(약 76px + 안전영역)가 마지막 줄을 가리지 않도록 pb-28 이상을 둔다 -->
+    <div class="wrap pb-28 pt-6 md:pb-10 md:pt-10">
       <div class="mx-auto max-w-[920px]" data-tool-input-area="true" data-nosnippet>
         <ToolRunner slug={app.slug} client:load />
       </div>

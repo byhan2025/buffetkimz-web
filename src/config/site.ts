@@ -78,7 +78,7 @@ export type NavItem = { href: string; label: string; match: string };
 
 export const nav: NavItem[] = [
   { href: "/posts", label: "블로그", match: "/posts" },
-  { href: "/apps", label: "앱", match: "/apps" },
+  { href: "/apps", label: "도구", match: "/apps" },
   { href: "/calendar", label: "제도달력", match: "/calendar" },
   { href: "/about", label: "소개", match: "/about" },
 ];

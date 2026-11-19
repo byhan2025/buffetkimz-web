@@ -79,7 +79,13 @@ export default function HeaderSearch() {
           >
             <div className="wrap pb-16 pt-4">
               <div className="flex items-center justify-between border-b border-ink pb-3">
-                <span className="serif text-[21px] tracking-[-0.01em] text-ink">buffetkimz</span>
+                <img
+                  src={`${import.meta.env.BASE_URL.replace(/\/$/, "")}/brand/logo-buffetkimz-96.png`}
+                  width="315"
+                  height="96"
+                  alt="버핏킴즈"
+                  className="h-[26px] w-auto"
+                />
                 <button
                   ref={closeRef}
                   type="button"
