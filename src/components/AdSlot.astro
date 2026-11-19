@@ -18,8 +18,7 @@ const { id, size = "leaderboard", note } = Astro.props;
   data-ad-slot={id}
   data-ad-size={size}
   data-ad-state="reserved"
+  data-ad-note={note}
   aria-hidden="true"
->
-  <span class="sr-only">{note ?? "광고 영역(1차 비노출)"}</span>
-</div>
+></div>
 <!-- AD SLOT:end id={id} -->

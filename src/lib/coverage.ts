@@ -78,9 +78,12 @@ export function coverageSummary(band: CoverageBand = COVERAGE_EXAMPLE.band) {
     { key: "nursing", name: "간병비", need: need.nursing, have: have.nursing, unit: "만원/일" },
   ].map((r) => {
     const ratio = r.need === 0 ? 1 : r.have / r.need;
-    return { ...r, ratio, ...judgeRatio(ratio) };
+    const verdict = judgeRatio(ratio);
+    /* key(담보 이름)를 덮어쓰지 않고 verdict에 상태를 따로 담는다 —
+       화면의 상태 개수와 범례가 실제 행 라벨과 어긋나지 않게 하기 위해서다. */
+    return { ...r, ratio, label: verdict.label, verdict: verdict.key };
   });
 
-  const ok = rows.filter((r) => r.ratio >= 1).length;
-  return { band, rows, ok, check: rows.length - ok };
+  const count = (v: "ok" | "review" | "check") => rows.filter((r) => r.verdict === v).length;
+  return { band, rows, ok: count("ok"), review: count("review"), check: count("check") };
 }

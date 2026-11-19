@@ -120,6 +120,9 @@ export default function SilsonCompare({ compact = false }: { compact?: boolean }
         <MoneySlider label="급여 통원 의료비" value={outpatient} onChange={setOutpatient} min={0} max={300} step={5} />
         <MoneySlider label="중증 비급여 (암·뇌·심장 등)" value={severe} onChange={setSevere} min={0} max={3000} step={10} />
         <MoneySlider label="비중증 비급여 (도수·주사 등)" value={mild} onChange={setMild} min={0} max={1000} step={5} />
+        <p className="text-[12px] leading-relaxed text-ink-muted md:col-span-2">
+          도수치료·체외충격파·비급여주사 등 특약2 보장 제외 항목은 별도(약관 확인)
+        </p>
       </div>
 
       <div className="mt-4 grid gap-3 sm:grid-cols-3">

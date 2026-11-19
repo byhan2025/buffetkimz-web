@@ -63,7 +63,7 @@ const searchItems = posts.length + apps.length + calendar.length;
 
 /** 4대 축 — 첫 화면 인덱스 */
 const axes = [
-  { href: "/posts", label: "블로그 기록", note: "기준일·출처를 붙인 글", count: `${posts.length}편` },
+  { href: "/posts", label: "블로그 기록", note: "기준일·출처 표기", count: `${posts.length}편` },
   { href: "/apps", label: "계산·점검 도구", note: "브라우저에서 바로", count: `${calcToolCount}종` },
   { href: "/calendar", label: "제도 일정 달력", note: "1~12월 기한과 절차", count: `${sourcedCalendar.length}건` },
   { href: "/#channels", label: "연결 채널", note: "채널마다 다른 결로", count: `${channels.length}곳` },
@@ -347,7 +347,7 @@ const jsonLd = {
               <svg viewBox="0 0 24 24" class="h-4 w-4" fill="currentColor" aria-hidden="true">
                 <path d="M12 4c-4.4 0-8 2.6-8 5.8 0 2 1.3 3.8 3.4 4.9-.2.7-.7 2.3-.8 2.7 0 .3.2.4.4.3.4-.2 2.3-1.6 3-2.1.6.1 1.3.1 2 .1 4.4 0 8-2.6 8-5.9S16.4 4 12 4Z" />
               </svg>
-              카카오톡 채널에서 대화
+              카카오톡 채널
             </a>
             <p class="text-[12px] text-[#b7c9d9]">확정되지 않은 주소는 적지 않습니다. 채널 주소가 정해지면 이 목록에 연결됩니다.</p>
           </div>

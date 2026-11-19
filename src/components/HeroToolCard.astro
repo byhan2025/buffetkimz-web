@@ -9,7 +9,7 @@
 import { site, withBase } from "@/config/site";
 import { COVERAGE_EXAMPLE, COVERAGE_LABEL, BAND_LABEL, coverageSummary } from "@/lib/coverage";
 
-const { rows, ok, check, band } = coverageSummary(COVERAGE_EXAMPLE.band);
+const { rows, ok, review, check, band } = coverageSummary(COVERAGE_EXAMPLE.band);
 const pct = (r: number) => Math.max(4, Math.min(100, Math.round(r * 100)));
 const verdictColor = (key: string) =>
   key === "ok" ? "text-[#7fd8bb]" : key === "review" ? "text-[#f0cf8a]" : "text-[#f3a7b4]";
@@ -36,17 +36,18 @@ const example = "예시: 암 5,000 · 뇌혈관 2,000 · 심장 1,000 · 수술 
           <span class="text-[12px] text-[#e3edf4]">{r.name}</span>
           <span class="gauge !h-[5px]">
             <span
-              style={`--v:${pct(r.ratio)}%;background-color:${r.key === "ok" ? "#58c3a4" : r.key === "review" ? "#e8c887" : "#e39aa9"}`}
+              style={`--v:${pct(r.ratio)}%;background-color:${r.verdict === "ok" ? "#58c3a4" : r.verdict === "review" ? "#e8c887" : "#e39aa9"}`}
             />
           </span>
-          <span class={`mono whitespace-nowrap text-[12px] ${verdictColor(r.key)}`}>{r.label}</span>
+          <span class={`mono whitespace-nowrap text-[12px] ${verdictColor(r.verdict)}`}>{r.label}</span>
         </li>
       ))
     }
   </ul>
 
   <p class="mono mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-white/10 pt-2.5 text-[12px] text-[#cbd5e1]">
-    <span>{COVERAGE_LABEL.ok} <strong class="font-semibold text-white">{ok}개</strong><span class="text-[#c8d8e5]"> / 5</span></span>
+    <span>{COVERAGE_LABEL.ok} <strong class="font-semibold text-white">{ok}개</strong><span class="text-[#c8d8e5]"> / {rows.length}</span></span>
+    {review > 0 && <span>{COVERAGE_LABEL.review} <strong class="font-semibold text-white">{review}</strong></span>}
     <span>{COVERAGE_LABEL.check} <strong class="font-semibold text-white">{check}</strong></span>
     <span class="text-[#b9cddc]">기준일 {site.baseDate}</span>
   </p>

@@ -11,10 +11,10 @@ const { rows, band } = coverageSummary(COVERAGE_EXAMPLE.band);
 const pct = (r: number) => Math.max(2, Math.min(100, Math.round(r * 100)));
 const man = (v: number) => v.toLocaleString("ko-KR");
 /* 막대는 도형(넓은 면), 라벨은 12px 글자 — 글자는 4.5:1을 넘는 어두운 톤을 따로 쓴다. */
-const barTone = (key: string) =>
-  key === "ok" ? "#2f8f6f" : key === "review" ? "#c0a05c" : "#b57e8b";
-const textTone = (key: string) =>
-  key === "ok" ? "#1f6f55" : key === "review" ? "#7d5f18" : "#8f3549";
+const barTone = (verdict: string) =>
+  verdict === "ok" ? "#2f8f6f" : verdict === "review" ? "#c0a05c" : "#b57e8b";
+const textTone = (verdict: string) =>
+  verdict === "ok" ? "#1f6f55" : verdict === "review" ? "#7d5f18" : "#8f3549";
 const unit = (key: string) => (key === "nursing" ? "만/일" : "만");
 ---
 
@@ -51,7 +51,7 @@ const unit = (key: string) => (key === "nursing" ? "만/일" : "만");
             <span class="relative order-3 col-span-3 flex h-3 w-full items-center overflow-hidden rounded-full bg-[#eef2f5] md:order-none md:col-span-1">
               <span
                 class="h-full rounded-full"
-                style={`width:${pct(r.ratio)}%;background-color:${barTone(r.key)}`}
+                style={`width:${pct(r.ratio)}%;background-color:${barTone(r.verdict)}`}
               />
             </span>
 
@@ -59,7 +59,7 @@ const unit = (key: string) => (key === "nursing" ? "만/일" : "만");
               {man(r.have)} / {man(r.need)}{unit(r.key)}
             </span>
 
-            <span class="order-2 whitespace-nowrap justify-self-end text-[12px] font-semibold md:order-none" style={`color:${textTone(r.key)}`}>
+            <span class="order-2 whitespace-nowrap justify-self-end text-[12px] font-semibold md:order-none" style={`color:${textTone(r.verdict)}`}>
               {r.label}
             </span>
           </a>

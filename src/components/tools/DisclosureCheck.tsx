@@ -57,13 +57,18 @@ export default function DisclosureCheck() {
     const has3m = hits.some((h) => h.months === 3);
     const has24 = hits.some((h) => h.months === 24);
     const has60 = hits.some((h) => h.months === 60);
+    /* 2년 이내 입원·수술은 5년 기준에도 들어간다 — 2년 질문이 없는 유형(305·355)에서도
+       같은 이력이 '해당 없음'으로 뒤집히지 않도록 5년 판정에 함께 넣는다. */
 
     return (Object.keys(PRODUCTS) as ProductType[]).map((p) => {
       const asked = PRODUCTS[p].months;
       const reasons: string[] = [];
       if (has3m && asked.includes(3)) reasons.push("3개월 이내 항목");
       if (has24 && asked.includes(24)) reasons.push("2년 이내 항목");
-      if (has60 && asked.includes(60)) reasons.push("5년 이내 항목");
+      if (asked.includes(60)) {
+        if (has60) reasons.push("5년 이내 항목");
+        else if (has24 && !asked.includes(24)) reasons.push("2년 이내 입원·수술(5년 기준 포함)");
+      }
       return { type: p, asked, reasons, flagged: reasons.length > 0 };
     });
   }, [hits]);
