@@ -54,9 +54,6 @@ const totalMinutes = posts.reduce((sum, p) => sum + p.data.readingMinutes, 0);
           {posts.length}편의 기록을 7개 주제와 {series.length}개 시리즈로 묶었습니다.<br />
           처음 온 사람은 '처음 읽을 글'에서, 급한 사람은 '자주 찾는 계산'에서 시작하면 됩니다.
         </p>
-        <div class="sec-head-actions">
-          <a href={withBase("/posts")} class="btn btn-secondary btn-sm">기록 {posts.length}편 전체</a>
-        </div>
       </div>
     </div>
 
@@ -75,9 +72,12 @@ const totalMinutes = posts.reduce((sum, p) => sum + p.data.readingMinutes, 0);
           ))
         }
       </ul>
-      <span class="mono ml-auto hidden shrink-0 text-[12px] text-ink-faint sm:inline">
-        {posts.length}편 · 약 {totalMinutes}분
+      <span class="mono ml-auto hidden shrink-0 text-[12px] text-ink-faint lg:inline">
+        약 {totalMinutes}분
       </span>
+      <a href={withBase("/posts")} class="btn btn-secondary btn-xs ml-auto shrink-0 lg:ml-0">
+        기록 {posts.length}편 전체
+      </a>
     </div>
 
     <!-- 7대 주제 -->
