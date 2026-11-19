@@ -18,3 +18,4 @@ npm-debug.log*
 
 # 배포 임시 폴더
 .deploy-gh-pages/
+.deploy-gh-pages-*/

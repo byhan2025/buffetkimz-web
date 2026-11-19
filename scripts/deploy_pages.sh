@@ -11,9 +11,11 @@ ORIGIN="$(git remote get-url origin)"
 echo "▶ build  SITE_URL=$SITE_URL  BASE_PATH=$BASE_PATH"
 SITE_URL="$SITE_URL" BASE_PATH="$BASE_PATH" npm run build
 
-rm -rf .deploy-gh-pages
-mkdir .deploy-gh-pages
-cd .deploy-gh-pages
+# NFS에서 git 객체 핸들이 남아 rm이 실패하는 경우가 있어 매번 새 임시 폴더를 쓴다.
+DEPLOY_DIR=".deploy-gh-pages-$(date +%s)"
+rm -rf .deploy-gh-pages* 2>/dev/null || true
+mkdir -p "$DEPLOY_DIR"
+cd "$DEPLOY_DIR"
 git init -q
 git checkout -q -b gh-pages
 cp -r ../dist/. .
@@ -24,5 +26,5 @@ git -c user.name="byhan2025" -c user.email="byhan2025@users.noreply.github.com" 
 git remote add origin "$ORIGIN"
 git push -f origin gh-pages
 cd ..
-rm -rf .deploy-gh-pages
+rm -rf "$DEPLOY_DIR" 2>/dev/null || true
 echo "▶ pushed gh-pages"
