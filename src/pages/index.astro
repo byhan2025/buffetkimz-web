@@ -1,7 +1,7 @@
 ---
 import Base from "@/layouts/Base.astro";
-import HeroSim from "@/components/HeroSim.tsx";
-import IntroManifesto from "@/components/home/IntroManifesto.astro";
+import BrandFilm from "@/components/home/BrandFilm.tsx";
+import IntroPortrait from "@/components/home/IntroPortrait.astro";
 import ArchiveLibrary from "@/components/home/ArchiveLibrary.astro";
 import TrustSplit from "@/components/home/TrustSplit.astro";
 import ChannelBand from "@/components/home/ChannelBand.astro";
@@ -14,16 +14,18 @@ import { calendar } from "@/data/calendar";
 import { allPosts, koreanDate } from "@/lib/posts";
 
 /**
- * buffetkimz v5.0 — 도입부 2페이지 + 아카이브 + 도구 + 신뢰 + 채널.
+ * buffetkimz v5.1 — 브랜드 필름(1P) → 순수 소개(2P) → 아카이브 → 도구 → 신뢰 → 채널.
  *
- *  ① 1페이지 히어로 — 프레임 안의 화이트·스카이블루, 오른쪽은 '조작되는' 은퇴 시뮬레이터 창
- *  ② 2페이지 서사 — 이곳이 무엇을 하는 곳인지(7대 주제·편집 원칙 4·자료→기록→도구 3단계)
+ *  ① 1페이지 브랜드 필름 — 6컷 12초 모션그래픽. 도구 설명·시뮬레이터 창은 첫 화면에서 내렸다.
+ *     아래 크레딧 줄(기록·도구·일정·채널)이 종이로 돌아오는 경계다.
+ *  ② 2페이지 순수 소개 — 버핏킴즈가 어떤 사람인지, 다섯 분야를 어떤 철학으로 보는지.
+ *     도구·계산기 이야기는 한 줄도 넣지 않는다(도구는 4번째 섹션 이하).
  *  ③ 아카이브 — 7대 주제·6개 시리즈·처음 읽을 글·자주 찾는 계산
  *  ④ 도구 쇼케이스 — 금융·투자·연금 메인 4 + 리스크 관리 3
  *  ⑤ 신뢰 2단 스플릿 — 딥그린 강조 카드 + 공식 출처·기준일 데이터 카드 + 이번 달 일정
  *  ⑥ 채널 7곳 + 딥그린 1:1 상담문의 배너
  *
- * 배경 리듬: 스카이(1) → 화이트(2) → 크림(3) → 미스트(4) → 스카이밴드(5) → 화이트+딥그린(6)
+ * 배경 리듬: 나이트(1) → 화이트(2) → 크림(3) → 미스트(4) → 스카이밴드(5) → 화이트+딥그린(6)
  */
 const posts = await allPosts();
 
@@ -48,17 +50,17 @@ const previewVariant: Record<string, "pension" | "retirement" | "compound" | "ca
   calendar: "calendar",
 };
 
-/** 4대 축 — 첫 화면 인덱스 */
-const axes = [
+/** 필름 아래 크레딧 줄 — 4대 축(기록·도구·일정·채널) */
+const credits = [
   { href: "/posts", label: "블로그 기록", note: "기준일·출처 표기", count: `${posts.length}편` },
   {
     href: "/apps",
     label: "도구",
-    note: `금융·연금 ${calcToolCount} + 달력 ${mainTools.length - calcToolCount} + 리스크 관리 ${riskCalcCount}`,
+    note: `금융·연금 ${calcToolCount} + 리스크 관리 ${riskCalcCount}`,
     count: `${hubTools.length}종`,
   },
-  { href: "/calendar", label: "제도 일정 달력", note: "1~12월 기한과 절차", count: `${sourcedCalendar.length}건` },
-  { href: "/#channels", label: "연결 채널", note: `채널 ${channelCount}곳 + 코드 보관소`, count: `${channelCount}곳` },
+  { href: "/calendar", label: "제도 일정", note: "1~12월 기한과 절차", count: `${sourcedCalendar.length}건` },
+  { href: "/#channels", label: "연결 채널", note: "채널 7곳 + 코드 보관소", count: `${channelCount}곳` },
 ];
 
 const jsonLd = {
@@ -84,88 +86,43 @@ const jsonLd = {
 ---
 
 <Base
-  title="buffetkimz — 금융·투자·연금의 기록과 직접 만든 도구"
+  title="buffetkimz — 숫자 너머의 기준, 금융·투자·연금·노후·보험의 기록"
   description={site.description}
   path="/"
   jsonLd={jsonLd}
 >
-  <!-- ① 1페이지 — 프레임드 히어로(화이트·스카이블루) + 조작되는 시뮬레이터 창 -->
-  <section class="scene-sky-soft pb-6 pt-4 md:pb-8 md:pt-6" data-area="1">
-    <div class="wrap">
-      <div class="hero-shell">
-        <div class="flex flex-wrap items-baseline justify-between gap-2 border-b border-ink/10 px-5 py-3 md:px-8">
-          <p class="text-[12.5px] font-semibold tracking-[-0.01em] text-ink-soft">
-            금융·투자·연금·노후·경제·AI·보험
-          </p>
-          <p class="mono ml-auto text-[12px] text-ink-faint">
-            <time datetime={site.baseDate}>{koreanDate(site.today)}</time> 기준
-          </p>
-        </div>
+  <!-- ① 1페이지 — 6컷 12초 브랜드 모션그래픽 (three.js + GSAP) -->
+  <section data-area="1" id="film">
+    <BrandFilm client:load appsHref={withBase("/apps")} />
 
-        <div class="grid items-center gap-6 px-5 pb-6 pt-6 md:px-8 md:pt-8 lg:grid-cols-[0.98fr_1.02fr] lg:gap-x-10">
-          <div>
-            <p class="eyebrow">기록하는 금융 도구</p>
-            <h1 class="hero-title mt-3 max-w-[15ch] text-[clamp(32px,4.1vw,54px)] font-bold leading-[1.08] tracking-[-0.045em] text-ink">
-              숫자를 확인하고,<br />기록으로 남깁니다.
-            </h1>
-            <p class="lede hero-soft mt-3 max-w-[44ch] text-[15px] leading-[1.7]">
-              금리와 환율, 투자와 연금, 은퇴 후 매달 나가는 돈. 공개된 1차 자료로 확인한 기준과 출처를
-              붙여 남기고, 되풀이되는 계산은 브라우저에서 바로 쓰는 도구로 옮겼습니다.
-            </p>
-
-            <div class="hero-actions hero-soft mt-5 flex flex-wrap items-center gap-2">
-              <a href={withBase("/apps")} class="btn btn-primary">도구 둘러보기</a>
-              <a href={withBase("/posts")} class="btn btn-secondary">기록 {posts.length}편 읽기</a>
-              <a
-                href={withBase("/search")}
-                data-search-query=""
-                class="btn btn-tertiary-quiet"
-              >
-                <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-                  <circle cx="11" cy="11" r="6.4"></circle>
-                  <path d="m16 16 4.2 4.2" stroke-linecap="round"></path>
-                </svg>
-                검색
+    <!-- 크레딧 줄 — 상영관에서 종이로 돌아오는 경계 -->
+    <div class="film-credits" id="film-credits">
+      <ul class="film-credits-inner">
+        {
+          credits.map((c) => (
+            <li>
+              <a href={withBase(c.href)} class="film-credit">
+                <span class="film-credit-label">
+                  {c.label}
+                  <span class="film-credit-note">{c.note}</span>
+                </span>
+                <span class="film-credit-count">{c.count} →</span>
               </a>
-            </div>
-
-            <p class="hero-soft mono mt-3 text-[12px] leading-relaxed text-ink-muted" data-tool-count={hubTools.length}>
-              <span class="whitespace-nowrap">기록 <strong class="font-semibold text-ink">{posts.length}편</strong></span> ·{" "}
-              <span class="whitespace-nowrap">도구 <strong class="font-semibold text-ink">{hubTools.length}종</strong></span>{" "}
-              <span class="whitespace-nowrap">(금융·연금 {calcToolCount} + 달력 {mainTools.length - calcToolCount} + 리스크 관리{" "}
-              {riskCalcCount})</span> ·{" "}
-              <span class="whitespace-nowrap">제도 일정 <strong class="font-semibold text-ink">{sourcedCalendar.length}건</strong></span>
-              <span class="text-ink-faint" data-trust-line> · <span class="whitespace-nowrap">모든 글에 기준일·1차 출처</span></span>
-            </p>
-          </div>
-
-          <div class="hero-soft mx-auto w-full max-w-[460px] lg:mx-0 lg:max-w-none">
-            <HeroSim client:idle />
-          </div>
-        </div>
-
-        <!-- 4대 축 인덱스 — 프레임 아래 한 줄 -->
-        <ul class="hero-index" aria-label="사이트 인덱스">
-          {
-            axes.map((a) => (
-              <li>
-                <a href={withBase(a.href)} class="flex h-full items-center justify-between gap-2 px-4 py-3 transition-colors hover:bg-white/80">
-                  <span class="min-w-0">
-                    <span class="block text-[13px] font-bold leading-snug tracking-[-0.02em] text-ink">{a.label}</span>
-                    <span class="clamp-2 mt-0.5 block text-[12px] leading-snug text-ink-muted">{a.note}</span>
-                  </span>
-                  <span class="mono shrink-0 text-[12px] font-semibold text-brand-deep">{a.count} →</span>
-                </a>
-              </li>
-            ))
-          }
-        </ul>
+            </li>
+          ))
+        }
+      </ul>
+      <div class="wrap flex flex-wrap items-center justify-between gap-2 border-t border-line-soft py-2">
+        <p class="text-[12px] text-ink-faint">기준일 {koreanDate(site.today)} · 모든 글과 도구에 기준일·1차 출처</p>
+        <p class="text-[12px] text-ink-faint">
+          도구 {hubTools.length}종 · 제도 일정 {sourcedCalendar.length}건 · 저장 0건
+        </p>
       </div>
     </div>
   </section>
 
-  <!-- ② 2페이지 — 이곳은 무엇을 하는 곳인가 (원칙·3단계 연결) -->
-  <IntroManifesto />
+  <!-- ② 2페이지 — 버핏킴즈는 어떤 사람인가 (순수 소개, 도구 언급 0) -->
+  <IntroPortrait />
 
   <!-- ③ 아카이브 — 7대 주제·시리즈·처음 읽을 글 -->
   <ArchiveLibrary />

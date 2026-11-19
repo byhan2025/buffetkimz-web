@@ -226,8 +226,32 @@ export function StickySummary({
   /** 하단 바 맨 아래 한 줄 — 계산의 성격과 기준일을 바 안에서 밝힌다 */
   note?: string;
 }) {
+  /*
+   * 예시값 그대로인지, 사용자가 값을 만졌는지 — 바 아래 한 줄로 알린다.
+   * 슬라이더·숫자 입력(input)과 선택 버튼(aria-pressed) 클릭을 러너 안에서만 센다.
+   */
+  const ref = useRef<HTMLDivElement | null>(null);
+  const [touched, setTouched] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const root: HTMLElement | Document = el.closest("[data-runner]") ?? document;
+    const onInput = () => setTouched(true);
+    const onClick = (event: Event) => {
+      const target = event.target as HTMLElement | null;
+      if (target?.closest?.("button[aria-pressed], button[role=radio], input[type=checkbox]")) setTouched(true);
+    };
+    root.addEventListener("input", onInput, true);
+    root.addEventListener("click", onClick, true);
+    return () => {
+      root.removeEventListener("input", onInput, true);
+      root.removeEventListener("click", onClick, true);
+    };
+  }, []);
+
   return (
-    <div className="sticky-summary" data-sticky-summary aria-hidden="true">
+    <div className="sticky-summary" data-sticky-summary aria-hidden="true" ref={ref}>
       <div className="wrap !px-4">
         <div className="flex items-center gap-3">
           {items.map((it) => (
@@ -240,7 +264,10 @@ export function StickySummary({
           ))}
         </div>
         <p className="mt-1 truncate text-[12px] leading-[1.4] text-ink-faint" data-sticky-note>
-          {note ?? `예시 가정 · 확인 기준일 ${site.baseDate}`}
+          {note ??
+            (touched
+              ? `현재 입력 기준 · 확인 기준일 ${site.baseDate}`
+              : `예시 가정 · 확인 기준일 ${site.baseDate}`)}
         </p>
       </div>
     </div>
@@ -260,7 +287,7 @@ export function RunnerShell({
   children: ReactNode;
 }) {
   return (
-    <div className="rounded-2xl border border-line bg-[#fbfbf8] p-5 md:p-7">
+    <div className="rounded-2xl border border-line bg-[#fbfbf8] p-5 md:p-7" data-runner>
       <div className="flex items-start justify-between gap-3 border-b border-line pb-4">
         <div>
           <p className="text-[12px] font-semibold tracking-[0.06em] text-ink-faint">작동 확인용</p>

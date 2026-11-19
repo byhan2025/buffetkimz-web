@@ -231,11 +231,19 @@ export default function RetirementFlow({ compact = false }: { compact?: boolean 
               {pctLabel(PRIVATE_PENSION_TAX.overThresholdSeparateRateWithLocal)}) 중 선택합니다.
             </li>
             <li>
+              · <strong className="font-semibold text-ink">퇴직연금(DC·IRP) 재원</strong> — 퇴직연금의 이연퇴직소득
+              재원은 연금으로 받아도 사적연금 연{" "}
+              {PRIVATE_PENSION_TAX.annualThreshold.toLocaleString("ko-KR")}만원 합산과 별도로 과세되는 경우가
+              있습니다(국세청 기준). 합산 제외 여부는 가입 상품과 수령 방식에 따라 다르므로, 계약·상품 설명에서{" "}
+              <strong className="font-semibold text-ink">퇴직급여 재원 제외 여부를 확인하세요</strong>.
+            </li>
+            <li>
               · <strong className="font-semibold text-ink">이 계산의 사적연금</strong> — 월{" "}
-              {manLabel(nominal.dc + nominal.personal)}(연 {manLabel(privateAnnual)}).{" "}
+              {manLabel(nominal.dc + nominal.personal)}(연 {manLabel(privateAnnual)}). 위 구분 없이 퇴직·개인연금을
+              그대로 더한 값이므로, 실제 합산 대상 금액은 위 기준을 확인한 뒤 달라질 수 있습니다.{" "}
               {overPrivate
-                ? "기준을 넘습니다 — 종합소득세 신고 또는 15% 분리과세(지방소득세 포함 16.5%) 중 선택 대상입니다."
-                : "기준 이하입니다."}
+                ? "이 값 기준으로는 종합소득세 신고 또는 15% 분리과세(지방소득세 포함 16.5%) 중 선택 대상입니다."
+                : "이 값 기준으로는 기준 이하입니다."}
             </li>
             <li>
               · <strong className="font-semibold text-ink">건강보험 피부양자</strong> — 공적연금 소득이 연{" "}
