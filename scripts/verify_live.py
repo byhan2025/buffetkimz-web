@@ -169,6 +169,8 @@ def main():
                 card_categories: cards,
                 tool_count: txt(document.querySelector('[data-tool-count]')),
                 trust: txt(document.querySelector('[data-trust-line]')),
+                hero_verdict: txt(document.querySelector('[data-hero-verdict]')),
+                strip_text: txt(strip),
               };
             }"""
         )
@@ -206,6 +208,21 @@ def main():
             page.goto(f"{BASE}/apps/{slug}/run/", wait_until="networkidle", timeout=60000)
             page.wait_for_timeout(900)
             before = page.locator(verdict_sel).inner_text()
+            page.screenshot(path=str(OUT / f"live-run-{slug}.png"), full_page=True)
+            report["screenshots"].append(str(OUT / f"live-run-{slug}.png"))
+            snapshot = page.evaluate(
+                """() => {
+                  const txt = (el) => (el ? el.innerText.replace(/\\s+/g, ' ').trim() : '');
+                  return {
+                    stats: [...document.querySelectorAll('main p')]
+                      .filter((el) => ['은퇴 시 월 수령액', '오늘 가치(추정)', '목표 월 생활비와의 차이', '총 납입 원금', '세전 평가액 (보수 차감 후)']
+                        .some((k) => el.textContent.includes(k)))
+                      .map((el) => ({ label: el.textContent.trim(), value: el.nextElementSibling ? el.nextElementSibling.textContent.trim() : '' })),
+                    checks: txt(document.querySelector('[data-compound-checks], [data-retirement-checks]')),
+                    tax: txt(document.querySelector('[data-retirement-tax]')),
+                  };
+                }"""
+            )
             page.evaluate(
                 """() => { const r = document.querySelectorAll('input[type=range]');
                    const target = r[r.length - 1];
@@ -218,13 +235,87 @@ def main():
             report["new_tools"][slug] = {
                 "status": page.evaluate("() => performance.getEntriesByType('navigation')[0]?.responseStatus || 200"),
                 "verdict": before[:110],
+                "verdict_full": before,
+                "stats": snapshot["stats"],
+                "checks_text": snapshot["checks"],
+                "tax_text": snapshot["tax"],
                 "reactive": before != after,
                 "checks": page.locator("[data-retirement-checks] li, [data-compound-checks] li").count(),
                 "assumptions": page.locator("[data-retirement-assumptions], [data-compound-assumptions]").count(),
                 "source_line": "기준일 2026-11-19" in page.locator("main").inner_text(),
             }
-            page.screenshot(path=str(OUT / f"live-run-{slug}.png"), full_page=False)
-            report["screenshots"].append(str(OUT / f"live-run-{slug}.png"))
+            # 기본값 상태 화면을 남긴다(슬라이더 조작 전)
+
+        # 라이브 수치 일치: 홈 히어로·스트립 ↔ 실행 화면
+        def man_tokens(text):
+            out = []
+            for m in re.finditer(r"(?:(\d+)억\s*)?([\d,]+)\s*만원", text or ""):
+                out.append(int(m.group(1) or 0) * 10000 + int(m.group(2).replace(",", "")))
+            return out
+
+        def stat_amount(stats, needle):
+            for item in stats or []:
+                if needle in item["label"]:
+                    return (man_tokens(item["value"]) or [None])[0]
+            return None
+
+        home_amounts = man_tokens((report.get("home_v4") or {}).get("hero_verdict", ""))
+        strip_amounts = man_tokens((report.get("home_v4") or {}).get("strip_text", ""))
+        ret = report["new_tools"].get("retirement-flow") or {}
+        cmp_ = report["new_tools"].get("compound-return") or {}
+        live_consistency = {
+            "home_hero": home_amounts,
+            "ret_nominal": stat_amount(ret.get("stats"), "은퇴 시 월 수령액"),
+            "ret_real": stat_amount(ret.get("stats"), "오늘 가치"),
+            "ret_gap": stat_amount(ret.get("stats"), "목표 월 생활비와의 차이"),
+            "cmp_principal": stat_amount(cmp_.get("stats"), "총 납입 원금"),
+            "cmp_gross": stat_amount(cmp_.get("stats"), "세전 평가액"),
+            "verdict_amounts": man_tokens(ret.get("verdict_full", "")),
+            "cmp_verdict_amounts": man_tokens(cmp_.get("verdict_full", "")),
+            "strip_has_nominal": bool(home_amounts) and home_amounts[0] in strip_amounts,
+            "strip_has_real": len(home_amounts) > 1 and home_amounts[1] in strip_amounts,
+            "ret_matches_home": bool(home_amounts)
+            and stat_amount(ret.get("stats"), "은퇴 시 월 수령액") == home_amounts[0]
+            and stat_amount(ret.get("stats"), "오늘 가치") == home_amounts[1],
+            "cmp_fee_030": "0.30%" in (cmp_.get("verdict_full", "") + cmp_.get("checks_text", "")),
+            "cmp_down_330": "-3.30%" in (cmp_.get("checks_text") or ""),
+            "cmp_no_old_numbers": "1.30%" not in (cmp_.get("verdict_full", "") + cmp_.get("checks_text", ""))
+            and "-4.30%" not in (cmp_.get("verdict_full", "") + cmp_.get("checks_text", "")),
+            "ret_tax_wording": "15% 분리과세" in (ret.get("tax_text") or "")
+            and "16.5%" in (ret.get("tax_text") or "")
+            and "16.5% 수준의 종합과세" not in (ret.get("tax_text") or ""),
+        }
+        live_consistency["ok"] = (
+            live_consistency["ret_matches_home"]
+            and live_consistency["strip_has_nominal"]
+            and live_consistency["strip_has_real"]
+            and live_consistency["cmp_fee_030"]
+            and live_consistency["cmp_down_330"]
+            and live_consistency["cmp_no_old_numbers"]
+            and live_consistency["ret_tax_wording"]
+        )
+        report["consistency"] = live_consistency
+
+        # 모바일 360 — 복리 실행 화면 표(오른쪽 끝 숫자 잘림 확인용 산출물)
+        mtctx = browser.new_context(
+            viewport={"width": 360, "height": 800}, device_scale_factor=2, is_mobile=True, has_touch=True, locale="ko-KR"
+        )
+        mt = mtctx.new_page()
+        mt.goto(f"{BASE}/apps/compound-return/run/", wait_until="networkidle", timeout=60000)
+        mt.wait_for_timeout(1200)
+        mt.screenshot(path=str(OUT / "mobile360-run-compound-return.png"), full_page=True)
+        report["screenshots"].append(str(OUT / "mobile360-run-compound-return.png"))
+        report["mobile360_compound"] = {
+            "overflow_px": mt.evaluate("() => document.documentElement.scrollWidth - window.innerWidth"),
+            "tables": mt.evaluate(
+                """() => [...document.querySelectorAll('table')].map((t) => ({
+                     inner: t.scrollWidth - t.clientWidth,
+                     wrap: t.parentElement.scrollWidth - t.parentElement.clientWidth,
+                     clipped: [...t.querySelectorAll('td,th')].filter((c) => c.scrollWidth - c.clientWidth > 1).length,
+                   }))"""
+            ),
+        }
+        mtctx.close()
 
         # 도구 실행 화면 동작(슬라이더 → 결과 변화)
         page.goto(BASE + "/apps/coverage-check/run/", wait_until="networkidle", timeout=60000)
@@ -300,6 +391,14 @@ def main():
         json.dump(report, f, ensure_ascii=False, indent=2)
 
     print(json.dumps(report, ensure_ascii=False, indent=2)[:6000])
+    print("CONSISTENCY:", json.dumps(report.get("consistency"), ensure_ascii=False))
+    table_ok = all(
+        t["inner"] == 0 and t["wrap"] == 0 and t["clipped"] == 0
+        for t in (report.get("mobile360_compound") or {}).get("tables", [])
+    )
+    print("MOBILE360_TABLES_OK:", table_ok)
+    if not (report.get("consistency") or {}).get("ok") or not table_ok:
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":
