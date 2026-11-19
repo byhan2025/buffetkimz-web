@@ -1,0 +1,144 @@
+---
+import Base from "@/layouts/Base.astro";
+import PostCards from "@/components/PostCards.astro";
+import AdSlot from "@/components/AdSlot.astro";
+import { withBase, site } from "@/config/site";
+import { categories, categoryName } from "@/data/categories";
+import { appBySlug } from "@/data/apps";
+import { allPosts, postPath, formatDate, shouldShowQuestion, sourceOrgLine } from "@/lib/posts";
+
+const posts = await allPosts();
+const feature = posts[0];
+const rest = posts.slice(1);
+
+const card = (p: (typeof posts)[number]) => {
+  const app = p.data.app ? appBySlug(p.data.app) : undefined;
+  return {
+    url: postPath(p),
+    title: p.data.title,
+    description: p.data.description,
+    categoryName: categoryName(p.data.category),
+    date: formatDate(p.data.publishedAt),
+    readingMinutes: p.data.readingMinutes,
+    question: p.data.question ?? app?.question,
+    toolName: p.data.toolTitle ?? (app ? `${app.name.replace(" 시뮬레이터", "").replace(" 계산기", "")} 열기` : undefined),
+    toolUrl:
+      p.data.toolHref ?? (app?.internal ? `/apps/${app.slug}/run` : app ? `/apps/${app.slug}` : undefined),
+    baseDate: site.baseDate,
+    sourceCount: p.data.sources.length,
+    sourceOrgLine: sourceOrgLine(p.data.sources),
+  };
+};
+
+const counts = categories.map((c) => ({
+  ...c,
+  count: posts.filter((p) => p.data.category === c.slug).length,
+}));
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  name: "buffetkimz 기록",
+  description: "금융·투자·경제·보험·노후준비·연금·AI·철학을 매일 기록하는 블로그.",
+  url: `${site.url}/posts`,
+  inLanguage: "ko-KR",
+  mainEntity: {
+    "@type": "ItemList",
+    itemListElement: posts.slice(0, 20).map((p, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: p.data.title,
+      url: `${site.url}${postPath(p)}`,
+    })),
+  },
+};
+---
+
+<Base
+  title="기록 — 매일 쌓이는 금융 기록"
+  description="금리·환율·보험·연금·노후·AI. 확인한 것을 매일 한 편씩 남깁니다. 모든 글에 기준일과 1차 출처를 붙이고, 본문까지 검색할 수 있습니다."
+  path="/posts"
+  jsonLd={jsonLd}
+>
+  <section class="scene-sky border-b border-line/70">
+    <div class="wrap py-10 md:py-14">
+      <p class="kicker">기록</p>
+      <h1 class="h-display mt-3 max-w-[17ch] text-ink">확인한 것을<br />매일 남깁니다.</h1>
+      <p class="lede mt-5 max-w-[54ch]">
+        금리와 환율, 보험과 연금, 노후와 AI. 그날 확인한 기준과 출처를 붙여 적습니다. 글마다 이어지는
+        계산 도구를 함께 두었습니다.
+      </p>
+
+      <div class="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-[12.5px] text-ink-muted">
+        <span>기록 <strong class="font-semibold text-ink">{posts.length}편</strong></span>
+        <span>{categories.length}개 분야</span>
+        <span class="mono">기준일 <time datetime={site.baseDate}>{site.baseDate}</time></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 최근 글 1건 -->
+  <section class="scene-cream">
+    <div class="wrap py-10 md:py-14">
+      <a href={withBase(postPath(feature))} class="group block">
+        <div class="card card-lift grid gap-6 p-5 md:grid-cols-[1.4fr_0.6fr] md:items-center md:p-8">
+          <div>
+            <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+              <span class="text-[12px] font-semibold text-brand">{categoryName(feature.data.category)}</span>
+              <span class="mono text-[12px] text-ink-faint">{formatDate(feature.data.publishedAt)}</span>
+              <span class="text-[12px] text-ink-faint">{feature.data.readingMinutes}분</span>
+            </div>
+            <h2 class="mt-3 max-w-[28ch] text-[clamp(22px,2.8vw,32px)] font-bold leading-[1.32] tracking-[-0.038em] text-ink group-hover:text-brand-deep">
+              {feature.data.title}
+            </h2>
+            <p class="mt-3 max-w-[54ch] text-[14.5px] leading-[1.75] text-ink-muted">{feature.data.description}</p>
+            <p class="mono mt-3 text-[12px] leading-relaxed text-ink-faint" data-card-meta>
+              확인 기준일 {site.baseDate} · {sourceOrgLine(feature.data.sources)}
+            </p>
+          </div>
+          <div class="rounded-xl bg-paper-deep/70 p-4">
+            <p class="text-[12px] font-semibold text-ink-faint">기준일과 출처</p>
+            <p class="mono mt-1.5 text-[13px] text-ink">{formatDate(feature.data.publishedAt)}</p>
+            <p class="mt-2 text-[12.5px] leading-[1.65] text-ink-muted">
+              {feature.data.sources.length > 0
+                ? `1차 출처 ${feature.data.sources.length}건 · ${feature.data.sources.map((s) => s.label).slice(0, 2).join(" · ")}`
+                : `기준일 ${site.baseDateLabel}`}
+            </p>
+          </div>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <section class="scene-white border-y border-line">
+    <div class="wrap py-10 md:py-14">
+      <!-- 분야 탭 (링크) -->
+      <div class="relative">
+        <div class="-mx-5 overflow-x-auto px-5 no-scrollbar md:mx-0 md:px-0">
+          <div class="flex min-w-max items-center gap-1.5 pb-1" role="navigation" aria-label="분야">
+            <span class="tab" data-active="true" aria-current="page">
+              전체
+              <span class="mono ml-1.5 text-[12px] text-ink-faint">{posts.length}</span>
+            </span>
+            {
+              counts.map((c) => (
+                <a href={withBase(`/posts/${c.slug}`)} class="tab">
+                  {c.name}
+                  <span class="mono ml-1.5 text-[12px] text-ink-faint">{c.count}</span>
+                </a>
+              ))
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-6">
+        <PostCards items={rest.map(card)} />
+      </div>
+
+      <div class="mt-10">
+        <AdSlot id="posts-index-bottom" size="leaderboard" />
+      </div>
+    </div>
+  </section>
+</Base>

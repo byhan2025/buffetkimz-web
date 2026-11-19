@@ -1,0 +1,82 @@
+---
+import Base from "@/layouts/Base.astro";
+import ToolRunner from "@/components/tools/ToolRunner.tsx";
+import { withBase, site } from "@/config/site";
+import { apps } from "@/data/apps";
+
+export async function getStaticPaths() {
+  return apps
+    .filter((a) => a.internal)
+    .map((app) => ({ params: { slug: app.slug }, props: { app } }));
+}
+
+const { app } = Astro.props;
+---
+
+<Base
+  title={`${app.name} 실행`}
+  description={`${app.name} 실행 화면. 입력값은 브라우저에서만 계산되고 서버로 전송되지 않습니다. 기준일 ${site.baseDateLabel}.`}
+  path={`/apps/${app.slug}/run`}
+  noindex={true}
+>
+  <section class="scene-sky border-b border-line/70">
+    <div class="wrap py-6 md:py-9">
+      <nav class="flex flex-wrap items-center gap-2 text-[12px] text-ink-faint" aria-label="위치">
+        <a href={withBase("/apps")} class="inline-flex min-h-[24px] items-center hover:text-ink">도구</a>
+        <span aria-hidden="true">/</span>
+        <a href={withBase(`/apps/${app.slug}`)} class="inline-flex min-h-[24px] items-center hover:text-ink">{app.name}</a>
+        <span aria-hidden="true">/</span>
+        <span class="text-ink-muted">실행</span>
+      </nav>
+
+      <div class="mt-4 flex flex-wrap items-end justify-between gap-4">
+        <div class="max-w-[62ch]">
+          <h1 class="text-[24px] font-bold tracking-[-0.035em] text-ink md:text-[30px]">{app.name}</h1>
+          <p class="mt-2 text-[14px] leading-[1.7] text-ink-soft">{app.runNote ?? app.oneLine}</p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <span class="chip">예시 입력값 · 가상</span>
+          <span class="chip">입력값 서버 미전송</span>
+          <span class="chip mono">기준일 {site.baseDate}</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="scene-white">
+    <div class="wrap py-6 md:py-10">
+      <div class="mx-auto max-w-[920px]" data-tool-input-area="true" data-nosnippet>
+        <ToolRunner slug={app.slug} client:load />
+      </div>
+
+      <div class="mx-auto mt-6 grid max-w-[920px] gap-3 md:grid-cols-2">
+        <div class="note-box">
+          <p class="text-[12px] font-semibold text-ink">계산 기준·출처</p>
+          <p class="mt-1.5">{app.sourceLine ?? `기준일 ${site.baseDateLabel}`}</p>
+        </div>
+        <div class="note-box">
+          <p class="text-[12px] font-semibold text-ink">가정</p>
+          <ul class="mt-1.5 space-y-1">
+            {(app.assumptions ?? ["공개된 기준을 단순화해 계산합니다."]).map((a) => (
+              <li>{a}</li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+      <div class="mx-auto mt-3 max-w-[920px] rounded-xl border border-ink/10 bg-cream px-4 py-3.5">
+        <p class="text-[12.5px] leading-[1.75] text-ink-soft">
+          <strong class="font-semibold text-ink">참고용입니다.</strong>
+          결과는 입력한 값과 공개된 기준을 비교한 것이며, 상품 추천이나 지급·가입 판정이 아닙니다. 실제
+          조건은 약관과 증권, 관계 기관의 최신 안내로 확인해야 합니다. 입력한 값은 이 브라우저 탭의 메모리에서만
+          계산되고, 페이지를 닫으면 사라지며 URL·서버·로그로 전송되지 않습니다.
+        </p>
+      </div>
+
+      <p class="mx-auto mt-3 max-w-[920px] text-[12px] leading-relaxed text-ink-faint">
+        이 화면은 검색엔진 색인에서 제외됩니다. 설명과 계산 근거는
+        <a href={withBase(`/apps/${app.slug}`)} class="mx-1 text-brand-deep link">{app.name} 소개 페이지</a>에 있습니다.
+      </p>
+    </div>
+  </section>
+</Base>

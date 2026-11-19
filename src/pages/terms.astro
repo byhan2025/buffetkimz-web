@@ -1,0 +1,77 @@
+---
+import Base from "@/layouts/Base.astro";
+import { withBase, site } from "@/config/site";
+---
+
+<Base
+  title="이용약관"
+  description="buffetkimz 이용약관. 콘텐츠의 성격, 도구 사용의 한계, 저작권과 책임 범위를 안내합니다."
+  path="/terms"
+>
+  <section class="border-b border-line">
+    <div class="wrap py-9 md:py-12">
+      <nav class="flex items-center gap-2 text-[12px] text-ink-faint" aria-label="위치">
+        <a href={withBase("/")} class="inline-flex min-h-[24px] items-center hover:text-ink">홈</a>
+        <span aria-hidden="true">/</span>
+        <span class="text-ink-muted">이용약관</span>
+      </nav>
+      <h1 class="mt-5 text-[26px] font-bold tracking-[-0.035em] text-ink md:text-[32px]">이용약관</h1>
+      <p class="mt-2 text-[13px] text-ink-muted">
+        시행일 <time datetime={site.baseDate}>{site.baseDateLabel}</time>
+      </p>
+    </div>
+  </section>
+
+  <section class="wrap py-9 md:py-12">
+    <div class="prose-article max-w-[70ch] text-[15px]">
+      <h2 id="t1">1. 콘텐츠의 성격</h2>
+      <p>
+        이 사이트의 글과 도구는 정보 제공을 목적으로 합니다. 특정 상품의 추천, 중개, 가입 권유가
+        아니며, 어떤 경우에도 투자·보험 가입·세무 신고의 결정을 대신하지 않습니다.
+      </p>
+
+      <h2 id="t2">2. 기준일과 정확성</h2>
+      <p>
+        모든 글과 도구에는 확인한 기준일을 표시합니다. 제도와 약관은 바뀌므로, 기준일 이후의 변경은
+        반영되지 않았을 수 있습니다. 중요한 결정 전에는 관계 기관의 원문과 본인의 계약서를 확인해야
+        합니다.
+      </p>
+
+      <h2 id="t3">3. 도구의 한계</h2>
+      <p>
+        계산 도구는 입력한 값과 공개된 기준을 비교해 확인할 항목을 정리합니다. 보험금 지급 여부, 가입
+        가능 여부, 세액공제 확정 여부를 판단하지 않으며, 그 결과에 대한 최종 판단은 약관·증권과
+        보험회사·국세청 등의 안내에 따릅니다.
+      </p>
+
+      <h2 id="t4">4. 입력값</h2>
+      <p>
+        도구에 입력한 값은 브라우저 안에서만 계산되며 서버로 전송되지 않습니다. 다만 방문자가 사용하는
+        기기와 브라우저의 보안은 방문자의 책임입니다.
+      </p>
+
+      <h2 id="t5">5. 저작권</h2>
+      <p>
+        이 사이트의 글과 도해, 도구의 구성은 작성자의 것입니다. 출처와 링크를 밝히는 인용은 허용되지만,
+        전문 복제·재배포·상업적 사용은 사전에 알려 주세요.
+      </p>
+
+      <h2 id="t6">6. 외부 링크</h2>
+      <p>
+        외부 사이트나 앱으로 연결되는 링크가 있습니다. 그곳의 내용과 서비스에 대해서는 이 사이트가
+        책임지지 않습니다.
+      </p>
+
+      <h2 id="t7">7. 책임의 범위</h2>
+      <p>
+        이 사이트의 정보를 이용해 내린 결정과 그 결과는 이용자에게 있습니다. 사이트는 고의 또는 중대한
+        과실이 없는 한 그 결과에 대한 책임을 지지 않습니다.
+      </p>
+
+      <h2 id="t8">8. 약관의 변경</h2>
+      <p>
+        약관이 바뀌면 이 페이지에 시행일과 함께 반영합니다.
+      </p>
+    </div>
+  </section>
+</Base>

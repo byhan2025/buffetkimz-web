@@ -1,0 +1,12 @@
+---
+import Redirect from "@/components/Redirect.astro";
+import { categories } from "@/data/categories";
+
+export async function getStaticPaths() {
+  return categories.map((c) => ({ params: { hub: c.slug }, props: { to: `/posts/${c.slug}` } }));
+}
+
+const { to } = Astro.props;
+---
+
+<Redirect to={to} title="블로그로 이동" />

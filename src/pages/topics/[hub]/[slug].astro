@@ -1,0 +1,16 @@
+---
+import Redirect from "@/components/Redirect.astro";
+import { allPosts, postPath } from "@/lib/posts";
+
+export async function getStaticPaths() {
+  const posts = await allPosts();
+  return posts.map((p) => ({
+    params: { hub: p.data.category, slug: p.id },
+    props: { to: postPath(p) },
+  }));
+}
+
+const { to } = Astro.props;
+---
+
+<Redirect to={to} title="글로 이동" />

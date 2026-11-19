@@ -1,0 +1,79 @@
+---
+import { withBase, site, nav } from "@/config/site";
+import HeaderSearch from "@/components/HeaderSearch.tsx";
+
+const path = Astro.url.pathname.replace(/\/$/, "") || "/";
+const isActive = (match: string) => path === match || path.startsWith(match + "/");
+---
+
+<header class="sticky top-0 z-40 border-b border-line/80 bg-white/90 backdrop-blur-md">
+  <div class="wrap flex h-[var(--header-h)] items-center gap-4">
+    <a href={withBase("/")} class="flex min-h-[44px] shrink-0 items-center gap-2" aria-label={`${site.brand} 홈`}>
+      <span class="serif text-[24px] leading-none tracking-[-0.01em] text-ink">buffetkimz</span>
+      <span class="hidden text-[12px] font-semibold tracking-[0.02em] text-ink-faint sm:inline">기록 · 도구</span>
+    </a>
+
+    <nav class="mx-auto hidden items-center gap-1 md:flex" aria-label="주 메뉴">
+      {
+        nav.map((item) => (
+          <a
+            href={withBase(item.href)}
+            class={`inline-flex min-h-[44px] items-center rounded-full px-4 text-[14.5px] font-semibold tracking-[-0.015em] transition-colors ${
+              isActive(item.match)
+                ? "bg-brand-soft text-brand-deep"
+                : "text-ink-muted hover:bg-ink/[0.04] hover:text-ink"
+            }`}
+            aria-current={isActive(item.match) ? "page" : undefined}
+          >
+            {item.label}
+          </a>
+        ))
+      }
+    </nav>
+
+    <div class="ml-auto flex items-center gap-1 md:ml-0">
+      <HeaderSearch client:idle />
+      <button
+        type="button"
+        class="-mr-1 grid h-11 w-11 place-items-center text-ink md:hidden"
+        aria-label="메뉴 열기"
+        aria-expanded="false"
+        aria-controls="mobile-menu"
+        data-menu-toggle
+      >
+        <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+          <path d="M3.5 7h17M3.5 12h17M3.5 17h17" stroke-linecap="round"></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <div id="mobile-menu" class="hidden border-t border-line bg-white md:hidden" data-menu-panel>
+    <nav class="wrap flex flex-col py-2" aria-label="모바일 메뉴">
+      {
+        nav.map((item) => (
+          <a
+            href={withBase(item.href)}
+            class="flex min-h-[52px] items-center justify-between border-b border-line-soft text-[16px] font-semibold text-ink"
+            aria-current={isActive(item.match) ? "page" : undefined}
+          >
+            {item.label}
+            {isActive(item.match) && <span class="h-1.5 w-1.5 rounded-full bg-brand" aria-hidden="true" />}
+          </a>
+        ))
+      }
+      <a href={withBase("/search")} class="flex min-h-[52px] items-center text-[16px] font-semibold text-ink-muted">검색</a>
+    </nav>
+  </div>
+</header>
+
+<script>
+  const toggle = document.querySelector<HTMLButtonElement>("[data-menu-toggle]");
+  const panel = document.querySelector<HTMLElement>("[data-menu-panel]");
+  toggle?.addEventListener("click", () => {
+    const nowHidden = panel?.classList.toggle("hidden");
+    const open = nowHidden === false;
+    toggle.setAttribute("aria-expanded", String(open));
+    toggle.setAttribute("aria-label", open ? "메뉴 닫기" : "메뉴 열기");
+  });
+</script>

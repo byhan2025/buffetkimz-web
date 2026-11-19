@@ -1,0 +1,75 @@
+---
+import Base from "@/layouts/Base.astro";
+import CalendarBoard from "@/components/CalendarBoard.tsx";
+import AdSlot from "@/components/AdSlot.astro";
+import { calendar, calendarNote } from "@/data/calendar";
+import { site } from "@/config/site";
+
+const initialMonth = site.today.getMonth() + 1;
+const keyItems = calendar.filter((c) => c.key);
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: keyItems.slice(0, 6).map((k) => ({
+    "@type": "Question",
+    name: `${k.month}월에 확인할 것은 무엇인가요?`,
+    acceptedAnswer: { "@type": "Answer", text: `${k.title} — ${k.action}` },
+  })),
+};
+---
+
+<Base
+  title="제도달력 — 1~12월 보험·연금·건보·절세 일정"
+  description="연말정산, 연금저축 납입 마감, 건강보험료 정산, 실손 갱신까지. 매달 확인해야 할 보험·연금·건보·절세 일정을 1월부터 12월까지 정리했습니다."
+  path="/calendar"
+  jsonLd={jsonLd}
+>
+  <section class="scene-sky border-b border-line/70">
+    <div class="wrap py-9 md:py-12">
+      <p class="kicker">제도달력</p>
+      <h1 class="h-display mt-3 max-w-[18ch]">1월부터 12월까지,<br />놓치면 손해인 날.</h1>
+      <p class="lede mt-4 max-w-[56ch]">
+        금융 사고는 대개 날짜를 놓쳐서 생깁니다. 연말정산, 연금 납입 마감, 건보료 정산, 실손 갱신.
+        매달 확인할 날짜와 할 일을 한 장에 모았습니다.
+      </p>
+      <div class="mt-6 flex flex-wrap gap-x-6 gap-y-1 border-t border-line pt-3 text-[12.5px] text-ink-muted">
+        <span>일정 {calendar.length}건</span>
+        <span>핵심 {keyItems.length}건</span>
+        <span>기준일 {site.baseDateLabel}</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap py-8 md:py-12" id="calendar">
+    <CalendarBoard items={calendar} initialMonth={initialMonth} note={calendarNote} client:load />
+
+    <div class="mt-10 grid gap-8 border-t border-line pt-6 md:grid-cols-3">
+      {
+        [
+          {
+            t: "보험",
+            b: "실손 갱신·전환, 자동차보험 만기, 청구 서류. 갱신 안내서가 오기 전에 계산해 두면 결정이 빨라집니다.",
+          },
+          {
+            t: "연금",
+            b: "국민연금 기준소득월액(7월), 보험료율, IRP 납입. 7월과 12월이 변동 지점입니다.",
+          },
+          {
+            t: "건보·절세",
+            b: "건보료 정산(4월), 보험료율 결정(8월), 연말정산(1·2월), 연금계좌 납입 마감(12월 31일).",
+          },
+        ].map((c) => (
+          <div>
+            <h2 class="text-[14px] font-bold tracking-[-0.02em] text-ink">{c.t}</h2>
+            <p class="mt-1.5 text-[12.5px] leading-[1.72] text-ink-muted">{c.b}</p>
+          </div>
+        ))
+      }
+    </div>
+
+    <div class="mt-8">
+      <AdSlot id="calendar-bottom" size="leaderboard" />
+    </div>
+  </section>
+</Base>

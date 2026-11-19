@@ -1,0 +1,87 @@
+import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import SearchApp from "./SearchApp";
+
+/**
+ * 헤더의 검색 버튼 + 전체 화면 검색 오버레이.
+ * 오래 걸리지 않아야 해서 첫 렌더 뒤 인덱스를 미리 받아 둔다.
+ */
+export default function HeaderSearch() {
+  const [open, setOpen] = useState(false);
+  const closeRef = useRef<HTMLButtonElement | null>(null);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      const typing =
+        target &&
+        (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable);
+      if ((e.key === "k" && (e.metaKey || e.ctrlKey)) || (e.key === "/" && !typing)) {
+        e.preventDefault();
+        setOpen(true);
+      }
+      if (e.key === "Escape") setOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  useEffect(() => {
+    if (!open) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    closeRef.current?.focus();
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [open]);
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="inline-flex min-h-[44px] items-center gap-2 px-1 text-[13.5px] font-semibold text-ink-muted transition-colors hover:text-ink"
+        aria-label="사이트 검색 열기"
+      >
+        <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true">
+          <circle cx="11" cy="11" r="6.4" />
+          <path d="m16 16 4.2 4.2" strokeLinecap="round" />
+        </svg>
+        <span className="hidden sm:inline">검색</span>
+      </button>
+
+      {open &&
+        createPortal(
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="사이트 검색"
+            className="fixed inset-0 z-[70] overflow-y-auto bg-paper"
+          >
+            <div className="wrap pb-16 pt-4">
+              <div className="flex items-center justify-between border-b border-ink pb-3">
+                <span className="serif text-[21px] tracking-[-0.01em] text-ink">buffetkimz</span>
+                <button
+                  ref={closeRef}
+                  type="button"
+                  onClick={() => setOpen(false)}
+                  className="inline-flex min-h-[44px] items-center gap-2 text-[13px] font-semibold text-ink-muted hover:text-ink"
+                >
+                  닫기
+                  <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+                    <path d="m6 6 12 12M18 6 6 18" strokeLinecap="round" />
+                  </svg>
+                </button>
+              </div>
+
+              <div className="mx-auto mt-8 max-w-[720px]">
+                <SearchApp variant="overlay" onClose={() => setOpen(false)} />
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
+    </>
+  );
+}

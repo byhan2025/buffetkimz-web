@@ -1,0 +1,138 @@
+---
+/**
+ * 앱 카드의 도해. 화면 캡처 대신 구조를 선과 숫자로만 그린다.
+ */
+interface Props {
+  art: "guide" | "coverage" | "disclosure" | "silson" | "pension";
+  compact?: boolean;
+}
+const { art, compact = false } = Astro.props;
+const pad = compact ? "p-4" : "p-5 md:p-6";
+---
+
+<div class={`relative h-full w-full overflow-hidden border border-line bg-paper-deep ${pad}`} aria-hidden="true">
+  <div class="absolute inset-0 opacity-[0.5]" style="background-image:linear-gradient(var(--color-line-soft) 1px, transparent 1px);background-size:100% 28px;"></div>
+
+  {
+    art === "guide" && (
+      <div class="relative">
+        <p class="text-[12px] font-semibold tracking-[0.12em] text-ink-faint">확인 순서</p>
+        <ul class="mt-3 space-y-0">
+          {["암", "뇌혈관", "심장", "수술비", "간병비"].map((label, i) => (
+            <li class="flex items-center gap-3 border-b border-line-soft py-2 last:border-0">
+              <span class="w-3 text-[12px] tabular-nums text-ink-faint">{i + 1}</span>
+              <span class="text-[13px] font-semibold text-ink-soft">{label}</span>
+              <span class="ml-auto flex items-end gap-[3px]">
+                {Array.from({ length: 6 }, (_, k) => (
+                  <span
+                    class="w-[3px]"
+                    style={`height:${6 + k * 2}px;background:${k <= 4 - i ? "var(--color-brand)" : "var(--color-line)"}`}
+                  />
+                ))}
+              </span>
+            </li>
+          ))}
+        </ul>
+        <p class="mt-3 text-[12px] text-ink-faint">기준일과 출처를 함께 남깁니다</p>
+      </div>
+    )
+  }
+
+  {
+    art === "coverage" && (
+      <div class="relative">
+        <div class="flex items-baseline justify-between">
+          <p class="text-[12px] font-semibold tracking-[0.12em] text-ink-faint">필요 / 보유</p>
+          <p class="serif text-[13px] text-ink-faint">5,000</p>
+        </div>
+        <ul class="mt-4 space-y-3.5">
+          {[
+            { label: "암", need: 88, have: 62 },
+            { label: "뇌혈관", need: 70, have: 40 },
+            { label: "심장", need: 70, have: 70 },
+            { label: "간병비", need: 60, have: 18 },
+          ].map((row) => (
+            <li>
+              <div class="flex items-baseline justify-between text-[12px]">
+                <span class="font-medium text-ink-soft">{row.label}</span>
+                <span class="tabular-nums text-ink-faint">{row.have}%</span>
+              </div>
+              <div class="relative mt-1.5 h-[5px] w-full bg-line-soft">
+                <div class="absolute inset-y-0 left-0 bg-brand/85" style={`width:${row.have}%`} />
+                <div class="absolute inset-y-[-3px] w-[1px] bg-clay" style={`left:${row.need}%`} />
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )
+  }
+
+  {
+    art === "disclosure" && (
+      <div class="relative">
+        <p class="text-[12px] font-semibold tracking-[0.12em] text-ink-faint">묻는 기간</p>
+        <div class="mt-4 space-y-4">
+          {[
+            { label: "3개월", width: 26 },
+            { label: "2년", width: 58 },
+            { label: "5년", width: 92 },
+          ].map((row, i) => (
+            <div>
+              <div class="flex items-baseline justify-between text-[12px]">
+                <span class="font-medium text-ink-soft">{row.label}</span>
+                <span class="text-[12px] text-ink-faint">{i === 2 ? "10대 질병" : "입원·수술"}</span>
+              </div>
+              <div class="mt-1.5 h-[7px] w-full bg-line-soft">
+                <div class="h-full bg-brand/80" style={`width:${row.width}%`} />
+              </div>
+            </div>
+          ))}
+        </div>
+        <p class="mt-4 text-[12px] leading-relaxed text-ink-faint">판정이 아니라 확인할 항목</p>
+      </div>
+    )
+  }
+
+  {
+    art === "silson" && (
+      <div class="relative">
+        <p class="text-[12px] font-semibold tracking-[0.12em] text-ink-faint">자기부담률</p>
+        <div class="mt-4 grid grid-cols-2 gap-4">
+          <div>
+            <p class="serif text-[26px] leading-none text-ink">30<span class="text-[13px]">%</span></p>
+            <p class="mt-1 text-[12px] text-ink-muted">4세대 비급여</p>
+            <div class="mt-2 h-[64px] w-full bg-line-soft"><div class="mt-auto h-[26%] w-full bg-brand/80"></div></div>
+          </div>
+          <div>
+            <p class="serif text-[26px] leading-none text-clay">50<span class="text-[13px]">%</span></p>
+            <p class="mt-1 text-[12px] text-ink-muted">5세대 비중증</p>
+            <div class="mt-2 h-[64px] w-full bg-line-soft"><div class="mt-auto h-[52%] w-full bg-clay/70"></div></div>
+          </div>
+        </div>
+        <p class="mt-3 text-[12px] text-ink-faint">보험료가 낮아진 만큼 자기부담이 오릅니다</p>
+      </div>
+    )
+  }
+
+  {
+    art === "pension" && (
+      <div class="relative">
+        <p class="text-[12px] font-semibold tracking-[0.12em] text-ink-faint">올해의 한도</p>
+        <div class="mt-4 flex items-end gap-4">
+          <div class="flex-1">
+            <p class="text-[12px] text-ink-muted">연금저축</p>
+            <div class="mt-2 h-[70px] w-full bg-line-soft"><div class="mt-auto h-[66%] w-full bg-brand/80"></div></div>
+            <p class="mt-1.5 serif text-[15px] tabular-nums text-ink">600</p>
+          </div>
+          <div class="flex-1">
+            <p class="text-[12px] text-ink-muted">IRP 합산</p>
+            <div class="mt-2 h-[70px] w-full bg-line-soft"><div class="mt-auto h-[100%] w-full bg-brand"></div></div>
+            <p class="mt-1.5 serif text-[15px] tabular-nums text-ink">900</p>
+          </div>
+        </div>
+        <p class="mt-3 text-[12px] text-ink-faint">단위 만원 · 12월 31일까지</p>
+      </div>
+    )
+  }
+</div>

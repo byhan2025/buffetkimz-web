@@ -1,0 +1,45 @@
+---
+import { absolute, site, withBase } from "@/config/site";
+
+interface Props {
+  to: string;
+  title?: string;
+}
+const { to, title = "이동합니다" } = Astro.props;
+const target = absolute(to);
+const targetPath = withBase(to);
+---
+
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta http-equiv="refresh" content={`0; url=${targetPath}`} />
+    <link rel="canonical" href={target} />
+    <title>{title}</title>
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        background: #fbf9f4;
+        color: #191612;
+        font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+        font-size: 15px;
+      }
+      a {
+        color: #23483a;
+        text-underline-offset: 3px;
+      }
+    </style>
+  </head>
+  <body>
+    <p>주소가 바뀌었습니다. <a href={targetPath}>여기로 이동합니다</a>.</p>
+    <script is:inline define:vars={{ to: targetPath }}>
+      window.location.replace(to);
+    </script>
+  </body>
+</html>

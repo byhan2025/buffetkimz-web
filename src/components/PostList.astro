@@ -1,0 +1,66 @@
+---
+import { categoryBySlug } from "@/data/categories";
+
+export type ListItem = {
+  url: string;
+  title: string;
+  description: string;
+  category: string;
+  date: string;
+  iso: string;
+  readingMinutes: number;
+};
+
+interface Props {
+  items: ListItem[];
+  /** 첫 항목을 크게 보여줄지 */
+  lead?: boolean;
+}
+const { items, lead = true } = Astro.props;
+const first = lead ? items[0] : undefined;
+const rest = lead ? items.slice(1) : items;
+
+const cat = (slug: string) => categoryBySlug(slug);
+---
+
+{
+  first && (
+    <a href={withBase(first.url)} class="group block border-b border-line py-7 md:py-9">
+      <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+        <span class="text-[12px] font-semibold" style={`color:${cat(first.category)?.tone}`}>
+          {cat(first.category)?.name}
+        </span>
+        <time class="dateline text-[12.5px]" datetime={first.iso}>{first.date}</time>
+      </div>
+      <h3 class="mt-2.5 max-w-[24ch] text-[25px] font-bold leading-[1.34] tracking-[-0.04em] text-ink group-hover:text-brand-deep md:text-[30px]">
+        {first.title}
+      </h3>
+      <p class="mt-3 max-w-[54ch] text-[14.5px] leading-[1.8] text-ink-muted">{first.description}</p>
+      <p class="mt-3 text-[12px] text-ink-faint">{first.readingMinutes}분 읽기</p>
+    </a>
+  )
+}
+
+<ul class="divide-y divide-line-soft">
+  {
+    rest.map((item) => (
+      <li>
+        <a href={withBase(item.url)} class="group grid gap-1.5 py-5 sm:grid-cols-[104px_1fr] sm:gap-6">
+          <div class="flex items-baseline gap-2 sm:block">
+            <time class="dateline block text-[12.5px]" datetime={item.iso}>{item.date}</time>
+            <span class="text-[12px] font-semibold sm:mt-1 sm:block" style={`color:${cat(item.category)?.tone}`}>
+              {cat(item.category)?.name}
+            </span>
+          </div>
+          <div>
+            <h3 class="text-[16.5px] font-semibold leading-[1.5] tracking-[-0.028em] text-ink group-hover:underline group-hover:underline-offset-4 md:text-[17.5px]">
+              {item.title}
+            </h3>
+            <p class="clamp-2 mt-1.5 text-[13.5px] leading-[1.72] text-ink-muted">{item.description}</p>
+            <p class="mt-1.5 text-[12px] text-ink-faint">{item.readingMinutes}분</p>
+          </div>
+        </a>
+      </li>
+    ))
+  }
+</ul>

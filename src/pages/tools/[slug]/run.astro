@@ -1,0 +1,14 @@
+---
+import Redirect from "@/components/Redirect.astro";
+import { apps } from "@/data/apps";
+
+export async function getStaticPaths() {
+  return apps
+    .filter((a) => a.internal)
+    .map((app) => ({ params: { slug: app.slug }, props: { to: `/apps/${app.slug}/run` } }));
+}
+
+const { to } = Astro.props;
+---
+
+<Redirect to={to} title="앱 실행 화면으로 이동" />

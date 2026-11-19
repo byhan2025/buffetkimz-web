@@ -1,0 +1,25 @@
+---
+/**
+ * 광고·협찬 슬롯 자리 (Phase 1 비노출)
+ * 추후 애드센스·협찬 배너를 꽂을 위치. 지금은 구조만 남기고 화면에는 표시하지 않는다.
+ * 사용법: <AdSlot id="article-bottom" size="leaderboard" />
+ */
+interface Props {
+  id: string;
+  size?: "leaderboard" | "rectangle" | "in-article";
+  note?: string;
+}
+const { id, size = "leaderboard", note } = Astro.props;
+---
+
+<!-- AD SLOT:start id={id} size={size} — Phase 2에서 광고 코드 삽입 -->
+<div
+  class="ad-slot hidden"
+  data-ad-slot={id}
+  data-ad-size={size}
+  data-ad-state="reserved"
+  aria-hidden="true"
+>
+  <span class="sr-only">{note ?? "광고 영역(1차 비노출)"}</span>
+</div>
+<!-- AD SLOT:end id={id} -->
