@@ -7,7 +7,7 @@ import { withBase, site } from "@/config/site";
 import { categories } from "@/data/categories";
 import { appBySlug } from "@/data/apps";
 import { postsByCategory, postPath, formatDate, sourceOrgLine } from "@/lib/posts";
-import { thumbOf, thumbAltOf } from "@/lib/thumbs";
+import { thumbOf, thumbAltOf, topicThumbs } from "@/lib/thumbs";
 
 export async function getStaticPaths() {
   const out = [];
@@ -70,15 +70,31 @@ const jsonLd = {
         <a href={withBase("/posts")} class="inline-flex min-h-[24px] items-center hover:text-ink">기록</a>
       </nav>
 
-      <div class="mt-5 flex flex-wrap items-baseline gap-3">
-        <h1 class="h-display text-ink">{category.name}</h1>
-        <span class="text-[12.5px] text-ink-muted">글 {posts.length}편</span>
-      </div>
-      <p class="lede mt-3 max-w-[54ch]">{category.lead}</p>
+      <div class="mt-5 grid gap-5 md:grid-cols-[minmax(0,1fr)_260px] md:items-end md:gap-8">
+        <div>
+          <div class="flex flex-wrap items-baseline gap-3">
+            <h1 class="h-display text-ink">{category.name}</h1>
+            <span class="text-[12.5px] text-ink-muted">글 {posts.length}편</span>
+          </div>
+          <p class="lede mt-3 max-w-[54ch]">{category.lead}</p>
 
-      <ul class="mt-5 flex flex-wrap gap-2">
-        {category.covers.map((c) => <li class="chip">{c}</li>)}
-      </ul>
+          <ul class="mt-5 flex flex-wrap gap-2">
+            {category.covers.map((c) => <li class="chip">{c}</li>)}
+          </ul>
+        </div>
+
+        <!-- 분야 대표이미지 — 7대 주제별 그림(글에 썸네일이 없을 때 쓰는 같은 그림) -->
+        <div class="post-thumb max-w-[360px] md:max-w-none" data-category-thumb={category.slug}>
+          <img
+            src={withBase(topicThumbs[category.slug] ?? "/thumbs/topic-philosophy.webp")}
+            alt={`${category.name} 기록 대표 이미지`}
+            width="1280"
+            height="800"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+      </div>
     </div>
   </section>
 
@@ -91,7 +107,7 @@ const jsonLd = {
               <>
                 <a href={withBase(postPath(feature))} class="group block">
                   <div class="card card-lift overflow-hidden p-5 md:p-7">
-                    <div class="post-thumb post-thumb--wide mb-4 aspect-[16/9] md:aspect-[21/9]">
+                    <div class="post-thumb post-thumb--wide mb-4">
                       <img
                         src={withBase(thumbOf(feature))}
                         alt={`${thumbAltOf(feature)} — ${feature.data.title}`}

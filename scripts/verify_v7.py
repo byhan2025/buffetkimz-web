@@ -1030,6 +1030,21 @@ def main():
                 {"count": thumbs_home["count"], "loaded": thumbs_home["loaded"], "ratios": thumbs_home["ratios"][:8]},
             )
 
+            # 분야 페이지 — 7대 주제 대표이미지
+            goto(v, "v52-category", "/posts/insurance/", wait="load")
+            v.wait_for_timeout(600)
+            cat_thumb = v.evaluate(THUMB_JS)
+            report["v52"]["category"] = {k: cat_thumb[k] for k in ("count", "loaded", "ratios", "srcs")}
+            check(
+                "v52.category_thumb",
+                cat_thumb["count"] >= 1
+                and cat_thumb["loaded"] == cat_thumb["count"]
+                and "/thumbs/topic-" in (cat_thumb["srcs"][0] if cat_thumb["srcs"] else "")
+                and all(1.55 <= x <= 1.65 for x in cat_thumb["ratios"]),
+                {"count": cat_thumb["count"], "srcs": cat_thumb["srcs"], "ratios": cat_thumb["ratios"]},
+            )
+            v.screenshot(path=str(OUT / "v52-m390-category.png"))
+
             goto(v, "v52-post-detail", "/posts/insurance-silson-5th/", wait="load")
             thumbs_post = v.evaluate(THUMB_JS)
             report["v52"]["thumb_post"] = {k: thumbs_post[k] for k in ("count", "loaded", "ratios")}
