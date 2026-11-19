@@ -31,8 +31,15 @@ Node 22.12 이상.
 
 ## 배포 (GitHub Pages)
 
-- 저장소: `byhan2025/buffetkimz-web` (공개). `main`에 푸시하면 `.github/workflows/deploy.yml`이 빌드·배포한다.
+- 저장소: `byhan2025/buffetkimz-web` (공개). 사이트는 `gh-pages` 브랜치에서 배포한다.
 - 라이브: <https://byhan2025.github.io/buffetkimz-web/> — GitHub Pages 서브패스(`/buffetkimz-web/`) 배포.
+- 배포 명령 (로컬 빌드 → `gh-pages` 강제 푸시):
+
+  ```bash
+  npm run deploy:pages
+  # 내부적으로 SITE_URL·BASE_PATH를 넣어 빌드하고 gh-pages 브랜치로 올린다
+  ```
+
 - 주소 분기는 `astro.config.mjs`에서 환경변수로만 처리한다.
 
   ```bash
@@ -44,9 +51,12 @@ Node 22.12 이상.
 
 - 내부 링크·자산·검색 인덱스는 `src/config/site.ts`의 `withBase()`/`absolute()`를 거친다.
   새 링크를 추가할 때 `href="/..."`를 그대로 쓰면 서브패스에서 깨지므로 `href={withBase("/...")}`를 쓴다.
+  마크다운 본문의 내부 링크는 `astro.config.mjs`의 rehype 플러그인이 자동으로 접두를 붙인다.
 - `robots.txt`는 정적 파일이 아니라 `src/pages/robots.txt.ts`가 배포 접두에 맞춰 만든다.
-- 저장소 변수 `SITE_URL`·`BASE_PATH`(Settings → Secrets and variables → Actions → Variables)를
-  바꾸면 커스텀 도메인으로 전환할 수 있다.
+- 실측 검증: `python3 scripts/verify_v3.py`(로컬 dist), `python3 scripts/verify_live.py`(라이브 URL).
+- GitHub Actions로 옮길 때는 `deploy/github-actions-workflow.yml.txt`를 `.github/workflows/deploy.yml`로
+  복사한다. (현재 GitHub 앱 연결에 `workflows` 권한이 없어 저장소에 워크플로 파일을 올릴 수 없어
+  `gh-pages` 방식으로 배포했다. 권한이 생기면 Actions 방식으로 전환할 수 있다.)
 
 ## 구조
 
