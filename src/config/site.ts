@@ -53,7 +53,7 @@ export const site = {
   },
   author: {
     name: "buffetkimz",
-    bio: "보험과 금융을 현장에서 다루면서, 확인한 것과 계산한 것을 매일 글로 남깁니다. 설명이 막히는 지점을 도구로 옮기는 일도 함께 합니다.",
+    bio: "확인한 것과 계산한 것을 매일 글로 남깁니다. 설명이 막히는 지점을 도구로 옮기는 일도 함께 합니다.",
   },
   principles: [
     {
@@ -76,9 +76,31 @@ export const site = {
 
 export type NavItem = { href: string; label: string; match: string };
 
+/**
+ * 메뉴 이름 — '도구'는 자료실(계산 도구 + 앞으로 붙을 앱 쇼케이스)이라 '도구자료실'로 부른다.
+ * 데스크톱 주 메뉴와 모바일 퀵 탭이 이 두 배열을 함께 읽으므로, 이름을 바꿀 때는 여기만 고친다.
+ */
 export const nav: NavItem[] = [
   { href: "/posts", label: "블로그", match: "/posts" },
-  { href: "/apps", label: "도구", match: "/apps" },
+  { href: "/apps", label: "도구자료실", match: "/apps" },
   { href: "/calendar", label: "제도달력", match: "/calendar" },
   { href: "/about", label: "소개", match: "/about" },
 ];
+
+/**
+ * 모바일 2행 퀵 탭 — 홈·소개·블로그·도구자료실·달력 다섯 칸.
+ * `weight`는 360px 폭에서도 '도구자료실' 다섯 글자가 줄바꿈·가로 넘침 없이 들어가도록
+ * 글자 수에 비례해 나눈 그리드 비율이다(Header.astro의 모바일 그리드가 이 값을 쓴다).
+ */
+export type QuickTab = { href: string; label: string; match: string; weight: number };
+
+export const quickTabs: QuickTab[] = [
+  { href: "/", label: "홈", match: "/", weight: 1 },
+  { href: "/about", label: "소개", match: "/about", weight: 1.1 },
+  { href: "/posts", label: "블로그", match: "/posts", weight: 1.35 },
+  { href: "/apps", label: "도구자료실", match: "/apps", weight: 1.75 },
+  { href: "/calendar", label: "달력", match: "/calendar", weight: 1.1 },
+];
+
+/** 모바일 퀵 탭 그리드 비율 문자열 (`1fr 1.1fr …`) */
+export const quickTabColumns = quickTabs.map((t) => `${t.weight}fr`).join(" ");

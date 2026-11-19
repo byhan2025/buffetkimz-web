@@ -2,9 +2,11 @@
 import { render } from "astro:content";
 import Base from "@/layouts/Base.astro";
 import AdSlot from "@/components/AdSlot.astro";
-import { withBase, site } from "@/config/site";
+import HomePill from "@/components/HomePill.astro";
+import { withBase, site, absolute } from "@/config/site";
 import { categoryBySlug } from "@/data/categories";
 import { allPosts, postPath, formatDate, relatedApp } from "@/lib/posts";
+import { thumbOf, thumbAltOf } from "@/lib/thumbs";
 
 export async function getStaticPaths() {
   const list = await allPosts();
@@ -21,6 +23,8 @@ const app = relatedApp(post);
 
 const published = post.data.publishedAt.toISOString().slice(0, 10);
 const path = postPath(post);
+const thumb = thumbOf(post);
+const thumbAlt = thumbAltOf(post);
 const sameCategory = (await allPosts())
   .filter((p) => p.data.category === post.data.category && p.id !== post.id)
   .slice(0, 3);
@@ -38,6 +42,7 @@ const jsonLd = {
   mainEntityOfPage: { "@type": "WebPage", "@id": `${site.url}${path}` },
   articleSection: category.name,
   keywords: post.data.tags.join(", "),
+  image: absolute(thumb),
 };
 ---
 
@@ -48,10 +53,13 @@ const jsonLd = {
   type="article"
   publishedTime={published}
   jsonLd={jsonLd}
+  image={thumb}
+  imageAlt={`${thumbAlt} — ${post.data.title}`}
 >
   <article>
     <header class="border-b border-line">
       <div class="wrap py-8 md:py-12">
+        <HomePill />
         <nav class="flex flex-wrap items-center gap-2 text-[12px] text-ink-faint" aria-label="위치">
           <a href={withBase("/")} class="inline-flex min-h-[24px] items-center hover:text-ink">홈</a>
           <span aria-hidden="true">/</span>
@@ -74,6 +82,23 @@ const jsonLd = {
           </h1>
           <p class="lede mt-4">{post.data.description}</p>
         </div>
+
+        <figure class="mt-7 max-w-[66ch]">
+          <div class="post-thumb post-thumb--wide">
+            <img
+              src={withBase(thumb)}
+              alt={`${thumbAlt} — ${post.data.title}`}
+              width="1280"
+              height="800"
+              fetchpriority="high"
+            />
+          </div>
+          <figcaption class="mt-2 flex flex-wrap items-center gap-x-2 text-[12px] text-ink-faint">
+            <span>{category.name} 기록</span>
+            <span aria-hidden="true">·</span>
+            <span>기준일 {site.baseDate}</span>
+          </figcaption>
+        </figure>
       </div>
     </header>
 
@@ -126,6 +151,8 @@ const jsonLd = {
               )
             }
           </nav>
+
+          <HomePill position="bottom" />
         </div>
 
         <aside class="space-y-8 lg:border-l lg:border-line lg:pl-8">

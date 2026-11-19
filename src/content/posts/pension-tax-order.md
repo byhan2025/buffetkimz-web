@@ -2,6 +2,7 @@
 title: "연금저축 900만원보다 먼저 계산해야 할 것"
 category: "pension"
 description: "세액공제 한도는 900만원이지만, 순서를 바꾸면 절감액이 달라집니다. 12월 31일 전에 확인할 네 단계를 정리했습니다."
+thumb: "/thumbs/pension-tax-order.webp"
 question: "연말정산 전에 뭘 먼저 넣어야 할까"
 publishedAt: 2026-11-11
 readingMinutes: 8

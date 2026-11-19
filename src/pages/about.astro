@@ -1,5 +1,6 @@
 ---
 import Base from "@/layouts/Base.astro";
+import HomePill from "@/components/HomePill.astro";
 import { withBase, site } from "@/config/site";
 import { categories } from "@/data/categories";
 import { apps } from "@/data/apps";
@@ -28,6 +29,7 @@ const jsonLd = {
 >
   <section class="scene-sky border-b border-line/70">
     <div class="wrap py-10 md:py-14">
+      <HomePill />
       <p class="kicker">소개</p>
       <h1 class="h-display mt-3 max-w-[22ch]">
         확인한 것을 적고,<br />되풀이되는 계산은 도구로.
@@ -176,5 +178,7 @@ const jsonLd = {
         <a href={withBase("/terms")} class="text-ink-muted link">이용약관</a>
       </p>
     </div>
+
+    <HomePill position="bottom" />
   </section>
 </Base>

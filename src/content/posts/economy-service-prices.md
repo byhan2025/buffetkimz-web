@@ -2,6 +2,7 @@
 title: "물가가 잡혀도 체감이 남는 이유 — 서비스 물가의 시차"
 category: "economy"
 description: "지표상 물가 상승률이 둔해져도 장바구니와 고정비는 그대로일 수 있습니다. 상품과 서비스의 가격이 정해지는 방식이 다르기 때문입니다."
+thumb: "/thumbs/economy-service-prices.webp"
 question: "미용실·배달비는 왜 안 내려갈까"
 publishedAt: 2026-11-18
 readingMinutes: 7

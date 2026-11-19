@@ -1,5 +1,6 @@
 ---
 import Base from "@/layouts/Base.astro";
+import HomePill from "@/components/HomePill.astro";
 import { withBase, site } from "@/config/site";
 ---
 
@@ -10,6 +11,7 @@ import { withBase, site } from "@/config/site";
 >
   <section class="border-b border-line">
     <div class="wrap py-9 md:py-12">
+      <HomePill />
       <nav class="flex items-center gap-2 text-[12px] text-ink-faint" aria-label="위치">
         <a href={withBase("/")} class="inline-flex min-h-[24px] items-center hover:text-ink">홈</a>
         <span aria-hidden="true">/</span>
@@ -73,5 +75,6 @@ import { withBase, site } from "@/config/site";
         약관이 바뀌면 이 페이지에 시행일과 함께 반영합니다.
       </p>
     </div>
+    <HomePill position="bottom" />
   </section>
 </Base>

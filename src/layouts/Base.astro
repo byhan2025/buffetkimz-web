@@ -12,11 +12,17 @@ interface Props {
   noindex?: boolean;
   type?: "website" | "article";
   publishedTime?: string;
+  /** og:image 대표이미지 (public 기준 경로) */
+  image?: string;
+  imageAlt?: string;
+  imageWidth?: number;
+  imageHeight?: number;
   /** JSON-LD (페이지에서 넘기면 head에 삽입) */
   jsonLd?: Record<string, unknown>;
 }
 
-const { title, description, path, noindex, type, publishedTime, jsonLd } = Astro.props;
+const { title, description, path, noindex, type, publishedTime, image, imageAlt, imageWidth, imageHeight, jsonLd } =
+  Astro.props;
 ---
 
 <!doctype html>
@@ -25,7 +31,18 @@ const { title, description, path, noindex, type, publishedTime, jsonLd } = Astro
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#ffffff" />
-    <Seo title={title} description={description} path={path} noindex={noindex} type={type} publishedTime={publishedTime} />
+    <Seo
+      title={title}
+      description={description}
+      path={path}
+      noindex={noindex}
+      type={type}
+      publishedTime={publishedTime}
+      image={image}
+      imageAlt={imageAlt}
+      imageWidth={imageWidth}
+      imageHeight={imageHeight}
+    />
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

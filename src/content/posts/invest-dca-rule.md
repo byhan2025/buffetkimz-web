@@ -2,6 +2,7 @@
 title: "적립식이 유리한 이유는 수익률이 아니라 '실수 횟수'에 있다"
 category: "invest"
 description: "거치식과 적립식의 차이는 기대수익률이 아니라, 판단을 몇 번 하는가에 있습니다. 배분과 리밸런싱 규칙을 먼저 정하는 이유를 정리했습니다."
+thumb: "/thumbs/invest-dca-rule.webp"
 question: "매달 사는 게 정말 유리할까"
 publishedAt: 2026-11-15
 readingMinutes: 8

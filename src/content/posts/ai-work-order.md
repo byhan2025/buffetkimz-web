@@ -2,6 +2,7 @@
 title: "AI에게 일을 맡기기 전에 정해야 하는 세 가지"
 category: "ai"
 description: "도구를 만들고 문서를 자동화하면서 배운 것은, 좋은 프롬프트보다 입력과 출력의 형태를 정하는 일이 먼저라는 점입니다."
+thumb: "/thumbs/ai-work-order.webp"
 question: "AI가 일을 헛나가면 어디부터 볼까"
 publishedAt: 2026-11-18
 readingMinutes: 7

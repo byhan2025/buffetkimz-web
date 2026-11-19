@@ -2,6 +2,7 @@
 title: "숫자는 결론이 아니라 질문이다"
 category: "philosophy"
 description: "계산은 답을 내지만, 그 답을 어떻게 받아들일지는 계산이 정하지 않습니다. 계약서 앞에서 먼저 던져야 할 세 가지 질문에 대한 짧은 글."
+thumb: "/thumbs/philosophy-numbers-are-questions.webp"
 question: "계산 결과를 어디까지 믿어야 할까"
 publishedAt: 2026-11-10
 readingMinutes: 5

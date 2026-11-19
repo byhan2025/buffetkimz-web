@@ -2,6 +2,7 @@
 title: "노후 파산은 큰 병보다 매달 나가는 고정비에서 시작된다"
 category: "retire"
 description: "은퇴 후 30년을 버티게 하는 것은 목돈이 아니라 매달 나가는 돈의 구조입니다. 건강보험료, 갱신 보험료, 간병비를 순서대로 정리했습니다."
+thumb: "/thumbs/retire-fixed-cost.webp"
 question: "은퇴 후 매달 나가는 돈은 얼마일까"
 publishedAt: 2026-11-12
 readingMinutes: 9

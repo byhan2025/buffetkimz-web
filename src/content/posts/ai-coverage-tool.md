@@ -2,6 +2,7 @@
 title: "AI로 보장분석 도구를 만들었습니다 — 바뀐 것과 바뀌지 않은 것"
 category: "ai"
 description: "보장 확인에 쓰는 도구를 직접 만들면서 바뀐 일과, AI가 대신해 주지 못한 일을 정리했습니다. 도구를 만들고 고친 기록만 남깁니다."
+thumb: "/thumbs/ai-coverage-tool.webp"
 question: "매번 손으로 옮겨 적던 일, 줄일 수 있을까"
 publishedAt: 2026-11-17
 readingMinutes: 7

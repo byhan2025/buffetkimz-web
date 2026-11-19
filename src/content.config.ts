@@ -22,6 +22,10 @@ const posts = defineCollection({
       "philosophy",
     ]),
     description: z.string(),
+    /** 카드·상세·OG에 함께 쓰는 대표이미지 (public 기준 경로, 예: "/thumbs/ai-work-order.webp") */
+    thumb: z.string().optional(),
+    /** 썸네일 대체 설명 — 비워 두면 카테고리 기반 문장을 쓴다 */
+    thumbAlt: z.string().optional(),
     /** 카드에 먼저 보여 주는 질문 한 줄 — 이 글이 답하는 것 */
     question: z.string().optional(),
     publishedAt: z.coerce.date(),

@@ -1,11 +1,13 @@
 ---
 import Base from "@/layouts/Base.astro";
 import PostCards from "@/components/PostCards.astro";
+import HomePill from "@/components/HomePill.astro";
 import AdSlot from "@/components/AdSlot.astro";
 import { withBase, site } from "@/config/site";
 import { categories, categoryName } from "@/data/categories";
 import { appBySlug } from "@/data/apps";
 import { allPosts, postPath, formatDate, shouldShowQuestion, sourceOrgLine } from "@/lib/posts";
+import { thumbOf, thumbAltOf } from "@/lib/thumbs";
 
 const posts = await allPosts();
 const feature = posts[0];
@@ -27,6 +29,8 @@ const card = (p: (typeof posts)[number]) => {
     baseDate: site.baseDate,
     sourceCount: p.data.sources.length,
     sourceOrgLine: sourceOrgLine(p.data.sources),
+    thumb: thumbOf(p),
+    thumbAlt: thumbAltOf(p),
   };
 };
 
@@ -61,7 +65,8 @@ const jsonLd = {
   jsonLd={jsonLd}
 >
   <section class="scene-sky border-b border-line/70">
-    <div class="wrap py-10 md:py-14">
+    <div class="wrap py-8 md:py-12">
+      <HomePill />
       <p class="kicker">기록</p>
       <h1 class="h-display mt-3 max-w-[17ch] text-ink">확인한 것을<br />매일 남깁니다.</h1>
       <p class="lede mt-5 max-w-[54ch]">
@@ -81,7 +86,16 @@ const jsonLd = {
   <section class="scene-cream">
     <div class="wrap py-10 md:py-14">
       <a href={withBase(postPath(feature))} class="group block">
-        <div class="card card-lift grid gap-6 p-5 md:grid-cols-[1.4fr_0.6fr] md:items-center md:p-8">
+        <div class="card card-lift grid gap-5 p-5 md:grid-cols-[1.4fr_0.6fr] md:items-center md:gap-7 md:p-8">
+          <div class="post-thumb post-thumb--wide md:col-span-2">
+            <img
+              src={withBase(thumbOf(feature))}
+              alt={`${thumbAltOf(feature)} — ${feature.data.title}`}
+              width="1280"
+              height="800"
+              fetchpriority="high"
+            />
+          </div>
           <div>
             <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
               <span class="text-[12px] font-semibold text-brand">{categoryName(feature.data.category)}</span>
@@ -139,6 +153,8 @@ const jsonLd = {
       <div class="mt-10">
         <AdSlot id="posts-index-bottom" size="leaderboard" />
       </div>
+
+      <HomePill position="bottom" />
     </div>
   </section>
 </Base>

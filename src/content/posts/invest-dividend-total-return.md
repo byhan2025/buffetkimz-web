@@ -2,6 +2,7 @@
 title: "배당은 수익이 아니다 — 총수익으로 다시 계산하기"
 category: "invest"
 description: "배당수익률만 보면 계좌의 실제 성과를 놓칩니다. 가격 변동과 배당을 합친 총수익, 그리고 세금과 재투자까지 함께 계산하는 방법을 정리했습니다."
+thumb: "/thumbs/invest-dividend-total-return.webp"
 question: "배당을 받으면 계좌엔 얼마나 남을까"
 publishedAt: 2026-11-17
 readingMinutes: 8

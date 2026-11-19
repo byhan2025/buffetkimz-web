@@ -1,14 +1,31 @@
 ---
-import { withBase, site, nav } from "@/config/site";
+/**
+ * v5.2 헤더 — 데스크톱은 한 줄, 모바일(<768px)은 두 줄.
+ *
+ *  1행: buffetkimz 로고 + 검색 + 전체메뉴(≡)
+ *  2행: 홈 · 소개 · 블로그 · 도구자료실 · 달력 — 가로 스크롤 없는 1줄 고정 퀵 탭
+ *       (각 칸 44px 높이·12.5px 글자, 360px 폭에서도 넘침 0)
+ *
+ * 퀵 탭 그리드 비율은 config/site.ts의 `weight`(글자 수 비례)를 그대로 받아 쓴다.
+ * 그래서 '도구자료실' 다섯 글자가 좁은 폰에서도 잘리지 않고, 나머지 칸도 44px 터치 폭을 지킨다.
+ */
+import { withBase, site, nav, quickTabs, quickTabColumns } from "@/config/site";
 import HeaderSearch from "@/components/HeaderSearch.tsx";
 
 const path = Astro.url.pathname.replace(/\/$/, "") || "/";
-const isActive = (match: string) => path === match || path.startsWith(match + "/");
+const isActive = (match: string) =>
+  match === "/" ? path === "/" : path === match || path.startsWith(match + "/");
 ---
 
-<header class="sticky top-0 z-40 border-b border-line/80 bg-white/90 backdrop-blur-md">
-  <div class="wrap flex h-[var(--header-h)] items-center gap-4">
-    <a href={withBase("/")} class="flex min-h-[44px] shrink-0 items-center gap-2" aria-label={`${site.brand} 홈`}>
+<header class="site-header sticky top-0 z-40 border-b border-line/80 bg-white/90 backdrop-blur-md">
+  <!-- 1행 — 로고 · 주 메뉴(데스크톱) · 검색 · 전체메뉴 -->
+  <div class="wrap site-header-row flex items-center gap-4">
+    <a
+      href={withBase("/")}
+      class="flex min-h-[44px] shrink-0 items-center gap-2"
+      aria-label={`${site.brand} 홈`}
+      data-quick-active={isActive("/") ? "true" : "false"}
+    >
       <span class="serif text-[24px] leading-none tracking-[-0.01em] text-ink">buffetkimz</span>
       <span class="hidden text-[12px] font-semibold tracking-[0.02em] text-ink-faint sm:inline">기록 · 도구</span>
     </a>
@@ -47,6 +64,26 @@ const isActive = (match: string) => path === match || path.startsWith(match + "/
       </button>
     </div>
   </div>
+
+  <!-- 2행 — 모바일 1줄 고정 퀵 탭 (가로 스크롤 없음) -->
+  <nav class="site-quick md:hidden" aria-label="바로가기 메뉴">
+    <ul class="site-quick-list" style={`--quick-cols:${quickTabColumns}`} data-quick-tabs>
+      {
+        quickTabs.map((tab) => (
+          <li>
+            <a
+              href={withBase(tab.href)}
+              class="site-quick-link"
+              data-active={isActive(tab.match) ? "true" : "false"}
+              aria-current={isActive(tab.match) ? "page" : undefined}
+            >
+              {tab.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </nav>
 
   <div id="mobile-menu" class="hidden border-t border-line bg-white md:hidden" data-menu-panel>
     <nav class="wrap flex flex-col py-2" aria-label="모바일 메뉴">

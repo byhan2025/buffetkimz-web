@@ -94,7 +94,7 @@ export default function RetirementFlow({ compact = false }: { compact?: boolean 
         <ol className="mt-1.5 space-y-1.5" data-retirement-checks>
           {checks.map((c, i) => (
             <li key={i} className="flex gap-2 text-[12.5px] leading-[1.65] text-ink-soft">
-              <span className="mt-[2px] grid h-[17px] w-[17px] shrink-0 place-items-center rounded-full bg-brand-soft text-[11px] font-bold text-brand-deep">
+              <span className="mt-[2px] grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full bg-brand-soft text-[12px] font-bold text-brand-deep">
                 {i + 1}
               </span>
               <span>{c}</span>
@@ -176,7 +176,7 @@ export default function RetirementFlow({ compact = false }: { compact?: boolean 
         <div className="rounded-xl border border-line bg-white p-4">
           <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
             <p className="text-[12px] font-bold tracking-[0.1em] text-ink-faint">월 수령액 — 명목과 오늘 가치</p>
-            <p className="flex items-center gap-2 text-[11.5px] text-ink-muted">
+            <p className="flex items-center gap-2 text-[12px] text-ink-muted">
               <span className="flex items-center gap-1"><i className="h-2 w-2 rounded-full bg-brand" />명목</span>
               <span className="flex items-center gap-1"><i className="h-2 w-2 rounded-full bg-[#7fb5a2]" />오늘 가치</span>
             </p>

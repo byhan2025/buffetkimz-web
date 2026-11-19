@@ -2,6 +2,7 @@
 title: "환율이 오르면 장바구니에서 무엇이 먼저 오르나"
 category: "economy"
 description: "환율과 소비자물가 사이에는 몇 단계의 시차가 있습니다. 원화 가치가 떨어질 때 가격표가 먼저 바뀌는 품목과 늦게 바뀌는 품목을 구분해 정리했습니다."
+thumb: "/thumbs/economy-fx-grocery.webp"
 question: "수입 과자·커피값은 왜 먼저 오를까"
 publishedAt: 2026-11-19
 readingMinutes: 8

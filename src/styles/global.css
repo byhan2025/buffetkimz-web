@@ -55,8 +55,15 @@
 @layer base {
   :root {
     color-scheme: light;
+    /* 데스크톱 1행(64px) / 모바일 2행(1행 56 + 퀵 탭 48 + 괘선 1 = 105px) */
     --header-h: 64px;
     --rule: 1px solid var(--color-line);
+  }
+
+  @media (max-width: 767px) {
+    :root {
+      --header-h: 105px;
+    }
   }
 
   * {
@@ -137,6 +144,137 @@
     .wrap {
       padding-inline: 40px;
     }
+  }
+
+  /* ==================================================================
+     v5.2 헤더 — 모바일 2행(로고줄 + 퀵 탭 1줄) · 데스크톱 1행
+     퀵 탭은 가로 스크롤 없이 다섯 칸이 한 줄에 고정된다(360px 기준 54~95px/칸).
+     ================================================================== */
+  .site-header-row {
+    height: 56px;
+  }
+
+  @media (min-width: 768px) {
+    .site-header-row {
+      height: 64px;
+    }
+  }
+
+  .site-quick {
+    border-top: 1px solid var(--color-line-soft);
+  }
+
+  .site-quick-list {
+    display: grid;
+    grid-template-columns: var(--quick-cols, 1fr 1.1fr 1.35fr 1.75fr 1.1fr);
+    gap: 2px;
+    margin: 0;
+    padding: 2px 8px;
+    list-style: none;
+  }
+
+  .site-quick-list > li {
+    display: flex;
+    min-width: 0;
+  }
+
+  .site-quick-link {
+    display: flex;
+    width: 100%;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
+    padding: 0 2px;
+    border-radius: 10px;
+    font-size: 12.5px;
+    font-weight: 650;
+    line-height: 1.2;
+    letter-spacing: -0.035em;
+    white-space: nowrap;
+    color: var(--color-ink-muted);
+    transition: background-color 140ms var(--ease-out-soft), color 140ms var(--ease-out-soft);
+  }
+
+  .site-quick-link:hover {
+    background-color: rgb(20 40 40 / 0.045);
+    color: var(--color-ink);
+  }
+
+  .site-quick-link[data-active="true"] {
+    background-color: var(--color-brand-soft);
+    color: var(--color-brand-deep);
+    font-weight: 750;
+  }
+
+  /* ---------- 하위 페이지 '홈으로' 알약 (높이 44px 이상) ---------- */
+  .home-pill-row {
+    margin-bottom: 14px;
+  }
+
+  .home-pill {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    gap: 6px;
+    padding: 0 18px;
+    border: 1px solid var(--color-line);
+    border-radius: 999px;
+    background-color: rgb(255 255 255 / 0.82);
+    font-size: 13px;
+    font-weight: 650;
+    letter-spacing: -0.02em;
+    color: var(--color-ink-soft);
+    transition: background-color 150ms var(--ease-out-soft), border-color 150ms var(--ease-out-soft),
+      color 150ms var(--ease-out-soft);
+  }
+
+  .home-pill:hover {
+    border-color: var(--color-brand);
+    background-color: #ffffff;
+    color: var(--color-brand-deep);
+  }
+
+  .home-pill svg {
+    width: 15px;
+    height: 15px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .home-pill-row--bottom {
+    margin-top: 34px;
+    margin-bottom: 0;
+    padding-top: 22px;
+    border-top: 1px solid var(--color-line);
+  }
+
+  /* ---------- 글 썸네일 (16:10 에디토리얼) ---------- */
+  .post-thumb {
+    position: relative;
+    display: block;
+    overflow: hidden;
+    border-radius: 12px;
+    background-color: var(--color-cream);
+    aspect-ratio: 16 / 10;
+  }
+
+  .post-thumb > img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 420ms var(--ease-out-soft);
+  }
+
+  a:hover > .post-thumb > img,
+  .group:hover .post-thumb > img {
+    transform: scale(1.025);
+  }
+
+  .post-thumb--wide {
+    border-radius: 16px;
   }
 
   /* ---------- 장면(배경) ---------- */
@@ -902,27 +1040,97 @@
   }
 
   /* ---------- v5.0 아카이브 ---------- */
-  .recent-strip {
+  /* 최근 기록 — 썸네일 카드 (v5.2) */
+  .recent-head {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: 6px 10px;
-    margin-top: 16px;
+    margin-top: 18px;
     border-top: 1px solid var(--color-line);
-    border-bottom: 1px solid var(--color-line);
-    padding: 8px 0;
+    padding-top: 10px;
   }
 
-  .recent-link {
-    display: inline-flex;
+  .recent-cards {
+    display: grid;
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  @media (min-width: 640px) {
+    .recent-cards {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+  }
+
+  .recent-card {
+    display: flex;
+    height: 100%;
+    align-items: center;
+    gap: 10px;
+    border: 1px solid var(--color-line);
+    border-radius: 14px;
+    background-color: #ffffff;
+    padding: 9px;
+    transition: border-color 180ms var(--ease-out-soft), box-shadow 180ms var(--ease-out-soft),
+      transform 180ms var(--ease-out-soft);
+  }
+
+  .recent-card:hover,
+  .recent-card:focus-visible {
+    transform: translateY(-2px);
+    border-color: #b9c9d4;
+    box-shadow: 0 1px 2px rgb(11 27 41 / 0.04), 0 18px 30px -26px rgb(11 27 41 / 0.45);
+  }
+
+  .recent-card-thumb {
+    width: 88px;
+    flex: none;
+    border-radius: 9px;
+  }
+
+  .recent-card-body {
+    display: block;
+    min-width: 0;
+  }
+
+  .recent-card-meta {
+    display: flex;
+    flex-wrap: wrap;
     align-items: baseline;
-    gap: 7px;
-    min-height: 32px;
-    transition: color 160ms ease;
+    gap: 2px 8px;
   }
 
-  .recent-link:hover {
-    color: var(--color-brand-deep);
+  .recent-card-title {
+    display: -webkit-box;
+    margin-top: 3px;
+    overflow: hidden;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.42;
+    letter-spacing: -0.025em;
+    color: var(--color-ink);
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  @media (min-width: 640px) {
+    .recent-card {
+      display: block;
+      padding: 10px;
+    }
+
+    .recent-card-thumb {
+      width: 100%;
+      margin-bottom: 8px;
+    }
+  }
+
+  .curation-thumb {
+    width: 56px;
+    flex: none;
+    border-radius: 8px;
   }
 
   .topic-card {
@@ -1762,7 +1970,50 @@
   }
 
   .fs3-chart {
+    position: relative;
     margin-top: clamp(12px, 2.4vh, 26px);
+  }
+
+  /* 곡선 가까이에 붙는 범례 — '가정 기반 예시' / '단순 비례 비교선' */
+  .fs3-legend {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 2;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    opacity: 0;
+  }
+
+  .fs3-legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    border: 1px solid rgb(255 255 255 / 0.16);
+    border-radius: 999px;
+    background-color: rgb(4 16 26 / 0.72);
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 650;
+    letter-spacing: -0.01em;
+    color: #d8e8f3;
+  }
+
+  .fs3-legend-swatch {
+    width: 20px;
+    height: 3px;
+    flex: none;
+    border-radius: 2px;
+    background-color: #5fe0bd;
+    box-shadow: 0 0 8px rgb(95 224 189 / 0.6);
+  }
+
+  .fs3-legend-swatch.is-flat {
+    height: 0;
+    background-color: transparent;
+    border-top: 2px dashed rgb(255 255 255 / 0.62);
+    box-shadow: none;
   }
 
   .fs3-svg {
@@ -2160,6 +2411,16 @@
     margin-top: 10px;
     font-size: clamp(13px, 1.5vw, 16px);
     color: #c6dbe9;
+  }
+
+  .film-static-fields {
+    margin-top: 6px;
+    color: #8fa8ba;
+  }
+
+  /* 정적 록업에서는 슬로건이 이미 가운데 있으므로 HUD의 같은 문장을 겹쳐 두지 않는다 */
+  [data-film-state="static"] .film-hud-line {
+    display: none;
   }
 
   .film-static-actions {
@@ -2598,6 +2859,39 @@
     white-space: nowrap;
   }
 
+  /* ---------- 모바일 — 2행 헤더(105px) 아래에서도 첫 화면 CTA가 보이게 ---------- */
+  @media (max-width: 767px) {
+    .film-stage {
+      /* 360×640처럼 짧은 화면에서도 스크롤 없이 [소개 보기][도구 둘러보기]까지 들어오도록 */
+      min-height: 468px;
+    }
+
+    .film-scene {
+      padding: 58px 16px 182px;
+    }
+
+    .film-static {
+      padding: 58px 18px 182px;
+    }
+
+    .film-controls {
+      padding: 18px 12px calc(10px + env(safe-area-inset-bottom));
+    }
+
+    .film-controls-inner {
+      gap: 6px 10px;
+    }
+
+    .film-hud {
+      padding: 12px 16px 0;
+    }
+
+    .fs3-legend {
+      position: static;
+      margin-bottom: 6px;
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     /* 정지 1컷 + 한 줄 결론. 재생·장면 이동·진행 바는 두지 않는다(정적 록업의 CTA가 진입 동선). */
     .film-scene {
@@ -2607,6 +2901,8 @@
     .film-static {
       opacity: 1;
       visibility: visible;
+      /* 컨트롤이 없으니 아래 여백을 걷고 화면 가운데에 둔다 */
+      padding-bottom: 78px;
     }
 
     .film-controls,

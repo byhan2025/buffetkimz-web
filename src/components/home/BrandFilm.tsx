@@ -350,6 +350,16 @@ export default function BrandFilm({ appsHref = "/apps" }: { appsHref?: string })
                 </p>
               </div>
               <div className="fs3-chart">
+                <div className="fs3-legend" data-fs3-legend aria-hidden="true">
+                  <span className="fs3-legend-item">
+                    <span className="fs3-legend-swatch is-curve" />
+                    가정 기반 예시
+                  </span>
+                  <span className="fs3-legend-item">
+                    <span className="fs3-legend-swatch is-flat" />
+                    단순 비례 비교선
+                  </span>
+                </div>
                 <svg viewBox="0 0 900 330" className="fs3-svg" aria-hidden="true">
                   <defs>
                     <linearGradient id="bkFilmArea" x1="0" y1="0" x2="0" y2="1">
@@ -394,6 +404,7 @@ export default function BrandFilm({ appsHref = "/apps" }: { appsHref?: string })
               </div>
               <p className="fs3-foot film-mono">
                 <span>가정 기반 예시 곡선</span>
+                <span>점선 = 단순 비례 비교선</span>
                 <span>원금 손실 가능</span>
                 <span data-fs3-count>0년</span>
               </p>
@@ -480,7 +491,8 @@ export default function BrandFilm({ appsHref = "/apps" }: { appsHref?: string })
             <br />
             <span className="film-static-mark">buffetkimz</span>
           </p>
-          <p className="film-static-sub">금융 · 투자 · 연금 · 노후 · 보험을 매일 기록합니다</p>
+          <p className="film-static-sub">숫자를 확인하고, 기록으로 남깁니다</p>
+          <p className="film-mono film-static-fields">금융 · 투자 · 연금 · 노후 · 보험</p>
           <div className="film-static-actions">
             <a className="btn btn-primary film-btn-light" href="#about">
               버핏킴즈 소개
@@ -498,7 +510,7 @@ export default function BrandFilm({ appsHref = "/apps" }: { appsHref?: string })
               <span className="serif">buffetkimz</span>
               <span className="film-mono">BRAND FILM</span>
             </p>
-            <p className="film-hud-line">숫자 너머의 기준 · 금융 · 투자 · 연금 · 노후 · 보험</p>
+            <p className="film-hud-line">숫자를 확인하고, 기록으로 남깁니다</p>
           </div>
           <p className="film-hud-scene">
             <span className="film-mono" data-film-hud-scene>
@@ -942,7 +954,7 @@ function buildTimeline(gsap: any, root: HTMLElement) {
     { autoAlpha: 1, y: 0, duration: 0.35, stagger: 0.08 },
     3.84
   );
-  tl.fromTo(qa(".fs3-axis > li, .fs3-foot"), { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.35, stagger: 0.05 }, 4.1);
+  tl.fromTo(qa(".fs3-axis > li, .fs3-foot, .fs3-legend"), { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.35, stagger: 0.05 }, 4.1);
 
   const curve = q("[data-fs3-curve]");
   const area = q("[data-fs3-area]");

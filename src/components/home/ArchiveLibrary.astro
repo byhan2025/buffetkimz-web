@@ -7,7 +7,9 @@
  * 편수·제목은 전부 글 컬렉션에서 빌드 시점에 센다.
  */
 import { withBase, site } from "@/config/site";
-import { allPosts, postPath, formatDateShort, categoryName } from "@/lib/posts";
+import { allPosts, postPath, formatDateShort } from "@/lib/posts";
+import { categoryName } from "@/data/categories";
+import { thumbOf, thumbAltOf } from "@/lib/thumbs";
 import { libraryTopics, librarySeries, firstReads, frequentCalculations } from "@/data/library";
 import { hubTools } from "@/data/tools";
 
@@ -57,28 +59,43 @@ const totalMinutes = posts.reduce((sum, p) => sum + p.data.readingMinutes, 0);
       </div>
     </div>
 
-    <!-- 최근 기록 한 줄 -->
-    <div class="recent-strip" data-recent-strip>
+    <!-- 최근 기록 — 썸네일 카드 3장 (글만 있어 딱딱해 보이지 않게) -->
+    <div class="recent-head" data-recent-strip>
       <span class="mono shrink-0 text-[12px] font-semibold text-ink-soft">최근 기록</span>
-      <ul class="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-1">
-        {
-          recent.map((p) => (
-            <li class="min-w-0">
-              <a href={withBase(postPath(p))} class="recent-link">
-                <span class="mono text-[12px] text-ink-faint">{formatDateShort(p.data.publishedAt)}</span>
-                <span class="clamp-1 text-[12.5px] text-ink-muted">{p.data.title}</span>
-              </a>
-            </li>
-          ))
-        }
-      </ul>
-      <span class="mono ml-auto hidden shrink-0 text-[12px] text-ink-faint lg:inline">
-        약 {totalMinutes}분
+      <span class="mono hidden shrink-0 text-[12px] text-ink-faint sm:inline">
+        {posts.length}편 · 약 {totalMinutes}분
       </span>
-      <a href={withBase("/posts")} class="btn btn-secondary btn-xs ml-auto shrink-0 lg:ml-0">
+      <a href={withBase("/posts")} class="btn btn-secondary btn-xs ml-auto shrink-0">
         기록 {posts.length}편 전체
       </a>
     </div>
+    <ul class="recent-cards" data-recent-cards>
+      {
+        recent.map((p) => (
+          <li>
+            <a href={withBase(postPath(p))} class="recent-card group">
+              <span class="post-thumb recent-card-thumb">
+                <img
+                  src={withBase(thumbOf(p))}
+                  alt={thumbAltOf(p)}
+                  width="1280"
+                  height="800"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </span>
+              <span class="recent-card-body">
+                <span class="recent-card-meta">
+                  <span class="mono text-[12px] text-ink-faint">{formatDateShort(p.data.publishedAt)}</span>
+                  <span class="text-[12px] font-semibold text-brand">{categoryName(p.data.category)}</span>
+                </span>
+                <span class="recent-card-title clamp-2">{p.data.title}</span>
+              </span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
 
     <!-- 7대 주제 -->
     <div class="mt-8 flex items-baseline justify-between gap-3">
@@ -169,6 +186,16 @@ const totalMinutes = posts.reduce((sum, p) => sum + p.data.readingMinutes, 0);
               first.map((f, i) => (
                 <li>
                   <a href={withBase(postPath(f.post))} class="curation-row">
+                    <span class="post-thumb curation-thumb">
+                      <img
+                        src={withBase(thumbOf(f.post))}
+                        alt=""
+                        width="1280"
+                        height="800"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </span>
                     <span class="mono mt-0.5 shrink-0 text-[12px] font-semibold text-brand">{String(i + 1).padStart(2, "0")}</span>
                     <span class="min-w-0">
                       <span class="block text-[13.5px] font-bold leading-snug tracking-[-0.02em] text-ink">

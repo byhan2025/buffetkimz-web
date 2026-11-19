@@ -1,6 +1,7 @@
 ---
 import Base from "@/layouts/Base.astro";
 import SearchApp from "@/components/SearchApp.tsx";
+import HomePill from "@/components/HomePill.astro";
 import { site } from "@/config/site";
 import { allPosts } from "@/lib/posts";
 import { apps } from "@/data/apps";
@@ -17,6 +18,7 @@ const posts = await allPosts();
 >
   <section class="scene-sky border-b border-line/70">
     <div class="wrap py-9 md:py-12">
+      <HomePill />
       <p class="kicker">검색</p>
       <h1 class="h-display mt-3 max-w-[18ch]">한 번에 찾기.</h1>
       <p class="lede mt-3 max-w-[54ch]">
@@ -47,5 +49,6 @@ const posts = await allPosts();
     <p class="mt-0 text-[12px] text-ink-faint">
       기준일 {site.baseDateLabel}. 이 화면은 검색엔진 색인에서 제외됩니다.
     </p>
+    <HomePill position="bottom" />
   </section>
 </Base>

@@ -3,6 +3,7 @@ import Base from "@/layouts/Base.astro";
 import AppArt from "@/components/AppArt.astro";
 import ToolRunner from "@/components/tools/ToolRunner.tsx";
 import AdSlot from "@/components/AdSlot.astro";
+import HomePill from "@/components/HomePill.astro";
 import { withBase, site } from "@/config/site";
 import { apps } from "@/data/apps";
 import { hubTools } from "@/data/tools";
@@ -52,6 +53,7 @@ const jsonLd = {
 <Base title={`${app.name} — ${app.subtitle}`} description={app.summary} path={`/apps/${app.slug}`} jsonLd={jsonLd}>
   <section class="scene-sky border-b border-line/70">
     <div class="wrap py-8 md:py-12">
+      <HomePill />
       <nav class="flex flex-wrap items-center gap-2 text-[12px] text-ink-faint" aria-label="위치">
         <a href={withBase("/")} class="inline-flex min-h-[24px] items-center hover:text-ink">홈</a>
         <span aria-hidden="true">/</span>
@@ -240,11 +242,14 @@ const jsonLd = {
   </section>
 
   <section class="border-t border-line">
-    <div class="wrap flex flex-wrap items-center justify-between gap-3 py-6">
-      <span class="text-[12px] text-ink-faint">다음 앱</span>
-      <a href={withBase(`/apps/${next.slug}`)} class="text-[14px] font-semibold text-ink hover:text-brand-deep">
-        {next.name}
-      </a>
+    <div class="wrap py-6">
+      <HomePill position="bottom" />
+      <div class="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-line-soft pt-4">
+        <span class="text-[12px] text-ink-faint">다음 앱</span>
+        <a href={withBase(`/apps/${next.slug}`)} class="text-[14px] font-semibold text-ink hover:text-brand-deep">
+          {next.name}
+        </a>
+      </div>
     </div>
   </section>
 </Base>

@@ -92,7 +92,7 @@ export default function CompoundReturn({ compact = false }: { compact?: boolean 
         <ol className="mt-1.5 space-y-1.5" data-compound-checks>
           {checks.map((c, i) => (
             <li key={i} className="flex gap-2 text-[12.5px] leading-[1.65] text-ink-soft">
-              <span className="mt-[2px] grid h-[17px] w-[17px] shrink-0 place-items-center rounded-full bg-brand-soft text-[11px] font-bold text-brand-deep">
+              <span className="mt-[2px] grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full bg-brand-soft text-[12px] font-bold text-brand-deep">
                 {i + 1}
               </span>
               <span>{c}</span>
@@ -305,7 +305,7 @@ export default function CompoundReturn({ compact = false }: { compact?: boolean 
               >
                 <td className="px-2.5 py-2 font-semibold text-ink sm:px-3">
                   {c.short}
-                  {c.mode === mode && <span className="ml-1.5 text-[11.5px] font-normal text-brand-deep">선택</span>}
+                  {c.mode === mode && <span className="ml-1.5 text-[12px] font-normal text-brand-deep">선택</span>}
                   <span className="mt-0.5 block text-[12px] font-normal tabular-nums text-ink-muted sm:hidden">
                     <span className="whitespace-nowrap">{pctLabel(c.rate)}</span>
                     {c.exempt > 0 && <span className="block whitespace-nowrap">비과세 {c.exempt}만</span>}
@@ -313,7 +313,7 @@ export default function CompoundReturn({ compact = false }: { compact?: boolean 
                 </td>
                 <td className="hidden px-3 py-2 text-right tabular-nums text-ink-muted sm:table-cell">
                   {pctLabel(c.rate)}
-                  {c.exempt > 0 && <span className="ml-1 text-[11.5px] text-ink-faint">비과세 {c.exempt}만</span>}
+                  {c.exempt > 0 && <span className="ml-1 text-[12px] text-ink-faint">비과세 {c.exempt}만</span>}
                 </td>
                 <td className="whitespace-nowrap px-2 py-2 text-right tabular-nums text-ink-muted sm:px-3">{manLabel(c.projection.tax)}</td>
                 <td className="whitespace-nowrap px-2.5 py-2 text-right font-semibold tabular-nums text-ink sm:px-3">

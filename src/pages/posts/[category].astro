@@ -1,11 +1,13 @@
 ---
 import Base from "@/layouts/Base.astro";
 import PostCards from "@/components/PostCards.astro";
+import HomePill from "@/components/HomePill.astro";
 import AdSlot from "@/components/AdSlot.astro";
 import { withBase, site } from "@/config/site";
 import { categories } from "@/data/categories";
 import { appBySlug } from "@/data/apps";
 import { postsByCategory, postPath, formatDate, sourceOrgLine } from "@/lib/posts";
+import { thumbOf, thumbAltOf } from "@/lib/thumbs";
 
 export async function getStaticPaths() {
   const out = [];
@@ -36,6 +38,8 @@ const toCard = (p: (typeof posts)[number]) => {
     baseDate: site.baseDate,
     sourceCount: p.data.sources.length,
     sourceOrgLine: sourceOrgLine(p.data.sources),
+    thumb: thumbOf(p),
+    thumbAlt: thumbAltOf(p),
   };
 };
 
@@ -59,6 +63,7 @@ const jsonLd = {
 >
   <section class="scene-sky border-b border-line/70">
     <div class="wrap py-9 md:py-12">
+      <HomePill />
       <nav class="flex items-center gap-2 text-[12px] text-ink-faint" aria-label="위치">
         <a href={withBase("/")} class="inline-flex min-h-[24px] items-center hover:text-ink">홈</a>
         <span aria-hidden="true">/</span>
@@ -85,7 +90,16 @@ const jsonLd = {
             feature ? (
               <>
                 <a href={withBase(postPath(feature))} class="group block">
-                  <div class="card card-lift p-5 md:p-7">
+                  <div class="card card-lift overflow-hidden p-5 md:p-7">
+                    <div class="post-thumb post-thumb--wide mb-4 aspect-[16/9] md:aspect-[21/9]">
+                      <img
+                        src={withBase(thumbOf(feature))}
+                        alt={`${thumbAltOf(feature)} — ${feature.data.title}`}
+                        width="1280"
+                        height="800"
+                        fetchpriority="high"
+                      />
+                    </div>
                     <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
                       <span class="mono text-[12px] text-ink-faint">{formatDate(feature.data.publishedAt)}</span>
                       <span class="text-[12px] text-ink-faint">{feature.data.readingMinutes}분</span>
@@ -107,6 +121,8 @@ const jsonLd = {
           <div class="mt-8">
             <AdSlot id={`category-${category.slug}-bottom`} size="leaderboard" />
           </div>
+
+          <HomePill position="bottom" />
         </div>
 
         <aside class="lg:border-l lg:border-line lg:pl-8">

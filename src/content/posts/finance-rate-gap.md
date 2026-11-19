@@ -2,6 +2,7 @@
 title: "기준금리가 내려도 내 대출 이자가 그대로인 이유"
 category: "finance"
 description: "기준금리와 내 대출금리 사이에는 세 겹의 구조가 있습니다. 어느 지점이 내 계약에 걸려 있는지 확인하는 순서를 정리했습니다."
+thumb: "/thumbs/finance-rate-gap.webp"
 question: "금리 인하 뉴스, 내 통장엔 언제 오나"
 publishedAt: 2026-11-16
 readingMinutes: 7

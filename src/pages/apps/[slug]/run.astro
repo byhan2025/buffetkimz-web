@@ -1,6 +1,7 @@
 ---
 import Base from "@/layouts/Base.astro";
 import ToolRunner from "@/components/tools/ToolRunner.tsx";
+import HomePill from "@/components/HomePill.astro";
 import { withBase, site } from "@/config/site";
 import { apps } from "@/data/apps";
 
@@ -21,8 +22,9 @@ const { app } = Astro.props;
 >
   <section class="scene-sky border-b border-line/70">
     <div class="wrap py-6 md:py-9">
+      <HomePill />
       <nav class="flex flex-wrap items-center gap-2 text-[12px] text-ink-faint" aria-label="위치">
-        <a href={withBase("/apps")} class="inline-flex min-h-[24px] items-center hover:text-ink">도구</a>
+        <a href={withBase("/apps")} class="inline-flex min-h-[24px] items-center hover:text-ink">도구자료실</a>
         <span aria-hidden="true">/</span>
         <a href={withBase(`/apps/${app.slug}`)} class="inline-flex min-h-[24px] items-center hover:text-ink">{app.name}</a>
         <span aria-hidden="true">/</span>

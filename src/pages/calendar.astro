@@ -2,6 +2,7 @@
 import Base from "@/layouts/Base.astro";
 import CalendarBoard from "@/components/CalendarBoard.tsx";
 import AdSlot from "@/components/AdSlot.astro";
+import HomePill from "@/components/HomePill.astro";
 import { calendar, calendarNote } from "@/data/calendar";
 import { site } from "@/config/site";
 
@@ -27,6 +28,7 @@ const jsonLd = {
 >
   <section class="scene-sky border-b border-line/70">
     <div class="wrap py-9 md:py-12">
+      <HomePill />
       <p class="kicker">제도달력</p>
       <h1 class="h-display mt-3 max-w-[18ch]">1월부터 12월까지,<br />놓치면 손해인 날.</h1>
       <p class="lede mt-4 max-w-[56ch]">
@@ -71,5 +73,7 @@ const jsonLd = {
     <div class="mt-8">
       <AdSlot id="calendar-bottom" size="leaderboard" />
     </div>
+
+    <HomePill position="bottom" />
   </section>
 </Base>

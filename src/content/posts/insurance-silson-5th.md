@@ -2,6 +2,7 @@
 title: "실손 5세대, 보험료 30% 낮아졌다는 말의 앞뒤"
 category: "insurance"
 description: "2026년 5월 6일부터 판매된 5세대 실손은 보험료를 낮춘 대신 비중증 비급여 자기부담률을 50%로 올렸습니다. 무엇이 달라졌고, 누가 유리한지 정리했습니다."
+thumb: "/thumbs/insurance-silson-5th.webp"
 question: "보험료는 싸졌는데 병원비는 왜 더 나올까"
 publishedAt: 2026-11-14
 readingMinutes: 10

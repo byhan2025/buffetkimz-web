@@ -2,6 +2,7 @@
 title: "보장은 '가입금액'이 아니라 '지급 조건'에서 갈린다"
 category: "insurance"
 description: "암 진단비 1,000만원과 5,000만원은 같은 이름의 담보지만 역할이 다릅니다. 5대 담보를 볼 때 실제로 확인해야 할 조건을 정리했습니다."
+thumb: "/thumbs/insurance-coverage-conditions.webp"
 question: "같은 암보험인데 왜 한쪽만 나올까"
 publishedAt: 2026-11-13
 readingMinutes: 9

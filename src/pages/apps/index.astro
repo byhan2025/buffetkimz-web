@@ -1,7 +1,9 @@
 ---
 import Base from "@/layouts/Base.astro";
 import AdSlot from "@/components/AdSlot.astro";
+import AppArt from "@/components/AppArt.astro";
 import CoverageGauge from "@/components/CoverageGauge.astro";
+import HomePill from "@/components/HomePill.astro";
 import { withBase, site } from "@/config/site";
 import { apps } from "@/data/apps";
 import { hubTools, mainTools, riskTools } from "@/data/tools";
@@ -34,14 +36,15 @@ const jsonLd = {
 ---
 
 <Base
-  title="도구 — 금융·투자·연금 계산과 리스크 관리"
+  title="도구자료실 — 금융·투자·연금 계산과 리스크 관리"
   description="연금저축·IRP 세액공제, 은퇴 월 현금흐름, 투자 복리·세후 수익률, 1~12월 제도 일정 달력. 보험은 리스크 관리 참고 도구로 따로 모았습니다. 가입 없이 브라우저에서 실행하고 입력값은 서버로 보내지 않습니다."
   path="/apps"
   jsonLd={jsonLd}
 >
   <section class="scene-sky border-b border-line/70">
     <div class="wrap py-10 md:py-14">
-      <p class="kicker">도구</p>
+      <HomePill />
+      <p class="kicker">도구자료실</p>
       <h1 class="h-display mt-3 max-w-[18ch] text-ink">가진 숫자를 넣으면,<br />확인할 것이 남습니다.</h1>
       <p class="lede mt-5 max-w-[54ch]">
         금융·투자·연금 계산 세 가지와 제도 일정 달력을 앞에 두고, 보험은 리스크 관리 참고 도구로 뒤에
@@ -78,7 +81,7 @@ const jsonLd = {
             <li class="card card-lift flex flex-col p-5 md:p-6" data-main-tool={t.key}>
               <div class="flex items-start justify-between gap-3">
                 <h3 class="text-[17px] font-bold leading-snug tracking-[-0.03em] text-ink">{t.name}</h3>
-                <span class="chip shrink-0 !text-[11.5px]">
+                <span class="chip shrink-0 !text-[12px]">
                   {t.runHref ? "계산 도구" : "일정 보기"}
                 </span>
               </div>
@@ -168,28 +171,43 @@ const jsonLd = {
 
       {
         external.length > 0 && (
-          <div class="mt-10">
-            <h2 class="h-sub">그 밖에 만든 것</h2>
-            <ul class="mt-4 divide-y divide-line border-y border-line">
+          <div class="mt-10" data-app-showcase>
+            <div class="flex flex-wrap items-end justify-between gap-3 border-b border-line pb-3">
+              <div>
+                <p class="kicker">앱 쇼케이스</p>
+                <h2 class="h-sub mt-1">직접 만든 앱</h2>
+              </div>
+              <p class="text-[12.5px] text-ink-muted">설치 없이 브라우저에서 열립니다</p>
+            </div>
+            <ul class={`mt-4 grid gap-3 ${external.length > 1 ? "md:grid-cols-2" : "md:max-w-[540px]"}`}>
               {external.map((a) => (
-                <li>
+                <li class="card card-lift flex flex-col overflow-hidden" data-app-card={a.slug}>
                   <a
                     href={a.externalUrl ?? withBase(`/apps/${a.slug}`)}
                     target="_blank"
                     rel="noopener noreferrer"
-                    class="group flex flex-wrap items-baseline justify-between gap-2 py-4"
+                    class="group flex h-full flex-col"
                   >
-                    <span>
-                      <span class="text-[15.5px] font-semibold text-ink group-hover:text-brand-deep">
+                    <div class="border-b border-line">
+                      <AppArt art={a.art} compact />
+                    </div>
+                    <div class="flex flex-1 flex-col p-4">
+                      <div class="flex items-baseline justify-between gap-2">
+                        <span class="text-[12px] font-semibold text-brand">{a.kind}</span>
+                        <span class="text-[12px] text-ink-faint">새 창에서 열기</span>
+                      </div>
+                      <h3 class="mt-1.5 text-[16px] font-bold leading-snug tracking-[-0.03em] text-ink group-hover:text-brand-deep">
                         {a.name}
-                      </span>
-                      <span class="ml-2 text-[12.5px] text-ink-muted">{a.subtitle}</span>
-                    </span>
-                    <span class="text-[12px] text-ink-faint">새 창에서 열기 · {a.kind}</span>
+                      </h3>
+                      <p class="mt-1 text-[12.5px] leading-[1.7] text-ink-muted">{a.subtitle}</p>
+                    </div>
                   </a>
                 </li>
               ))}
             </ul>
+            <p class="mt-2 text-[12px] leading-[1.7] text-ink-faint">
+              새 앱이 준비되면 이 자리에 함께 놓습니다. 계산 도구는 위에 그대로 남깁니다.
+            </p>
           </div>
         )
       }
@@ -197,6 +215,8 @@ const jsonLd = {
       <div class="mt-8">
         <AdSlot id="apps-index-bottom" size="leaderboard" />
       </div>
+
+      <HomePill position="bottom" />
     </div>
   </section>
 </Base>
