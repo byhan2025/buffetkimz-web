@@ -8,17 +8,9 @@ const isActive = (match: string) => path === match || path.startsWith(match + "/
 
 <header class="sticky top-0 z-40 border-b border-line/80 bg-white/90 backdrop-blur-md">
   <div class="wrap flex h-[var(--header-h)] items-center gap-4">
-    <a href={withBase("/")} class="brand-lockup shrink-0" aria-label={`${site.brand} 홈`}>
-      <img
-        src={withBase("/brand/logo-buffetkimz-240.png")}
-        width="786"
-        height="240"
-        alt="버핏킴즈"
-        class="brand-mark"
-        fetchpriority="high"
-        decoding="async"
-      />
-      <span class="brand-word" aria-hidden="true">buffetkimz</span>
+    <a href={withBase("/")} class="flex min-h-[44px] shrink-0 items-center gap-2" aria-label={`${site.brand} 홈`}>
+      <span class="serif text-[24px] leading-none tracking-[-0.01em] text-ink">buffetkimz</span>
+      <span class="hidden text-[12px] font-semibold tracking-[0.02em] text-ink-faint sm:inline">기록 · 도구</span>
     </a>
 
     <nav class="mx-auto hidden items-center gap-1 md:flex" aria-label="주 메뉴">

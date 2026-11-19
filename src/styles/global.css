@@ -774,39 +774,6 @@
   }
 
 
-  /* ---------- v5.0 브랜드 록업 (붓글씨 마크 + 산세리프 워드) ----------
-     로고 PNG는 흰 배경을 투명으로 바꾸고 영문자를 덜어낸 자산이다.
-     작은 크기에서 뭉개지지 않도록 영문은 이미지가 아니라 실제 글자로 둔다. */
-  .brand-lockup {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    min-height: 44px;
-    line-height: 1;
-  }
-
-  .brand-mark {
-    height: 34px;
-    width: auto;
-    max-width: none;
-  }
-
-  .brand-word {
-    margin-top: 3px;
-    font-family: var(--font-mono);
-    font-size: 12px;
-    font-weight: 500;
-    line-height: 1;
-    letter-spacing: 0.16em;
-    color: var(--color-ink-faint);
-  }
-
-  @media (max-width: 767px) {
-    .brand-mark {
-      height: 30px;
-    }
-  }
-
   /* ---------- v5.0 2페이지 — 편집 원칙 4칸 (헤어라인 그리드) ---------- */
   .principle-grid {
     display: grid;
