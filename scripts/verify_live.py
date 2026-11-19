@@ -83,6 +83,24 @@ def main():
         )
         page.screenshot(path=str(OUT / "live-home.png"))
         report["screenshots"].append(str(OUT / "live-home.png"))
+        page.screenshot(path=str(OUT / "live-home-full.png"), full_page=True)
+        report["screenshots"].append(str(OUT / "live-home-full.png"))
+
+        # v3.2 — 압축 레이아웃·4대 축 인덱스·카카오톡 채널 링크 확인
+        report["home"] = page.evaluate(
+            """() => {
+              const kakao = document.querySelector('a[href*="pf.kakao.com"]');
+              const axes = [...document.querySelectorAll('main a.card')].slice(0, 4).map((a) => a.innerText.replace(/\\n/g, ' | ').trim());
+              return {
+                height_px: document.documentElement.scrollHeight,
+                axes,
+                kakao_href: kakao ? kakao.getAttribute('href') : null,
+                kakao_text: kakao ? kakao.innerText.replace(/\\n/g, ' ').trim() : null,
+                record_cards: document.querySelectorAll('[data-post-cards] li').length,
+                tool_tiles: document.querySelectorAll('main section:nth-of-type(3) li.card').length,
+              };
+            }"""
+        )
 
         cards = page.locator("main section").nth(1)
         cards.scroll_into_view_if_needed()
