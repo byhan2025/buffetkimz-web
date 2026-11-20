@@ -160,6 +160,84 @@
     }
   }
 
+  /* ==================================================================
+     v5.5 브랜드 록업 — 시안 A '서표 · 인덱스 탭' (2026-11-21 확정)
+     워드마크 글자 크기를 --lockup-size로 받고 심볼·간격이 거기에 비례한다.
+     심볼 = 0.909 × 글자 크기 → 헤더 28px : 30.8px (시안 A 1:0.55 균형 비율).
+     ================================================================== */
+  .brand-lockup {
+    --lockup-size: 1em;
+    display: inline-flex;
+    align-items: center;
+    gap: calc(var(--lockup-size) * 0.26);
+    color: var(--color-ink);
+    text-decoration: none;
+  }
+
+  .brand-lockup__symbol {
+    flex: none;
+    display: block;
+    width: calc(var(--lockup-size) * 0.909);
+    height: calc(var(--lockup-size) * 0.909);
+  }
+
+  /* 먹 = 잉크 네이비(currentColor) · 포인트 1색 = 딥그린 */
+  .brand-lockup__ink {
+    fill: currentColor;
+  }
+
+  .brand-lockup__tab {
+    fill: var(--color-brand);
+  }
+
+  .brand-lockup__word {
+    font-size: var(--lockup-size);
+    line-height: 1;
+    letter-spacing: -0.01em;
+    color: currentColor;
+  }
+
+  /* 다크 바탕 — 종이색 심볼 + 민트 탭(명도 보정 짝, 동일 녹색 계열) */
+  .brand-lockup.is-dark {
+    color: #faf9f6;
+  }
+
+  .brand-lockup.is-dark .brand-lockup__tab {
+    fill: #7fe3c4;
+  }
+
+  /* 로고 링크 — 키보드 포커스에만 링을 두고, 다크에서는 민트로 바꾼다 */
+  .brand-lockup-link:focus-visible {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 3px;
+    border-radius: 10px;
+  }
+
+  .brand-lockup-link:focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  .brand-lockup-link.is-dark:focus-visible,
+  .is-dark .brand-lockup-link:focus-visible {
+    outline-color: #7fe3c4;
+  }
+
+  /* 헤더 — 데스크톱 30.8px · 모바일 24.2px (적용 가이드: 심볼 28px / 22px) */
+  .brand-lockup--header {
+    --lockup-size: 30.8px;
+  }
+
+  @media (max-width: 767px) {
+    .brand-lockup--header {
+      --lockup-size: 24.2px;
+    }
+  }
+
+  /* 푸터 — 22px(심볼 20px) */
+  .brand-lockup--footer {
+    --lockup-size: 22px;
+  }
+
   .site-quick {
     border-top: 1px solid var(--color-line-soft);
   }
@@ -2195,9 +2273,11 @@
   }
 
   .fs5-mark {
-    margin-top: 4px;
+    margin-top: 12px;
     font-family: var(--font-serif);
-    font-size: clamp(58px, 10.4vw, 142px);
+    /* 시안 A 심볼이 함께 서므로 워드마크만 있던 때(최대 142px)보다 한 단계 줄여
+       제목을 누르지 않고 한 덩어리로 읽히게 한다(심볼은 0.909배로 따라온다). */
+    font-size: clamp(44px, 7.6vw, 104px);
     line-height: 1;
     letter-spacing: -0.02em;
     color: #ffffff;
@@ -2965,5 +3045,33 @@
     opacity: 1;
     transform: none;
     clip-path: none;
+  }
+}
+
+/* ==================================================================
+   v2 발행 파이프라인 — 390px 본문 규격 (부이 대리 기준)
+   본문 16~17px · line-height 1.7 내외 · 표는 좌우로 밀려 넘치지 않고 표 안에서 스크롤
+   ================================================================== */
+@media (max-width: 767px) {
+  .prose-article {
+    font-size: 16.5px;
+    line-height: 1.72;
+  }
+
+  .prose-article table {
+    max-width: 100%;
+    font-size: 13.5px;
+    line-height: 1.6;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+  }
+
+  .prose-article th,
+  .prose-article td {
+    padding: 8px 10px;
+  }
+
+  .prose-article blockquote {
+    font-size: 15.5px;
   }
 }

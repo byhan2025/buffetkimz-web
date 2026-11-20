@@ -13,6 +13,7 @@
  * 필름 구역에는 요약 설명을 붙이고 H1은 정적 록업이 갖는다(자바스크립트 없이도 읽힌다).
  */
 import { useEffect, useRef, useState } from "react";
+import BrandMark from "@/components/BrandMark.tsx";
 
 const TOTAL = 12;
 const SCENES = [
@@ -443,7 +444,7 @@ export default function BrandFilm({ appsHref = "/apps" }: { appsHref?: string })
                 숫자 너머의 기준
               </p>
               <p className="fs5-mark" data-fs5-mark>
-                buffetkimz
+                <BrandMark tone="dark" />
               </p>
               <p className="fs5-sub" data-fs5-sub>
                 금융 · 투자 · 연금 · 노후 · 보험을 매일 기록합니다
@@ -489,7 +490,9 @@ export default function BrandFilm({ appsHref = "/apps" }: { appsHref?: string })
           <p className="film-static-title">
             숫자 너머의 기준,
             <br />
-            <span className="film-static-mark">buffetkimz</span>
+            <span className="film-static-mark">
+              <BrandMark tone="dark" />
+            </span>
           </p>
           <p className="film-static-sub">숫자를 확인하고, 기록으로 남깁니다</p>
           <p className="film-mono film-static-fields">금융 · 투자 · 연금 · 노후 · 보험</p>
@@ -507,7 +510,7 @@ export default function BrandFilm({ appsHref = "/apps" }: { appsHref?: string })
         <div className="film-hud">
           <div className="film-hud-left">
             <p className="film-hud-brand">
-              <span className="serif">buffetkimz</span>
+              <BrandMark tone="dark" size="21px" />
               <span className="film-mono">BRAND FILM</span>
             </p>
             <p className="film-hud-line">숫자를 확인하고, 기록으로 남깁니다</p>

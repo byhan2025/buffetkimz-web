@@ -11,6 +11,7 @@
  */
 import { withBase, site, nav, quickTabs, quickTabColumns, stripBase } from "@/config/site";
 import HeaderSearch from "@/components/HeaderSearch.tsx";
+import BrandLockup from "@/components/BrandLockup.astro";
 
 const path = stripBase(Astro.url.pathname);
 const isActive = (match: string) =>
@@ -22,11 +23,11 @@ const isActive = (match: string) =>
   <div class="wrap site-header-row flex items-center gap-4">
     <a
       href={withBase("/")}
-      class="flex min-h-[44px] shrink-0 items-center gap-2"
+      class="brand-lockup-link flex min-h-[44px] shrink-0 items-center gap-2"
       aria-label={`${site.brand} 홈`}
       data-quick-active={isActive("/") ? "true" : "false"}
     >
-      <span class="serif text-[24px] leading-none tracking-[-0.01em] text-ink">buffetkimz</span>
+      <BrandLockup class="brand-lockup--header" />
       <span class="hidden text-[12px] font-semibold tracking-[0.02em] text-ink-faint sm:inline">기록 · 도구</span>
     </a>
 

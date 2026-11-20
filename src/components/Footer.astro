@@ -8,6 +8,7 @@ import { withBase, site } from "@/config/site";
 import { categories } from "@/data/categories";
 import { apps } from "@/data/apps";
 import { calendar } from "@/data/calendar";
+import BrandLockup from "@/components/BrandLockup.astro";
 
 const year = site.today.getFullYear();
 const internalApps = apps.filter((a) => a.internal);
@@ -29,7 +30,9 @@ const policyLinks = [
   <div class="wrap py-6 md:py-8">
     <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
       <div class="max-w-[46ch]">
-        <a href={withBase("/")} class="serif text-[22px] leading-none text-ink">buffetkimz</a>
+        <a href={withBase("/")} class="brand-lockup-link inline-flex" aria-label={`${site.brand} 홈`}>
+          <BrandLockup class="brand-lockup--footer" />
+        </a>
         <p class="mt-1.5 text-[12.5px] leading-[1.7] text-ink-muted">
           금융과 돈에 관한 기록, 그리고 직접 만든 도구. 확인한 기준과 출처를 붙여 남깁니다.
         </p>

@@ -1,12 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="버핏킴즈 buffetkimz">
-  <title>버핏킴즈</title>
-  <rect width="64" height="64" rx="14" fill="#0b2340"/>
-  <g fill="#ffffff">
-    <rect x="13" y="15" width="6" height="34" rx="0.8"/>
-    <rect x="29" y="15" width="6" height="34" rx="0.8"/>
-    <rect x="13" y="29.2" width="22" height="4.4" rx="0.6"/>
-    <rect x="13" y="44.6" width="22" height="4.4" rx="0.6"/>
-    <rect x="45" y="13" width="6" height="38" rx="0.8"/>
-    <rect x="38.5" y="29.2" width="6.5" height="4.4" rx="0.6"/>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+  <style>
+    :root { color-scheme: light dark; }
+    .bk-ink { fill: #0b1b29; }
+    .bk-tab { fill: #146c58; }
+    @media (prefers-color-scheme: dark) {
+      .bk-ink { fill: #faf9f6; }
+      .bk-tab { fill: #7fe3c4; }
+    }
+  </style>
+  <path class="bk-ink" d="M3.9 2H13.9V22L8.9 16.2 3.9 22Z"/>
+  <rect class="bk-tab" x="13.9" y="5.7" width="6.6" height="3" rx="1.5"/>
 </svg>

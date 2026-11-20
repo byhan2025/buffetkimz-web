@@ -29,7 +29,7 @@
         justify-content: space-between;
         word-break: keep-all;
       }
-      /* 빛 입자 — 다만 장식. 텍스트 워드마크만 쓴다(붓글씨 로고 없음) */
+      /* 빛 입자 — 장식. 로고는 시안 A(서표·인덱스 탭) 락업만 쓴다 */
       .dust { position: absolute; inset: 0; pointer-events: none; }
       .dust i {
         position: absolute;
@@ -57,42 +57,38 @@
         border-radius: 999px;
         border: 1px solid rgba(255, 255, 255, 0.1);
       }
-      .top { display: flex; align-items: baseline; justify-content: space-between; position: relative; }
+      .top { display: flex; align-items: center; justify-content: space-between; position: relative; }
+      /* 브랜드 록업 — 심볼 = 워드마크의 0.909배(28 : 30.8 비율 유지) */
+      .lockup { display: inline-flex; align-items: center; gap: 13px; color: #faf9f6; }
+      .lockup svg { width: 48px; height: 48px; display: block; }
       .wordmark {
         font-family: "Instrument Serif", Georgia, serif;
-        font-size: 40px;
+        font-size: 52px;
         line-height: 1;
         letter-spacing: -0.01em;
-        color: #ffffff;
+        color: #faf9f6;
       }
       .kicker {
         font-family: ui-monospace, "SF Mono", Menlo, monospace;
-        font-size: 16px;
-        letter-spacing: 0.24em;
+        font-size: 15px;
+        letter-spacing: 0.22em;
         color: #7fe3c4;
       }
       .mid { position: relative; text-align: center; }
       .line1 {
-        font-size: 26px;
+        font-size: 22px;
         font-weight: 600;
-        letter-spacing: -0.01em;
+        letter-spacing: -0.005em;
         color: #c6dbe9;
       }
-      .mark {
-        margin-top: 6px;
-        font-family: "Instrument Serif", Georgia, serif;
-        font-size: 132px;
-        line-height: 0.98;
-        letter-spacing: -0.02em;
-        color: #ffffff;
-        text-shadow: 0 0 60px rgba(127, 227, 196, 0.45);
-      }
       .thesis {
-        margin-top: 14px;
-        font-size: 25px;
-        font-weight: 700;
-        letter-spacing: -0.03em;
+        margin-top: 10px;
+        font-size: 76px;
+        font-weight: 800;
+        line-height: 1.06;
+        letter-spacing: -0.035em;
         color: #ffffff;
+        text-shadow: 0 0 60px rgba(127, 227, 196, 0.35);
       }
       .bottom {
         position: relative;
@@ -101,7 +97,7 @@
         align-items: center;
         border-top: 1px solid rgba(255, 255, 255, 0.18);
         padding-top: 18px;
-        font-size: 17px;
+        font-size: 15px;
         color: #a9c0d0;
       }
       .bottom .mono {
@@ -117,13 +113,18 @@
     <div class="rings"></div>
 
     <div class="top">
-      <span class="wordmark">buffetkimz</span>
-      <span class="kicker">BRAND FILM 2026</span>
+      <span class="lockup">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M3.9 2H13.9V22L8.9 16.2 3.9 22Z" fill="#faf9f6" />
+          <rect x="13.9" y="5.8" width="6.4" height="2.8" rx="1.4" fill="#7fe3c4" />
+        </svg>
+        <span class="wordmark">buffetkimz</span>
+      </span>
+      <span class="kicker">BRAND · 2026</span>
     </div>
 
     <div class="mid">
       <p class="line1">금융 · 투자 · 연금 · 노후 · 보험을 매일 기록합니다</p>
-      <p class="mark">buffetkimz</p>
       <p class="thesis">숫자 너머의 기준</p>
     </div>
 
