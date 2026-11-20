@@ -179,27 +179,38 @@ const jsonLd = {
               </div>
               <p class="text-[12.5px] text-ink-muted">설치 없이 브라우저에서 열립니다</p>
             </div>
-            <ul class={`mt-4 grid gap-3 ${external.length > 1 ? "md:grid-cols-2" : "md:max-w-[540px]"}`}>
+            <ul class={`mt-4 grid gap-3 ${external.length > 1 ? "md:grid-cols-2" : ""}`}>
               {external.map((a) => (
                 <li class="card card-lift flex flex-col overflow-hidden" data-app-card={a.slug}>
                   <a
                     href={a.externalUrl ?? withBase(`/apps/${a.slug}`)}
                     target="_blank"
                     rel="noopener noreferrer"
-                    class="group flex h-full flex-col"
+                    class={`group flex h-full flex-col ${external.length === 1 ? "md:flex-row" : ""}`}
                   >
-                    <div class="border-b border-line">
+                    <div class={`border-b border-line ${external.length === 1 ? "md:w-[52%] md:shrink-0 md:border-b-0 md:border-r" : ""}`}>
                       <AppArt art={a.art} compact />
                     </div>
-                    <div class="flex flex-1 flex-col p-4">
+                    <div class={`flex flex-1 flex-col p-4 ${external.length === 1 ? "md:justify-center md:p-6" : ""}`}>
                       <div class="flex items-baseline justify-between gap-2">
                         <span class="text-[12px] font-semibold text-brand">{a.kind}</span>
-                        <span class="text-[12px] text-ink-faint">새 창에서 열기</span>
+                        <span class="text-[12px] text-ink-faint">{a.madeIn}</span>
                       </div>
                       <h3 class="mt-1.5 text-[16px] font-bold leading-snug tracking-[-0.03em] text-ink group-hover:text-brand-deep">
                         {a.name}
                       </h3>
                       <p class="mt-1 text-[12.5px] leading-[1.7] text-ink-muted">{a.subtitle}</p>
+                      {external.length === 1 && (
+                        <ul class="mt-4 space-y-1.5 border-t border-line-soft pt-3">
+                          {a.features.slice(0, 3).map((f) => (
+                            <li class="flex gap-2 text-[12.5px] leading-[1.6] text-ink-muted">
+                              <span class="mt-[7px] h-[3px] w-[3px] shrink-0 rounded-full bg-brand/60" aria-hidden="true" />
+                              {f.title}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                      <span class="mt-4 text-[12.5px] font-semibold text-brand-deep">{a.externalUrl ? "새 창에서 열기" : "소개 보기"}</span>
                     </div>
                   </a>
                 </li>

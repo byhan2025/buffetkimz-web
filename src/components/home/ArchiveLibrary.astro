@@ -48,7 +48,7 @@ const totalMinutes = posts.reduce((sum, p) => sum + p.data.readingMinutes, 0);
   <div class="wrap py-10 md:py-14">
     <div class="sec-head">
       <div>
-        <p class="eyebrow">기록 · ARCHIVE</p>
+        <p class="eyebrow">기록</p>
         <h2 class="sec-title">쌓인 글을,<br />주제와 시리즈로</h2>
       </div>
       <div class="sec-head-side">
@@ -100,15 +100,13 @@ const totalMinutes = posts.reduce((sum, p) => sum + p.data.readingMinutes, 0);
     <!-- 7대 주제 -->
     <div class="mt-8 flex items-baseline justify-between gap-3">
       <h3 class="text-[15px] font-bold tracking-[-0.025em] text-ink">다루는 7대 주제</h3>
-      <span class="mono text-[12px] text-ink-faint">7 TOPICS · {posts.length} NOTES</span>
     </div>
     <ul class="mt-2.5 grid grid-cols-2 gap-2 lg:grid-cols-4" data-topic-grid>
       {
         topics.map((t) => (
           <li>
             <a href={`${withBase("/posts")}/${t.slug}`} class={`topic-card ${t.sub ? "is-sub" : ""}`}>
-              <span class="flex items-center justify-between gap-2">
-                <span class="mono text-[12px] font-semibold tracking-[0.08em] text-brand">{t.tag}</span>
+              <span class="flex items-center justify-end gap-2">
                 <span class="mono text-[12px] text-ink-faint">{t.count}편</span>
               </span>
               <span class="mt-2 flex items-baseline gap-2">
@@ -127,8 +125,7 @@ const totalMinutes = posts.reduce((sum, p) => sum + p.data.readingMinutes, 0);
       }
       <li>
         <a href={withBase("/posts")} class="topic-card is-all">
-          <span class="flex items-center justify-between gap-2">
-            <span class="mono text-[12px] font-semibold tracking-[0.08em] text-brand-deep">ALL</span>
+          <span class="flex items-center justify-end gap-2">
             <span class="mono text-[12px] text-brand-deep">{posts.length}편</span>
           </span>
           <span class="mt-2 block text-[19px] font-bold leading-none tracking-[-0.035em] text-ink">전체 기록</span>
@@ -136,7 +133,7 @@ const totalMinutes = posts.reduce((sum, p) => sum + p.data.readingMinutes, 0);
             날짜순 목록과 분야 탭으로 한 번에 훑습니다.
           </span>
           <span class="mt-2 inline-flex items-center gap-1 text-[12px] font-semibold text-brand-deep">
-            전체 보기 <span aria-hidden="true">→</span>
+            전체 보기
           </span>
         </a>
       </li>
@@ -154,7 +151,7 @@ const totalMinutes = posts.reduce((sum, p) => sum + p.data.readingMinutes, 0);
             series.map((s) => (
               <li class="series-card">
                 <div class="flex items-center justify-between gap-2">
-                  <span class="mono text-[12px] font-semibold tracking-[0.08em] text-brand">SERIES {s.no}</span>
+                  <span class="mono text-[12px] font-semibold text-brand">시리즈 {s.no}</span>
                   <span class="mono text-[12px] text-ink-faint">{s.items.length}편 · {s.minutes}분</span>
                 </div>
                 <h4 class="mt-1.5 text-[14.5px] font-bold leading-snug tracking-[-0.025em] text-ink">{s.title}</h4>
@@ -179,7 +176,7 @@ const totalMinutes = posts.reduce((sum, p) => sum + p.data.readingMinutes, 0);
         <div>
           <div class="flex items-baseline justify-between gap-3">
             <h3 class="text-[15px] font-bold tracking-[-0.025em] text-ink">처음 읽을 글</h3>
-            <span class="mono text-[12px] text-ink-faint">START HERE</span>
+            <span class="mono text-[12px] text-ink-faint">{first.length}편</span>
           </div>
           <ol class="mt-2.5 space-y-1.5" data-first-reads>
             {
@@ -213,7 +210,7 @@ const totalMinutes = posts.reduce((sum, p) => sum + p.data.readingMinutes, 0);
         <div>
           <div class="flex items-baseline justify-between gap-3">
             <h3 class="text-[15px] font-bold tracking-[-0.025em] text-ink">자주 찾는 계산</h3>
-            <span class="mono text-[12px] text-ink-faint">QUICK TOOLS</span>
+            <span class="mono text-[12px] text-ink-faint">{calcs.length}종</span>
           </div>
           <ul class="mt-2.5 space-y-1.5" data-quick-calcs>
             {
@@ -224,7 +221,7 @@ const totalMinutes = posts.reduce((sum, p) => sum + p.data.readingMinutes, 0);
                       <span class="block text-[13.5px] font-bold leading-snug tracking-[-0.02em] text-ink">{c.tool.name}</span>
                       <span class="mt-0.5 block text-[12px] leading-[1.6] text-ink-muted">{c.reason}</span>
                     </span>
-                    <span class="shrink-0 text-[12px] font-semibold text-brand-deep">열기 →</span>
+                    <span class="shrink-0 text-[12px] font-semibold text-brand-deep">열기</span>
                   </a>
                 </li>
               ))

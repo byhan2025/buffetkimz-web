@@ -55,9 +55,9 @@ const jsonLd = {
     <div class="wrap py-8 md:py-12">
       <HomePill />
       <nav class="flex flex-wrap items-center gap-2 text-[12px] text-ink-faint" aria-label="위치">
-        <a href={withBase("/")} class="inline-flex min-h-[24px] items-center hover:text-ink">홈</a>
+        <a href={withBase("/")} class="inline-flex min-h-[44px] md:min-h-[24px] items-center hover:text-ink">홈</a>
         <span aria-hidden="true">/</span>
-        <a href={withBase("/apps")} class="inline-flex min-h-[24px] items-center hover:text-ink">앱</a>
+        <a href={withBase("/apps")} class="inline-flex min-h-[44px] md:min-h-[24px] items-center hover:text-ink">앱</a>
         <span aria-hidden="true">/</span>
         <span class="text-ink-muted">{app.name}</span>
       </nav>
@@ -106,12 +106,12 @@ const jsonLd = {
   <section class="wrap py-9 md:py-14">
     <div class="grid gap-12 lg:grid-cols-[minmax(0,1fr)_280px] lg:gap-16">
       <div class="min-w-0">
-        <h2 class="text-[13px] font-semibold tracking-[0.06em] text-ink-faint">만든 이유</h2>
+        <h2 class="text-[13px] font-semibold tracking-[0.01em] text-ink-faint">만든 이유</h2>
         <div class="mt-3 space-y-4 text-[15px] leading-[1.85] text-ink-soft">
           {app.why.map((p) => <p>{p}</p>)}
         </div>
 
-        <h2 class="mt-10 border-t border-line pt-5 text-[13px] font-semibold tracking-[0.06em] text-ink-faint">주요 기능</h2>
+        <h2 class="mt-10 border-t border-line pt-5 text-[13px] font-semibold tracking-[0.01em] text-ink-faint">주요 기능</h2>
         <ul class="mt-3 divide-y divide-line-soft border-t border-line-soft">
           {
             app.features.map((f) => (
@@ -126,7 +126,7 @@ const jsonLd = {
         {
           app.internal && (
             <div class="mt-10">
-              <h2 class="border-t border-line pt-5 text-[13px] font-semibold tracking-[0.06em] text-ink-faint">먼저 보기</h2>
+              <h2 class="border-t border-line pt-5 text-[13px] font-semibold tracking-[0.01em] text-ink-faint">먼저 보기</h2>
               <p class="mt-2 max-w-[62ch] text-[13px] leading-relaxed text-ink-muted">
                 같은 계산을 이 자리에서 바로 해 볼 수 있습니다. 첫 화면은 예시 입력값으로 시작하고,
                 값을 바꾸면 결과가 즉시 달라집니다.
@@ -144,7 +144,7 @@ const jsonLd = {
         {
           app.basis && (
             <div class="mt-10">
-              <h2 class="border-t border-line pt-5 text-[13px] font-semibold tracking-[0.06em] text-ink-faint">기준과 출처</h2>
+              <h2 class="border-t border-line pt-5 text-[13px] font-semibold tracking-[0.01em] text-ink-faint">기준과 출처</h2>
               <ul class="mt-3 space-y-2.5">
                 {app.basis.map((b) => (
                   <li class="flex gap-2.5 text-[13px] leading-[1.72] text-ink-soft">
@@ -176,7 +176,7 @@ const jsonLd = {
 
       <aside class="space-y-8 lg:border-l lg:border-line lg:pl-8">
         <div>
-          <h2 class="text-[12px] font-semibold tracking-[0.08em] text-ink-faint">한눈에</h2>
+          <h2 class="text-[12px] font-semibold tracking-[0.01em] text-ink-faint">한눈에</h2>
           <dl class="mt-3 space-y-2.5 border-t border-line-soft pt-3 text-[12.5px]">
             <div class="flex justify-between gap-4">
               <dt class="text-ink-faint">분류</dt>
@@ -199,14 +199,14 @@ const jsonLd = {
 
         {app.inputs && (
           <div>
-            <h2 class="text-[12px] font-semibold tracking-[0.08em] text-ink-faint">입력하는 것</h2>
+            <h2 class="text-[12px] font-semibold tracking-[0.01em] text-ink-faint">입력하는 것</h2>
             <p class="mt-2 text-[12.5px] leading-[1.75] text-ink-muted">{app.inputs.join(" · ")}</p>
           </div>
         )}
 
         {app.outputs && (
           <div>
-            <h2 class="text-[12px] font-semibold tracking-[0.08em] text-ink-faint">결과에서 보는 것</h2>
+            <h2 class="text-[12px] font-semibold tracking-[0.01em] text-ink-faint">결과에서 보는 것</h2>
             <ul class="mt-2 space-y-1.5">
               {app.outputs.map((o) => (
                 <li class="text-[12.5px] leading-[1.7] text-ink-muted">{o}</li>
@@ -216,14 +216,14 @@ const jsonLd = {
         )}
 
         <div>
-          <h2 class="text-[12px] font-semibold tracking-[0.08em] text-ink-faint">누구에게</h2>
+          <h2 class="text-[12px] font-semibold tracking-[0.01em] text-ink-faint">누구에게</h2>
           <p class="mt-2 text-[12.5px] leading-[1.75] text-ink-muted">{app.audience}</p>
         </div>
 
         {
           posts.length > 0 && (
             <div class="border-t border-line pt-4">
-              <h2 class="text-[12px] font-semibold tracking-[0.08em] text-ink-faint">함께 읽기</h2>
+              <h2 class="text-[12px] font-semibold tracking-[0.01em] text-ink-faint">함께 읽기</h2>
               <ul class="mt-2 space-y-2">
                 {posts.map((p) => (
                   <li>

@@ -13,7 +13,7 @@ import { withBase, site } from "@/config/site";
     <div class="wrap py-9 md:py-12">
       <HomePill />
       <nav class="flex items-center gap-2 text-[12px] text-ink-faint" aria-label="위치">
-        <a href={withBase("/")} class="inline-flex min-h-[24px] items-center hover:text-ink">홈</a>
+        <a href={withBase("/")} class="inline-flex min-h-[44px] md:min-h-[24px] items-center hover:text-ink">홈</a>
         <span aria-hidden="true">/</span>
         <span class="text-ink-muted">개인정보처리방침</span>
       </nav>
@@ -99,7 +99,7 @@ import { withBase, site } from "@/config/site";
 
     <aside class="hidden lg:block">
       <nav class="sticky top-[calc(var(--header-h)+28px)] rounded-2xl border border-line bg-white p-4" aria-label="목차">
-        <p class="mono text-[12px] tracking-[0.08em] text-ink-faint">목차 · CONTENTS</p>
+        <p class="mono text-[12px] tracking-[0.01em] text-ink-faint">목차</p>
         <ol class="mt-2 space-y-0.5">
           {[
             ["p1", "수집하지 않는 정보"],

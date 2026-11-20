@@ -24,9 +24,9 @@ const { app } = Astro.props;
     <div class="wrap py-6 md:py-9">
       <HomePill />
       <nav class="flex flex-wrap items-center gap-2 text-[12px] text-ink-faint" aria-label="위치">
-        <a href={withBase("/apps")} class="inline-flex min-h-[24px] items-center hover:text-ink">도구자료실</a>
+        <a href={withBase("/apps")} class="inline-flex min-h-[44px] md:min-h-[24px] items-center hover:text-ink">도구자료실</a>
         <span aria-hidden="true">/</span>
-        <a href={withBase(`/apps/${app.slug}`)} class="inline-flex min-h-[24px] items-center hover:text-ink">{app.name}</a>
+        <a href={withBase(`/apps/${app.slug}`)} class="inline-flex min-h-[44px] md:min-h-[24px] items-center hover:text-ink">{app.name}</a>
         <span aria-hidden="true">/</span>
         <span class="text-ink-muted">실행</span>
       </nav>

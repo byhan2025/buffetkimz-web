@@ -45,16 +45,16 @@ const jsonLd = {
     <div class="grid gap-12 lg:grid-cols-[1.15fr_0.85fr] lg:gap-16">
       <div class="space-y-9">
         <div>
-          <h2 class="text-[13px] font-semibold tracking-[0.06em] text-ink-faint">왜 여기에 쓰는가</h2>
+          <h2 class="text-[13px] font-semibold tracking-[0.01em] text-ink-faint">왜 여기에 쓰는가</h2>
           <div class="mt-3 space-y-4 text-[15px] leading-[1.85] text-ink-soft">
             <p>
-              보험과 금융을 현장에서 다루면 같은 질문을 반복해서 듣습니다. 금리가 내렸는데 왜 이자는
-              그대로인지, 실손을 갈아타야 하는지, 연금은 얼마를 넣어야 하는지. 답은 매번 조금씩
-              달라지고, 기억은 금방 흐려집니다.
+              금리가 내렸는데 왜 이자는 그대로인지, 실손을 갈아타야 하는지, 연금은 언제부터 얼마를
+              받는지. 살다 보면 같은 질문이 몇 년을 두고 되돌아옵니다. 답은 제도와 기준이 바뀔 때마다
+              달라지고, 그때 들은 설명은 기억에서 금방 흐려집니다.
             </p>
             <p>
-              그래서 적기 시작했습니다. 현장에서 확인한 기준, 공개된 자료와 비교해 고친 숫자,
-              틀렸던 판단까지. 기록이 쌓이면 같은 질문에 더 정확하게 답할 수 있습니다.
+              그래서 적기 시작했습니다. 공개된 원문에서 확인한 기준, 직접 계산해 본 숫자, 틀렸던
+              판단까지. 기록이 쌓이면 같은 질문에 더 정확하게 답할 수 있습니다.
             </p>
             <p>
               도구는 그다음 단계입니다. 표를 손으로 옮겨 적고 계산기를 두드리는 일은 기록으로 남길
@@ -64,7 +64,7 @@ const jsonLd = {
         </div>
 
         <div>
-          <h2 class="text-[13px] font-semibold tracking-[0.06em] text-ink-faint">쓰는 방식</h2>
+          <h2 class="text-[13px] font-semibold tracking-[0.01em] text-ink-faint">쓰는 방식</h2>
           <ul class="mt-3 divide-y divide-line-soft border-t border-ink">
             {site.principles.map((p) => (
               <li class="grid gap-1 py-4 sm:grid-cols-[180px_1fr] sm:gap-6">
@@ -76,7 +76,7 @@ const jsonLd = {
         </div>
 
         <div>
-          <h2 class="text-[13px] font-semibold tracking-[0.06em] text-ink-faint">다루지 않는 것</h2>
+          <h2 class="text-[13px] font-semibold tracking-[0.01em] text-ink-faint">다루지 않는 것</h2>
           <ul class="mt-3 space-y-2.5">
             {[
               "특정 상품의 추천, 비교 우열, 가입 권유. 글과 도구 어디에도 상품명을 앞세우지 않습니다.",
@@ -95,7 +95,7 @@ const jsonLd = {
 
       <aside class="space-y-8 lg:border-l lg:border-line lg:pl-8">
         <div>
-          <h2 class="text-[12px] font-semibold tracking-[0.08em] text-ink-faint">지금까지</h2>
+          <h2 class="text-[12px] font-semibold tracking-[0.01em] text-ink-faint">지금까지</h2>
           <dl class="mt-3 divide-y divide-line-soft border-t border-line-soft text-[12.5px]">
             <div class="flex justify-between py-2">
               <dt class="text-ink-faint">블로그</dt>
@@ -117,7 +117,7 @@ const jsonLd = {
         </div>
 
         <div>
-          <h2 class="text-[12px] font-semibold tracking-[0.08em] text-ink-faint">이 사이트</h2>
+          <h2 class="text-[12px] font-semibold tracking-[0.01em] text-ink-faint">이 사이트</h2>
           <ul class="mt-2 space-y-1.5 text-[13px]">
             <li><a href={withBase("/posts")} class="text-ink-soft link">블로그 — 매일 쌓이는 기록</a></li>
             <li><a href={withBase("/apps")} class="text-ink-soft link">앱 — 직접 만든 도구</a></li>

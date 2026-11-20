@@ -34,7 +34,7 @@ const man = (v: number) => Math.round(v).toLocaleString("ko-KR");
   {
     art === "guide" && (
       <div class="relative">
-        <p class="text-[12px] font-semibold tracking-[0.12em] text-ink-faint">확인 순서</p>
+        <p class="text-[12px] font-semibold tracking-[0.01em] text-ink-faint">확인 순서</p>
         <ul class="mt-3 space-y-0">
           {["암", "뇌혈관", "심장", "수술비", "간병비"].map((label, i) => (
             <li class="flex items-center gap-3 border-b border-line-soft py-2 last:border-0">
@@ -60,7 +60,7 @@ const man = (v: number) => Math.round(v).toLocaleString("ko-KR");
     art === "coverage" && (
       <div class="relative">
         <div class="flex items-baseline justify-between">
-          <p class="text-[12px] font-semibold tracking-[0.12em] text-ink-faint">필요 / 보유</p>
+          <p class="text-[12px] font-semibold tracking-[0.01em] text-ink-faint">필요 / 보유</p>
           <p class="serif text-[13px] text-ink-faint">5,000</p>
         </div>
         <ul class="mt-4 space-y-3.5">
@@ -89,7 +89,7 @@ const man = (v: number) => Math.round(v).toLocaleString("ko-KR");
   {
     art === "disclosure" && (
       <div class="relative">
-        <p class="text-[12px] font-semibold tracking-[0.12em] text-ink-faint">묻는 기간</p>
+        <p class="text-[12px] font-semibold tracking-[0.01em] text-ink-faint">묻는 기간</p>
         <div class="mt-4 space-y-4">
           {[
             { label: "3개월", width: 26 },
@@ -115,7 +115,7 @@ const man = (v: number) => Math.round(v).toLocaleString("ko-KR");
   {
     art === "silson" && (
       <div class="relative">
-        <p class="text-[12px] font-semibold tracking-[0.12em] text-ink-faint">자기부담률</p>
+        <p class="text-[12px] font-semibold tracking-[0.01em] text-ink-faint">자기부담률</p>
         <div class="mt-4 grid grid-cols-2 gap-4">
           <div>
             <p class="serif text-[26px] leading-none text-ink">30<span class="text-[13px]">%</span></p>
@@ -136,7 +136,7 @@ const man = (v: number) => Math.round(v).toLocaleString("ko-KR");
   {
     art === "pension" && (
       <div class="relative">
-        <p class="text-[12px] font-semibold tracking-[0.12em] text-ink-faint">올해의 한도</p>
+        <p class="text-[12px] font-semibold tracking-[0.01em] text-ink-faint">올해의 한도</p>
         <div class="mt-4 flex items-end gap-4">
           <div class="flex-1">
             <p class="text-[12px] text-ink-muted">연금저축</p>
@@ -157,7 +157,7 @@ const man = (v: number) => Math.round(v).toLocaleString("ko-KR");
   {
     art === "retirement" && (
       <div class="relative">
-        <p class="text-[12px] font-semibold tracking-[0.12em] text-ink-faint">은퇴 후 월 수령액</p>
+        <p class="text-[12px] font-semibold tracking-[0.01em] text-ink-faint">은퇴 후 월 수령액</p>
         <ul class="mt-4 space-y-3">
           {retireRows.map((row) => (
             <li>
@@ -186,7 +186,7 @@ const man = (v: number) => Math.round(v).toLocaleString("ko-KR");
   {
     art === "compound" && (
       <div class="relative">
-        <p class="text-[12px] font-semibold tracking-[0.12em] text-ink-faint">원금에서 세후까지</p>
+        <p class="text-[12px] font-semibold tracking-[0.01em] text-ink-faint">원금에서 세후까지</p>
         <ul class="mt-4 space-y-3.5">
           {compoundRows.map((row, i) => (
             <li>

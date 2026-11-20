@@ -290,7 +290,7 @@ export function RunnerShell({
     <div className="rounded-2xl border border-line bg-[#fbfbf8] p-5 md:p-7" data-runner>
       <div className="flex items-start justify-between gap-3 border-b border-line pb-4">
         <div>
-          <p className="text-[12px] font-semibold tracking-[0.06em] text-ink-faint">작동 확인용</p>
+          <p className="text-[12px] font-semibold tracking-[0.01em] text-ink-faint">작동 확인용</p>
           <h3 className="mt-1 text-[16.5px] font-bold tracking-[-0.03em] text-ink">{title}</h3>
           <p className="mt-1 text-[12px] text-ink-muted">{subtitle}</p>
         </div>

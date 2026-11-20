@@ -60,7 +60,7 @@ const policyLinks = [
         categories.map((c, i) => (
           <>
             {i > 0 && <span class="text-line" aria-hidden="true"> · </span>}
-            <a href={withBase(`/posts/${c.slug}`)} class="inline-flex min-h-[24px] items-center hover:text-brand-deep">{c.name}</a>
+            <a href={withBase(`/posts/${c.slug}`)} class="inline-flex min-h-[44px] md:min-h-[24px] items-center hover:text-brand-deep">{c.name}</a>
           </>
         ))
       }
@@ -70,12 +70,12 @@ const policyLinks = [
         internalApps.map((a, i) => (
           <>
             {i > 0 && <span class="text-line" aria-hidden="true"> · </span>}
-            <a href={withBase(`/apps/${a.slug}`)} class="inline-flex min-h-[24px] items-center hover:text-brand-deep">{a.name}</a>
+            <a href={withBase(`/apps/${a.slug}`)} class="inline-flex min-h-[44px] md:min-h-[24px] items-center hover:text-brand-deep">{a.name}</a>
           </>
         ))
       }
       <span class="text-line" aria-hidden="true"> · </span>
-      <a href={withBase("/calendar")} class="inline-flex min-h-[24px] items-center hover:text-brand-deep">제도 일정 {calendar.length}건</a>
+      <a href={withBase("/calendar")} class="inline-flex min-h-[44px] md:min-h-[24px] items-center hover:text-brand-deep">제도 일정 {calendar.length}건</a>
     </p>
 
     <p class="mt-2 max-w-[96ch] text-[12px] leading-[1.8] text-ink-soft">
@@ -90,7 +90,7 @@ const policyLinks = [
       <p class="flex flex-wrap items-center gap-x-3">
         {
           policyLinks.map((l) => (
-            <a href={withBase(l.href)} class="inline-flex min-h-[24px] items-center hover:text-ink">{l.label}</a>
+            <a href={withBase(l.href)} class="inline-flex min-h-[44px] md:min-h-[24px] items-center hover:text-ink">{l.label}</a>
           ))
         }
         <span class="mono">기준일 <time datetime={site.baseDate}>{site.baseDate}</time></span>

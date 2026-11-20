@@ -61,16 +61,16 @@ const jsonLd = {
       <div class="wrap py-8 md:py-12">
         <HomePill />
         <nav class="flex flex-wrap items-center gap-2 text-[12px] text-ink-faint" aria-label="위치">
-          <a href={withBase("/")} class="inline-flex min-h-[24px] items-center hover:text-ink">홈</a>
+          <a href={withBase("/")} class="inline-flex min-h-[44px] md:min-h-[24px] items-center hover:text-ink">홈</a>
           <span aria-hidden="true">/</span>
-          <a href={withBase("/posts")} class="inline-flex min-h-[24px] items-center hover:text-ink">블로그</a>
+          <a href={withBase("/posts")} class="inline-flex min-h-[44px] md:min-h-[24px] items-center hover:text-ink">블로그</a>
           <span aria-hidden="true">/</span>
-          <a href={withBase(`/posts/${category.slug}`)} class="inline-flex min-h-[24px] items-center hover:text-ink">{category.name}</a>
+          <a href={withBase(`/posts/${category.slug}`)} class="inline-flex min-h-[44px] md:min-h-[24px] items-center hover:text-ink">{category.name}</a>
         </nav>
 
         <div class="mt-6 max-w-[66ch]">
           <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-[12.5px]">
-            <a href={withBase(`/posts/${category.slug}`)} class="font-semibold" style={`color:${category.tone}`}>
+            <a href={withBase(`/posts/${category.slug}`)} class="inline-flex min-h-[44px] items-center font-semibold md:min-h-[24px]" style={`color:${category.tone}`}>
               {category.name}
             </a>
             <time class="dateline text-[12.5px]" datetime={published}>{formatDate(post.data.publishedAt)}</time>
@@ -157,7 +157,7 @@ const jsonLd = {
 
         <aside class="space-y-8 lg:border-l lg:border-line lg:pl-8">
           <div>
-            <h2 class="text-[12px] font-semibold tracking-[0.08em] text-ink-faint">기준과 출처</h2>
+            <h2 class="text-[12px] font-semibold tracking-[0.01em] text-ink-faint">기준과 출처</h2>
             <p class="mt-2 text-[12.5px] leading-relaxed text-ink-muted">
               이 글은 <time datetime={site.baseDate}>{site.baseDateLabel}</time> 기준으로 확인했습니다. 제도와
               약관은 바뀔 수 있으니, 결정 전에 원문을 다시 확인하세요.
@@ -184,7 +184,7 @@ const jsonLd = {
           {
             app && (
               <div class="border-t border-ink pt-4">
-                <h2 class="text-[12px] font-semibold tracking-[0.08em] text-ink-faint">이어지는 도구</h2>
+                <h2 class="text-[12px] font-semibold tracking-[0.01em] text-ink-faint">이어지는 도구</h2>
                 <a href={withBase(`/apps/${app.slug}`)} class="group mt-2 block">
                   <p class="text-[15px] font-bold tracking-[-0.02em] text-ink group-hover:text-brand-deep">
                     {app.name}
@@ -199,7 +199,7 @@ const jsonLd = {
           }
 
           <div class="border-t border-line pt-4">
-            <h2 class="text-[12px] font-semibold tracking-[0.08em] text-ink-faint">이 칸의 다른 글</h2>
+            <h2 class="text-[12px] font-semibold tracking-[0.01em] text-ink-faint">이 칸의 다른 글</h2>
             <ul class="mt-2 space-y-2">
               {
                 sameCategory.map((p) => (

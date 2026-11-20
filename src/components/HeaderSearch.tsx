@@ -59,7 +59,7 @@ export default function HeaderSearch() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="inline-flex min-h-[44px] items-center gap-2 px-1 text-[13.5px] font-semibold text-ink-muted transition-colors hover:text-ink"
+        className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center gap-2 px-1 text-[13.5px] font-semibold text-ink-muted transition-colors hover:text-ink"
         aria-label="사이트 검색 열기"
       >
         <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true">

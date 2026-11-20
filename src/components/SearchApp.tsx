@@ -289,7 +289,7 @@ export default function SearchApp({ variant = "page", onClose, initialQuery = ""
             <p className="text-[13px] text-ink-muted">
               제목, 본문, 태그, 앱 이름까지 한 번에 찾습니다. 단어를 띄워 쓰면 모두 들어 있는 글만 보여 줍니다.
             </p>
-            <p className="mt-6 text-[12px] font-semibold tracking-[0.08em] text-ink-faint">최근 올라온 글</p>
+            <p className="mt-6 text-[12px] font-semibold tracking-[0.01em] text-ink-faint">최근 올라온 글</p>
             <ul className="mt-2 divide-y divide-line-soft border-t border-line-soft">
               {docs
                 .filter((d) => d.type === "post")
