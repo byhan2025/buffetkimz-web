@@ -94,6 +94,14 @@ const jsonLd = {
               )
             }
           </div>
+
+          {
+            app.notice && (
+              <p class="mt-4 max-w-[46ch] text-[12.5px] leading-[1.7] text-ink-faint" data-app-notice>
+                {app.notice}
+              </p>
+            )
+          }
         </div>
 
         <div class="min-h-[240px]">
@@ -163,9 +171,9 @@ const jsonLd = {
         <div class="mt-8 note-box">
           <p>
             <strong class="font-semibold text-ink">결과는 판정이 아닙니다.</strong>
-            입력한 값과 공개된 기준을 비교해 확인할 항목을 정리하는 도구입니다. 보험금 지급 여부, 가입
-            가능 여부, 세액공제·연금 수령액 확정 여부를 판단하지 않습니다. 최종 판단은 약관·증권과 관계
-            기관 안내에 따릅니다.
+            입력한 값과 공개된 기준을 나란히 놓고 확인할 항목을 정리하는 참고 도구입니다. 보험금 지급·가입
+            가능 여부, 세액공제·연금 수령액 확정, 투자 수익을 판단하거나 보장하지 않습니다. 최종 확인은
+            약관·증권과 관계 기관 안내에 따릅니다.
           </p>
         </div>
 

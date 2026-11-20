@@ -37,7 +37,7 @@ const jsonLd = {
 
 <Base
   title="도구자료실 — 금융·투자·연금 계산과 리스크 관리"
-  description="연금저축·IRP 세액공제, 은퇴 월 현금흐름, 투자 복리·세후 수익률, 1~12월 제도 일정 달력. 보험은 리스크 관리 참고 도구로 따로 모았습니다. 가입 없이 브라우저에서 실행하고 입력값은 서버로 보내지 않습니다."
+  description="연금저축·IRP 세액공제, 은퇴 월 현금흐름, 투자 복리·세후 수익률, 1~12월 제도 일정 달력. 보험은 리스크 관리 참고 도구로 따로 모았고, 직접 만든 앱 두 종(5대 담보 기준 가이드·한국형 타임머신)도 이 자리에서 소개합니다. 가입 없이 브라우저에서 실행하고 입력값은 서버로 보내지 않습니다."
   path="/apps"
   jsonLd={jsonLd}
 >
@@ -48,7 +48,8 @@ const jsonLd = {
       <h1 class="h-display mt-3 max-w-[18ch] text-ink">가진 숫자를 넣으면,<br />확인할 것이 남습니다.</h1>
       <p class="lede mt-5 max-w-[54ch]">
         금융·투자·연금 계산 세 가지와 제도 일정 달력을 앞에 두고, 보험은 리스크 관리 참고 도구로 뒤에
-        모았습니다. 모두 가입 없이 열리고, 입력한 값은 그 탭 안에서만 계산됩니다.
+        모았습니다. 맨 아래에는 사이트 밖에서 돌아가는 직접 만든 앱 두 종을 두었습니다. 모두 가입 없이 열리고,
+        입력한 값은 그 탭 안에서만 계산됩니다.
       </p>
 
       <div class="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-[12.5px] text-ink-muted">
@@ -57,6 +58,9 @@ const jsonLd = {
           <span class="text-ink-faint">
             (금융·연금 {mainCalcCount} + 달력 {calendarCount} + 리스크 관리 {riskCalcCount})
           </span>
+        </span>
+        <span data-app-count={external.length}>
+          직접 만든 앱 <strong class="font-semibold text-ink">{external.length}종</strong>
         </span>
         <span>입력값 서버 미전송</span>
         <span class="mono">기준일 <time datetime={site.baseDate}>{site.baseDate}</time></span>
@@ -200,6 +204,9 @@ const jsonLd = {
                         {a.name}
                       </h3>
                       <p class="mt-1 text-[12.5px] leading-[1.7] text-ink-muted">{a.subtitle}</p>
+                      {a.notice && (
+                        <p class="mt-1.5 text-[12px] leading-[1.6] text-ink-faint">{a.notice}</p>
+                      )}
                       {external.length === 1 && (
                         <ul class="mt-4 space-y-1.5 border-t border-line-soft pt-3">
                           {a.features.slice(0, 3).map((f) => (

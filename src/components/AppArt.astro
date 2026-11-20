@@ -5,7 +5,7 @@
 import { RETIREMENT_EXAMPLE, COMPOUND_EXAMPLE, compoundProjection, retirementProjection } from "@/lib/finance";
 
 interface Props {
-  art: "guide" | "coverage" | "disclosure" | "silson" | "pension" | "retirement" | "compound";
+  art: "guide" | "coverage" | "disclosure" | "silson" | "pension" | "retirement" | "compound" | "timemachine";
   compact?: boolean;
 }
 const { art, compact = false } = Astro.props;
@@ -26,6 +26,13 @@ const compoundRows = [
 ];
 const compoundMax = Math.max(...compoundRows.map((r) => r.value), 1);
 const man = (v: number) => Math.round(v).toLocaleString("ko-KR");
+/** 타임머신 도해 — 1만 번 재생에서 갈라진 경로의 끝 (예시 입력값 기준 그림) */
+const tmEnds = [8, 14, 20, 26, 33, 39, 45, 52, 58, 64, 71, 77, 12, 30, 54, 68];
+const tmOutcomes = [
+  { label: "목표 도달", pct: 24 },
+  { label: "손절", pct: 70 },
+  { label: "미도달", pct: 6 },
+];
 ---
 
 <div class={`relative h-full w-full overflow-hidden border border-line bg-paper-deep ${pad}`} aria-hidden="true">
@@ -206,6 +213,51 @@ const man = (v: number) => Math.round(v).toLocaleString("ko-KR");
         <p class="mt-4 text-[12px] leading-relaxed text-ink-faint">
           월 50만·20년·연 5.0% 가정 · 세금 {man(compound.tax)}만 제외
         </p>
+      </div>
+    )
+  }
+
+  {
+    art === "timemachine" && (
+      <div class="relative">
+        <div class="flex items-baseline justify-between">
+          <p class="text-[12px] font-semibold tracking-[0.01em] text-ink-faint">1만 번 다시 걸은 경로</p>
+          <p class="mono text-[12px] text-ink-faint">예시 입력</p>
+        </div>
+
+        <svg viewBox="0 0 240 82" class="mt-3 h-[82px] w-full" role="img" aria-label="진입 뒤 1만 번 재생에서 갈라진 경로의 끝 분포">
+          <line x1="0" y1="12" x2="240" y2="12" stroke="var(--color-line)" stroke-width="1" stroke-dasharray="3 3" />
+          <line x1="0" y1="41" x2="240" y2="41" stroke="var(--color-brand)" stroke-width="1" />
+          <line x1="0" y1="70" x2="240" y2="70" stroke="var(--color-clay)" stroke-width="1" stroke-dasharray="3 3" />
+          {tmEnds.map((end) => (
+            <path
+              d={`M2 41 C 60 41, 90 ${41 + (end - 41) * 0.35}, 196 ${end} L 232 ${end}`}
+              fill="none"
+              stroke={end < 30 ? "var(--color-brand)" : "var(--color-ink-faint)"}
+              stroke-width="1"
+              opacity={end < 30 ? "0.55" : "0.3"}
+            />
+          ))}
+        </svg>
+        <p class="mt-1 text-[12px] text-ink-faint">점선 위 목표 · 실선 진입 · 점선 아래 손절</p>
+
+        <ul class="mt-3 space-y-2">
+          {tmOutcomes.map((row) => (
+            <li class="flex items-center gap-3">
+              <span class="w-[52px] shrink-0 text-[12px] font-medium text-ink-soft">{row.label}</span>
+              <span class="h-[5px] flex-1 bg-line-soft">
+                <span
+                  class={`block h-full ${
+                    row.label === "손절" ? "bg-clay/70" : row.label === "미도달" ? "bg-ink-faint/45" : "bg-brand/80"
+                  }`}
+                  style={`width:${row.pct}%`}
+                />
+              </span>
+              <span class="w-[34px] shrink-0 text-right text-[12px] tabular-nums text-ink-faint">{row.pct}%</span>
+            </li>
+          ))}
+        </ul>
+        <p class="mt-3 text-[12px] leading-relaxed text-ink-faint">지난 흔들림의 빈도 · 미래 예측 아님</p>
       </div>
     )
   }
