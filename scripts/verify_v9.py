@@ -258,6 +258,22 @@ def full_shot(page, path):
     page.wait_for_timeout(100)
 
 
+def settle_header(page, selector, extra=-72):
+    """고정 헤더가 요소를 가리지 않도록 헤더를 흐름 안으로 돌리고, 부드러운 스크롤을 건너뛰어 정확히 맞춘다."""
+    page.evaluate("() => { const h = document.querySelector('header'); if (h) h.style.position = 'static'; }")
+    page.evaluate(
+        """(s) => {
+          const el = document.querySelector(s);
+          if (!el) return;
+          const top = el.getBoundingClientRect().top + window.scrollY + %d;
+          window.scrollTo({ top: Math.max(0, top), behavior: 'instant' });
+        }"""
+        % extra,
+        selector,
+    )
+    page.wait_for_timeout(500)
+
+
 def crawl_links(page):
     hrefs = page.evaluate(
         "() => [...document.querySelectorAll('a[href]')].map(a => a.href).filter(h => h.startsWith(location.origin))"
@@ -329,16 +345,17 @@ def run_viewport(browser, label, width, height):
         full_shot(page, OUT / "desktop-apps-full.png")
     showcase = page.query_selector("[data-app-showcase]")
     if showcase:
-        showcase.scroll_into_view_if_needed()
-        page.wait_for_timeout(400)
-        showcase.screenshot(path=str(OUT / f"{label}-apps-showcase.png"))
+        # 섹션이 뷰포트보다 길어 요소 캡처는 위가 잘린다 — 화면에 보이는 그대로(뷰포트)를 찍는다.
+        settle_header(page, "[data-app-showcase]")
+        page.screenshot(path=str(OUT / f"{label}-apps-showcase.png"))
     card_el = page.query_selector('[data-app-card="trade-timemachine"]')
     if card_el:
-        card_el.scroll_into_view_if_needed()
-        page.wait_for_timeout(300)
-        card_el.screenshot(path=str(OUT / f"{label}-app-card-timemachine.png"))
+        settle_header(page, '[data-app-card="trade-timemachine"]', extra=-120)
+        page.screenshot(path=str(OUT / f"{label}-app-card-timemachine.png"))
     else:
         page.screenshot(path=str(OUT / f"{label}-apps-nocard.png"))
+    page.evaluate("() => { const h = document.querySelector('header'); if (h) h.style.position = ''; }")
+    page.wait_for_timeout(150)
 
     # --- 타임머신 상세 ---
     goto(page, f"{label}-tm-detail", "/apps/trade-timemachine")
