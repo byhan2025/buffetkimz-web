@@ -98,6 +98,10 @@ export type TodayData = {
   /** 데이터 파일을 마지막으로 갱신한 시각 (= asOf) */
   updatedAt: string;
   nextCheckAt: string;
+  /** 허브 전체의 파이프라인 기록 — 실패한 회차면 'failed' (카드별 상태는 item.status) */
+  status?: "ok" | "failed";
+  /** 허브 전체가 실패했을 때 마지막으로 성공한 기준 시각 */
+  lastGoodAsOf?: string;
   /** 이 일수를 넘기면 '지난 정보' 라벨 (3일) */
   staleAfterDays: number;
   /** 갱신 주기 — 화면에 그대로 쓴다 */
@@ -124,6 +128,7 @@ export const today: TodayData = {
   asOf: AS_OF,
   updatedAt: AS_OF,
   nextCheckAt: NEXT_CHECK,
+  status: "ok",
   staleAfterDays: 3,
   cadence: "하루 3회(06:00·08:20·19:00) 갱신",
   stripNote: `등락률은 ${CHANGE_BASIS}입니다. 지표마다 마지막 기준 시각이 다르고, 지표는 참고용이며 투자 권유가 아닙니다.`,
@@ -167,9 +172,9 @@ export const today: TodayData = {
       direction: "up",
       asOf: "2026-11-21T06:28:00+09:00",
       asOfLabel: "11. 21. 06:28 고시",
-      source: "하나은행 고시(매매기준율)",
+      source: "네이버 금융 시장지표(하나은행 고시)",
       sourceUrl: "https://finance.naver.com/marketindex/",
-      basis: "직전 고시 1,335.50원 대비 11.00원",
+      basis: "하나은행 고시 매매기준율 · 직전 고시 1,335.50원 대비 11.00원",
     },
     {
       id: "sp500",
@@ -217,7 +222,7 @@ export const today: TodayData = {
       why: "1세대 계약자는 전환하면 월 17만 6,982원이 2만 1,620원이 됩니다(연 212만 4,000원 → 25만 9,000원, 60대 여성·6개 손보사 예시).",
       points: [
         "무엇이 — 5세대로 바꾸면 3년간 5세대 보험료의 50% 할인, 계약을 그대로 두면 고른 항목만 빼고 최대 37% 할인",
-        "언제까지 — 신청은 2027년 5월 22일까지, 전환 후 6개월 안에는 철회할 수 있습니다",
+        "언제까지 — 신청은 2027년 5월 22일까지. 청약철회는 전환 후 3개월은 조건 없이, 3~6개월은 보험사고가 없을 때만 할 수 있습니다",
         "누구에게 — 2013년 3월 이전 가입·재가입 조건이 없는 실손 계약",
       ],
       publishedAt: "2026-11-19",
@@ -230,7 +235,7 @@ export const today: TodayData = {
       dueDate: "2026-11-23",
       toolHref: "/apps/silson-compare/run",
       toolLabel: "내 실손 세대 비교 열기",
-      basis: "보장·할인율은 보험사와 선택 조건에 따라 다릅니다",
+      basis: "철회하면 50% 할인은 다시 받을 수 없고, 재전환은 심사 대상입니다. 보장·할인율은 보험사와 선택 조건에 따라 다릅니다",
     },
     {
       id: "mid-tax-2026",

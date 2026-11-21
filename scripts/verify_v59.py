@@ -1,7 +1,12 @@
 #!/usr/bin/env python3
-"""v5.9 오늘 확인 허브 — 빌드 산출물 전수 검증.
+"""v5.9 오늘 확인 허브 — 빌드 산출물 전수 검증 (v5.9.1 판).
 
-검사 항목 (실패하면 exit 1, JSON 요약은 reports/buffetkimz-web/v59-hub/verify-v59.json)
+경로는 이 파일 위치 기준 상대경로다 — 압축을 풀어 다른 폴더에 놓아도 그대로 재실행된다.
+  APP  = <repo>/apps/buffetkimz-web        (이 파일의 부모의 부모)
+  DIST = APP/dist                          (npm run build 결과)
+  OUT  = <repo>/reports/buffetkimz-web/v591-hub
+
+검사 항목 (실패하면 exit 1, JSON 요약은 OUT/verify-v59.json)
   1) 빌드 페이지 수·링크/이미지 무결 (audit_dist_links 결과)
   2) 허브 구조·순서·개수·AI 3종 세트·상담 CTA 부재
   3) 금지어(자극어) — 정상 의학용어·인용문은 예외로 기록
@@ -11,6 +16,9 @@
   7) 제도달력 D-Day
   8) 신선도·D-Day 함수 단위 검증(노드 실행)
   9) v5.8.2 회귀 — 필름·크레딧·썸네일·편집원칙·상담 밴드·검색 인덱스
+ 10) 실측(캡처 노트) — 1280·390 넘침, 칩 높이
+ 11) v5.9.1 — data-* 속성·클라이언트 재계산 스크립트·런타임 전환·390 키보드 포커스·잘림 0
+     · 실손 청약철회 3단계 조건 · 원/달러 라벨=링크 · '초기 실손' 용어 정리 · 제도달력 1차 출처
 """
 from __future__ import annotations
 
@@ -18,13 +26,16 @@ import json
 import os
 import pathlib
 import re
+import shutil
 import subprocess
 import sys
+import tempfile
 
-DIST = pathlib.Path("/workspace/apps/buffetkimz-web/dist")
-APP = pathlib.Path("/workspace/apps/buffetkimz-web")
-OUT = pathlib.Path("/workspace/reports/buffetkimz-web/v59-hub")
-NODE = "/workspace/.local/node-v22/bin/node"
+APP = pathlib.Path(__file__).resolve().parent.parent
+DIST = APP / "dist"
+REPO = APP.parent.parent
+OUT = REPO / "reports" / "buffetkimz-web" / "v591-hub"
+NODE = shutil.which("node") or "/workspace/.local/node-v22/bin/node"
 
 results: list[dict] = []
 
@@ -210,25 +221,26 @@ def main() -> int:
     )
 
     # 7) 신선도·D-Day 단위 검증
-    test_file = pathlib.Path("/workspace/tmp/v59/unit.test.mjs")
-    test_file.parent.mkdir(parents=True, exist_ok=True)
+    holder = pathlib.Path(tempfile.mkdtemp(prefix="v591-unit-"))
+    test_file = holder / "unit.test.mjs"
     test_file.write_text(
-        """
-import { freshnessOf } from '/workspace/apps/buffetkimz-web/src/lib/fresh.ts';
-import { ddayOf, isUpcoming } from '/workspace/apps/buffetkimz-web/src/lib/dday.ts';
+        f"""
+import {{ freshnessOf }} from '{(APP / 'src/lib/fresh.ts').as_uri()}';
+import {{ ddayOf, isUpcoming }} from '{(APP / 'src/lib/dday.ts').as_uri()}';
 const now = new Date('2026-11-21T14:26:00+09:00');
-const out = {
-  ok: freshnessOf({ asOf: '2026-11-21T14:00:00+09:00', nextCheckAt: '2026-11-21T19:00:00+09:00' }, now).state,
-  delayed: freshnessOf({ asOf: '2026-11-21T14:00:00+09:00', nextCheckAt: '2026-11-21T13:00:00+09:00' }, now).state,
-  stale: freshnessOf({ asOf: '2026-11-17T06:00:00+09:00', nextCheckAt: '2026-11-17T19:00:00+09:00' }, now).state,
-  failed: freshnessOf({ asOf: '2026-11-21T19:00:00+09:00', status: 'failed', lastGoodAsOf: '2026-11-21T06:00:00+09:00', nextCheckAt: '2026-11-21T19:00:00+09:00' }, now).state,
-  failedDetail: freshnessOf({ asOf: '2026-11-21T19:00:00+09:00', status: 'failed', lastGoodAsOf: '2026-11-21T06:00:00+09:00', nextCheckAt: '2026-11-21T19:00:00+09:00' }, now).detail,
+const out = {{
+  ok: freshnessOf({{ asOf: '2026-11-21T14:00:00+09:00', nextCheckAt: '2026-11-21T19:00:00+09:00' }}, now).state,
+  delayed: freshnessOf({{ asOf: '2026-11-21T14:00:00+09:00', nextCheckAt: '2026-11-21T13:00:00+09:00' }}, now).state,
+  delayedDetail: freshnessOf({{ asOf: '2026-11-21T14:00:00+09:00', nextCheckAt: '2026-11-21T13:00:00+09:00' }}, now).detail,
+  stale: freshnessOf({{ asOf: '2026-11-17T06:00:00+09:00', nextCheckAt: '2026-11-17T19:00:00+09:00' }}, now).state,
+  failed: freshnessOf({{ asOf: '2026-11-21T19:00:00+09:00', status: 'failed', lastGoodAsOf: '2026-11-21T06:00:00+09:00', nextCheckAt: '2026-11-21T19:00:00+09:00' }}, now).state,
+  failedDetail: freshnessOf({{ asOf: '2026-11-21T19:00:00+09:00', status: 'failed', lastGoodAsOf: '2026-11-21T06:00:00+09:00', nextCheckAt: '2026-11-21T19:00:00+09:00' }}, now).detail,
   d2: ddayOf('2026-11-23', now),
   d0: ddayOf('2026-11-21', now),
   dpast: ddayOf('2026-11-20', now),
   soon: ddayOf('2026-11-26', now).tone,
-  customStale: freshnessOf({ asOf: '2026-11-20T06:00:00+09:00', nextCheckAt: '2026-11-20T19:00:00+09:00', staleAfterDays: 1 }, now).state,
-};
+  customStale: freshnessOf({{ asOf: '2026-11-20T06:00:00+09:00', nextCheckAt: '2026-11-20T19:00:00+09:00', staleAfterDays: 1 }}, now).state,
+}};
 console.log(JSON.stringify(out));
 """,
         encoding="utf-8",
@@ -247,6 +259,7 @@ console.log(JSON.stringify(out));
         and u.get("stale") == "stale"
         and u.get("failed") == "failed"
         and "갱신에 실패해" in (u.get("failedDetail") or "")
+        and "마지막 확인" in (u.get("delayedDetail") or "")
         and u.get("customStale") == "stale",
         json.dumps({k: u.get(k) for k in ("ok", "delayed", "stale", "failed")}, ensure_ascii=False),
     )
@@ -311,9 +324,147 @@ console.log(JSON.stringify(out));
     else:
         check("캡처 노트 존재", False, "capture-notes.json 없음")
 
+    # 10) v5.9.1 — 런타임 신선도 재계산 (브라우저 스크립트)
+    sec = re.search(r'<section[^>]*data-hub[^>]*>', home).group(0)
+    check(
+        "허브 섹션에 신선도 data-* 5종",
+        all(re.search(rf'\b{a}(=|\s|>)', sec) for a in ("data-as-of", "data-next-check-at", "data-stale-days", "data-status", "data-last-good-as-of")),
+        sec[:220],
+    )
+    item_blocks = re.findall(r'<li class="hub-item"[^>]*>', hub)
+    check(
+        "카드마다 신선도 data-* 부착",
+        len(item_blocks) == 3
+        and all("data-as-of=" in b and "data-status=" in b and "data-stale-days=" in b for b in item_blocks),
+        f"{len(item_blocks)} li",
+    )
+    inline_scripts = re.findall(r'<script type="module">(.*?)</script>', home, re.S)
+    runtime_script = next(
+        (s for s in inline_scripts if "data-fresh-badge" in s or "hub-fresh" in s), ""
+    )
+    check(
+        "클라이언트 재계산 스크립트 포함(1분 간격)",
+        bool(runtime_script) and re.search(r"6e4|60000", runtime_script) is not None and "setInterval" in runtime_script,
+        f"{len(runtime_script)} chars",
+    )
+    check(
+        "브라우저 스크립트가 fresh.ts 규칙을 그대로 씀",
+        "지연되고 있습니다" in runtime_script and "864e5" in runtime_script and "freshCheckedAt" in runtime_script,
+        "freshnessOf 번들 확인",
+    )
+    check(
+        "정상일 때는 '다음 확인' + 숨은 배지, 지연 시 배지로 교체",
+        "data-hub-next" in hub and "data-fresh-badge" in hub and "hidden" in hub,
+    )
+
+    # 11) v5.9.1 — 실측(런타임 전환·390 포커스·잘림)
+    if notes_path.exists():
+        notes = json.loads(notes_path.read_text())
+        runtime = notes.get("runtime", {})
+        states = {k: ((v.get("atLoad") or {}).get("state"), ((v.get("afterFastForward") or {}).get("state"))) for k, v in runtime.items()}
+        check(
+            "런타임: 18:30 정상 · 19:30 확인 지연",
+            states.get("ok-before-next-check") == ("ok", None) and states.get("delayed-at-load") == ("delayed", None),
+            json.dumps(states, ensure_ascii=False),
+        )
+        delayed = (runtime.get("delayed-at-load") or {}).get("atLoad") or {}
+        check(
+            "확인 지연 배지 문구가 실제로 바뀜(마지막 확인 11. 21. 14:00)",
+            delayed.get("badgeHidden") is False
+            and delayed.get("badgeLabel") == "확인 지연"
+            and "마지막 확인 11. 21. 14:00" in (delayed.get("badgeDetail") or "")
+            and delayed.get("nextHidden") is True,
+            json.dumps(delayed, ensure_ascii=False)[:300],
+        )
+        check(
+            "1분 경과 후 자동 재계산(18:59 → 19:00:30 확인 지연)",
+            states.get("interval-flips") == ("ok", "delayed"),
+            json.dumps(states.get("interval-flips"), ensure_ascii=False),
+        )
+        check(
+            "3일 경과 시 지난 정보",
+            states.get("stale-after-3days") == ("stale", None),
+            json.dumps(states.get("stale-after-3days"), ensure_ascii=False),
+        )
+        check(
+            "확인 지연 캡처 13-hub-stale-runtime.png 저장",
+            (OUT / "13-hub-stale-runtime.png").exists(),
+            f"{(OUT / '13-hub-stale-runtime.png').stat().st_size if (OUT / '13-hub-stale-runtime.png').exists() else 0} bytes",
+        )
+
+        focus = notes.get("focus") or {}
+        steps = focus.get("steps") or []
+        check(
+            "390 Tab으로 지표 칩 6개 순서대로 포커스",
+            [s["id"] for s in steps] == ["kospi", "kosdaq", "usdkrw", "sp500", "nasdaq", "sox"],
+            ", ".join(s["id"] for s in steps),
+        )
+        check(
+            "포커스된 칩이 화면·스트립 안에 전부 표시(잘림 0)",
+            len(steps) == 6 and all(s["inViewport"] and s["inStrip"] and s["metaInViewport"] for s in steps),
+            json.dumps([(s["id"], s["inViewport"], s["inStrip"], s["metaInViewport"]) for s in steps], ensure_ascii=False),
+        )
+        check(
+            "포커스 링 실제 표시(outline 2px 이상)",
+            all(s["focusRingVisible"] for s in steps),
+            json.dumps([(s["id"], s["outline"]["width"]) for s in steps], ensure_ascii=False),
+        )
+        check(
+            "뒤쪽 칩에서 스트립이 실제로 가로 스크롤됨",
+            (steps[-1]["strip"]["scrollLeft"] if steps else 0) > 0
+            and any((s["strip"]["scrollLeft"] or 0) > 0 for s in steps[2:]),
+            json.dumps([(s["id"], s["strip"]["scrollLeft"]) for s in steps], ensure_ascii=False),
+        )
+        check(
+            "칩 포커스 캡처 12·12b 저장",
+            (OUT / "12-home-focus-usdkrw-390.png").exists() and (OUT / "12b-home-focus-nasdaq-390.png").exists(),
+        )
+        check(
+            "sticky 헤더에 포커스된 칩이 가리지 않음",
+            all(not s["underHeader"] for s in steps),
+        )
+
+        clip = notes.get("clip390") or {}
+        check(
+            "390 잘림 0 — 허브·제도달력·비교 카드",
+            bool(clip)
+            and all(
+                (clip.get(k) or {}).get("outOfViewportCount") == 0 and (clip.get(k) or {}).get("textClippedCount") == 0
+                for k in ("hub", "calendar", "compare-silson")
+            ),
+            json.dumps({k: [(v or {}).get("outOfViewportCount"), (v or {}).get("textClippedCount")] for k, v in clip.items()}, ensure_ascii=False),
+        )
+
+    # 12) v5.9.1 — 4호 봇 지적 4건(문구·출처)이 화면에 반영됐는지
+    silson_detail = html("posts/silson-switch-2026/index.html")
+    check(
+        "실손 철회 조건 3단계가 글에 있음(3개월 무조건·3~6개월 사고 없음·재전환 불가)",
+        "3개월 안에는 조건 없이" in silson_detail
+        and "3개월이 지나 6개월" in silson_detail
+        and "50% 할인은 다시 받을 수 없" in silson_detail,
+    )
+    check(
+        "실손 철회 조건이 달력·허브 카드에도 있음",
+        "3개월은 조건 없이" in cal and "3~6개월은 보험사고가 없을 때만" in hub,
+    )
+    check(
+        "원/달러 라벨과 링크가 일치(네이버 금융 시장지표)",
+        'data-indicator="usdkrw"' in hub
+        and 'href="https://finance.naver.com/marketindex/"' in hub
+        and "네이버 금융 시장지표" in hub,
+    )
+    check(
+        "'초기 실손' 표현이 남아 있지 않음(1·2세대 실손으로 통일)",
+        not any("초기 실손" in p.read_text(encoding="utf-8", errors="ignore") for p in pages),
+    )
+    check(
+        "제도달력 갱신 보험료 항목의 출처가 1차 근거(보험개발원·보험다모아)",
+        "보험개발원 참조순보험료율" in cal and "e-insmarket.or.kr" in cal and "보험업계 발표" not in cal,
+    )
+
     failed = [r for r in results if not r["ok"]]
     summary = {
-        "version": "5.9.0",
+        "version": "5.9.1",
         "checks": len(results),
         "passed": len(results) - len(failed),
         "failed": len(failed),

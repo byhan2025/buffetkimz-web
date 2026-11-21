@@ -13,7 +13,7 @@ import re
 import sys
 from urllib.parse import unquote, urlsplit
 
-ROOT = pathlib.Path("/workspace/apps/buffetkimz-web/dist")
+ROOT = pathlib.Path(__file__).resolve().parent.parent / "dist"
 # Pages 서브패스(/buffetkimz-web) 빌드도 그대로 검사할 수 있게 접두를 떼고 본다.
 BASE_PREFIX = "/buffetkimz-web"
 ATTR = re.compile(r'(?:href|src)="([^"]+)"')

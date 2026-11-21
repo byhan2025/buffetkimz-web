@@ -12,6 +12,24 @@ v3: 20개 대표 사이트 벤치마킹(보고서 `reports/buffetkimz-web/benchm
 도구 미리보기 카드와 하단 강조 구간에만, 행동은 제이드(`#146C58`)로. 홈은 4장면 리듬
 (화이트블루 → 크림 기록 → 화이트 도구 → 네이비 제도·채널 → 크림 푸터)입니다.
 
+### v5.9.1 — 95점 마감 패치 (런타임 신선도·철회 조건·출처 일치·390 포커스)
+
+v5.9.0을 4호 봇이 92점으로 매기며 짚은 4건과 UI 포커스 기준을 반영한 마감 판. **라이브 배포는 하지 않았다.**
+
+- **브라우저 런타임 신선도** — `TodayHub.astro`가 `data-as-of`·`data-next-check-at`·`data-stale-days`·`data-status`·`data-last-good-as-of`를
+  DOM에 심고, `src/lib/hub-fresh-dom.ts`가 페이지 로드 시 + **1분마다** `fresh.ts`의 같은 규칙으로 배지·안내 문구를 다시 그린다.
+  19:00이 지나면 브라우저에서 '확인 지연'으로 바뀐다(정적 빌드 시각 고정 문제 해소). JS가 없으면 빌드 값이 그대로 보인다.
+- **실손 청약철회 3단계** — 금융위 Q&A(첨부9) 기준으로 "전환 후 3개월은 조건 없이, 3~6개월은 보험사고가 없을 때만,
+  철회 뒤 50% 할인 재적용 불가(재전환은 심사)"를 허브 카드·제도달력·실손 글 2편·비교 도구에 반영.
+- **출처 표기 일치** — 원/달러 칩의 라벨을 `네이버 금융 시장지표(하나은행 고시)`로, 기준은 `11. 21. 06:28 고시`로 맞췄다(링크 `finance.naver.com/marketindex/`와 같은 말).
+- **390 키보드 포커스** — 칩에 `tabindex="0"`·`:focus-visible` 링·`scroll-margin-inline/block`을 주고, 키보드 포커스일 때
+  스트립이 멈추지 않고 칩을 화면 안으로 데려오도록 스크립트로 보정했다(`:focus-within`에서는 스냅 해제). Tab으로 6칩 전부 실측.
+- **검증 재현성** — `scripts/verify_v59.py`를 파일 위치 기준 상대경로로 바꿔 70항목이 압축 해제 폴더에서도 그대로 돌아간다.
+- **파이프라인 초안** — `scripts/update_today_hub.py`(JSON 입력 → `today.ts` 갱신, 실패 시 값 유지 + `status:"failed"`,
+  import 검증·`--build` 옵션) + `scripts/test_update_today_hub.py`(24건).
+- **검증** — `python3 scripts/verify_v59.py`(70항목) · `python3 scripts/capture_v591.py`(1280·390 + 런타임 전환 + 포커스).
+  결과는 `reports/buffetkimz-web/v591-hub/`.
+
 ### v5.9.0 — '오늘 확인 허브' (실시간성 정보·생활금융·AI 요약·도구 연결)
 
 토스·카카오페이·미래에셋·네이버증권 4사 벤치마크(`reports/finance-hub-benchmark/00-hub-benchmark.md`)의

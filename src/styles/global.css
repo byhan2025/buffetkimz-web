@@ -3828,12 +3828,22 @@
     overflow-x: auto;
     padding-bottom: 4px;
     scroll-snap-type: x proximity;
+    scroll-padding-inline: 12px;
     -webkit-overflow-scrolling: touch;
   }
 
   .ind-strip > li {
     flex: 0 0 auto;
     scroll-snap-align: start;
+  }
+
+  /*
+   * 키보드 포커스가 스트립 안에 있으면 스냅을 끈다(v5.9.1).
+   * 스냅이 켜져 있으면 scrollIntoView가 가장 가까운 스냅 지점으로 되돌아가, 칩 폭이 다를 때
+   * 포커스된 칩의 오른쪽이 잘린다(2026-11-21 390px 실측: S&P500). 터치·마우스 사용에는 영향이 없다.
+   */
+  .ind-strip:focus-within {
+    scroll-snap-type: none;
   }
 
   .ind-chip {
@@ -3845,12 +3855,26 @@
     border: 1px solid var(--color-line);
     border-radius: 12px;
     background-color: #fff;
+    /* 가로 스크롤 안쪽 칩에 Tab으로 들어올 때 칩이 화면 가장자리에 붙지 않게 */
+    scroll-margin-inline: 12px;
     transition: border-color 160ms var(--ease-out-soft);
   }
 
-  .ind-chip:hover,
-  .ind-chip:focus-visible {
+  .ind-chip:hover {
     border-color: #b9c9d4;
+  }
+
+  /* 키보드 포커스 — 가로 스크롤 스트립 안에서도 어느 칩에 있는지 보이게 */
+  .ind-chip:focus-visible {
+    border-color: #8aa7ba;
+    border-radius: 12px;
+    outline: 2px solid var(--color-brand);
+    outline-offset: 2px;
+  }
+
+  /* Tab으로 들어올 때 sticky 헤더 밑에 가리지 않게 위 여백을 비운다(v5.9.1 실측) */
+  .ind-chip {
+    scroll-margin-block: 76px 24px;
   }
 
   .ind-name {
@@ -4370,6 +4394,8 @@
       min-width: 124px;
       min-height: 64px;
       padding: 7px 10px;
+      /* 390에서는 sticky 헤더가 두 줄이라 더 비운다 */
+      scroll-margin-block: 132px 24px;
     }
 
     .ind-value {

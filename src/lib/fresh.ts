@@ -106,7 +106,7 @@ export function freshnessOf(input: FreshInput, now: Date = new Date()): Fresh {
     return {
       state: "delayed",
       label: "확인 지연",
-      detail: `다음 확인이 지연되고 있습니다. 마지막 기준 ${asOfLabel(asOf, false)}.`,
+      detail: `다음 확인이 지연되고 있습니다. 마지막 확인 ${asOfLabel(asOf, false)}.`,
     };
   }
 
