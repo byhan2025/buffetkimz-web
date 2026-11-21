@@ -176,7 +176,7 @@ def main() -> int:
         page.goto(f"{BASE}{PREFIX}/apps/", wait_until="networkidle", timeout=60000)
         util_cards = page.locator('#cat-utility li.store-card[data-store-item]').count()
         coming = page.locator('[data-store-coming="utility"]').count()
-        check("앱스토어 유용한앱 카드 9종(7종+캘린더+자료앨범)", util_cards == 9, str(util_cards))
+        check("앱스토어 유용한앱 카드 29칸(앱 27종+캘린더+자료앨범)", util_cards == 29, str(util_cards))
         check("앱스토어 '준비 중' 자리 없음", coming == 0, str(coming))
         page.screenshot(path=str(OUT / "apps-utility-1280.png"), full_page=False)
         ctx.close()

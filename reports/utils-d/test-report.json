@@ -1,0 +1,495 @@
+{
+  "when": "2026-11-21T22:43:22",
+  "total": 90,
+  "passed": 90,
+  "failed": [],
+  "results": [
+    {
+      "check": "image-upscale 렌더",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "url-shortener 렌더",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "pdf-merge-split 렌더",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "market-world-clock 렌더",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "image-upscale 서버 미전송 배지",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "pdf-merge-split 서버 미전송 배지",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "market-world-clock 서버 미전송 배지",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "url-shortener 단축 서버 전송 배지(사실대로)",
+      "ok": true,
+      "detail": "단축 서버 전송"
+    },
+    {
+      "check": "업스케일: 원본 해상도 표시",
+      "ok": true,
+      "detail": "sample-small.png |  | 240 × 18043,200픽셀 · 2KB"
+    },
+    {
+      "check": "업스케일: 기본 2배 계획",
+      "ok": true,
+      "detail": "결과 480 × 360 · 172,800픽셀 (원본의 4배)"
+    },
+    {
+      "check": "업스케일: 4배 계획 960×720",
+      "ok": true,
+      "detail": "결과 960 × 720 · 691,200픽셀 (원본의 16배)"
+    },
+    {
+      "check": "업스케일: 픽셀 16배 표기",
+      "ok": true,
+      "detail": "결과 960 × 720 · 691,200픽셀 (원본의 16배)"
+    },
+    {
+      "check": "업스케일: 4배 버튼 눌림 표시",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "업스케일: 캔버스 960×720",
+      "ok": true,
+      "detail": "960×720"
+    },
+    {
+      "check": "업스케일: 왼쪽 위 빨강 유지",
+      "ok": true,
+      "detail": [
+        224,
+        32,
+        32
+      ]
+    },
+    {
+      "check": "업스케일: 오른쪽 위 초록 유지",
+      "ok": true,
+      "detail": [
+        31,
+        122,
+        98
+      ]
+    },
+    {
+      "check": "업스케일: 왼쪽 아래 파랑 유지",
+      "ok": true,
+      "detail": [
+        44,
+        123,
+        224
+      ]
+    },
+    {
+      "check": "업스케일: 1:1 비교 캔버스 2개",
+      "ok": true,
+      "detail": "2"
+    },
+    {
+      "check": "업스케일: 비교 캔버스 240×240",
+      "ok": true,
+      "detail": [
+        [
+          240,
+          240
+        ],
+        [
+          240,
+          240
+        ]
+      ]
+    },
+    {
+      "check": "업스케일: 비교 캔버스에 내용 있음",
+      "ok": true,
+      "detail": "57600px"
+    },
+    {
+      "check": "업스케일: 한 번에 키운 것보다 경계가 섬(라플라시안 에너지)",
+      "ok": true,
+      "detail": "기준선 0.129 vs 우리 0.207"
+    },
+    {
+      "check": "업스케일: 선명화 적용 표기",
+      "ok": true,
+      "detail": [
+        "경계 선명화",
+        "960×720 · 51KB · 120ms · 선명화 적용"
+      ]
+    },
+    {
+      "check": "업스케일: PNG 내려받기 960×720",
+      "ok": true,
+      "detail": "buffetkimz-upscale-sample-small-4x.png 960×720"
+    },
+    {
+      "check": "업스케일: 파일 이름 규칙",
+      "ok": true,
+      "detail": "buffetkimz-upscale-sample-small-4x.png"
+    },
+    {
+      "check": "업스케일: 저장 안내",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "업스케일: 3배 계획 720×540",
+      "ok": true,
+      "detail": "결과 720 × 540 · 388,800픽셀 (원본의 9배)"
+    },
+    {
+      "check": "업스케일: 3배 결과 720×540",
+      "ok": true,
+      "detail": [
+        720,
+        540
+      ]
+    },
+    {
+      "check": "업스케일: 선명화 켬 결과 표기",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "업스케일: 선명화 끔 결과 표기",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "업스케일: 선명화가 픽셀을 실제로 바꿈",
+      "ok": true,
+      "detail": "켬 (61655784, 172800) vs 끔 (61650593, 172800)"
+    },
+    {
+      "check": "업스케일: 사진을 바꾸면 이전 결과 지움",
+      "ok": true,
+      "detail": {
+        "w": 720,
+        "h": 480,
+        "ink": 0
+      }
+    },
+    {
+      "check": "업스케일: 빈 자리는 결과 비율(1800:1200)",
+      "ok": true,
+      "detail": {
+        "w": 720,
+        "h": 480,
+        "ink": 0
+      }
+    },
+    {
+      "check": "업스케일: 큰 사진 4배는 한도 초과 안내",
+      "ok": true,
+      "detail": "결과 7,200 × 4,800 · 34,560,000픽셀 (원본의 16배) · 캔버스 한도 초과 — 배율을 낮춰 주세요"
+    },
+    {
+      "check": "업스케일: 한도 초과면 버튼 잠김",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "업스케일: 2배로 낮추면 다시 열림",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "단축: UTM·fbclid 제거",
+      "ok": true,
+      "detail": "/www.example.com/2026-financial-plan?page=2\n\n50자 · 떼어 낸 항목: utm_source, utm_medium, fbclid"
+    },
+    {
+      "check": "단축: 남은 질의 유지",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "단축: 추적 3개 제거 표기",
+      "ok": true,
+      "detail": "정리한 주소추적 3개 제거"
+    },
+    {
+      "check": "단축: 잘못된 주소 안내",
+      "ok": true,
+      "detail": "도메인 모양을 확인해 주세요. 예: naver.com"
+    },
+    {
+      "check": "단축: 잘못된 주소면 버튼 잠김",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "단축: 정리된 주소 확인",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "단축: spoo.me 응답",
+      "ok": true,
+      "detail": 200
+    },
+    {
+      "check": "단축: 짧은 주소 생성",
+      "ok": true,
+      "detail": "https://spoo.me/jmpOGh"
+    },
+    {
+      "check": "단축: QR 이미지 생성",
+      "ok": true,
+      "detail": "data:image/gif;base64,R0lGODdh"
+    },
+    {
+      "check": "단축: 만들어진 주소 길이 비교",
+      "ok": true,
+      "detail": [
+        "50자 → 22자"
+      ]
+    },
+    {
+      "check": "단축: 짧은 주소 복사",
+      "ok": true,
+      "detail": "https://spoo.me/jmpOGh"
+    },
+    {
+      "check": "단축: 만든 목록 1건",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "PDF: 두 파일 등록",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "PDF: 합계 5쪽",
+      "ok": true,
+      "detail": "2개 파일 · 합계 5쪽"
+    },
+    {
+      "check": "PDF: 순서 바꾸기",
+      "ok": true,
+      "detail": "['a-2p.pdf', 'b-3p.pdf'] → ['b-3p.pdf', 'a-2p.pdf']"
+    },
+    {
+      "check": "PDF: 병합 파일 5쪽",
+      "ok": true,
+      "detail": "buffetkimz-merged-2files-5p.pdf 5쪽"
+    },
+    {
+      "check": "PDF: 병합 파일 이름",
+      "ok": true,
+      "detail": "buffetkimz-merged-2files-5p.pdf"
+    },
+    {
+      "check": "PDF: 저장 안내",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "PDF: 손상 파일 안내",
+      "ok": true,
+      "detail": "PDF 구조를 읽지 못했습니다. 손상되었거나 PDF가 아닌 파일일 수 있습니다."
+    },
+    {
+      "check": "PDF: 손상 파일은 목록에 안 들어감",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "PDF: 추출 원본 4쪽",
+      "ok": true,
+      "detail": "c-4p.pdf\n\n전체 4쪽 · 1KB"
+    },
+    {
+      "check": "PDF: 범위 초과 안내",
+      "ok": true,
+      "detail": "이 PDF는 4쪽입니다. 9쪽은 없습니다."
+    },
+    {
+      "check": "PDF: 범위 오류면 버튼 잠김",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "PDF: 추출 3쪽 예정",
+      "ok": true,
+      "detail": "3쪽 추출 예정 — 1-2, 4"
+    },
+    {
+      "check": "PDF: 추출 파일 3쪽",
+      "ok": true,
+      "detail": "c-4p-p1-2_4.pdf 3쪽"
+    },
+    {
+      "check": "PDF: 추출 파일 이름에 페이지",
+      "ok": true,
+      "detail": "c-4p-p1-2_4.pdf"
+    },
+    {
+      "check": "시계: 다섯 거래소",
+      "ok": true,
+      "detail": "5"
+    },
+    {
+      "check": "시계 krx: 현지 시각 일치(22:43)",
+      "ok": true,
+      "detail": "22:43:17 vs 22:43:17"
+    },
+    {
+      "check": "시계 krx: 상태(주말)",
+      "ok": true,
+      "detail": "주말 휴장 기대 weekend"
+    },
+    {
+      "check": "시계 krx: 카운트다운 형식",
+      "ok": true,
+      "detail": "1일 10시간 16분"
+    },
+    {
+      "check": "시계 us: 현지 시각 일치(08:43)",
+      "ok": true,
+      "detail": "08:43:17 vs 08:43:17"
+    },
+    {
+      "check": "시계 us: 상태(주말)",
+      "ok": true,
+      "detail": "주말 휴장 기대 weekend"
+    },
+    {
+      "check": "시계 us: 카운트다운 형식",
+      "ok": true,
+      "detail": "1일 19시간 16분"
+    },
+    {
+      "check": "시계 jp: 현지 시각 일치(22:43)",
+      "ok": true,
+      "detail": "22:43:17 vs 22:43:17"
+    },
+    {
+      "check": "시계 jp: 상태(주말)",
+      "ok": true,
+      "detail": "주말 휴장 기대 weekend"
+    },
+    {
+      "check": "시계 jp: 카운트다운 형식",
+      "ok": true,
+      "detail": "1일 10시간 16분"
+    },
+    {
+      "check": "시계 lse: 현지 시각 일치(13:43)",
+      "ok": true,
+      "detail": "13:43:17 vs 13:43:17"
+    },
+    {
+      "check": "시계 lse: 상태(주말)",
+      "ok": true,
+      "detail": "주말 휴장 기대 weekend"
+    },
+    {
+      "check": "시계 lse: 카운트다운 형식",
+      "ok": true,
+      "detail": "1일 18시간 16분"
+    },
+    {
+      "check": "시계 eu: 현지 시각 일치(14:43)",
+      "ok": true,
+      "detail": "14:43:17 vs 14:43:17"
+    },
+    {
+      "check": "시계 eu: 상태(주말)",
+      "ok": true,
+      "detail": "주말 휴장 기대 weekend"
+    },
+    {
+      "check": "시계 eu: 카운트다운 형식",
+      "ok": true,
+      "detail": "1일 18시간 16분"
+    },
+    {
+      "check": "시계: 1초마다 흐름",
+      "ok": true,
+      "detail": "22:43:17 → 22:43:18"
+    },
+    {
+      "check": "시계: 11월에는 서머타임 아님",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "시계: 한국 시간 표시",
+      "ok": true,
+      "detail": "11/21 (토) 22:43:18"
+    },
+    {
+      "check": "모바일 390: 가로 넘침 없음",
+      "ok": true,
+      "detail": "0px"
+    },
+    {
+      "check": "모바일 390: image-upscale 내부 넘침 없음",
+      "ok": true,
+      "detail": "0px"
+    },
+    {
+      "check": "모바일 390: url-shortener 내부 넘침 없음",
+      "ok": true,
+      "detail": "0px"
+    },
+    {
+      "check": "모바일 390: pdf-merge-split 내부 넘침 없음",
+      "ok": true,
+      "detail": "0px"
+    },
+    {
+      "check": "모바일 390: market-world-clock 내부 넘침 없음",
+      "ok": true,
+      "detail": "0px"
+    },
+    {
+      "check": "서머타임 us: 08:00 (UTC-4)",
+      "ok": true,
+      "detail": "08:00:00 vs 08:00:00 (offset -240)"
+    },
+    {
+      "check": "서머타임 lse: 13:00 (UTC+1)",
+      "ok": true,
+      "detail": "13:00:00 vs 13:00:00 (offset 60)"
+    },
+    {
+      "check": "서머타임 eu: 14:00 (UTC+2)",
+      "ok": true,
+      "detail": "14:00:00 vs 14:00:00 (offset 120)"
+    },
+    {
+      "check": "서머타임 표기: 여름에는 세 곳 모두 '서머타임 중'",
+      "ok": true,
+      "detail": 3
+    },
+    {
+      "check": "콘솔 오류 0건",
+      "ok": true,
+      "detail": ""
+    }
+  ]
+}

@@ -3,6 +3,11 @@
  * 이 배열에 항목 하나를 추가하면 /apps 목록·상세·검색 인덱스·푸터에 함께 반영된다.
  * externalUrl 이 있으면 외부 앱으로, runSlug 가 있으면 사이트 안의 실행 화면으로 연결된다.
  */
+/* v7.3 — 유용한앱 2·3·4탄(8+8+4종)은 자기 파일에서 정의하고 여기서 이어 붙인다. */
+import { utilsBApps } from "./utils-b.ts";
+import { utilsCApps } from "./utils-c.ts";
+import { utilsDApps } from "./utils-d.ts";
+
 export type AppStatus = "live" | "preview";
 
 /**
@@ -106,6 +111,14 @@ export type App = {
   scope?: "reader" | "practitioner";
   /** 내부 실행 앱 여부 (실행 화면이 있는 앱) */
   internal?: boolean;
+  /**
+   * 실행 화면의 성격.
+   *  - calc(기본): 값을 넣어 계산하는 시뮬레이터 — '모의계산' 안내를 붙인다.
+   *  - tool: 계산이 아니라 파일·텍스트·시각을 다루는 도구 — 안내 문구가 다르다.
+   */
+  runMode?: "calc" | "tool";
+  /** 실행할 때 입력값이 외부 서비스로 나가는 앱 — '서버 미전송'이라고 쓰면 안 된다 */
+  sendsDataOut?: boolean;
   /** 카드·상세에서 함께 읽는 고지 (필요한 앱만) */
   notice?: string;
   /** 앱스토어 주제 카테고리 (APP_CATEGORIES의 id) */
@@ -128,7 +141,30 @@ export type App = {
     | "u-compress"
     | "u-qr"
     | "u-resize"
-    | "u-watermark";
+    | "u-watermark"
+    /* v7.3 유용한앱 2탄 — 텍스트·문서·보안·디자인 */
+    | "text-counter"
+    | "privacy-masker"
+    | "json-csv-formatter"
+    | "password-generator"
+    | "diff-checker"
+    | "color-extractor"
+    | "text-to-card"
+    | "unit-date-calc"
+    /* v7.3 유용한앱 3탄 — 금융·생활 계산 */
+    | "age"
+    | "salary"
+    | "loan"
+    | "vat"
+    | "rent"
+    | "severance"
+    | "dividend"
+    | "hourly"
+    /* v7.3 유용한앱 4탄 — 업스케일·단축·PDF 병합/추출·세계시계 */
+    | "u-upscale"
+    | "u-shorten"
+    | "u-pdf-split"
+    | "u-clock";
   /** 관련 글 태그 (검색 보조) */
   tags: string[];
 };
@@ -1103,6 +1139,12 @@ export const apps: App[] = [
     art: "u-watermark",
     tags: ["워터마크", "브랜딩", "카드뉴스", "사진 보호", "buffetkimz"],
   },
+  /* v7.3 유용한앱 2탄 8종 */
+  ...(utilsBApps as App[]),
+  /* v7.3 유용한앱 3탄 8종 */
+  ...utilsCApps.map(({ store: _store, ...app }) => app as App),
+  /* v7.3 유용한앱 4탄 4종 */
+  ...(utilsDApps as App[]),
 ];
 
 export const appBySlug = (slug: string) => apps.find((a) => a.slug === slug);

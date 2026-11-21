@@ -7,7 +7,7 @@
   B. 소개 — '서표 하나, 손글씨 두 장' 섹션 삭제 · '본진' 0 · 커뮤니티 섹션 문구
   C. 홈 — '본진' 0 · 시리즈 7묶음 · 영문 필름 라벨(FIVE WORDS·FINANCE) 0 · 씬5 대비 보강
   D. 연금 마스터 6편 — 시리즈 번호·목차·결론 앵커·비교 카드·썸네일 로드·허브 시리즈 블록
-  E. 앱스토어 — 카드 12(앱 11 + 금융캘린더 + 자료앨범), 개수 6·4·2, 4대 계좌 앱 상세·실행
+  E. 앱스토어 — 카드 39(앱 37 + 금융캘린더 + 자료앨범), 개수 6·4·29, 4대 계좌 앱 상세·실행
   F. 자료앨범 — 탭 5 · 카드 4 · 캐러셀 넘김 · 검색 · 라이트박스 · 다운로드 · 세트 다운로드 · 업로드 입력 0
   G. v7.2 — 데스크톱 메뉴 5칸(자료앨범 포함) · 모바일 퀵 탭 5칸(+360px 넘침 0) ·
      ≡ 세로 드로어에 전체 메뉴 · 홈 크레딧 5칸·허브 자료앨범 CTA · dist 전체 <del> 0건
@@ -38,7 +38,7 @@ APP = pathlib.Path(__file__).resolve().parent.parent
 ROOT = APP / "dist"
 OUT = APP.parent.parent / "reports" / "buffetkimz-web" / "v71-pension"
 OUT.mkdir(parents=True, exist_ok=True)
-CHROME = "/workspace/.cache/ms-playwright/chromium-1255/chrome-linux64/chrome"
+CHROME = os.environ.get("PW_CHROME") or "/workspace/.cache/ms-playwright/chromium_headless_shell-1255/chrome-headless-shell-linux64/chrome-headless-shell"
 PORT = 8171
 LIVE = "https://byhan2025.github.io/buffetkimz-web"
 MODE = "live" if "--live" in sys.argv else "local"
@@ -352,8 +352,9 @@ def main() -> int:
 
                 if key == "apps":
                     a = page.evaluate(APP_JS)
-                    add(f"{label} 앱스토어 카드 12", len(a["cards"]) == 12, a["cards"])
-                    add(f"{label} 앱스토어 개수 6·4·2", a["counts"] == ["6", "4", "2"], a["counts"])
+                    add(f"{label} 앱스토어 카드 39", len(a["cards"]) == 39, len(a["cards"]))
+                    add(f"{label} 앱스토어 개수 6·4·29", a["counts"] == ["6", "4", "29"], a["counts"])
+                    add(f"{label} 앱스토어 요약 칩 39·6·4·29", a["summary"] == ["39", "6", "4", "29"], a["summary"])
                     add(f"{label} 자료앨범 카드", "gallery" in a["cards"], a["cards"])
                     add(f"{label} 4대 계좌 앱 카드", "account-tax-compare" in a["cards"], a["cards"])
 
@@ -530,7 +531,7 @@ def main() -> int:
         act = page.evaluate("() => document.querySelector('[data-gallery-tab].is-active')?.dataset.galleryTab")
         add("?cat=carousel 탭 열림", act == "carousel" and vis == ["pension-accounts"], {"tab": act, "vis": vis})
         page.close()
-        add("package.json 버전 7.2.0", pkg.get("version") == "7.2.0", str(pkg.get("version")))
+        add("package.json 버전 7.3.0", pkg.get("version") == "7.3.0", str(pkg.get("version")))
 
         # v7.2 — dist 전체 <del> 0건 (물결표 2개가 취소선으로 먹히면 글자가 사라진다)
         if MODE == "local":

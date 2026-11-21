@@ -3,6 +3,8 @@
  * 앱 카드의 도해. 화면 캡처 대신 구조를 선과 숫자로만 그린다.
  */
 import { RETIREMENT_EXAMPLE, COMPOUND_EXAMPLE, compoundProjection, retirementProjection } from "@/lib/finance";
+import { UTILS_B_ART_ROWS } from "@/data/utils-b.ts";
+import { UTILS_C_ART_ROWS } from "@/data/utils-c.ts";
 
 interface Props {
   art:
@@ -22,7 +24,29 @@ interface Props {
     | "u-compress"
     | "u-qr"
     | "u-resize"
-    | "u-watermark";
+    | "u-watermark"
+    /* v7.3 유용한앱 2·3탄 16종 — 입력 → 처리 → 결과 3단 공통 도해 */
+    | "text-counter"
+    | "privacy-masker"
+    | "json-csv-formatter"
+    | "password-generator"
+    | "diff-checker"
+    | "color-extractor"
+    | "text-to-card"
+    | "unit-date-calc"
+    | "age"
+    | "salary"
+    | "loan"
+    | "vat"
+    | "rent"
+    | "severance"
+    | "dividend"
+    | "hourly"
+    /* v7.3 유용한앱 4탄 — 자기 도해 */
+    | "u-upscale"
+    | "u-shorten"
+    | "u-pdf-split"
+    | "u-clock";
   compact?: boolean;
 }
 const { art, compact = false } = Astro.props;
@@ -52,6 +76,9 @@ const tmOutcomes = [
 ];
 /** QR 도해용 모듈 — 장식이지만 실제 QR처럼 보이도록 규칙적으로 채운다 */
 const qrCells = Array.from({ length: 81 }, (_, i) => (i * 7 + Math.floor(i / 9) * 3) % 5 < 2);
+/** v7.3 — 2·3탄 16종은 앱마다 다른 도해를 그리는 대신 '입력 → 처리 → 결과' 세 줄을 쓴다. */
+const utilArtRows: Record<string, [string, string, string]> = { ...UTILS_B_ART_ROWS, ...UTILS_C_ART_ROWS };
+const utilSteps = utilArtRows[art];
 ---
 
 <div class={`relative h-full w-full overflow-hidden border border-line bg-paper-deep ${pad}`} aria-hidden="true">
@@ -543,6 +570,164 @@ const qrCells = Array.from({ length: 81 }, (_, i) => (i * 7 + Math.floor(i / 9) 
           <li class="flex justify-between"><span>크기</span><span class="mono">가로의 2~20%</span></li>
           <li class="flex justify-between"><span>저장</span><span class="mono">원본 해상도</span></li>
         </ul>
+      </div>
+    )
+  }
+
+  {
+    utilSteps && (
+      <div class="relative">
+        <div class="flex items-baseline justify-between">
+          <p class="text-[12px] font-semibold tracking-[0.01em] text-ink-faint">입력 → 처리 → 결과</p>
+          <p class="mono text-[11px] text-ink-faint">브라우저 안에서</p>
+        </div>
+        <ol class="mt-3">
+          {utilSteps.map((step, i) => (
+            <li class="flex items-start gap-3 border-b border-line-soft py-2.5 last:border-0 last:pb-0">
+              <span class="mono mt-[1px] flex h-[19px] w-[19px] shrink-0 items-center justify-center rounded-full border border-line text-[10.5px] tabular-nums text-ink-faint">
+                {i + 1}
+              </span>
+              <span class="min-w-0">
+                <span class="mono block text-[10.5px] tracking-[0.02em] text-ink-faint">
+                  {["입력", "처리", "결과"][i]}
+                </span>
+                <span class="mt-[1px] block text-[12.5px] font-medium leading-snug text-ink-soft">{step}</span>
+              </span>
+            </li>
+          ))}
+        </ol>
+        <p class="mt-3 text-[11.5px] text-ink-faint">입력값은 저장하지 않고, 결과에는 기준일·출처를 함께 붙입니다</p>
+      </div>
+    )
+  }
+  {
+    art === "u-upscale" && (
+      <div class="relative">
+        <div class="flex items-baseline justify-between">
+          <p class="text-[12px] font-semibold tracking-[0.01em] text-ink-faint">해상도</p>
+          <p class="mono text-[12px] text-ink-faint">4배</p>
+        </div>
+        <div class="mt-3 space-y-3">
+          {[
+            { label: "원본", size: "240 × 180", w: 34 },
+            { label: "업스케일", size: "960 × 720", w: 100 },
+          ].map((row) => (
+            <div>
+              <div class="flex items-baseline justify-between text-[12px]">
+                <span class="font-medium text-ink-soft">{row.label}</span>
+                <span class="tabular-nums text-ink-faint">{row.size}</span>
+              </div>
+              <div class="mt-1.5 h-[7px] w-full bg-line-soft">
+                <div class={row.w === 100 ? "h-full bg-brand/85" : "h-full bg-ink-faint/40"} style={`width:${row.w}%`} />
+              </div>
+            </div>
+          ))}
+        </div>
+        <div class="mt-4 border-t border-line-soft pt-3">
+          <p class="text-[12px] text-ink-faint">같은 영역을 같은 크기로 잘라 비교합니다</p>
+          <div class="mt-2 flex gap-2">
+            <span class="h-9 flex-1 border border-line bg-[repeating-linear-gradient(45deg,var(--color-line-soft)_0_3px,transparent_3px_6px)]" />
+            <span class="h-9 flex-1 border border-brand/35 bg-brand-soft" />
+          </div>
+        </div>
+        <p class="mt-3 text-[12px] leading-relaxed text-ink-faint">픽셀을 늘리고 경계를 세우는 처리 · 사진 복원 AI 아님</p>
+      </div>
+    )
+  }
+
+  {
+    art === "u-shorten" && (
+      <div class="relative">
+        <p class="text-[12px] font-semibold tracking-[0.01em] text-ink-faint">긴 주소</p>
+        <div class="mt-2 flex items-center gap-2">
+          <span class="h-[26px] flex-1 border border-line bg-white/70" />
+        </div>
+        <p class="mono mt-1 truncate text-[11px] text-ink-faint">utm_source · fbclid 제거</p>
+
+        <div class="mt-3 flex items-center gap-2">
+          <span class="text-[12px] text-ink-faint">↓</span>
+          <span class="text-[12px] font-medium text-brand">짧은 주소</span>
+        </div>
+        <div class="mt-2 flex items-center gap-2">
+          <span class="h-[26px] w-[45%] bg-brand/85" />
+          <span class="mono text-[11px] text-ink-faint">spoo.me/…</span>
+        </div>
+
+        <div class="mt-4 flex items-end justify-between border-t border-line-soft pt-3">
+          <p class="text-[12px] leading-relaxed text-ink-faint">QR도 이 브라우저에서<br />그립니다</p>
+          <div class="grid h-[46px] w-[46px] grid-cols-5 grid-rows-5 gap-[2px]">
+            {Array.from({ length: 25 }, (_, i) => (
+              <span class={[0, 1, 2, 5, 7, 10, 12, 13, 14, 16, 18, 20, 21, 22, 24].includes(i) ? "bg-ink" : "bg-transparent"} />
+            ))}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  {
+    art === "u-pdf-split" && (
+      <div class="relative">
+        <div class="flex items-baseline justify-between">
+          <p class="text-[12px] font-semibold tracking-[0.01em] text-ink-faint">합치기</p>
+          <p class="mono text-[12px] text-ink-faint">2 + 3 = 5쪽</p>
+        </div>
+        <div class="mt-3 flex items-end gap-2">
+          {[
+            { n: 2, h: 30 },
+            { n: 3, h: 42 },
+          ].map((f) => (
+            <div class="flex flex-col items-center gap-1">
+              <span class="w-8 border border-line bg-white/80" style={`height:${f.h}px`} />
+              <span class="text-[11px] tabular-nums text-ink-faint">{f.n}쪽</span>
+            </div>
+          ))}
+          <span class="pb-4 text-[12px] text-ink-faint">→</span>
+          <div class="flex flex-col items-center gap-1">
+            <span class="w-9 border border-brand/40 bg-brand-soft" style="height:54px" />
+            <span class="text-[11px] font-semibold text-brand">5쪽</span>
+          </div>
+        </div>
+
+        <div class="mt-4 border-t border-line-soft pt-3">
+          <p class="text-[12px] font-semibold text-ink-faint">페이지 추출</p>
+          <div class="mt-2 flex flex-wrap gap-1">
+            {["1", "2", "3", "4", "5"].map((n) => (
+              <span class={`flex h-6 w-6 items-center justify-center border text-[11px] tabular-nums ${["1", "2", "3", "5"].includes(n) ? "border-brand/40 bg-brand-soft text-brand" : "border-line text-ink-faint"}`}>{n}</span>
+            ))}
+            <span class="ml-1 self-center mono text-[11px] text-ink-faint">1-3, 5</span>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  {
+    art === "u-clock" && (
+      <div class="relative">
+        <div class="flex items-baseline justify-between">
+          <p class="text-[12px] font-semibold tracking-[0.01em] text-ink-faint">지금 거래소 시각</p>
+          <p class="mono text-[12px] text-ink-faint">서머타임 반영</p>
+        </div>
+        <ul class="mt-3 space-y-2.5">
+          {[
+            { name: "KRX", time: "09:00", state: "정규장", pct: 62, live: true },
+            { name: "NYSE", time: "19:30", state: "프리", pct: 18, live: false },
+            { name: "LSE", time: "08:00", state: "개장 전", pct: 4, live: false },
+          ].map((m) => (
+            <li class="flex items-center gap-2.5">
+              <span class="w-[38px] shrink-0 text-[12px] font-semibold text-ink-soft">{m.name}</span>
+              <span class="w-[46px] shrink-0 mono text-[11px] tabular-nums text-ink-faint">{m.time}</span>
+              <span class="h-[5px] flex-1 bg-line-soft">
+                <span class={`block h-full ${m.live ? "bg-brand/85" : "bg-ink-faint/35"}`} style={`width:${m.pct}%`} />
+              </span>
+              <span class={`shrink-0 text-[11px] ${m.live ? "text-brand" : "text-ink-faint"}`}>{m.state}</span>
+            </li>
+          ))}
+        </ul>
+        <p class="mt-4 border-t border-line-soft pt-3 text-[12px] leading-relaxed text-ink-faint">
+          다음 개장·마감까지 남은 시간을 1초마다 셉니다
+        </p>
       </div>
     )
   }

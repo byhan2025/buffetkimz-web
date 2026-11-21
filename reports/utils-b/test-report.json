@@ -1,0 +1,409 @@
+{
+  "total": 79,
+  "passed": 79,
+  "results": [
+    {
+      "check": "text-counter 렌더",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "text-counter 서버 미전송 배지",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "privacy-masker 렌더",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "privacy-masker 서버 미전송 배지",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "json-csv-formatter 렌더",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "json-csv-formatter 서버 미전송 배지",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "password-generator 렌더",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "password-generator 서버 미전송 배지",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "diff-checker 렌더",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "diff-checker 서버 미전송 배지",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "color-extractor 렌더",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "color-extractor 서버 미전송 배지",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "text-to-card 렌더",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "text-to-card 서버 미전송 배지",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "unit-date-calc 렌더",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "unit-date-calc 서버 미전송 배지",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "글자수: 공백 포함 5자",
+      "ok": true,
+      "detail": "공백 포함 |  | 5자 |  | 공백 제외 |  | 5자 |  | 단어 |  | 1개 |  | 1줄 |  | UTF-8 바이트 |  | 15B |  | 한글 1자 = 3B |  | 200자 원고지 |  | 1매 |  | 공백 제외 5자 ÷ 200, 올림 |  | 스레드 여유 |  | 495자 |  | 한 편에 담깁니다"
+    },
+    {
+      "check": "글자수: 원고지 1매",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "스레드 분할: 2편 이상",
+      "ok": true,
+      "detail": "3편"
+    },
+    {
+      "check": "스레드 분할: 편 길이 500자 이하",
+      "ok": true,
+      "detail": "499자"
+    },
+    {
+      "check": "스레드 분할: 전체 글자 보존(공백 정규화)",
+      "ok": true,
+      "detail": "1497자 / 원문 1499자"
+    },
+    {
+      "check": "스레드: 첫 편 복사",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "마스킹: 010-****-5678",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "마스킹: 900101-1******",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "마스킹: 1234-****-****-3456",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "마스킹: 110-***-***789",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "마스킹: 02-***-6789",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "마스킹: 이메일 아이디 가림",
+      "ok": true,
+      "detail": "[상담 접수]\n고객명: 김민수\n연락처: 010-****-5678 (오후 통화 가능)\n이메일: mi*******@gmail.com\n주민등록번호: 900101-1******\n결제 카드: 1234-****-****-3456\n환급 계좌: 110-***-***789 (농협)\n사무실: 02-***-6789"
+    },
+    {
+      "check": "마스킹: 6건 탐지(휴대폰·사무실)",
+      "ok": true,
+      "detail": "모두 6건"
+    },
+    {
+      "check": "마스킹: 유형 5종 표시",
+      "ok": true,
+      "detail": "5"
+    },
+    {
+      "check": "마스킹: 복사본 클립보드",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "마스킹: 빈 입력이면 0건",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "JSON: 들여쓰기 결과",
+      "ok": true,
+      "detail": "{⏎  \"portfolio\": [⏎    {⏎      \"name\": \""
+    },
+    {
+      "check": "JSON: 문법 오류 없음",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "JSON: 한 줄 압축",
+      "ok": true,
+      "detail": "234자"
+    },
+    {
+      "check": "JSON: 문법 오류 안내",
+      "ok": true,
+      "detail": "JSON 문법 오류\n\n1번째 줄 9번째 칸 근처에서 문법이 맞지 않습니다. ({\"a\": 1,, })"
+    },
+    {
+      "check": "CSV→표: 머리행 문법",
+      "ok": true,
+      "detail": "| 계좌 | 세율 | 한도 | 비고 |"
+    },
+    {
+      "check": "CSV→표: 정렬 줄",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "CSV→표: 미리보기 3행",
+      "ok": true,
+      "detail": "3행"
+    },
+    {
+      "check": "CSV→표: 칸 안 쉼표 보존",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "표→CSV: 결과",
+      "ok": true,
+      "detail": "이름,금액,비고"
+    },
+    {
+      "check": "표→CSV: 쉼표 칸 따옴표",
+      "ok": true,
+      "detail": "이름,금액,비고\n연금저축,600만원,\"소득 5,500만원 이하\""
+    },
+    {
+      "check": "비밀번호: 16자",
+      "ok": true,
+      "detail": "td9bFEU3T*PaA}N?"
+    },
+    {
+      "check": "비밀번호: 네 종류 포함",
+      "ok": true,
+      "detail": "td9bFEU3T*PaA}N?"
+    },
+    {
+      "check": "비밀번호: 다시 만들기",
+      "ok": true,
+      "detail": "zP6{Zf_298EG(d;E"
+    },
+    {
+      "check": "비밀번호: 5개 목록",
+      "ok": true,
+      "detail": "5"
+    },
+    {
+      "check": "비밀번호: 목록도 16자",
+      "ok": true,
+      "detail": "[('K%8VP{e#fC;VhH6u', 16), ('L@9P;^Wumy${UW)6', 16), ('h^7PS@{zE@zt4#ST', 16), ('G^xztD622Q.4*]6!', 16), (')^aEN)a8[BhSPbqn', 16)]"
+    },
+    {
+      "check": "비밀번호: 강도 표시",
+      "ok": true,
+      "detail": "강함 · 101비트"
+    },
+    {
+      "check": "비밀번호: 길이 32자",
+      "ok": true,
+      "detail": "=:Mh@Ef{!Q296zi8VunDaf)8phrWNF%Z"
+    },
+    {
+      "check": "비교: 삭제·추가 요약",
+      "ok": true,
+      "detail": "삭제·변경 −2 추가·변경 +3 동일 2"
+    },
+    {
+      "check": "비교: 삭제 단어 강조",
+      "ok": true,
+      "detail": "2개"
+    },
+    {
+      "check": "비교: 추가 단어 강조",
+      "ok": true,
+      "detail": "3개"
+    },
+    {
+      "check": "비교: 바뀐 줄만 보기",
+      "ok": true,
+      "detail": "5→3"
+    },
+    {
+      "check": "비교: 같으면 안내",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "대표색: 최대 6개",
+      "ok": true,
+      "detail": "5개"
+    },
+    {
+      "check": "대표색: 빨강 계열 포함",
+      "ok": true,
+      "detail": "#E02020 #1F7A62 #2C7BE0 #F2C14E #333333"
+    },
+    {
+      "check": "대표색: 초록 계열 포함",
+      "ok": true,
+      "detail": "#E02020 #1F7A62 #2C7BE0 #F2C14E #333333"
+    },
+    {
+      "check": "대표색: 파랑 계열 포함",
+      "ok": true,
+      "detail": "#E02020 #1F7A62 #2C7BE0 #F2C14E #333333"
+    },
+    {
+      "check": "대표색: 파일명·크기 표시",
+      "ok": true,
+      "detail": "sample-4colors.png · 240×180"
+    },
+    {
+      "check": "대표색: 눌러서 HEX 복사",
+      "ok": true,
+      "detail": "#E02020"
+    },
+    {
+      "check": "대표색: 그라데이션에서 6개",
+      "ok": true,
+      "detail": "6개"
+    },
+    {
+      "check": "대표색: 비중 합 100%",
+      "ok": true,
+      "detail": "[25, 21, 20, 16, 9, 9] 합 100"
+    },
+    {
+      "check": "대표색: 0% 표시 없음",
+      "ok": true,
+      "detail": "[25, 21, 20, 16, 9, 9]"
+    },
+    {
+      "check": "카드: 1080×1350",
+      "ok": true,
+      "detail": "1080×1350"
+    },
+    {
+      "check": "카드: 배경이 다크",
+      "ok": true,
+      "detail": [
+        11,
+        27,
+        41
+      ]
+    },
+    {
+      "check": "카드: 캔버스에 내용 있음",
+      "ok": true,
+      "detail": "dataURL 139698자"
+    },
+    {
+      "check": "카드: PNG 내려받기",
+      "ok": true,
+      "detail": "buffetkimz-card-dark-20261121.png 1080×1350"
+    },
+    {
+      "check": "카드: 저장 안내 표시",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "카드: 테마 바뀌면 배경도 바뀜",
+      "ok": true,
+      "detail": [
+        250,
+        247,
+        239
+      ]
+    },
+    {
+      "check": "날짜: D-100 기본",
+      "ok": true,
+      "detail": "D-100"
+    },
+    {
+      "check": "날짜: 두 날짜 사이 100일",
+      "ok": true,
+      "detail": "100일"
+    },
+    {
+      "check": "날짜: 영업일 계산",
+      "ok": true,
+      "detail": "71일 (기대 71)"
+    },
+    {
+      "check": "날짜: 종료일 바꾸면 즉시 반영",
+      "ok": true,
+      "detail": "9일"
+    },
+    {
+      "check": "단위: 34평→㎡",
+      "ok": true,
+      "detail": "112.3967"
+    },
+    {
+      "check": "단위: 10in→cm",
+      "ok": true,
+      "detail": "25.4"
+    },
+    {
+      "check": "단위: 100cm→in",
+      "ok": true,
+      "detail": "39.3701"
+    },
+    {
+      "check": "단위: 1024MB→GB",
+      "ok": true,
+      "detail": "1"
+    },
+    {
+      "check": "모바일 390: 가로 넘침 없음",
+      "ok": true,
+      "detail": "0px"
+    },
+    {
+      "check": "콘솔 오류 없음",
+      "ok": true,
+      "detail": ""
+    }
+  ]
+}

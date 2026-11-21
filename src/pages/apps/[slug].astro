@@ -144,7 +144,11 @@ const jsonLd = graph([
               app.externalUrl ? (
                 <span class="text-[12px] text-ink-faint">새 창에서 열립니다 · 설치 없이 실행</span>
               ) : (
-                <span class="text-[12px] text-ink-faint">가입 없이 실행 · 입력값 서버 미전송</span>
+                <span class="text-[12px] text-ink-faint">
+                  {app.sendsDataOut
+                    ? "가입 없이 실행 · 단축할 때만 주소 전송"
+                    : "가입 없이 실행 · 입력값 서버 미전송"}
+                </span>
               )
             }
           </div>

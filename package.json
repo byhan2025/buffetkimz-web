@@ -1,7 +1,7 @@
 {
   "name": "buffetkimz-web",
   "type": "module",
-  "version": "7.2.0",
+  "version": "7.3.0",
   "private": true,
   "scripts": {
     "dev": "astro dev",
@@ -24,6 +24,7 @@
     "pdf-lib": "^1.17.1",
     "pdfjs-dist": "^4.10.38",
     "qrcode": "^1.5.4",
+    "qrcode-generator": "^2.0.4",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "remark-gfm": "^4.0.1",

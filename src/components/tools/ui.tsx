@@ -161,7 +161,16 @@ function CountUp({ text }: { text: string }) {
   const started = useRef(false);
 
   useEffect(() => {
-    if (!match || reduce || started.current) return;
+    if (!match) return;
+    /*
+     * 첫 값만 한 번 카운트업하고, 이후 입력이 바뀌면 새 값을 바로 보여 준다.
+     * (예전에는 started 이후 shown을 갱신하지 않아 첫 숫자가 화면에 그대로 남았다.
+     *  슬라이더를 움직여도 결과 카드의 큰 숫자가 멈춰 있던 원인이다.)
+     */
+    if (reduce || started.current) {
+      setShown(target);
+      return;
+    }
     started.current = true;
     const duration = 500;
     const t0 = performance.now();
@@ -299,7 +308,7 @@ export function RunnerShell({
         </span>
       </div>
       <p className="border-b border-line-soft py-2.5 text-[12px] leading-relaxed text-ink-muted">
-        <strong className="font-semibold text-ink">예시 입력값</strong>으로 시작합니다.{" "}
+        <strong className="font-semibold text-ink">예시 입력값(가상)</strong>으로 시작합니다.{" "}
         {example ?? "숫자를 바꾸면 결과가 즉시 달라지고, 새로 고치면 예시로 돌아갑니다."}
       </p>
       <div className="mt-2">{children}</div>

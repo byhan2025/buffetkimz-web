@@ -31,7 +31,29 @@ export type StoreIcon =
   | "compress"
   | "qr"
   | "resize"
-  | "watermark";
+  | "watermark"
+  /* v7.3 유용한앱 2탄 · 3탄 — art 키를 그대로 아이콘 이름으로 쓴다 */
+  | "text-counter"
+  | "privacy-masker"
+  | "json-csv-formatter"
+  | "password-generator"
+  | "diff-checker"
+  | "color-extractor"
+  | "text-to-card"
+  | "unit-date-calc"
+  | "age"
+  | "salary"
+  | "loan"
+  | "vat"
+  | "rent"
+  | "severance"
+  | "dividend"
+  | "hourly"
+  /* v7.3 유용한앱 4탄 */
+  | "u-upscale"
+  | "u-shorten"
+  | "u-pdf-split"
+  | "u-clock";
 
 export type StoreItem = {
   id: string;
@@ -79,6 +101,51 @@ const artToIcon: Record<App["art"], StoreIcon> = {
   "u-qr": "qr",
   "u-resize": "resize",
   "u-watermark": "watermark",
+  /* v7.3 — 2·3탄은 art 키 = 아이콘 이름 */
+  "text-counter": "text-counter",
+  "privacy-masker": "privacy-masker",
+  "json-csv-formatter": "json-csv-formatter",
+  "password-generator": "password-generator",
+  "diff-checker": "diff-checker",
+  "color-extractor": "color-extractor",
+  "text-to-card": "text-to-card",
+  "unit-date-calc": "unit-date-calc",
+  age: "age",
+  salary: "salary",
+  loan: "loan",
+  vat: "vat",
+  rent: "rent",
+  severance: "severance",
+  dividend: "dividend",
+  hourly: "hourly",
+  "u-upscale": "u-upscale",
+  "u-shorten": "u-shorten",
+  "u-pdf-split": "u-pdf-split",
+  "u-clock": "u-clock",
+};
+
+/** 카드 아래 메타 한 줄 — 앱마다 다른 값을 쓰는 새 앱만 여기에 적는다. */
+const metaBySlug: Record<string, string> = {
+  "text-counter": "텍스트 · 서버 미전송",
+  "privacy-masker": "보안 · 서버 미전송",
+  "json-csv-formatter": "문서·데이터 · 서버 미전송",
+  "password-generator": "보안 · 서버 미전송",
+  "diff-checker": "문서 · 서버 미전송",
+  "color-extractor": "디자인 · 서버 미전송",
+  "text-to-card": "디자인 · 서버 미전송",
+  "unit-date-calc": "생활 계산 · 서버 미전송",
+  "korean-age-pension": "행정기본법·국민연금법 기준",
+  "salary-net": "2026년 요율 · 근로소득세 근사",
+  "loan-repay": "원리금균등·원금균등·만기일시",
+  "vat-margin": "부가세 10% · 3탭 계산",
+  "rent-jeonse": "전환율·기회비용 포함 비교",
+  "severance-pay": "평균임금·통상임금 기준",
+  "dividend-tax": "금융소득종합과세 기준선",
+  "hourly-wage": "2026 최저임금 10,320원",
+  "image-upscale": "이미지 · 서버 미전송",
+  "url-shortener": "URL · 단축은 외부 전송",
+  "pdf-merge-split": "PDF · 서버 미전송",
+  "market-world-clock": "시각 · 서버 미전송",
 };
 
 /** 홈 진열 순서 — 금융·연금 계산이 먼저, 앱이 뒤, 보험이 마지막. */
@@ -100,6 +167,29 @@ const orderBySlug: Record<string, number> = {
   "qr-generator": 70,
   "image-resize": 80,
   watermark: 90,
+  /* v7.3 — 유용한앱 2탄 */
+  "text-counter": 100,
+  "privacy-masker": 110,
+  "json-csv-formatter": 120,
+  "password-generator": 130,
+  "diff-checker": 140,
+  "color-extractor": 150,
+  "text-to-card": 160,
+  "unit-date-calc": 170,
+  /* v7.3 — 유용한앱 3탄(금융·생활 계산) */
+  "korean-age-pension": 180,
+  "salary-net": 190,
+  "loan-repay": 200,
+  "vat-margin": 210,
+  "rent-jeonse": 220,
+  "severance-pay": 230,
+  "dividend-tax": 240,
+  "hourly-wage": 250,
+  /* v7.3 — 유용한앱 4탄 */
+  "image-upscale": 260,
+  "url-shortener": 270,
+  "pdf-merge-split": 280,
+  "market-world-clock": 290,
 };
 
 const fromApps: StoreItem[] = apps.map((a) => ({
@@ -115,7 +205,7 @@ const fromApps: StoreItem[] = apps.map((a) => ({
   practitioner: a.scope === "practitioner",
   notice: a.notice,
   icon: artToIcon[a.art],
-  meta: a.basis?.[0] ? a.kind : a.kind,
+  meta: metaBySlug[a.slug] ?? a.kind,
   order: orderBySlug[a.slug] ?? 90,
   featured: ["pension-tax", "retirement-flow", "trade-timemachine", "silson-compare"].includes(a.slug),
   tags: a.tags,

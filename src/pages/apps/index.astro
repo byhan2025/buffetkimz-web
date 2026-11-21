@@ -16,7 +16,7 @@ import HomePill from "@/components/HomePill.astro";
 import AppStoreIcon from "@/components/apps/AppStoreIcon.astro";
 import { withBase, site, menuLabel } from "@/config/site";
 import { APP_CATEGORIES } from "@/data/apps";
-import { categoryCount, storeByCategory, storeCount } from "@/data/store";
+import { categoryCount, storeByCategory, storeById, storeCount } from "@/data/store";
 import { breadcrumbList, graph, pageUrl, partOfWebsite } from "@/lib/schema";
 
 const externalCount = storeByCategory.reduce(
@@ -32,6 +32,10 @@ const tabs = [
   { id: "all", label: "전체", count: storeCount },
   ...APP_CATEGORIES.map((c) => ({ id: c.id, label: c.label, count: categoryCount(c.id) })),
 ];
+
+/** v7.3 — 앱이 39칸으로 늘어난 뒤 맨 위에 두는 지름길 네 칸(바로 실행 화면으로). */
+const quickIds = ["pension-tax", "retirement-flow", "trade-timemachine", "finance-calendar"];
+const quickApps = quickIds.map((id) => storeById(id)).filter((i): i is NonNullable<typeof i> => Boolean(i));
 
 const jsonLd = graph([
   {
@@ -64,7 +68,7 @@ const jsonLd = graph([
 
 <Base
   title={`${menuLabel.apps} — 금융투자앱 · 보험앱 · 유용한앱`}
-  description={`연금저축·IRP 세액공제, 은퇴 월 현금흐름, 연금 인출 세금, 투자 복리·세후 수익률, 한국형 타임머신, 5대 담보·실손·고지 확인, 골든타임에 더해 EXIF 제거·URL 추적제거·PDF 변환·이미지 압축·QR 생성·SNS 리사이즈·워터마크까지 ${storeCount}종. 금융투자앱·보험앱·유용한앱으로 나눠 필요할 때 바로 엽니다.`}
+  description={`세전 연봉 실수령액·국민연금 개시일·대출 상환·전세·월세·퇴직금·배당 세금·연금 세액공제·투자 복리 같은 금융·생활 계산부터 이미지 압축·PDF 변환·글자수 세기·개인정보 가리기·QR·워터마크까지 ${storeCount}종. 금융투자앱·보험앱·유용한앱으로 나눠 필요할 때 바로 엽니다.`}
   path="/apps"
   jsonLd={jsonLd}
 >
@@ -84,7 +88,7 @@ const jsonLd = graph([
 
         <ul class="store-hero-chips" data-store-summary>
           {
-            tabs.slice(1).map((t) => (
+            tabs.map((t) => (
               <li>
                 <a href={`#cat-${t.id}`} data-store-jump={t.id}>
                   <b>{t.count}</b>
@@ -123,7 +127,42 @@ const jsonLd = graph([
     </div>
   </section>
 
-  <!-- ② 카테고리 탭 — 누르면 해당 섹션만 남는다(자바스크립트 없으면 전체가 그대로 보인다) -->
+  <!-- ② 자주 쓰는 앱 — 39칸을 다 보기 전에 바로 여는 네 칸 -->
+  <section class="store-quick" aria-labelledby="store-quick-title">
+    <div class="wrap">
+      <div class="store-quick-head">
+        <h2 class="store-quick-title" id="store-quick-title">자주 쓰는 앱</h2>
+        <p class="store-quick-note">고르지 않고 바로 엽니다. {storeCount}종 전체는 아래에서 찾습니다.</p>
+      </div>
+      <ul class="store-quick-grid">
+        {
+          quickApps.map((item) => {
+            const tone = APP_CATEGORIES.find((c) => c.id === item.category)?.tone ?? APP_CATEGORIES[0].tone;
+            return (
+              <li>
+                <a
+                  class="store-quick-tile"
+                  href={item.external ? item.openHref : withBase(item.openHref)}
+                  {...(item.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                  data-quick-app={item.id}
+                >
+                  <span class="store-quick-icon" style={`--tone-a:${tone[0]};--tone-b:${tone[1]}`} aria-hidden="true">
+                    <AppStoreIcon name={item.icon} size={20} />
+                  </span>
+                  <span class="store-quick-text">
+                    <span class="store-quick-name">{item.name}</span>
+                    <span class="store-quick-tagline">{item.tagline}</span>
+                  </span>
+                </a>
+              </li>
+            );
+          })
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- ③ 카테고리 탭 — 누르면 해당 섹션만 남는다(자바스크립트 없으면 전체가 그대로 보인다) -->
   <div class="store-tabs-bar">
     <div class="wrap">
       <div class="store-tabs" role="tablist" aria-label="앱 카테고리" data-store-tabs>
@@ -163,7 +202,7 @@ const jsonLd = graph([
     </div>
   </div>
 
-  <!-- ③ 카테고리 섹션 -->
+  <!-- ④ 카테고리 섹션 -->
   <div class="store-body" data-store-body>
     {
       storeByCategory.map(({ category, items }) => (
@@ -267,6 +306,14 @@ const jsonLd = graph([
               }
             </ul>
 
+            {
+              items.length > 8 && (
+                <button type="button" class="store-more" data-store-more hidden>
+                  나머지 보기
+                </button>
+              )
+            }
+
             {category.id === "insurance" && (
               <p class="store-sec-note">
                 <span class="store-sec-note-tag">실무자용</span>
@@ -280,7 +327,7 @@ const jsonLd = graph([
     }
   </div>
 
-  <!-- ④ 고르는 기준 -->
+  <!-- ⑤ 고르는 기준 -->
   <section class="store-guide" id="store-guide">
     <div class="wrap">
       <div class="store-guide-head">
@@ -337,9 +384,53 @@ const jsonLd = graph([
    * 카테고리 탭 — 섹션을 숨기고 보여 주는 것만 한다.
    * URL 해시(#cat-insurance)로 들어오면 그 카테고리로 시작한다.
    * 자바스크립트가 없으면 모든 섹션이 그대로 보인다(점진적 향상).
+   *
+   * v7.3 — 앱이 39칸이 되면서 모바일(639px 이하)에서는 카테고리마다 앞 8장만 보이고
+   * '나머지 보기'로 펼쳐진다. 검색어를 넣으면 접힘을 무시하고 걸린 카드를 모두 보여 준다.
    */
-  const tabs = [...document.querySelectorAll<HTMLElement>("[data-store-tab]")];
+  const M_QUERY = window.matchMedia("(max-width: 639px)");
+  const cards = [...document.querySelectorAll<HTMLElement>("[data-store-item]")];
   const sections = [...document.querySelectorAll<HTMLElement>("[data-store-cat]")];
+  const LIMIT = 8;
+
+  /** 지금 입력된 검색어 */
+  const queryOf = () => (document.querySelector<HTMLInputElement>("[data-store-search]")?.value ?? "").replace(/\s+/g, " ").trim().toLowerCase();
+
+  /** 모바일 접기 — 검색 중이 아닐 때만 작동한다. */
+  const collapse = () => {
+    const mobile = M_QUERY.matches;
+    sections.forEach((sec) => {
+      const items = [...sec.querySelectorAll<HTMLElement>("[data-store-item]")];
+      const btn = sec.querySelector<HTMLButtonElement>("[data-store-more]");
+      if (!btn) return;
+      const folded = mobile && !queryOf() && items.length > LIMIT && sec.dataset.expanded !== "1";
+      items.forEach((it, i) => {
+        if (folded) it.hidden = i >= LIMIT;
+        else it.hidden = queryOf() ? it.hidden : false;
+      });
+      btn.hidden = !folded;
+      if (folded) btn.textContent = `나머지 ${items.length - LIMIT}개 보기`;
+    });
+  };
+
+  sections.forEach((sec) => {
+    sec.querySelector<HTMLButtonElement>("[data-store-more]")?.addEventListener("click", () => {
+      sec.dataset.expanded = "1";
+      [...sec.querySelectorAll<HTMLElement>("[data-store-item]")].forEach((it) => {
+        it.hidden = false;
+      });
+      const btn = sec.querySelector<HTMLButtonElement>("[data-store-more]");
+      if (btn) btn.hidden = true;
+    });
+  });
+
+  collapse();
+  M_QUERY.addEventListener("change", () => {
+    sections.forEach((s) => delete s.dataset.expanded);
+    collapse();
+  });
+
+  const tabs = [...document.querySelectorAll<HTMLElement>("[data-store-tab]")];
   if (tabs.length && sections.length) {
     const apply = (id: string) => {
       tabs.forEach((t) => {
@@ -364,26 +455,30 @@ const jsonLd = graph([
     /* 검색 — 이름·한 줄·요약·태그를 한 번에 훑는다. 카테고리 탭과 함께 걸린다. */
     const input = document.querySelector<HTMLInputElement>("[data-store-search]");
     const countEl = document.querySelector<HTMLElement>("[data-store-search-count]");
-    const cards = [...document.querySelectorAll<HTMLElement>("[data-store-item]")];
-    const sections2 = [...document.querySelectorAll<HTMLElement>("[data-store-cat]")];
     const normalize = (v: string) => v.replace(/\s+/g, " ").trim().toLowerCase();
     if (input) {
       input.addEventListener("input", () => {
         const q = normalize(input.value);
         if (q) apply("all");
-        let shown = 0;
-        cards.forEach((c) => {
-          const hit = !q || (c.dataset.text ?? "").includes(q);
-          c.hidden = !hit;
-          if (hit) shown += 1;
-        });
-        sections2.forEach((sec) => {
-          const any = [...sec.querySelectorAll<HTMLElement>("[data-store-item]")].some((c) => !c.hidden);
+        sections.forEach((sec) => {
+          const list = [...sec.querySelectorAll<HTMLElement>("[data-store-item]")];
+          list.forEach((c) => {
+            const hit = !q || (c.dataset.text ?? "").includes(q);
+            c.hidden = !hit;
+          });
+          const btn = sec.querySelector<HTMLButtonElement>("[data-store-more]");
+          if (btn) btn.hidden = true;
+          const any = list.some((c) => !c.hidden);
           sec.hidden = !any;
         });
+        const shown = cards.filter((c) => !c.hidden).length;
         if (countEl) {
           countEl.hidden = !q;
           countEl.textContent = q ? `${shown}개` : "";
+        }
+        if (!q) {
+          sections.forEach((s) => delete s.dataset.expanded);
+          collapse();
         }
       });
     }
