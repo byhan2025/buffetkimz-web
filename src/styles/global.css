@@ -3846,6 +3846,34 @@
     scroll-snap-type: none;
   }
 
+  /*
+   * 가로 스와이프 힌트 (v5.9.2) — 모바일에서 오른쪽 24px가 흰색으로 옅어지며 '옆에 더 있다'를 알린다.
+   * pointer-events: none 이라 탭·스와이프를 가로막지 않는다. 끝까지 밀면 JS가 is-at-end를 붙여 끈다.
+   */
+  .ind-strip-wrap {
+    position: relative;
+  }
+
+  @media (max-width: 767px) {
+    .ind-strip-wrap::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 24px;
+      height: calc(100% - 4px); /* .ind-strip padding-bottom 4px 제외 */
+      border-radius: 0 12px 12px 0;
+      background-image: linear-gradient(to right, rgb(255 255 255 / 0) 0%, #ffffff 78%);
+      pointer-events: none;
+      opacity: 1;
+      transition: opacity 160ms var(--ease-out-soft);
+    }
+
+    .ind-strip-wrap.is-at-end::after {
+      opacity: 0;
+    }
+  }
+
   .ind-chip {
     display: grid;
     gap: 2px;

@@ -7,6 +7,7 @@
   · 거부: 없는 id / 금지어 / 잘못된 시각 / 라벨·링크 불일치 → 파일이 바뀌지 않는다
   · CLI: --dry-run 은 쓰지 않고, 검증 실패면 원본 유지, 성공이면 원자적 교체
   · 결과 파일은 Node로 실제 import 해 값이 맞는지 확인(선택)
+  · v5.9.2: 실제로 돈 회차는 scheduleConnected 를 false → true 로 켠다('수동 확인' → '자동 확인')
 """
 from __future__ import annotations
 
@@ -134,6 +135,38 @@ class UpdateTextTest(unittest.TestCase):
         self.assertNotIn("미국 나스닥 −5.28%", high)
         self.assertIn("기준 11. 21. 18:40", updated.split("  ai: {")[1][:800])
 
+    # ---- v5.9.2 자동 갱신 연결 스위치
+    def test_schedule_connected_starts_false(self):
+        """배포 전 파일은 '수동 확인' 상태다 — 화면이 자동 갱신을 약속하지 않는 근거."""
+        self.assertIn("\n  scheduleConnected: false,\n", self.text)
+        self.assertIs(hub.snapshot(self.text)["scheduleConnected"], False)
+
+    def test_ok_run_turns_schedule_connected_on(self):
+        updated, _ = hub.update_text(self.text, self.ok_payload())
+        self.assertIn("\n  scheduleConnected: true,\n", updated)
+        self.assertNotIn("scheduleConnected: false", updated)
+        self.assertEqual(updated.count("scheduleConnected: true"), 1)
+
+    def test_schedule_connected_is_idempotent(self):
+        once, _ = hub.update_text(self.text, self.ok_payload())
+        twice, _ = hub.update_text(once, self.ok_payload())
+        self.assertEqual(twice.count("scheduleConnected: true"), 1)
+        self.assertNotIn("scheduleConnected: false", twice)
+
+    def test_failed_run_also_turns_schedule_connected_on(self):
+        """수집 실패회도 파이프라인이 실제로 돈 것이므로 '연결됨'은 사실이다(값은 그대로)."""
+        updated, plan = hub.update_text(self.text, {"status": "failed"})
+        self.assertEqual(plan["status"], "failed")
+        self.assertIn("\n  scheduleConnected: true,\n", updated)
+        self.assertIn('status: "failed"', read(updated, "status"))
+
+    def test_missing_schedule_field_rejected(self):
+        """v5.9.2 스키마가 아닌 파일에서는 거부한다(구조를 모르고 고치지 않는다)."""
+        broken = self.text.replace("  scheduleConnected: false,\n", "")
+        self.assertNotEqual(broken, self.text)
+        with self.assertRaises(hub.UpdateError):
+            hub.update_text(broken, self.ok_payload())
+
     # ---- 실패 회차
     def test_failed_run_keeps_values(self):
         updated, plan = hub.update_text(self.text, {"status": "failed", "reason": "19:00 수집 실패"})
@@ -245,6 +278,8 @@ class CliTest(unittest.TestCase):
         after = self.file.read_text(encoding="utf-8")
         self.assertIn('const AS_OF = "2026-11-21T19:00:41+09:00";', after)
         self.assertIn('value: "1,350.10"', after)
+        # CLI 로 돈 회차는 '자동 확인'으로 전환된다
+        self.assertIn("\n  scheduleConnected: true,\n", after)
         self.assertFalse(self.file.with_name("today.candidate.ts").exists())
 
     def test_cli_rejects_bad_input_and_keeps_file(self):
@@ -297,6 +332,8 @@ class ImportCheckTest(unittest.TestCase):
         )
         target.write_text(updated, encoding="utf-8")
         hub.verify_import(target, plan)  # 예외가 없어야 통과
+        # import 검증이 scheduleConnected 전환까지 확인한다(값이 false면 UpdateError)
+        self.assertIn("scheduleConnected: true", updated)
 
     @unittest.skipUnless(hub.find_node(), "node 없음")
     def test_failed_file_imports_with_failed_status(self):

@@ -24,6 +24,12 @@ export type FreshInput = {
   status?: "ok" | "failed";
   /** 마지막으로 성공한 회차의 확인 시각 (status가 failed일 때 쓴다) */
   lastGoodAsOf?: string | Date;
+  /**
+   * 정기 자동 갱신 파이프라인 연결 여부 (v5.9.2).
+   * false면 '다음 확인이 지연되고 있습니다'라고 말할 수 없다 — 붙지 않은 자동 갱신을 약속하는 말이 된다.
+   * 그래서 그때는 '정기 자동 갱신이 아직 연결되지 않았습니다'로 이유를 밝힌다.
+   */
+  scheduleConnected?: boolean;
   /** '지난 정보'로 넘기는 기준(일). 카드·데이터가 정하지 않으면 3일 */
   staleAfterDays?: number;
 };
@@ -106,7 +112,10 @@ export function freshnessOf(input: FreshInput, now: Date = new Date()): Fresh {
     return {
       state: "delayed",
       label: "확인 지연",
-      detail: `다음 확인이 지연되고 있습니다. 마지막 확인 ${asOfLabel(asOf, false)}.`,
+      detail:
+        input.scheduleConnected === false
+          ? `정기 자동 갱신이 아직 연결되지 않았습니다. 마지막 확인 ${asOfLabel(asOf, false)}.`
+          : `다음 확인이 지연되고 있습니다. 마지막 확인 ${asOfLabel(asOf, false)}.`,
     };
   }
 

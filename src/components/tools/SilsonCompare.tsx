@@ -214,7 +214,7 @@ export default function SilsonCompare({ compact = false }: { compact?: boolean }
           <ul className="mt-2 space-y-1.5 text-[12px] leading-relaxed text-ink-soft">
             <li>· 5세대 전환은 별도 심사 없이 가능하지만, 보장 확대·재전환은 심사 대상입니다.</li>
             <li>· 전환 후 3개월은 조건 없이, 3~6개월은 보험사고가 없을 때만 청약철회할 수 있습니다. 철회하면 50% 할인은 재적용되지 않습니다.</li>
-            <li>· 계약전환 할인은 2026년 11월부터 6개월간 시행 후 연장 여부를 검토합니다.</li>
+            <li>· 전환 신청은 2026년 11월 23일부터 6개월간(2027년 5월 22일까지) 받으며, 전환 후 5세대 보험료를 3년간 50% 할인합니다.</li>
           </ul>
         </div>
       )}

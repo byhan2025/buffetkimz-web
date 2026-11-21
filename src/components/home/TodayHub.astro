@@ -14,9 +14,14 @@
  * 화면이 '정상'에 머문다. 그래서 판정에 필요한 값(asOf·nextCheckAt·staleDays·status·lastGoodAsOf)을
  * data-* 속성으로 심어 두고, 아래 스크립트가 페이지 로드 시 + 1분마다 같은 규칙(fresh.ts)으로
  * 배지·안내 문구를 갱신한다. JS가 없으면 빌드 시점 계산값이 그대로 보인다(점진적 향상).
+ *
+ * v5.9.2 — 자동 갱신이 아직 붙지 않았으므로(`scheduleConnected: false`) '하루 3회 갱신'·'다음 확인 19:00'을
+ * 쓰지 않는다. 기준 줄은 '2026. 11. 21. 14:00 수동 확인', 그 자리에 '정기 자동 갱신 연결 준비 중'을 둔다.
+ * 파이프라인이 실제로 돌면 update_today_hub.py가 이 값을 true로 바꾸고 '자동 확인' 문구가 켜진다.
+ * 390px 지표 스트립에는 오른쪽 24px 페이드로 가로 스와이프 가능함을 드러낸다.
  */
 import { withBase, site } from "@/config/site";
-import { today as hub, hubBasisLine } from "@/data/today";
+import { today as hub, hubBasisLine, hubNotice } from "@/data/today";
 import { asOfLabel, clockLabel, freshnessOf } from "@/lib/fresh";
 import { ddayOf, isUpcoming } from "@/lib/dday";
 
@@ -29,6 +34,7 @@ const fresh = freshnessOf(
     staleAfterDays: hub.staleAfterDays,
     status: hub.status ?? "ok",
     lastGoodAsOf: hub.lastGoodAsOf,
+    scheduleConnected: hub.scheduleConnected,
   },
   buildNow
 );
@@ -38,7 +44,10 @@ const ai = hub.ai && hub.ai.label && hub.ai.asOfLabel && hub.ai.sourceUrl ? hub.
 
 const items = hub.items.slice(0, 3).map((item) => ({
   ...item,
-  fresh: freshnessOf({ ...item, staleAfterDays: hub.staleAfterDays }, buildNow),
+  fresh: freshnessOf(
+    { ...item, staleAfterDays: hub.staleAfterDays, scheduleConnected: hub.scheduleConnected },
+    buildNow
+  ),
   dday: item.dueDate ? ddayOf(item.dueDate, site.today) : undefined,
 }));
 
@@ -64,6 +73,7 @@ const ddayClass: Record<string, string> = {
   data-stale-days={String(hub.staleAfterDays)}
   data-status={hub.status ?? "ok"}
   data-last-good-as-of={hub.lastGoodAsOf ?? ""}
+  data-schedule-connected={String(hub.scheduleConnected)}
   aria-labelledby="hub-title"
   id="today"
 >
@@ -75,8 +85,19 @@ const ddayClass: Record<string, string> = {
       </div>
       <div class="hub-head-side">
         <p class="hub-basis mono" data-hub-basis>{hubBasisLine(hub)}</p>
-        {/* 두 줄을 모두 두고 숨김만 바꾼다 — 브라우저 스크립트가 상태에 따라 하나만 보이게 한다 */}
-        <p class="hub-next mono" data-hub-next hidden={fresh.state !== "ok"}>다음 확인 {clockLabel(hub.nextCheckAt)}</p>
+        {/*
+          자동 갱신 연결 전에는 '다음 확인 19:00'을 그리지 않는다(없는 약속을 만들지 않는다).
+          그 자리에 준비 중임을 한 줄로 밝힌다. 연결 뒤에는 두 줄을 모두 두고 숨김만 바꾼다.
+        */}
+        {hub.scheduleConnected ? (
+          <p class="hub-next mono" data-hub-next hidden={fresh.state !== "ok"}>
+            다음 확인 {clockLabel(hub.nextCheckAt)}
+          </p>
+        ) : (
+          <p class="hub-next mono" data-hub-schedule-note>
+            정기 자동 갱신 연결 준비 중
+          </p>
+        )}
         <p
           class={`hub-fresh hub-fresh--${fresh.state}`}
           role="status"
@@ -91,7 +112,9 @@ const ddayClass: Record<string, string> = {
 
     {/* ② 지표 스트립 — 지표마다 기준 시각·출처가 다르다 */}
     <div class="mt-4" data-indicator-strip>
-      <ul class="ind-strip no-scrollbar" aria-label="오늘의 지표">
+      {/* 390px에서는 오른쪽 페이드가 '옆으로 더 있다'를 알린다(.ind-strip-wrap::after) */}
+      <div class="ind-strip-wrap" data-strip-wrap>
+        <ul class="ind-strip no-scrollbar" aria-label="오늘의 지표">
         {
           hub.indicators.map((ind) => (
             <li>
@@ -116,8 +139,9 @@ const ddayClass: Record<string, string> = {
               </a>
             </li>
           ))
-        }
-      </ul>
+          }
+        </ul>
+      </div>
       <p class="mt-1.5 text-[11.5px] leading-[1.6] text-ink-faint">{hub.stripNote}</p>
     </div>
 
@@ -247,7 +271,7 @@ const ddayClass: Record<string, string> = {
       </a>
     </div>
 
-    <p class="hub-notice">{hub.notice}</p>
+    <p class="hub-notice" data-hub-notice>{hubNotice(hub)}</p>
   </div>
 </section>
 
@@ -273,6 +297,22 @@ const ddayClass: Record<string, string> = {
       chip.addEventListener("focus", () => {
         if (chip.matches(":focus-visible")) chip.scrollIntoView({ block: "nearest", inline: "nearest" });
       });
+    }
+
+    /*
+     * 390 가로 스와이프 힌트(v5.9.2) — 끝까지 밀면 오른쪽 페이드를 끈다.
+     * 페이드가 마지막 칩의 기준 시각·출처 위에 남아 글자를 가리는 일을 막는다.
+     */
+    const wrap = section.querySelector<HTMLElement>("[data-strip-wrap]");
+    const strip = wrap?.querySelector<HTMLElement>(".ind-strip");
+    if (wrap && strip) {
+      const syncFade = () => {
+        const atEnd = strip.scrollLeft + strip.clientWidth >= strip.scrollWidth - 2;
+        wrap.classList.toggle("is-at-end", atEnd);
+      };
+      syncFade();
+      strip.addEventListener("scroll", syncFade, { passive: true });
+      window.addEventListener("resize", syncFade);
     }
   }
 </script>

@@ -11,6 +11,9 @@
           화면은 직전 정상값을 그대로 보여 주면서 '갱신 실패'라고 말한다(빈 카드 금지).
   · 쓰기 전에 후보 파일을 Node로 실제로 import 해 값이 맞는지 확인하고, `--build` 면 `npm run build`까지
     통과해야 원본을 바꾼다. 하나라도 실패하면 원본은 **한 바이트도 바뀌지 않는다**.
+  · v5.9.2 — 이 스크립트가 실제로 돈 회차(성공·실패 모두)는 파이프라인이 붙은 것이므로
+    `scheduleConnected: true`로 바꾼다. 그때부터 화면은 '자동 확인'을 말한다.
+    (값을 손으로 고칠 때는 이 스크립트를 거치므로, 파일에 false가 남아 있으면 아직 자동화가 없다는 뜻이다.)
 
 사용
   python3 scripts/update_today_hub.py --input payload.json            # 갱신 + import 검증
@@ -72,6 +75,8 @@ HEADER_RE = re.compile(
     r"(?:  lastGoodAsOf: \"[^\"]*\",\n)?"
     r"  staleAfterDays: (\d+),\n"
 )
+# 파이프라인 연결 스위치 (v5.9.2) — 이 스크립트가 돈 회차는 true로 바뀐다
+SCHEDULE_CONNECTED_RE = re.compile(r"\n  scheduleConnected: (true|false),\n")
 AS_OF_LINE_RE = re.compile(r'const AS_OF = "[^"]*";')
 NEXT_CHECK_LINE_RE = re.compile(r'const NEXT_CHECK = "[^"]*";')
 
@@ -236,6 +241,9 @@ def snapshot(text: str) -> dict:
         raise UpdateError("today.ts에서 AS_OF / NEXT_CHECK 상수를 찾지 못했습니다")
     if not HEADER_RE.search(text):
         raise UpdateError("today.ts의 today 객체 머리(asOf·updatedAt·nextCheckAt·staleAfterDays)를 찾지 못했습니다")
+    schedule = SCHEDULE_CONNECTED_RE.search(text)
+    if not schedule:
+        raise UpdateError("today.ts에 scheduleConnected 필드가 없습니다 — v5.9.2 스키마를 확인하세요")
 
     indicator_ids = re.findall(r'\n      id: "([a-z0-9\-_]+)",', text)
     # indicators·items 블록을 각각 잘라 id를 모은다(같은 정규식이 두 번 걸리므로 구간으로 나눈다)
@@ -259,6 +267,7 @@ def snapshot(text: str) -> dict:
     return {
         "asOf": as_of.group(0).split('"')[1],
         "nextCheckAt": next_check.group(0).split('"')[1],
+        "scheduleConnected": schedule.group(1) == "true",
         "indicator_ids": indicator_ids,
         "item_ids": item_ids,
         "item_as_of": item_as_of,
@@ -350,6 +359,8 @@ def update_text(text: str, payload: dict) -> tuple[str, dict]:
             new_block = replace_field(block, "status", "failed")
             new_block = insert_after_field(new_block, "status", "lastGoodAsOf", last_good)
             out = out.replace(block, new_block, 1)
+        # 실패 회차도 파이프라인이 실제로 돈 것이다 — '자동 갱신이 붙었다'는 사실은 바뀌지 않는다
+        out = SCHEDULE_CONNECTED_RE.sub("\n  scheduleConnected: true,\n", out, count=1)
         return out, plan
 
     # 성공 회차 — 기준 시각부터
@@ -428,6 +439,8 @@ def update_text(text: str, payload: dict) -> tuple[str, dict]:
         )
         out = out[:start] + new_ai + out[tail_end:]
 
+    # 성공 회차: 파이프라인 연결 스위치를 켠다('수동 확인' → '자동 확인')
+    out = SCHEDULE_CONNECTED_RE.sub("\n  scheduleConnected: true,\n", out, count=1)
     return out, plan
 
 
@@ -459,6 +472,7 @@ def verify_import(candidate: pathlib.Path, plan: dict) -> None:
     probe.write_text(
         "import { today } from " + json.dumps(candidate.as_uri()) + ";\n"
         "console.log(JSON.stringify({asOf: today.asOf, nextCheckAt: today.nextCheckAt, status: today.status ?? 'ok',"
+        " scheduleConnected: today.scheduleConnected,"
         " indicators: today.indicators.map((i) => [i.id, i.value]), items: today.items.map((i) => [i.id, i.status])}));\n",
         encoding="utf-8",
     )
@@ -468,6 +482,10 @@ def verify_import(candidate: pathlib.Path, plan: dict) -> None:
     data = json.loads(run.stdout.strip().splitlines()[-1])
     if data["asOf"] != plan["asOf"] or data["nextCheckAt"] != plan["nextCheckAt"]:
         raise UpdateError(f"기준 시각이 반영되지 않았습니다: {data['asOf']} / {data['nextCheckAt']}")
+    if data.get("scheduleConnected") is not True:
+        raise UpdateError(
+            "scheduleConnected가 true로 바뀌지 않았습니다 — 파이프라인이 붙었는데 화면은 '수동 확인'에 머뭅니다"
+        )
     if plan["status"] == "ok":
         for row in plan["indicators"]:
             got = dict(data["indicators"]).get(row["id"])

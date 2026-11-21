@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""v5.9 오늘 확인 허브 — 빌드 산출물 전수 검증 (v5.9.1 판).
+"""v5.9 오늘 확인 허브 — 빌드 산출물 전수 검증 (v5.9.2 판).
 
 경로는 이 파일 위치 기준 상대경로다 — 압축을 풀어 다른 폴더에 놓아도 그대로 재실행된다.
   APP  = <repo>/apps/buffetkimz-web        (이 파일의 부모의 부모)
   DIST = APP/dist                          (npm run build 결과)
-  OUT  = <repo>/reports/buffetkimz-web/v591-hub
+  OUT  = <repo>/reports/buffetkimz-web/v592-hub
 
 검사 항목 (실패하면 exit 1, JSON 요약은 OUT/verify-v59.json)
   1) 빌드 페이지 수·링크/이미지 무결 (audit_dist_links 결과)
@@ -19,6 +19,8 @@
  10) 실측(캡처 노트) — 1280·390 넘침, 칩 높이
  11) v5.9.1 — data-* 속성·클라이언트 재계산 스크립트·런타임 전환·390 키보드 포커스·잘림 0
      · 실손 청약철회 3단계 조건 · 원/달러 라벨=링크 · '초기 실손' 용어 정리 · 제도달력 1차 출처
+ 12) v5.9.2 — 실손 옛 문구('6개월간 시행'·'연장 여부') 0건 + 공식 기준 문장 반영,
+     '수동 확인' 모드(자동 갱신 약속 없음) · 390 스와이프 힌트 24px 페이드 · 원/달러 근거 스냅샷 동봉
 """
 from __future__ import annotations
 
@@ -34,7 +36,8 @@ import tempfile
 APP = pathlib.Path(__file__).resolve().parent.parent
 DIST = APP / "dist"
 REPO = APP.parent.parent
-OUT = REPO / "reports" / "buffetkimz-web" / "v591-hub"
+OUT = REPO / "reports" / "buffetkimz-web" / "v592-hub"
+SRC = APP / "src"
 NODE = shutil.which("node") or "/workspace/.local/node-v22/bin/node"
 
 results: list[dict] = []
@@ -96,10 +99,32 @@ def main() -> int:
 
     basis = re.search(r"data-hub-basis>(.*?)</p>", hub)
     basis_text = basis.group(1) if basis else ""
+    # v5.9.2 — 자동 갱신이 아직 붙지 않았으므로 '하루 3회 갱신'이 아니라 '수동 확인'만 말한다
     check(
-        "기준 시각 24시간제 + 하루 3회 표기",
-        basis_text == "2026. 11. 21. 14:00 기준 · 하루 3회(06:00·08:20·19:00) 갱신",
+        "기준 시각 24시간제 + '수동 확인' 표기",
+        basis_text == "2026. 11. 21. 14:00 수동 확인",
         basis_text,
+    )
+    check(
+        "수동 확인 모드 — '하루 3회'·'다음 확인 19:00' 자동 갱신 약속 없음",
+        "하루 3회" not in hub and "다음 확인" not in hub,
+        f"하루3회={hub.count('하루 3회')} 다음확인={hub.count('다음 확인')}",
+    )
+    check(
+        "수동 확인 모드 — 헤더에 '정기 자동 갱신 연결 준비 중'",
+        'data-hub-schedule-note' in hub and hub.count("정기 자동 갱신 연결 준비 중") >= 1,
+    )
+    notice_m = re.search(r"data-hub-notice>([^<]*)</p>", hub)
+    notice_text = notice_m.group(1).strip() if notice_m else ""
+    check(
+        "수동 확인 모드 — 하단 고지도 '수동 확인 값'임을 밝탐",
+        "2026. 11. 21. 14:00 수동 확인 값이고, 정기 자동 갱신 연결 준비 중입니다" in notice_text
+        and "아직 정기 자동 갱신에 연결되지 않았습니다" in notice_text,
+        notice_text[:160],
+    )
+    check(
+        "수동 확인 모드 — 허브 섹션 data-schedule-connected=false",
+        'data-schedule-connected="false"' in hub,
     )
 
     chips = re.findall(r'data-indicator="([a-z0-9]+)"', hub)
@@ -232,6 +257,8 @@ const out = {{
   ok: freshnessOf({{ asOf: '2026-11-21T14:00:00+09:00', nextCheckAt: '2026-11-21T19:00:00+09:00' }}, now).state,
   delayed: freshnessOf({{ asOf: '2026-11-21T14:00:00+09:00', nextCheckAt: '2026-11-21T13:00:00+09:00' }}, now).state,
   delayedDetail: freshnessOf({{ asOf: '2026-11-21T14:00:00+09:00', nextCheckAt: '2026-11-21T13:00:00+09:00' }}, now).detail,
+  delayedManualDetail: freshnessOf({{ asOf: '2026-11-21T14:00:00+09:00', nextCheckAt: '2026-11-21T13:00:00+09:00', scheduleConnected: false }}, now).detail,
+  delayedAutoLabel: freshnessOf({{ asOf: '2026-11-21T14:00:00+09:00', nextCheckAt: '2026-11-21T13:00:00+09:00', scheduleConnected: true }}, now).detail,
   stale: freshnessOf({{ asOf: '2026-11-17T06:00:00+09:00', nextCheckAt: '2026-11-17T19:00:00+09:00' }}, now).state,
   failed: freshnessOf({{ asOf: '2026-11-21T19:00:00+09:00', status: 'failed', lastGoodAsOf: '2026-11-21T06:00:00+09:00', nextCheckAt: '2026-11-21T19:00:00+09:00' }}, now).state,
   failedDetail: freshnessOf({{ asOf: '2026-11-21T19:00:00+09:00', status: 'failed', lastGoodAsOf: '2026-11-21T06:00:00+09:00', nextCheckAt: '2026-11-21T19:00:00+09:00' }}, now).detail,
@@ -260,6 +287,8 @@ console.log(JSON.stringify(out));
         and u.get("failed") == "failed"
         and "갱신에 실패해" in (u.get("failedDetail") or "")
         and "마지막 확인" in (u.get("delayedDetail") or "")
+        and "정기 자동 갱신이 아직 연결되지 않았습니다" in (u.get("delayedManualDetail") or "")
+        and "다음 확인이 지연되고 있습니다" in (u.get("delayedAutoLabel") or "")
         and u.get("customStale") == "stale",
         json.dumps({k: u.get(k) for k in ("ok", "delayed", "stale", "failed")}, ensure_ascii=False),
     )
@@ -353,8 +382,8 @@ console.log(JSON.stringify(out));
         "freshnessOf 번들 확인",
     )
     check(
-        "정상일 때는 '다음 확인' + 숨은 배지, 지연 시 배지로 교체",
-        "data-hub-next" in hub and "data-fresh-badge" in hub and "hidden" in hub,
+        "수동 확인 모드 — '다음 확인' 대신 준비 중 한 줄 + 숨은 배지",
+        "data-hub-next" not in hub and "data-fresh-badge" in hub and "hidden" in hub,
     )
 
     # 11) v5.9.1 — 실측(런타임 전환·390 포커스·잘림)
@@ -373,7 +402,10 @@ console.log(JSON.stringify(out));
             delayed.get("badgeHidden") is False
             and delayed.get("badgeLabel") == "확인 지연"
             and "마지막 확인 11. 21. 14:00" in (delayed.get("badgeDetail") or "")
-            and delayed.get("nextHidden") is True,
+            and "정기 자동 갱신이 아직 연결되지 않았습니다" in (delayed.get("badgeDetail") or "")
+            and delayed.get("nextHidden") in (None, True)
+            and delayed.get("basisText") == "2026. 11. 21. 14:00 수동 확인"
+            and delayed.get("scheduleNote") == "정기 자동 갱신 연결 준비 중",
             json.dumps(delayed, ensure_ascii=False)[:300],
         )
         check(
@@ -462,9 +494,113 @@ console.log(JSON.stringify(out));
         "보험개발원 참조순보험료율" in cal and "e-insmarket.or.kr" in cal and "보험업계 발표" not in cal,
     )
 
+    # 13) v5.9.2 — 실손 신청 기간 문구 교정 (옛 표현 전수 0건)
+    OLD_PHRASES = ("6개월간 시행", "연장 여부", "6개월 뒤 연장", "6개월이 지난 뒤 연장")
+    stale_src: dict[str, list[str]] = {w: [] for w in OLD_PHRASES}
+    for f in SRC.rglob("*"):
+        if f.suffix not in {".md", ".ts", ".tsx", ".astro", ".css", ".json"} or not f.is_file():
+            continue
+        t = f.read_text(encoding="utf-8", errors="ignore")
+        for w in OLD_PHRASES:
+            if w in t:
+                stale_src[w].append(str(f.relative_to(APP)))
+    check(
+        "실손 옛 문구 src 0건('6개월간 시행'·'연장 여부')",
+        not any(stale_src.values()),
+        json.dumps({k: v for k, v in stale_src.items() if v}, ensure_ascii=False),
+    )
+
+    stale_build: dict[str, list[str]] = {}
+    for f in pages + list((DIST / "_astro").glob("*.js")):
+        t = f.read_text(encoding="utf-8", errors="ignore")
+        for w in OLD_PHRASES:
+            if w in t:
+                stale_build.setdefault(w, []).append(f.name)
+    check("빌드 산출물(HTML·JS)에도 옛 문구 0건", not stale_build, json.dumps(stale_build, ensure_ascii=False))
+
+    silson_post = html("posts/insurance-silson-5th/index.html")
+    check(
+        "실손 5세대 글 — 공식 신청 기간·3년 50% 할인으로 교정",
+        "2026년 11월 23일부터 2027년 5월 22일까지 6개월간 받으며" in silson_post
+        and "새로 산출된 5세대 보험료를 3년간 50% 할인합니다" in silson_post,
+    )
+    check(
+        "실손 전환 글 — 원문에 없는 '연장 검토' 삭제, 신청 기간·할인 3년 명시",
+        "2026년 11월 23일부터 2027년 5월 22일까지 6개월간 받습니다" in silson_detail
+        and "5세대 보험료를 3년간 50% 할인합니다" in silson_detail,
+    )
+    tool_text = " ".join(
+        p.read_text(encoding="utf-8", errors="ignore")
+        for p in [DIST / "apps" / "silson-compare" / "run" / "index.html"] + list((DIST / "_astro").glob("*.js"))
+    )
+    check(
+        "실손 비교 도구 — 전환 신청 기간·3년 50% 문구",
+        "6개월간(2027년 5월 22일까지) 받으며" in tool_text and "3년간 50% 할인합니다" in tool_text,
+    )
+
+    # 14) v5.9.2 — 390 스와이프 힌트 실측
+    if notes_path.exists():
+        notes = json.loads(notes_path.read_text())
+        fade = notes.get("fade390") or {}
+        f0 = fade.get("start") or {}
+        fd = f0.get("fade") or {}
+        fend = fade.get("end") or {}
+        check(
+            "390 스와이프 힌트 — 오른쪽 24px 페이드 · pointer-events none",
+            fd.get("width") == "24px"
+            and fd.get("pointerEvents") == "none"
+            and "gradient" in (fd.get("backgroundImage") or "")
+            and float(fd.get("opacity") or 0) >= 0.99,
+            json.dumps(fd, ensure_ascii=False)[:220],
+        )
+        check(
+            "390 스와이프 힌트 — 스트립이 실제로 가로 스크롤됨",
+            f0.get("overflows") is True,
+            f"{f0.get('clientWidth')}/{f0.get('scrollWidth')}",
+        )
+        check(
+            "390 스와이프 힌트 — 끝까지 밀면 페이드 꺼짐(is-at-end · opacity 0)",
+            fend.get("atEndClass") is True and float(fend.get("fadeOpacity") or 1) == 0,
+            json.dumps({k: fend.get(k) for k in ("scrollLeft", "atEndClass", "fadeOpacity")}, ensure_ascii=False),
+        )
+        check(
+            "390 마지막 칩 메타가 페이드 없이 화면 안",
+            bool(fend.get("lastMeta")) and fend["lastMeta"].get("inViewport") is True,
+            json.dumps(fend.get("lastMeta"), ensure_ascii=False)[:200],
+        )
+        check("390 스와이프 힌트 캡처 03b 저장", (OUT / "03b-home-strip-hint-390.png").exists())
+        h390 = (notes.get("pages") or {}).get("home-390", {})
+        check(
+            "390 홈 계측 — 수동 확인 문구(기준 줄·준비 중)·'다음 확인' 없음",
+            h390.get("scheduleConnected") == "false"
+            and h390.get("hubBasis") == "2026. 11. 21. 14:00 수동 확인"
+            and h390.get("scheduleNote") == "정기 자동 갱신 연결 준비 중"
+            and h390.get("nextCheck") is None,
+            json.dumps({k: h390.get(k) for k in ("scheduleConnected", "hubBasis", "scheduleNote", "nextCheck")}, ensure_ascii=False)[:240],
+        )
+        h1280 = (notes.get("pages") or {}).get("home-1280", {})
+        check(
+            "1280에서는 스와이프 페이드 없음(모바일 전용)",
+            ((h1280.get("fade") or {}).get("width") != "24px"),
+            json.dumps((h1280.get("fade") or {}), ensure_ascii=False)[:160],
+        )
+
+    # 15) v5.9.2 — 원/달러 네이버 금융 원문 근거
+    ev = OUT / "usd-krw-evidence.txt"
+    ev_text = ev.read_text(encoding="utf-8", errors="ignore") if ev.exists() else ""
+    check(
+        "원/달러 근거 스냅샷 동봉(1,346.50 · 06:28 · 네이버 원문 URL)",
+        ev.exists() and "1,346.50" in ev_text and "06:28" in ev_text and "api.stock.naver.com" in ev_text,
+        f"{ev.stat().st_size} bytes" if ev.exists() else "missing",
+    )
+    check(
+        "원/달러 칩 값·기준 시각·직전 고시가 근거와 일치",
+        "1,346.50" in hub and "06:28 고시" in hub and "1,335.50" in hub,
+    )
+
     failed = [r for r in results if not r["ok"]]
     summary = {
-        "version": "5.9.1",
+        "version": "5.9.2",
         "checks": len(results),
         "passed": len(results) - len(failed),
         "failed": len(failed),

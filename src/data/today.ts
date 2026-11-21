@@ -104,7 +104,15 @@ export type TodayData = {
   lastGoodAsOf?: string;
   /** 이 일수를 넘기면 '지난 정보' 라벨 (3일) */
   staleAfterDays: number;
-  /** 갱신 주기 — 화면에 그대로 쓴다 */
+  /**
+   * 정기 자동 갱신 파이프라인 연결 여부 (v5.9.2).
+   *
+   * false면 화면은 '수동 확인'이라고만 말한다 — 아직 06:00·08:20·19:00 자동 갱신이 붙지 않았는데
+   * '하루 3회 갱신'을 약속하면 그 순간 거짓말이 된다. `scripts/update_today_hub.py`가 실제 실행되면
+   * 이 값을 true로 바꾸고, 그때부터 '자동 확인' 문구가 켜진다.
+   */
+  scheduleConnected: boolean;
+  /** 갱신 주기 — 자동 갱신이 연결됐을 때만 화면에 쓴다 */
   cadence: string;
   highlights: Highlight[];
   /** 등락률 분모 등, 스트립 아래 한 줄 */
@@ -114,8 +122,6 @@ export type TodayData = {
   ai: AiSummary | null;
   /** 대표 도구 — 홈 허브에서 도구로 가는 유일한 큰 버튼 */
   tool: { label: string; cta: string; href: string; note: string };
-  /** 허브 아래 고지 — 하루 3회 갱신을 사이트가 직접 말한다 */
-  notice: string;
 };
 
 const AS_OF = "2026-11-21T14:00:00+09:00";
@@ -130,7 +136,8 @@ export const today: TodayData = {
   nextCheckAt: NEXT_CHECK,
   status: "ok",
   staleAfterDays: 3,
-  cadence: "하루 3회(06:00·08:20·19:00) 갱신",
+  scheduleConnected: false,
+  cadence: "하루 3회(06:00·08:20·19:00) 자동 확인",
   stripNote: `등락률은 ${CHANGE_BASIS}입니다. 지표마다 마지막 기준 시각이 다르고, 지표는 참고용이며 투자 권유가 아닙니다.`,
 
   highlights: [
@@ -300,13 +307,11 @@ export const today: TodayData = {
     href: "/apps/pension-tax/run",
     note: "남은 한도와 예상 환급액을 브라우저에서 계산합니다 · 소득세법 제59조의3 기준",
   },
-
-  notice: `이 사이트의 금융 정보는 ${"하루 3번(06:00 · 08:20 · 19:00)"} 확인해 갱신합니다. 카드마다 마지막 확인 시각을 함께 표시합니다.`,
 };
 
-/** 화면 상단 한 줄 — '2026. 11. 21. 14:00 기준 · 하루 3회(06:00·08:20·19:00) 갱신' */
-export function hubBasisLine(data: TodayData = today): string {
-  const d = new Date(data.asOf);
+/** '2026. 11. 21. 14:00' — 화면에 쓰는 기준 시각 표기 (24시간제) */
+export function hubStamp(value: string | Date = today.asOf): string {
+  const d = value instanceof Date ? value : new Date(value);
   const ymd = new Intl.DateTimeFormat("ko-KR", {
     timeZone: "Asia/Seoul",
     year: "numeric",
@@ -324,5 +329,30 @@ export function hubBasisLine(data: TodayData = today): string {
   })
     .format(d)
     .replace(/^24/, "00");
-  return `${ymd}. ${hhmm} 기준 · ${data.cadence}`;
+  return `${ymd}. ${hhmm}`;
+}
+
+/**
+ * 허브 아래 고지 — 자동 갱신이 연결됐는지에 따라 말이 달라진다 (v5.9.2).
+ *
+ * 연결 전에는 '수동 확인'임을 숨기지 않는다. 연결 뒤에는 하루 3회 자동 확인을 그대로 말한다.
+ */
+export function hubNotice(data: Pick<TodayData, "asOf" | "scheduleConnected"> = today): string {
+  if (!data.scheduleConnected) {
+    return `이 사이트의 금융 정보는 아직 정기 자동 갱신에 연결되지 않았습니다. ${hubStamp(
+      data.asOf
+    )} 수동 확인 값이고, 정기 자동 갱신 연결 준비 중입니다. 카드마다 마지막 확인 시각을 함께 표시합니다.`;
+  }
+  return "이 사이트의 금융 정보는 하루 3번(06:00 · 08:20 · 19:00) 자동으로 확인해 갱신합니다. 카드마다 마지막 확인 시각을 함께 표시합니다.";
+}
+
+/**
+ * 화면 상단 한 줄 (v5.9.2)
+ *   연결 전 — '2026. 11. 21. 14:00 수동 확인'
+ *   연결 뒤 — '2026. 11. 21. 14:00 기준 · 하루 3회(06:00·08:20·19:00) 자동 확인'
+ */
+export function hubBasisLine(data: TodayData = today): string {
+  const stamp = hubStamp(data.asOf);
+  if (!data.scheduleConnected) return `${stamp} 수동 확인`;
+  return `${stamp} 기준 · ${data.cadence}`;
 }

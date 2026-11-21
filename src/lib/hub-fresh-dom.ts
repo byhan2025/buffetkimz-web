@@ -13,6 +13,7 @@
  *   data-stale-days       '지난 정보' 기준 일수
  *   data-status           'ok' | 'failed'
  *   data-last-good-as-of  실패 시 마지막 정상 기준 시각 (ISO, 없으면 빈 문자열)
+ *   data-schedule-connected  자동 갱신 연결 여부(v5.9.2) — false면 지연 문구가 '아직 연결되지 않았다'로 바뀐다
  *
  * 쓰는 곳
  *   [data-fresh]         현재 상태 (ok / delayed / stale / failed)
@@ -32,12 +33,15 @@ function ownsBadge(el: Element, root: HTMLElement): boolean {
 export function freshnessInputOf(el: HTMLElement): FreshInput {
   const d = el.dataset;
   const stale = d.staleDays ? Number(d.staleDays) : undefined;
+  // 카드는 허브 섹션의 연결 상태를 물려받는다(카드 li에는 속성을 따로 심지 않는다)
+  const schedule = d.scheduleConnected ?? el.closest<HTMLElement>("[data-schedule-connected]")?.dataset.scheduleConnected;
   return {
     asOf: d.asOf ?? "",
     nextCheckAt: d.nextCheckAt || undefined,
     staleAfterDays: Number.isFinite(stale) ? stale : undefined,
     status: d.status === "failed" ? "failed" : "ok",
     lastGoodAsOf: d.lastGoodAsOf || undefined,
+    scheduleConnected: schedule === "false" ? false : undefined,
   };
 }
 
@@ -60,8 +64,17 @@ export function applyFreshness(el: HTMLElement, now: Date = new Date()): FreshSt
     badge.hidden = fresh.state === "ok";
   }
 
+  /*
+   * '다음 확인 19:00'은 자동 갱신이 연결됐을 때만 말한다(v5.9.2).
+   * 수동 확인 모드(data-schedule-connected="false")에서는 이 줄 자체를 그리지 않는다.
+   */
+  const connected = el.dataset.scheduleConnected !== "false";
   for (const next of el.querySelectorAll<HTMLElement>("[data-hub-next]")) {
     if (!ownsBadge(next, el)) continue;
+    if (!connected) {
+      next.hidden = true;
+      continue;
+    }
     if (input.nextCheckAt) next.textContent = `다음 확인 ${clockLabel(input.nextCheckAt)}`;
     next.hidden = fresh.state !== "ok";
   }
