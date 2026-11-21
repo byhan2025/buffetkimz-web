@@ -286,9 +286,11 @@ with sync_playwright() as p:
     # 캡처 — 1편 상세 하단
     pg.goto(url("/posts/pension-master-01-four-accounts/"), wait_until="networkidle")
     pg.wait_for_timeout(500)
-    pg.evaluate("() => document.querySelector('[data-series-next]')?.scrollIntoView({block:'center'})")
-    pg.wait_for_timeout(300)
-    pg.screenshot(path=str(OUT / "series-next-1280.png"))
+    el = pg.query_selector("[data-series-next]")
+    if el:
+        el.scroll_into_view_if_needed()
+        pg.wait_for_timeout(300)
+        el.screenshot(path=str(OUT / "series-next-1280.png"))
     ctx.close()
 
     # 마지막 편은 '1편부터 다시' 링크
@@ -297,9 +299,11 @@ with sync_playwright() as p:
     pg.wait_for_timeout(600)
     last = pg.inner_text("[data-series-next]")
     check("E4 마지막 편 = 1편부터 다시 읽기", "1편부터" in last, last.split("\n")[0])
-    pg.evaluate("() => document.querySelector('[data-series-next]')?.scrollIntoView({block:'center'})")
-    pg.wait_for_timeout(300)
-    pg.screenshot(path=str(OUT / "series-next-390.png"))
+    el = pg.query_selector("[data-series-next]")
+    if el:
+        el.scroll_into_view_if_needed()
+        pg.wait_for_timeout(300)
+        el.screenshot(path=str(OUT / "series-next-390.png"))
     ctx.close()
 
     # ---------------------------------------------------------------- E5 대출 거치 단위
