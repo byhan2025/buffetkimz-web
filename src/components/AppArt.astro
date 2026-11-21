@@ -5,7 +5,17 @@
 import { RETIREMENT_EXAMPLE, COMPOUND_EXAMPLE, compoundProjection, retirementProjection } from "@/lib/finance";
 
 interface Props {
-  art: "guide" | "coverage" | "disclosure" | "silson" | "pension" | "pension-draw" | "retirement" | "compound" | "timemachine";
+  art:
+    | "guide"
+    | "coverage"
+    | "disclosure"
+    | "silson"
+    | "pension"
+    | "pension-draw"
+    | "retirement"
+    | "compound"
+    | "accounts"
+    | "timemachine";
   compact?: boolean;
 }
 const { art, compact = false } = Astro.props;
@@ -236,6 +246,35 @@ const tmOutcomes = [
         <p class="mt-4 text-[12px] leading-relaxed text-ink-faint">
           월 50만·20년·연 5.0% 가정 · 세금 {man(compound.tax)}만 제외
         </p>
+      </div>
+    )
+  }
+
+  {
+    art === "accounts" && (
+      /* v7.1 4대 계좌 비교 — 같은 5,000만원 수익에서 세후로 남는 몫을 네 칸으로. */
+      <div class="relative">
+        <p class="text-[12px] font-semibold tracking-[0.01em] text-ink-faint">같은 수익, 다른 세후</p>
+        <div class="mt-4 flex items-end gap-2.5">
+          {[
+            { label: "일반", h: 72, v: "4,230" },
+            { label: "ISA", h: 78, v: "4,525" },
+            { label: "연금", h: 84, v: "4,725" },
+            { label: "IRP", h: 84, v: "4,725" },
+          ].map((c, i) => (
+            <div class="flex-1">
+              <div class="flex h-[88px] w-full items-end bg-line-soft">
+                <div
+                  class={`w-full ${i >= 2 ? "bg-brand" : "bg-brand/55"}`}
+                  style={`height:${c.h}%`}
+                />
+              </div>
+              <p class="mt-1.5 text-center text-[11.5px] font-semibold text-ink-soft">{c.label}</p>
+              <p class="text-center text-[11px] tabular-nums text-ink-faint">{c.v}</p>
+            </div>
+          ))}
+        </div>
+        <p class="mt-3 text-[12px] text-ink-faint">단위 만원 · 5,000만원 수익 · 연금 수령 가정</p>
       </div>
     )
   }

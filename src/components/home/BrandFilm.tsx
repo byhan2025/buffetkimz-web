@@ -26,12 +26,13 @@ const SCENES = [
   { id: 6, start: 10.2, end: 12.0, label: "다음 장면", short: "다음 장면", en: "NEXT" },
 ] as const;
 
+/** v7.1 — 필름 안의 영문 라벨을 걷어냈다. 다섯 축은 한글로만 읽힌다. */
 const WORDS = [
-  { en: "FINANCE", kr: "금융", line: "돈이 도는 구조를 먼저 봅니다" },
-  { en: "INVEST", kr: "투자", line: "얼마를 버는가보다, 얼마나 버티는가" },
-  { en: "PENSION", kr: "연금", line: "받는 날의 시간표를 정하는 일" },
-  { en: "RETIRE", kr: "노후", line: "매달 나가는 고정비부터 확인합니다" },
-  { en: "INSURANCE", kr: "보험", line: "지급 조건과 고지 의무를 봅니다" },
+  { kr: "금융", line: "돈이 도는 구조를 먼저 봅니다" },
+  { kr: "투자", line: "얼마를 버는가보다, 얼마나 버티는가" },
+  { kr: "연금", line: "받는 날의 시간표를 정하는 일" },
+  { kr: "노후", line: "매달 나가는 고정비부터 확인합니다" },
+  { kr: "보험", line: "지급 조건과 고지 의무를 봅니다" },
 ];
 
 const SLOT = 0.46;
@@ -357,13 +358,11 @@ export default function BrandFilm({ appsHref = "/apps" }: { appsHref?: string })
           {/* Scene 2 — 1.5~3.8 다섯 키워드 0.46초 스왑 */}
           <div className="film-scene" data-scene="2" aria-hidden="true">
             <div className="fs2-wrap">
-              <p className="film-mono fs2-kicker">FIVE WORDS · 다섯 개의 단어</p>
+              <p className="film-mono fs2-kicker">다섯 개의 축</p>
               <div className="fs2-stack">
                 {WORDS.map((w, i) => (
                   <div className="fs2-word" data-fs2-word={i} key={w.kr}>
                     <span className="fs2-meta">
-                      <span className="fs2-en">{w.en}</span>
-                      <span className="fs2-sep" aria-hidden="true" />
                       <span className="fs2-no film-mono">{`${pad2(i + 1)} / 05`}</span>
                     </span>
                     <span className="fs2-kr">{w.kr}</span>
@@ -395,7 +394,7 @@ export default function BrandFilm({ appsHref = "/apps" }: { appsHref?: string })
             <div className="fs3-wrap">
               <div className="fs3-head">
                 <div>
-                  <p className="film-mono fs3-kicker">TIME · COMPOUND</p>
+                  <p className="film-mono fs3-kicker">시간과 복리</p>
                   <p className="fs3-title">시간이 만드는 차이</p>
                 </div>
                 <p className="fs3-note">
@@ -545,7 +544,7 @@ export default function BrandFilm({ appsHref = "/apps" }: { appsHref?: string })
           <div className="film-scene" data-scene="6" aria-hidden="true">
             <div className="fs6-wrap">
               <div>
-                <p className="film-mono fs6-kicker">NEXT · 다음 장면</p>
+                <p className="film-mono fs6-kicker">다음 장면</p>
                 <p className="fs6-title">버핏킴즈는 누구인가</p>
                 <p className="fs6-body">
                   숫자를 먼저 확인하는 사람,

@@ -10,18 +10,21 @@
  */
 import { apps, APP_CATEGORIES, type App, type AppCategoryId } from "./apps.ts";
 import { calendar } from "./calendar.ts";
+import { galleryCount, gallerySlideCount } from "./gallery.ts";
 
 export type StoreIcon =
   | "pension"
   | "pension-draw"
   | "retirement"
   | "compound"
+  | "accounts"
   | "coverage"
   | "disclosure"
   | "silson"
   | "guide"
   | "timemachine"
-  | "calendar";
+  | "calendar"
+  | "gallery";
 
 export type StoreItem = {
   id: string;
@@ -60,6 +63,7 @@ const artToIcon: Record<App["art"], StoreIcon> = {
   "pension-draw": "pension-draw",
   retirement: "retirement",
   compound: "compound",
+  accounts: "accounts",
   timemachine: "timemachine",
 };
 
@@ -68,6 +72,7 @@ const orderBySlug: Record<string, number> = {
   "pension-tax": 10,
   "retirement-flow": 20,
   "compound-return": 30,
+  "account-tax-compare": 35,
   "pension-draw": 40,
   "trade-timemachine": 50,
   "coverage-check": 10,
@@ -112,7 +117,24 @@ const calendarItem: StoreItem = {
   tags: ["금융캘린더", "연말정산", "연금 납입", "건보료", "실손 갱신"],
 };
 
-export const storeItems: StoreItem[] = [...fromApps, calendarItem].sort((a, b) => {
+/** 자료앨범 — 방문자 다운로드 전용. 관리자가 등록한 카드뉴스·캐러셀을 모아 둔 칸. */
+const galleryItem: StoreItem = {
+  id: "gallery",
+  name: "자료앨범",
+  tagline: "카드뉴스·인포그래픽 내려받기",
+  summary: `연금·금융 주제를 4:5 카드(${galleryCount}세트 ${gallerySlideCount}장)로 정리해 미리보기와 다운로드로 제공합니다. 페이지에서 바로 크게 보고, 한 장만 또는 세트 전체를 내려받습니다.`,
+  category: "utility",
+  href: "/gallery",
+  openHref: "/gallery",
+  status: "live",
+  icon: "gallery",
+  meta: `카드 ${galleryCount}세트 · ${gallerySlideCount}장 · 1080×1350`,
+  order: 20,
+  featured: false,
+  tags: ["자료앨범", "카드뉴스", "캐러셀", "인포그래픽", "체크리스트", "다운로드"],
+};
+
+export const storeItems: StoreItem[] = [...fromApps, calendarItem, galleryItem].sort((a, b) => {
   const ca = APP_CATEGORIES.findIndex((c) => c.id === a.category);
   const cb = APP_CATEGORIES.findIndex((c) => c.id === b.category);
   return ca === cb ? a.order - b.order : ca - cb;

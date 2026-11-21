@@ -195,6 +195,11 @@ const toolTrack: Record<string, ToolNext> = {
     name: "투자 복리·세후 수익률 계산기",
     why: "그 현금흐름을 만드는 적립 — 기간과 세금을 넣어 계산합니다",
   },
+  "account-tax-compare": {
+    href: "/apps/pension-draw",
+    name: "연금 인출·세금 시뮬레이터",
+    why: "네 계좌를 비교했다면, 꺼내는 해의 세금 — 1,500만원 기준을 이어서 봅니다",
+  },
   "compound-return": {
     href: "/calendar",
     name: "금융캘린더",

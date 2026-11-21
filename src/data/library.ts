@@ -130,30 +130,32 @@ export const librarySeries: LibrarySeries[] = [
 ];
 
 /**
- * v7.0 — 연금·퇴직 마스터 가이드 (편입 예정).
+ * v7.1 — 연금·퇴직 마스터 가이드 (6편).
  *
- * 43쪽 분량의 「사계정원 연금노트」를 6편으로 나눠 이 섹터에 넣는다.
- * 글 파일을 `src/content/posts/`에 추가하고 frontmatter에
- *   series: { name: "연금·퇴직 마스터 가이드", no: 1 }
- * 을 적은 뒤, 아래 postIds에 파일 이름을 넣으면 홈 아카이브·목록에 자동으로 붙는다.
- * (postIds가 비어 있는 동안에는 화면에 나오지 않는다.)
+ * 2026년 11월 세법을 기준으로 적립 → 운용 → 인출 3단계를 6편에 나눠 담았다.
+ * 43쪽 분량의 참고 노트를 그대로 옮기지 않고, 조문과 계산으로 다시 썼다.
+ * 글 파일은 `src/content/posts/pension-master-*.md`이고, frontmatter의
+ *   series: { name: "연금·퇴직 마스터 가이드", no: 1~6 }
+ * 이 이 배열의 순서와 짝을 이룬다(빌드 시 제목·기준일을 글에서 가져온다).
  */
 export const pensionMasterSeries: LibrarySeries = {
   id: "pension-master",
   no: "07",
   title: "연금·퇴직 마스터 가이드",
-  line: "넣는 시점부터 받는 시점까지, 연금의 전 과정을 한 섹터로.",
-  postIds: [],
-  plannedCount: 6,
-  planned: [
-    { no: 1, title: "연금의 구조 — 국민·퇴직·개인의 3층" },
-    { no: 2, title: "넣는 해 — 세액공제 한도와 공제율" },
-    { no: 3, title: "운용하는 해 — 수익률보다 배분" },
-    { no: 4, title: "받는 해 — 1,500만 원 경계와 과세 방식" },
-    { no: 5, title: "퇴직연금 — DB·DC·IRP의 선택" },
-    { no: 6, title: "건강보험·상속 — 연금 밖의 변수" },
+  line: "넣는 시점부터 받는 시점까지, 연금의 전 과정을 6편으로.",
+  postIds: [
+    "pension-master-01-four-accounts",
+    "pension-master-02-tax-compare",
+    "pension-master-03-yearend-900",
+    "pension-master-04-asset-etf",
+    "pension-master-05-draw-1500",
+    "pension-master-06-healthcheck",
   ],
+  plannedCount: 6,
 };
+
+/** 홈 아카이브에 세우는 시리즈 전체 — 기존 6묶음 + 연금 마스터 6편. */
+export const allLibrarySeries: LibrarySeries[] = [...librarySeries, pensionMasterSeries];
 
 /**
  * 처음 온 사람에게 먼저 권하는 세 편 — '왜 이 글부터인지'를 함께 적는다.

@@ -10,7 +10,7 @@ import { withBase, site } from "@/config/site";
 import { allPosts, postPath, formatDateShort } from "@/lib/posts";
 import { categoryName } from "@/data/categories";
 import { thumbOf, thumbAltOf } from "@/lib/thumbs";
-import { libraryTopics, librarySeries, firstReads, frequentCalculations } from "@/data/library";
+import { libraryTopics, allLibrarySeries, firstReads, frequentCalculations } from "@/data/library";
 import { hubTools } from "@/data/tools";
 
 const posts = await allPosts();
@@ -21,7 +21,7 @@ const topics = libraryTopics.map((t) => {
   return { ...t, count: list.length, latest: list[0] };
 });
 
-const series = librarySeries
+const series = allLibrarySeries
   .map((s) => {
     const items = s.postIds.map((id) => byId.get(id)).filter((p): p is NonNullable<typeof p> => Boolean(p));
     return {

@@ -49,6 +49,15 @@ const toCard = (p: (typeof posts)[number]) => {
 
 const others = categories.filter((c) => c.slug !== category.slug);
 
+/**
+ * v7.1 — 연금·퇴직 마스터 가이드 6편.
+ * 분야 목록 위에 '읽는 순서'를 먼저 보여 준다. 편수·제목은 글 컬렉션에서 센다.
+ */
+const masterPosts = posts
+  .filter((p) => p.data.series?.name === "연금·퇴직 마스터 가이드")
+  .sort((a, b) => (a.data.series?.no ?? 0) - (b.data.series?.no ?? 0));
+const masterMinutes = masterPosts.reduce((n, p) => n + p.data.readingMinutes, 0);
+
 const jsonLd = graph([
   {
     "@type": "CollectionPage",
@@ -123,6 +132,42 @@ const jsonLd = graph([
     <div class="wrap py-8 md:py-12">
       <div class="grid gap-12 lg:grid-cols-[minmax(0,1fr)_220px] lg:gap-14">
         <div class="min-w-0">
+          {
+            masterPosts.length > 0 && (
+              <section class="mb-8 rounded-2xl border border-line bg-paper-deep/60 p-5 md:p-6" data-master-series>
+                <div class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+                  <div>
+                    <p class="mono text-[11.5px] font-semibold tracking-[0.16em] text-brand">시리즈 07</p>
+                    <h2 class="mt-1 text-[19px] font-bold tracking-[-0.03em] text-ink">연금·퇴직 마스터 가이드</h2>
+                  </div>
+                  <p class="text-[12px] text-ink-faint">
+                    {masterPosts.length}편 · 약 {masterMinutes}분 · 적립 → 운용 → 인출
+                  </p>
+                </div>
+                <p class="mt-2 max-w-[58ch] text-[13px] leading-[1.7] text-ink-muted">
+                  연금계좌 네 개의 구조에서 시작해 세후 차이, 연말 공제, 자산 배치, 인출 순서, 은퇴 전 점검까지
+                  순서대로 읽으면 한 바퀴가 끝납니다. 2026년 11월 세법 기준입니다.
+                </p>
+                <ol class="mt-4 grid gap-1.5 sm:grid-cols-2">
+                  {masterPosts.map((p) => (
+                    <li>
+                      <a href={withBase(postPath(p))} class="flex min-h-[44px] items-start gap-2.5 rounded-lg bg-white px-3 py-2.5 hover:bg-white/70">
+                        <span class="mono mt-0.5 shrink-0 text-[11.5px] font-semibold text-brand">
+                          {String(p.data.series?.no ?? 0).padStart(2, "0")}
+                        </span>
+                        <span class="min-w-0">
+                          <span class="block text-[13px] font-semibold leading-snug tracking-[-0.02em] text-ink">
+                            {p.data.title}
+                          </span>
+                          <span class="mt-0.5 block text-[11.5px] text-ink-faint">{p.data.readingMinutes}분</span>
+                        </span>
+                      </a>
+                    </li>
+                  ))}
+                </ol>
+              </section>
+            )
+          }
           {
             feature ? (
               <>

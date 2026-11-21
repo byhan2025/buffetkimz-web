@@ -23,10 +23,11 @@ export async function getStaticPaths() {
     disclosure: "disclosure-check",
     silson: "silson-compare",
   };
-  const ordered = [
-    ...hubTools.map((t) => HUB_TO_SLUG[t.key]).filter(Boolean),
-    ...apps.filter((a) => !a.internal).map((a) => a.slug),
-  ]
+  /* v7.1 — 도구 허브 순서 → 나머지 앱(내부 계산 도구 포함) 순. 예전에는 내부 앱을 빼서
+     새로 추가한 4대 계좌 비교기의 소개 페이지가 만들어지지 않았다. */
+  const hubOrder = hubTools.map((t) => HUB_TO_SLUG[t.key]).filter(Boolean);
+  const ordered = [...hubOrder, ...apps.map((a) => a.slug)]
+    .filter((slug, i, arr) => arr.indexOf(slug) === i)
     .map((slug) => apps.find((a) => a.slug === slug))
     .filter((a): a is (typeof apps)[number] => Boolean(a));
 
