@@ -1,0 +1,119 @@
+---
+/**
+ * 마켓 보드 — v7.0 홈 금융포털의 첫 모듈.
+ *
+ *   · 핵심 6지표(원/달러 · 코스피 · 나스닥 · 미 국채 10년 · 기준금리 · 금)를 큰 카드로,
+ *     나머지 지표(코스닥 · S&P500 · 반도체 · 국고채 3·10년 · 비트코인)는 아래 얇은 줄로 둔다.
+ *   · 값·등락·기준 시각·출처는 전부 `data/today.ts`에서 온다. 화면에서 새 숫자를 만들지 않는다.
+ *   · 스파크라인은 시리즈를 0~1로 정규화해 SVG 한 줄로 그린다(장식이며 축·눈금은 두지 않는다).
+ *   · 상승은 클레이, 하락은 파랑 — 빨강으로 겁주지 않는 이 사이트의 규칙을 따른다.
+ */
+import { today as hub } from "@/data/today";
+import type { Indicator } from "@/data/today";
+
+const FEATURED = ["usdkrw", "kospi", "nasdaq", "us10y", "base-rate", "vix"];
+const featured = FEATURED.map((id) => hub.indicators.find((i) => i.id === id)).filter(
+  (i): i is Indicator => Boolean(i),
+);
+const rest = hub.indicators.filter((i) => !FEATURED.includes(i.id));
+
+const W = 120;
+const H = 34;
+
+function spark(series: number[] | undefined): { line: string; area: string } | null {
+  if (!series || series.length < 2) return null;
+  const min = Math.min(...series);
+  const max = Math.max(...series);
+  const span = max - min || 1;
+  const step = W / (series.length - 1);
+  const pts = series.map((v, i) => [i * step, H - 3 - ((v - min) / span) * (H - 6)] as const);
+  const line = pts.map(([x, y], i) => `${i === 0 ? "M" : "L"}${x.toFixed(1)} ${y.toFixed(1)}`).join(" ");
+  const area = `${line} L${W} ${H} L0 ${H} Z`;
+  return { line, area };
+}
+
+const dirClass = (d: Indicator["direction"]) =>
+  d === "down" ? "ind-change is-down" : d === "up" ? "ind-change is-up" : "ind-change";
+---
+
+<div class="mboard" data-market-board id="mod-market">
+  <div class="mboard-head">
+    <div class="mboard-title">
+      <p class="mboard-kicker mono">MARKET BOARD</p>
+      <h3 class="mboard-h">오늘의 시장</h3>
+    </div>
+    <div class="mboard-legend mono" aria-hidden="true">
+      <span><i class="is-up"></i>상승</span>
+      <span><i class="is-down"></i>하락</span>
+      <span class="mboard-legend-note">최근 12회 · 흐름</span>
+    </div>
+  </div>
+
+  <p class="mod-chip mono">
+    기준 11. 21. 19:00 · 한국거래소 · 금융투자협회 · CNBC · 한국은행
+  </p>
+
+  <ul class="mboard-grid" aria-label="핵심 시장 지표">
+    {
+      featured.map((ind) => {
+        const s = spark(ind.series);
+        return (
+          <li>
+            <a
+              class="mboard-card"
+              href={ind.sourceUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              data-indicator-card={ind.id}
+              title={`${ind.name} ${ind.value} ${ind.change} · ${ind.asOfLabel} · ${ind.source}${ind.basis ? ` (${ind.basis})` : ""}`}
+            >
+              <span class="mboard-name">{ind.name}</span>
+              <span class="mboard-value mono">{ind.value}</span>
+              <span class={`mboard-change ${ind.direction}`}>{ind.change}</span>
+              {s ? (
+                <svg class={`mboard-spark is-${ind.direction}`} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" aria-hidden="true">
+                  <path class="mboard-spark-area" d={s.area} />
+                  <path class="mboard-spark-line" d={s.line} />
+                </svg>
+              ) : (
+                <span class="mboard-spark-empty" aria-hidden="true" />
+              )}
+              <span class="mboard-foot mono">
+                {ind.asOfLabel}
+                <span class="mboard-src">{ind.source}</span>
+              </span>
+            </a>
+          </li>
+        );
+      })
+    }
+  </ul>
+
+  <div class="mboard-rest">
+    <p class="mboard-rest-label mono">그 밖의 지표</p>
+    <ul class="mboard-mini">
+      {
+        rest.map((ind) => (
+          <li>
+            <a
+              class="mboard-mini-item"
+              href={ind.sourceUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              data-indicator={ind.id}
+              title={`${ind.name} ${ind.value} ${ind.change} · ${ind.asOfLabel} · ${ind.source}${ind.basis ? ` (${ind.basis})` : ""}`}
+            >
+              <span class="mboard-mini-name">{ind.name}</span>
+              <span class="mboard-mini-value mono">{ind.value}</span>
+              <span class={dirClass(ind.direction)}>{ind.change}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+
+  <p class="mboard-note">
+    지표마다 마지막 기준 시각이 다릅니다. 등락률은 전일 종가·직전 고시 대비이며, 값은 참고용입니다.
+  </p>
+</div>

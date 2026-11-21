@@ -1,110 +1,155 @@
 ---
 /**
- * 소개(/about) — v6.2 에디토리얼 전면 고도화 (회의실 4인방 합의 반영).
+ * 소개(/about) — v7.0 전면 재창조.
  *
- * ① 딥그린 히어로 — 한 줄 선언(가입을 권하지 않습니다) + 한글/영문 캘리그라피(390은 한 줄 가로)
- * ② 확인된 숫자 스트립 — 기록·도구·일정·가입 권유 0건 (목록에서 매번 다시 센다, 카운트업)
- * ③ 3단 서사 타임라인 — 확인 → 기록 → 도구
- * ④ 쓰는 방식 3장(출처 먼저·기준일 표시·가정 밝힘) + 다루지 않는 것 ✕ 칩
- * ⑤ 주제별 글 ↔ 도구 짝 3장 (실손·ISA·연금 글 → 해당 계산기)
- * ⑥ 채널·도구 허브 — 본진(HQ) 1장 + 채널 9칸(주소 미확정은 '주소 정리 중')
- * ⑦ 표식 → 편집 원칙 + '도구 써 보기 · 원칙 보기' CTA
+ * 회의실 판정: 기존 소개는 "빵점 — 임팩트·흥미·재미 없음". 포맷을 먼저 연구하고 다시 지었다.
+ * 참고한 포맷(2026-11-21 실물 확인)
+ *  · Stripe — 'About us' 대신 신념을 첫 문장으로. 설명보다 주장, 장식보다 문장의 절제.
+ *  · Linear — 사람과 숫자를 증거로. 큰 히어로 아래 명확한 증명 모듈.
+ *  · Ramp·Mercury 등 금융 — 신뢰가 먼저 필요한 독자에게는 숫자 타일과 기준(principle)으로 증명.
+ *  · 프라이빗 웰스·리서치 부티크 — 딥그린·네이비 바탕, 세리프 숫자, 금색 괘선의 조용한 격.
+ * 공통 결론: ① 신념 한 문장 ② 증명 숫자 3~4개 ③ 구체적 서사 ④ 사람이 쓰는 기준
+ *           ⑤ 다음 행동 하나. 그리고 '설명'이 아니라 '주장'으로 쓴다.
  *
- * 지키는 것: 증빙 없는 자격 표현 금지(비영업 톤) · 개인 신상·소속 비노출 ·
- * 확인되지 않은 수치 금지(숫자는 데이터에서 센다) · 표(<table>) 미사용 · 모바일 고정 바 없음.
+ * 구성
+ *  ① 히어로 — 딥그린 시네마틱 + 한글 캘리그라피 + 신념 한 문장 + 증명 숫자
+ *  ② 3초 재무 진단 — 세 번 고르면 확인 순서를 돌려준다(FinanceCheck)
+ *  ③ 3대 전문 영역 — 금융·투자 / 연금·노후 / 리스크·보장 인터랙티브 탭
+ *  ④ 서사 3막 — 확인 → 기록 → 설계
+ *  ⑤ 컨설팅 철학 3장 — 숫자·시간·균형
+ *  ⑥ 브랜드 쇼케이스 — 두 손글씨
+ *  ⑦ 채널 허브 + 마무리 CTA
+ *
+ * 지키는 것: 개인 신상·소속 비노출, 확인되지 않은 수치 금지(숫자는 데이터에서 센다),
+ * 표(<table>) 미사용, 모바일 고정 바 없음, 방어적 부정 표현 없음.
  */
 import Base from "@/layouts/Base.astro";
 import HomePill from "@/components/HomePill.astro";
 import BrandLockup from "@/components/BrandLockup.astro";
 import ChannelIcon from "@/components/about/ChannelIcon.astro";
-import { withBase, site } from "@/config/site";
+import FinanceCheck from "@/components/about/FinanceCheck.tsx";
+import { withBase, site, menuLabel } from "@/config/site";
 import { channels, confirmedLinks } from "@/data/channels";
-import { hubTools } from "@/data/tools";
 import { calendar } from "@/data/calendar";
-import { allPosts, categoryLabel, postPath } from "@/lib/posts";
+import { storeCount } from "@/data/store";
+import { allPosts, postPath } from "@/lib/posts";
 import { AUTHOR_ID, graph, organizationNode, pageUrl, partOfWebsite, personNode, websiteNode } from "@/lib/schema";
 
 const posts = await allPosts();
 const postById = new Map(posts.map((p) => [p.id, p]));
-const toolCount = hubTools.length;
 const calendarCount = calendar.length;
 
-/** 숫자 스트립 — 값은 전부 데이터에서 센다. */
 const stats = [
-  { href: "/posts", value: posts.length, unit: "편", label: "기록" },
-  { href: "/apps", value: toolCount, unit: "종", label: "도구" },
-  { href: "/calendar", value: calendarCount, unit: "건", label: "일정" },
-  { href: "/principles", value: 0, unit: "건", label: "가입 권유" },
+  { href: "/posts", value: posts.length, unit: "편", label: menuLabel.posts },
+  { href: "/apps", value: storeCount, unit: "종", label: menuLabel.apps },
+  { href: "/calendar", value: calendarCount, unit: "건", label: menuLabel.calendar },
 ];
 
-const narrative = [
+/** 3대 전문 영역 — 탭 하나가 '무엇을 보는가 + 확인 포인트 3 + 도구·글' 한 묶음. */
+const areas = [
+  {
+    id: "finance",
+    label: "금융 · 투자",
+    en: "FINANCE · INVEST",
+    headline: "돈이 도는 구조를 먼저 그립니다",
+    body:
+      "수익률은 결과이고, 구조가 원인입니다. 들어오는 돈과 나가는 돈, 계좌의 종류와 세금, 손실을 버티는 힘을 같은 자리에 놓고 봅니다.",
+    points: [
+      { title: "현금흐름", body: "고정비와 변동비를 나눠, 매달 남는 돈이 어디서 만들어지는지 확인합니다." },
+      { title: "계좌 구조", body: "일반·ISA·연금계좌의 과세 방식이 같은 수익을 얼마나 다르게 남기는지 계산합니다." },
+      { title: "버티는 힘", body: "기대 수익보다 먼저, 하락에서 팔지 않을 이유가 있는지를 봅니다." },
+    ],
+    tools: [
+      { name: "투자 복리·세후 수익률 계산기", href: "/apps/compound-return/run" },
+      { name: "한국형 타임머신", href: "/apps/trade-timemachine" },
+    ],
+    postId: "invest-dca-rule",
+  },
+  {
+    id: "pension",
+    label: "연금 · 노후",
+    en: "PENSION · RETIRE",
+    headline: "받는 날의 시간표를 정합니다",
+    body:
+      "노후의 두려움은 대개 목돈이 아니라 매달 나가는 돈에서 옵니다. 국민·퇴직·개인연금을 한 줄로 세우고, 언제부터 얼마를 받을지 계산합니다.",
+    points: [
+      { title: "3층 연금", body: "국민연금·퇴직연금·개인연금을 각각 계산해 합계와 비중을 확인합니다." },
+      { title: "1,500만 원 경계", body: "사적연금이 연 1,500만 원을 넘을 때 과세가 어떻게 갈리는지 봅니다." },
+      { title: "오늘 가치", body: "은퇴 시점의 명목 금액을 물가로 나눠, 실제 구매력으로 다시 봅니다." },
+    ],
+    tools: [
+      { name: "은퇴 월 현금흐름 시뮬레이터", href: "/apps/retirement-flow/run" },
+      { name: "연금 인출·세금 시뮬레이터", href: "/apps/pension-draw/run" },
+    ],
+    postId: "pension-tax-order",
+  },
+  {
+    id: "risk",
+    label: "리스크 · 보장",
+    en: "RISK · COVERAGE",
+    headline: "빈 칸을 메우는 순서를 정합니다",
+    body:
+      "보장은 상품이 아니라 구조입니다. 5대 담보의 빈 칸, 실손 세대별 자기부담, 고지의무를 순서대로 확인해 무엇부터 볼지 정합니다.",
+    points: [
+      { title: "5대 담보", body: "암·뇌·심장·수술비·간병비를 기준점과 나란히 놓고 빈 칸을 찾습니다." },
+      { title: "실손 세대", body: "같은 병원비로 4세대와 5세대의 환급액이 어떻게 갈리는지 비교합니다." },
+      { title: "고지의무", body: "3개월·2년·5년 질문을 미리 정리해, 청약서에 사실대로 적을 수 있게 합니다." },
+    ],
+    tools: [
+      { name: "실손 세대별 비교기", href: "/apps/silson-compare/run" },
+      { name: "보장 점검 시뮬레이터", href: "/apps/coverage-check/run" },
+    ],
+    postId: "insurance-coverage-conditions",
+  },
+];
+
+const acts = [
+  {
+    no: "제1막",
+    en: "READ",
+    title: "숫자를 원문에서 다시 읽었습니다",
+    body:
+      "금리가 내렸는데 왜 이자는 그대로인지, 실손을 갈아타야 하는지, 연금은 언제부터 받는지. 답은 제도가 바뀔 때마다 달라집니다. 그래서 보도 요약이 아니라 금융위·국세청·공단의 원문을 먼저 폅니다.",
+    chip: "1차 출처 · 법령 · 고시",
+  },
+  {
+    no: "제2막",
+    en: "WRITE",
+    title: "확인한 것과 계산한 것을 나눠 적습니다",
+    body:
+      "원문에서 확인한 사실, 내가 계산한 값, 틀렸던 판단을 날짜와 함께 남깁니다. 글마다 기준일과 출처를 붙이는 이유는, 읽는 사람이 같은 자리에서 다시 확인할 수 있게 하기 위해서입니다.",
+    chip: "기준일 · 가정 · 정정 기록",
+  },
+  {
+    no: "제3막",
+    en: "DESIGN",
+    title: "되풀이되는 계산을 도구로 옮겼습니다",
+    body:
+      "표를 손으로 옮겨 적고 계산기를 두드리는 일은 기록으로 남길 가치가 없습니다. 같은 질문이 다시 오면, 앱스토어에서 그 계산을 바로 열 수 있게 만들었습니다.",
+    chip: `앱 ${storeCount}종 · 금융 일정 ${calendarCount}건`,
+  },
+];
+
+const philosophy = [
   {
     no: "01",
-    stage: "확인",
-    title: "질문은 늘 같은 자리에서 시작됐습니다",
-    body: "보험·세금·연금 문서를 읽고 설명을 맞추다 보면 같은 질문이 반복됩니다. 그때마다 기억과 요약에 기대지 않으려고 원문을 먼저 확인하는 습관이 생겼습니다.",
-    chip: "1차 출처 · 금융위·국세청·공단",
+    title: "숫자는 결론이 아니라 질문",
+    body:
+      "세액공제 148만 원, 은퇴 후 월 210만 원. 숫자는 그 자체로 답이 되지 않습니다. 그 숫자가 어떤 가정 위에 서 있는지 함께 읽어야 결정에 쓸 수 있습니다.",
   },
   {
     no: "02",
-    stage: "기록",
-    title: "확인한 것과 계산한 것을 나눠 적기 시작했습니다",
-    body: "원문에서 확인한 기준, 직접 계산한 숫자, 틀렸던 판단까지 날짜와 함께 남깁니다. 글마다 기준일과 출처를 붙이는 이유입니다.",
-    chip: "기준일 · 가정 표시",
+    title: "시간을 자산으로 계산",
+    body:
+      "10년 뒤의 1억과 오늘의 1억은 같은 돈이 아닙니다. 물가와 수익률, 세금을 같은 시간축에 놓고 비교합니다.",
   },
   {
     no: "03",
-    stage: "도구",
-    title: "되풀이되는 계산은 브라우저로 옮겼습니다",
-    body: "표를 손으로 옮겨 적고 계산기를 두드리는 일은 기록으로 남길 가치가 없습니다. 입력값은 서버로 보내지 않고 그 탭 안에서만 계산합니다.",
-    chip: `도구 ${toolCount}종 · 입력값 저장 0건`,
+    title: "세제 · 현금흐름 · 보장의 균형",
+    body:
+      "절세만 보면 현금흐름이 막히고, 보장만 보면 납입이 버거워집니다. AFPK 재무설계의 관점으로 세 축을 함께 놓습니다.",
   },
 ];
-
-/** 쓰는 방식 3장 */
-const methods = [
-  {
-    no: "1단계",
-    title: "출처 먼저",
-    body: "금융위·금감원·국세청·공단의 원문을 먼저 봅니다. 보도 요약은 숫자를 대조하는 데만 씁니다.",
-    example: "원문 링크를 글 끝에 남깁니다",
-  },
-  {
-    no: "2단계",
-    title: "기준일 표시",
-    body: "모든 글과 도구에 확인한 날짜를 붙입니다. 제도는 바뀌므로, 기준일 없는 숫자는 싣지 않습니다.",
-    example: "글 제목 아래 · 도구 결과 옆",
-  },
-  {
-    no: "3단계",
-    title: "가정 밝힘",
-    body: "세금·수수료·물가 중 무엇을 넣고 넣지 못했는지 결과 옆에 적습니다. 전제가 달라지면 답도 달라집니다.",
-    example: "결과보다 먼저 전제를 읽게 합니다",
-  },
-];
-
-/** 다루지 않는 것 — 짧은 ✕ 칩 */
-const notDoing = ["상품 가입 권유", "소속·회사 이름", "확인되지 않은 숫자", "다른 사람의 개인정보"];
-
-/** 주제별 글 ↔ 도구 짝 (실제 글·도구만 연결) */
-const pairSpec = [
-  { postId: "insurance-silson-5th", toolKey: "silson" },
-  { postId: "isa-pension-300", toolKey: "pension" },
-  { postId: "pension-tax-order", toolKey: "pension-draw" },
-];
-
-const pairs = pairSpec
-  .map(({ postId, toolKey }) => {
-    const post = postById.get(postId);
-    const tool = hubTools.find((t) => t.key === toolKey);
-    if (!post || !tool) return null;
-    return {
-      post,
-      tool,
-      category: categoryLabel(post),
-    };
-  })
-  .filter((v): v is NonNullable<typeof v> => Boolean(v));
 
 /** 채널 카드 — 아이콘 키만 이름으로 잇는다. */
 const iconOf: Record<string, string> = {
@@ -119,9 +164,9 @@ const iconOf: Record<string, string> = {
 };
 
 const hubLinks = [
-  { href: "/posts", label: `블로그 ${posts.length}편` },
-  { href: "/apps", label: `도구자료실 ${toolCount}종` },
-  { href: "/calendar", label: `제도달력 ${calendarCount}건` },
+  { href: "/posts", label: `${menuLabel.posts} ${posts.length}편` },
+  { href: "/apps", label: `${menuLabel.apps} ${storeCount}종` },
+  { href: "/calendar", label: `${menuLabel.calendar} ${calendarCount}건` },
   { href: "/search", label: "본문까지 검색" },
   { href: "/rss.xml", label: "RSS 구독" },
 ];
@@ -131,9 +176,9 @@ const jsonLd = graph([
     "@type": "AboutPage",
     "@id": `${pageUrl("/about")}#webpage`,
     url: pageUrl("/about"),
-    name: "소개 — 가입을 권하지 않습니다",
+    name: "소개 — 숫자로 설계하는 금융 컨설팅 아카이브",
     description:
-      "buffetkimz가 무엇을, 왜, 어떤 기준으로 기록하는지. 비영업 원칙과 쓰는 방식, 쌓인 기록과 도구, 글과 도구의 짝, 연결 채널을 한 페이지에 정리했습니다.",
+      "금융·투자·연금·재무의 숫자를 원문과 계산으로 확인하는 1인 금융 컨설팅 아카이브. 3초 재무 진단, 세 가지 전문 영역, 서사 3막, 브랜드 쇼케이스를 한 페이지에 담았습니다.",
     inLanguage: "ko-KR",
     isPartOf: partOfWebsite,
     about: { "@id": AUTHOR_ID },
@@ -146,317 +191,362 @@ const jsonLd = graph([
 ---
 
 <Base
-  title="소개 — 가입을 권하지 않습니다"
-  description="가입을 권하지 않고, 내 숫자가 맞는지 먼저 확인합니다. 보험·세금·연금의 숫자를 근거와 함께 풀고, 스스로 확인할 기준과 직접 써볼 도구를 정리한 개인 아카이브입니다."
+  title="소개 — 숫자로 설계하는 금융 컨설팅 아카이브"
+  description="금융·투자·연금·재무의 숫자를 원문과 계산으로 확인합니다. 시뮬레이터로 내 숫자를 검증하고, 필요한 기준을 글로 남깁니다. 3초 재무 진단으로 지금 확인할 순서부터."
   path="/about"
   jsonLd={jsonLd}
 >
-  <!-- ① 히어로 — 딥그린 에디토리얼 + 두 개의 손글씨 -->
-  <section class="about-hero" aria-labelledby="about-title">
-    <div class="wrap about-hero-grid">
-      <div class="about-hero-copy">
+  <!-- ① 히어로 — 신념 한 문장 + 한글 캘리그라피 + 증명 숫자 -->
+  <section class="ab-hero" aria-labelledby="about-title">
+    <div class="ab-hero-glow" aria-hidden="true"></div>
+    <div class="wrap ab-hero-grid">
+      <div class="ab-hero-copy">
         <HomePill />
-        <p class="about-kicker">소개 · ABOUT</p>
-        <ul class="about-chips" aria-label="이 사이트의 성격">
-          <li class="about-chip about-chip--mint">비영업 기록</li>
-          <li class="about-chip">입력값 저장 0건</li>
-        </ul>
-        <h1 class="about-hero-title" id="about-title">가입을 권하지 않습니다.</h1>
-        <p class="about-hero-lede">
-          <span class="block">내 숫자가 맞는지 먼저 확인합니다.</span>
-          <span class="block">보험·세금·연금의 숫자를 근거와 함께 쉽게 풀어드립니다.</span>
+        <p class="ab-kicker mono">ABOUT · buffetkimz</p>
+        <h1 class="ab-title" id="about-title">
+          돈의 구조를 읽고,<br /><span class="ab-title-em">숫자로 설계합니다.</span>
+        </h1>
+        <p class="ab-lede">
+          당신의 자산을 숫자로 설계하는 1인 금융 컨설팅 아카이브. 연금·투자·절세·보장의 핵심 기준을
+          데이터와 시뮬레이터로 바로 검증합니다.
         </p>
-        <div class="about-hero-actions">
-          <a href={withBase("/posts")} class="btn about-btn-solid">기록 보러 가기</a>
-          <a href={withBase("/apps")} class="btn about-btn-ghost">도구 써 보기</a>
-          <a href={withBase("/principles")} class="about-hero-link">편집 원칙</a>
-        </div>
-        <p class="about-hero-meta">
-          기준일 <time datetime={site.baseDate}>{site.baseDateLabel}</time> · 모든 글과 도구에 1차 출처·기준일 표기
+        <p class="ab-lede-sub">
+          모든 시뮬레이션은 브라우저 안에서 즉시 계산되고, 숫자가 결정에 닿는 지점에서는 1:1 자문으로
+          이어집니다.
         </p>
-      </div>
 
-      <div class="about-sign-panel" aria-label="버핏킴즈 공식 시그니처">
-        <p class="about-sign-label">
-          <span>SINCE 2026.11</span>
-          <span class="about-sign-rule" aria-hidden="true"></span>
-          <span>버핏킴즈</span>
-        </p>
-        <div class="about-sign-arts">
-          <div class="about-sign-ko">
-            <img
-              src={withBase("/brand/buffetkimz-calligraphy-ko-720.webp")}
-              srcset={`${withBase("/brand/buffetkimz-calligraphy-ko-360.webp")} 360w, ${withBase("/brand/buffetkimz-calligraphy-ko-720.webp")} 720w`}
-              sizes="(max-width: 767px) 52vw, (max-width: 1023px) 82vw, 430px"
-              width="720"
-              height="194"
-              alt="한글 버핏킴즈 캘리그라피 — 흰 붓글씨와 푸른 빛줄기"
-              loading="eager"
-              decoding="async"
-            />
-          </div>
-          <div class="about-sign-en">
-            <img
-              src={withBase("/brand/buffetkimz-calligraphy-en-1400.webp")}
-              srcset={`${withBase("/brand/buffetkimz-calligraphy-en-700.webp")} 700w, ${withBase("/brand/buffetkimz-calligraphy-en-1400.webp")} 1400w`}
-              sizes="(max-width: 767px) 34vw, (max-width: 1023px) 62vw, 300px"
-              width="1400"
-              height="467"
-              alt="영문 BuffetKimz 캘리그라피 — 흰 붓글씨와 푸른 빛줄기"
-              loading="lazy"
-              decoding="async"
-            />
-          </div>
+        <div class="ab-hero-actions">
+          <a href="#diagnosis" class="ab-btn ab-btn--solid">3초 재무 진단</a>
+          <a href={withBase("/apps")} class="ab-btn ab-btn--ghost">앱스토어 열기</a>
         </div>
-        <p class="about-sign-cap">한글 버핏킴즈 · 영문 BuffetKimz — 같은 이름, 두 개의 손</p>
-        <div class="about-sign-foot">
-          <BrandLockup tone="dark" size="18px" />
-          <span class="about-sign-foot-note">기록 · 도구</span>
-        </div>
-      </div>
-    </div>
 
-    <!-- ② 확인된 숫자 스트립 — 첫 화면 안에서 바로 보이는 값 -->
-    <div class="about-strip-wrap">
-      <div class="wrap">
-        <ul class="about-strip" data-about-stats aria-label="확인된 숫자">
+        <dl class="ab-hero-stats" data-about-stats>
           {
-            stats.map((s, i) => (
-              <li>
-                <a href={withBase(s.href)} class="about-strip-item">
-                  <span class="about-strip-label">{s.label}</span>
-                  <span class="about-strip-value">
-                    <b data-count-to={i === stats.length - 1 ? undefined : String(s.value)}>{s.value}</b>
+            stats.map((s) => (
+              <div>
+                <dt>{s.label}</dt>
+                <dd>
+                  <a href={withBase(s.href)}>
+                    <b data-count-to={String(s.value)}>{s.value}</b>
                     <span>{s.unit}</span>
-                  </span>
-                </a>
-              </li>
+                  </a>
+                </dd>
+              </div>
             ))
           }
-        </ul>
-        <p class="about-strip-note">
-          홈과 같은 기준일 <time datetime={site.baseDate}>{site.baseDateLabel}</time> · 목록에서 자동으로 세는 값입니다.
-          ‘가입 권유 0건’은 편집 원칙 03의 정책값입니다.
-        </p>
-      </div>
-    </div>
-  </section>
-
-  <!-- ③ 3단 서사 · 타임라인 -->
-  <section class="about-story" aria-labelledby="about-story-title">
-    <div class="wrap about-section-pad">
-      <div class="about-story-grid">
-        <div class="about-story-copy">
-          <p class="about-kicker about-kicker--ink">왜 이 공간인가</p>
-          <h2 class="about-h2" id="about-story-title">
-            같은 질문이 돌아올 때마다,<br />답을 다시 확인하려고 만들었습니다.
-          </h2>
-          <div class="about-story-body">
-            <p>
-              금리가 내렸는데 왜 이자는 그대로인지, 실손을 갈아타야 하는지, 연금은 언제부터 얼마를
-              받는지. 살다 보면 같은 질문이 몇 년을 두고 되돌아옵니다. 답은 제도와 기준이 바뀔 때마다
-              달라지고, 그때 들은 설명은 기억에서 금방 흐려집니다.
-            </p>
-            <p>
-              그래서 확인한 원문과 직접 계산한 숫자를 날짜와 함께 적습니다. 틀렸던 판단도 지우지 않고
-              고친 기록을 남깁니다. 기록이 쌓이면 같은 질문에 더 정확하게 답할 수 있습니다.
-            </p>
+          <div>
+            <dt>기준일</dt>
+            <dd class="ab-stat-date">
+              <time datetime={site.baseDate}>{site.baseDateLabel}</time>
+            </dd>
           </div>
-          <p class="about-pull">숫자는 결론이 아니라 질문입니다.</p>
-          <p class="about-story-apfk">
-            세제 혜택, 매달의 현금흐름, 보장의 빈 칸을 <b>함께 놓고 보는 것</b>을 기준으로 삼습니다.
-            한 축만 크게 보여 주는 설명은 하지 않습니다.
-          </p>
-          <a href={withBase("/principles")} class="about-inline-link">
-            글과 도구를 만드는 기준 — 편집 원칙
-            <span aria-hidden="true">→</span>
-          </a>
-        </div>
-
-        <ol class="about-timeline" data-about-timeline>
-          {
-            narrative.map((item) => (
-              <li class="about-tl-item reveal">
-                <span class="about-tl-no">{item.no}</span>
-                <p class="about-tl-stage">{item.stage}</p>
-                <h3 class="about-tl-title">{item.title}</h3>
-                <p class="about-tl-body">{item.body}</p>
-                <span class="about-tl-chip">{item.chip}</span>
-              </li>
-            ))
-          }
-        </ol>
+        </dl>
       </div>
-      <p class="about-tl-close">
-        지금도 도구(03)에서 확인(01)으로 돌아가는 일이 매일 반복됩니다. 그 왕복이 이 사이트의 편집 방식입니다.
-      </p>
+
+      <div class="ab-sign-panel" aria-label="버핏킴즈 한글 시그니처">
+        <p class="ab-sign-top mono">
+          <span>SINCE 2026.11</span>
+          <span class="ab-sign-rule" aria-hidden="true"></span>
+          <span>SEOUL</span>
+        </p>
+        <img
+          class="ab-sign-ko"
+          src={withBase("/brand/buffetkimz-calligraphy-ko-1440.webp")}
+          srcset={`${withBase("/brand/buffetkimz-calligraphy-ko-360.webp")} 360w, ${withBase("/brand/buffetkimz-calligraphy-ko-720.webp")} 720w, ${withBase("/brand/buffetkimz-calligraphy-ko-1440.webp")} 1440w`}
+          sizes="(max-width: 767px) 80vw, (max-width: 1023px) 46vw, 520px"
+          width="1420"
+          height="376"
+          alt="한글 버핏킴즈 캘리그라피 — 흰 붓글씨와 푸른 빛줄기"
+          loading="eager"
+          decoding="async"
+        />
+        <p class="ab-sign-cap">
+          금융·투자·연금·재무 — 하나의 기준으로 읽는 이름
+        </p>
+        <div class="ab-sign-foot">
+          <BrandLockup tone="dark" size="17px" />
+          <span class="ab-sign-foot-note mono">RECORD · SIMULATE · ADVISE</span>
+        </div>
+      </div>
     </div>
   </section>
 
-  <!-- ④ 쓰는 방식 3장 + 다루지 않는 것 ✕ 칩 -->
-  <section class="about-methods" aria-labelledby="about-methods-title">
-    <div class="wrap about-section-pad">
-      <div class="about-head">
+  <!-- ② 3초 재무 진단 -->
+  <section class="ab-check" id="diagnosis" aria-labelledby="ab-check-title">
+    <div class="wrap ab-check-grid">
+      <div class="ab-check-copy">
+        <p class="ab-kicker ab-kicker--ink">3초 재무 진단</p>
+        <h2 class="ab-h2" id="ab-check-title">
+          무엇부터<br />확인해야 할까요?
+        </h2>
+        <p class="ab-check-body">
+          고민 하나를 고르면 지금 내게 필요한 숫자와, 그 숫자를 계산할 도구를 그 자리에서 보여
+          드립니다. 판정하지 않고 <b>확인 순서</b>만 제안합니다.
+        </p>
+        <ul class="ab-check-points">
+          <li>연금 · 투자 · 절세 · 보험 중 하나</li>
+          <li>결과는 추천 앱 2종 + 읽을 글 1편</li>
+          <li>고른 내용은 저장하지 않습니다</li>
+        </ul>
+      </div>
+      <div class="ab-check-widget">
+        <FinanceCheck client:visible />
+      </div>
+    </div>
+  </section>
+
+  <!-- ③ 3대 전문 영역 — 인터랙티브 탭 -->
+  <section class="ab-areas" aria-labelledby="ab-areas-title">
+    <div class="wrap">
+      <div class="ab-areas-head">
         <div>
-          <p class="about-kicker about-kicker--ink">쓰는 방식</p>
-          <h2 class="about-h2" id="about-methods-title">출처를 먼저 보고,<br />기준일과 가정을 남깁니다</h2>
+          <p class="ab-kicker ab-kicker--mint">전문 영역</p>
+          <h2 class="ab-h2 ab-h2--light" id="ab-areas-title">세 개의 렌즈로<br />같은 숫자를 봅니다</h2>
         </div>
-        <p class="about-head-desc">
-          글과 도구를 만들 때 매번 같은 세 단계를 거칩니다. 순서를 바꾸면 결론도 바뀌기 때문에,
-          순서 자체를 기준으로 적어 둡니다.
+        <p class="ab-areas-desc">
+          금융·투자, 연금·노후, 리스크·보장은 따로 떨어진 과목이 아닙니다. 한 영역의 결정이 다른 두
+          영역의 숫자를 바꾸기 때문에, 세 렌즈를 같은 기준일 위에 놓습니다.
         </p>
       </div>
 
-      <ol class="about-method-grid" data-about-methods>
+      <div class="ab-tabs" role="tablist" aria-label="전문 영역" data-ab-tabs>
         {
-          methods.map((m, i) => (
-            <li class="about-method reveal">
-              <span class="about-method-tag">{m.no}</span>
-              <h3 class="about-method-title">{m.title}</h3>
-              <p class="about-method-body">{m.body}</p>
-              <span class="about-method-example">{m.example}</span>
+          areas.map((a, i) => (
+            <button
+              type="button"
+              role="tab"
+              id={`ab-tab-${a.id}`}
+              class="ab-tab"
+              data-ab-tab={a.id}
+              aria-selected={i === 0 ? "true" : "false"}
+              aria-controls={`ab-panel-${a.id}`}
+              data-on={i === 0 ? "1" : "0"}
+            >
+              <span class="ab-tab-label">{a.label}</span>
+              <span class="ab-tab-en mono">{a.en}</span>
+            </button>
+          ))
+        }
+      </div>
+
+      {
+        areas.map((a, i) => {
+          const post = postById.get(a.postId);
+          return (
+            <div
+              class="ab-panel"
+              id={`ab-panel-${a.id}`}
+              role="tabpanel"
+              aria-labelledby={`ab-tab-${a.id}`}
+              data-ab-panel={a.id}
+              hidden={i !== 0}
+            >
+              <div class="ab-panel-main">
+                <h3 class="ab-panel-title">{a.headline}</h3>
+                <p class="ab-panel-body">{a.body}</p>
+                <ol class="ab-panel-points">
+                  {a.points.map((p) => (
+                    <li>
+                      <span class="ab-point-title">{p.title}</span>
+                      <span class="ab-point-body">{p.body}</span>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+              <div class="ab-panel-side">
+                <p class="ab-side-label mono">바로 계산</p>
+                <ul class="ab-side-tools">
+                  {a.tools.map((t) => (
+                    <li>
+                      <a href={withBase(t.href)} class="ab-side-tool">
+                        {t.name}
+                        <span aria-hidden="true">→</span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+                {post && (
+                  <a href={withBase(postPath(post))} class="ab-side-post">
+                    <span class="ab-side-label mono">함께 읽기</span>
+                    <span class="ab-side-post-title">{post.data.title}</span>
+                  </a>
+                )}
+              </div>
+            </div>
+          );
+        })
+      }
+    </div>
+  </section>
+
+  <!-- ④ 서사 3막 -->
+  <section class="ab-acts" aria-labelledby="ab-acts-title">
+    <div class="wrap">
+      <div class="ab-acts-head">
+        <div>
+          <p class="ab-kicker ab-kicker--ink">서사</p>
+          <h2 class="ab-h2" id="ab-acts-title">확인하고, 남기고,<br />설계합니다</h2>
+        </div>
+        <p class="ab-acts-desc">
+          세 문장으로 줄이면 이 사이트의 전부입니다. 아래의 세 막은 순서대로 이어지고, 지금도 매일
+          되풀이됩니다.
+        </p>
+      </div>
+
+      <ol class="ab-act-grid" data-about-timeline>
+        {
+          acts.map((a) => (
+            <li class="ab-act reveal">
+              <div class="ab-act-top">
+                <span class="ab-act-no">{a.no}</span>
+                <span class="ab-act-en mono">{a.en}</span>
+              </div>
+              <h3 class="ab-act-title">{a.title}</h3>
+              <p class="ab-act-body">{a.body}</p>
+              <span class="ab-act-chip">{a.chip}</span>
             </li>
           ))
         }
       </ol>
-
-      <div class="about-dont">
-        <p class="about-dont-label">다루지 않는 것</p>
-        <ul class="about-dont-chips">
-          {
-            notDoing.map((t) => (
-              <li>
-                <span class="about-dont-x" aria-hidden="true">
-                  ✕
-                </span>
-                {t}
-              </li>
-            ))
-          }
-        </ul>
-        <p class="about-dont-note">
-          {site.contact.disclaimer} 도구는 입력값을 서버로 보내지 않고 브라우저 안에서만 계산합니다.
-        </p>
-      </div>
     </div>
   </section>
 
-  <!-- ⑤ 글 ↔ 도구 짝 -->
-  <section class="about-pairs" aria-labelledby="about-pairs-title">
-    <div class="wrap about-section-pad">
-      <div class="about-head">
-        <div>
-          <p class="about-kicker about-kicker--ink">읽고 · 계산하기</p>
-          <h2 class="about-h2" id="about-pairs-title">글에서 확인한 기준을<br />도구로 바로 써 봅니다</h2>
-        </div>
-        <p class="about-head-desc">
-          같은 기준일로 쓴 글과 도구를 짝지었습니다. 글에서 조건을 확인하고, 내 숫자를 넣어
-          계산해 보세요. 입력값은 어디에도 저장되지 않습니다.
-        </p>
+  <!-- ⑤ 컨설팅 철학 -->
+  <section class="ab-philosophy" aria-labelledby="ab-philosophy-title">
+    <div class="wrap">
+      <div class="ab-phil-head">
+        <p class="ab-kicker ab-kicker--mint">컨설팅 철학</p>
+        <h2 class="ab-h2 ab-h2--light" id="ab-philosophy-title">
+          숫자를 대하는<br />세 가지 태도
+        </h2>
       </div>
-
-      <ul class="about-pair-grid" data-about-pairs>
+      <ul class="ab-phil-grid">
         {
-          pairs.map((p, i) => (
-            <li class="about-pair">
-              <div class="about-pair-head">
-                <span class="about-pair-link-mark" aria-hidden="true">글 → 도구</span>
-                <span class="about-pair-cat">{p.category}</span>
-              </div>
-              <h3 class="about-pair-post">
-                <a href={withBase(postPath(p.post))}>
-                  {p.post.data.title}
-                  <span aria-hidden="true">→</span>
-                </a>
-              </h3>
-              <p class="about-pair-question">“{p.post.data.question}”</p>
-              <div class="about-pair-tool">
-                <span class="about-pair-tool-label">이어서 계산</span>
-                <span class="about-pair-tool-name">{p.tool.name}</span>
-                <span class="about-pair-tool-what">{p.tool.short}</span>
-                <div class="about-pair-actions">
-                  {p.tool.runHref ? (
-                    <a href={withBase(p.tool.runHref)} class="btn btn-secondary btn-xs">
-                      도구 열기
-                    </a>
-                  ) : (
-                    <a href={withBase(p.tool.href)} class="btn btn-secondary btn-xs">
-                      도구 보기
-                    </a>
-                  )}
-                  <a href={withBase(postPath(p.post))} class="about-pair-read">
-                    글 읽기
-                    <span aria-hidden="true">→</span>
-                  </a>
-                </div>
-              </div>
+          philosophy.map((p) => (
+            <li class="ab-phil-card">
+              <span class="ab-phil-no mono">{p.no}</span>
+              <h3 class="ab-phil-title">{p.title}</h3>
+              <p class="ab-phil-body">{p.body}</p>
             </li>
           ))
         }
       </ul>
+      <p class="ab-phil-quote">“숫자는 결론이 아니라 질문입니다.”</p>
     </div>
   </section>
 
-  <!-- ⑥ 채널 · 도구 허브 -->
-  <section class="about-hubs" id="channels" aria-labelledby="about-hubs-title">
-    <div class="wrap about-section-pad">
-      <div class="about-head">
+  <!-- ⑥ 브랜드 쇼케이스 -->
+  <section class="ab-brand" id="brand" aria-labelledby="ab-brand-title">
+    <div class="wrap">
+      <div class="ab-brand-head">
         <div>
-          <p class="about-kicker about-kicker--ink">채널 · 본진</p>
-          <h2 class="about-h2" id="about-hubs-title">
-            이 사이트가 본진이고,<br />채널은 각자의 결로
-          </h2>
+          <p class="ab-kicker ab-kicker--ink">브랜드</p>
+          <h2 class="ab-h2" id="ab-brand-title">서표 하나, 손글씨 두 장</h2>
         </div>
-        <p class="about-head-desc">
-          긴 글과 기록은 여기에 모읍니다. 짧은 글은 각 채널에, 확정된 주소부터 순서대로 연결합니다.
-          없는 주소를 만들어 넣지는 않습니다.
+        <p class="ab-brand-desc">
+          2026년 11월에 공식 자산으로 확정했습니다. 비율을 바꾸거나 색을 덧칠하지 않고 그대로 씁니다.
         </p>
       </div>
 
-      <div class="about-hq">
-        <div class="about-hq-copy">
-          <p class="about-hq-label">본진 · HQ</p>
-          <h3 class="about-hq-title">기록·도구·일정·검색이 한곳에</h3>
-          <p class="about-hq-desc">
-            채널은 사람을 만나는 창구이고, 결론과 계산은 이곳에 쌓입니다. 어느 채널에서 오셨든
-            같은 기준의 글과 도구를 만나게 됩니다.
-          </p>
+      <div class="ab-brand-grid">
+        <figure class="ab-brand-card ab-brand-card--ko">
+          <div class="ab-brand-art">
+            <img
+              src={withBase("/brand/buffetkimz-calligraphy-ko-720.webp")}
+              srcset={`${withBase("/brand/buffetkimz-calligraphy-ko-360.webp")} 360w, ${withBase("/brand/buffetkimz-calligraphy-ko-720.webp")} 720w, ${withBase("/brand/buffetkimz-calligraphy-ko-1440.webp")} 1440w`}
+              sizes="(max-width: 899px) 86vw, 560px"
+              width="720"
+              height="194"
+              alt="한글 버핏킴즈 캘리그라피"
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+          <figcaption>
+            <span>한글 <b>버핏킴즈</b></span>
+            <span class="mono">국문 콘텐츠 · 짧은 인사</span>
+          </figcaption>
+        </figure>
+        <figure class="ab-brand-card">
+          <div class="ab-brand-art">
+            <img
+              src={withBase("/brand/buffetkimz-calligraphy-en-1400.webp")}
+              srcset={`${withBase("/brand/buffetkimz-calligraphy-en-700.webp")} 700w, ${withBase("/brand/buffetkimz-calligraphy-en-1400.webp")} 1400w`}
+              sizes="(max-width: 899px) 86vw, 560px"
+              width="1400"
+              height="467"
+              alt="영문 BuffetKimz 캘리그라피"
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+          <figcaption>
+            <span>영문 <b>BuffetKimz</b></span>
+            <span class="mono">긴 글 · 영문 자료</span>
+          </figcaption>
+        </figure>
+      </div>
+      <p class="ab-brand-note">
+        긴 글과 영문 자료에는 BuffetKimz, 국문 콘텐츠와 짧은 인사에는 버핏킴즈 — 장면에 맞춰 번갈아
+        씁니다. 어느 쪽이든 같은 이름입니다.
+      </p>
+    </div>
+  </section>
+
+  <!-- ⑦ 채널 허브 + 마무리 -->
+  <section class="ab-hubs" id="channels" aria-labelledby="ab-hubs-title">
+    <div class="wrap">
+      <div class="ab-hubs-head">
+        <div>
+          <p class="ab-kicker ab-kicker--ink">채널 · 본진</p>
+          <h2 class="ab-h2" id="ab-hubs-title">여기가 본진이고,<br />채널은 각자의 결로</h2>
         </div>
-        <div class="about-hq-side">
-          <ul class="about-hq-links">
-            {
-              hubLinks.map((l) => (
-                <li>
-                  <a href={withBase(l.href)} class="about-hq-link">
-                    {l.label}
-                    <span aria-hidden="true">→</span>
-                  </a>
-                </li>
-              ))
-            }
-          </ul>
-          <a href={withBase("/")} class="btn about-btn-solid about-hq-cta">홈에서 시작하기</a>
-        </div>
+        <p class="ab-hubs-desc">
+          긴 글과 계산은 여기에 모읍니다. 짧은 글은 각 채널에, 확정된 주소부터 순서대로 연결합니다.
+        </p>
       </div>
 
-      <ul class="about-channel-grid" data-about-channels>
+      <div class="ab-hq">
+        <div class="ab-hq-copy">
+          <p class="ab-hq-label mono">HQ</p>
+          <h3 class="ab-hq-title">기록 · 시뮬레이터 · 일정 · 검색이 한곳에</h3>
+          <p class="ab-hq-desc">
+            채널은 사람을 만나는 창구이고, 결론과 계산은 이곳에 쌓입니다. 어느 채널에서 오셨든 같은
+            기준의 글과 도구를 만나게 됩니다.
+          </p>
+        </div>
+        <ul class="ab-hq-links">
+          {
+            hubLinks.map((l) => (
+              <li>
+                <a href={withBase(l.href)}>
+                  {l.label}
+                  <span aria-hidden="true">→</span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <ul class="ab-channel-grid" data-about-channels>
         {
           channels.map((c) => (
-            <li class="about-channel">
-              <span class="about-channel-icon">
+            <li class="ab-channel">
+              <span class="ab-channel-icon">
                 <ChannelIcon name={iconOf[c.name] ?? "bookmark"} />
               </span>
-              <span class="about-channel-text">
-                <span class="about-channel-name">{c.name}</span>
-                <span class="about-channel-note">{c.note}</span>
+              <span class="ab-channel-text">
+                <span class="ab-channel-name">{c.name}</span>
+                <span class="ab-channel-note">{c.note}</span>
               </span>
-              <span class="about-channel-state">
+              <span class="ab-channel-state">
                 {c.url ? (
-                  <a href={c.url} target="_blank" rel="noopener noreferrer" class="about-channel-open">
-                    열기 <span aria-hidden="true">→</span>
+                  <a href={c.url} target="_blank" rel="noopener noreferrer" class="ab-channel-open">
+                    열기
                   </a>
                 ) : (
-                  <span class="about-channel-pending">주소 정리 중</span>
+                  <span class="ab-channel-pending">주소 정리 중</span>
                 )}
               </span>
             </li>
@@ -464,149 +554,43 @@ const jsonLd = graph([
         }
         {
           confirmedLinks.map((l) => (
-            <li class="about-channel">
-              <span class="about-channel-icon">
+            <li class="ab-channel">
+              <span class="ab-channel-icon">
                 <ChannelIcon name={iconOf[l.name] ?? "github"} />
               </span>
-              <span class="about-channel-text">
-                <span class="about-channel-name">{l.name}</span>
-                <span class="about-channel-note">{l.note}</span>
+              <span class="ab-channel-text">
+                <span class="ab-channel-name">{l.name}</span>
+                <span class="ab-channel-note">{l.note}</span>
               </span>
-              <span class="about-channel-state">
-                <a href={l.url} target="_blank" rel="noopener noreferrer" class="about-channel-open">
-                  열기 <span aria-hidden="true">→</span>
+              <span class="ab-channel-state">
+                <a href={l.url} target="_blank" rel="noopener noreferrer" class="ab-channel-open">
+                  열기
                 </a>
               </span>
             </li>
           ))
         }
-        <li class="about-channel about-channel--contact">
-          <span class="about-channel-icon">
-            <ChannelIcon name="kakao" />
-          </span>
-          <span class="about-channel-text">
-            <span class="about-channel-name">{site.contact.label}</span>
-            <span class="about-channel-note">일반 질문·오류 제보 · 상품 가입 권유·중개 아님</span>
-          </span>
-          <span class="about-channel-state">
-            <a href={site.contact.url} target="_blank" rel="noopener noreferrer" class="about-channel-open">
-              열기 <span aria-hidden="true">→</span>
-            </a>
-          </span>
-        </li>
       </ul>
-      <p class="about-foot">
-        채널 7곳 중 주소가 확정된 곳부터 연결합니다. {site.contact.disclaimer}
-      </p>
-    </div>
-  </section>
 
-  <!-- ⑦ 표식 — 공식 캘리그라피 -->
-  <section class="about-sign" id="brand" aria-labelledby="about-sign-title">
-    <div class="wrap about-section-pad">
-      <div class="about-head">
-        <div>
-          <p class="about-kicker about-kicker--mint">표식</p>
-          <h2 class="about-h2 about-h2--light" id="about-sign-title">서표 하나, 손글씨 두 장</h2>
-        </div>
-        <p class="about-head-desc about-head-desc--light">
-          2026년 11월에 공식 자산으로 확정했습니다. 비율을 바꾸거나 색을 덧칠하지 않고 그대로 씁니다.
-        </p>
-      </div>
-
-      <div class="about-sign-grid">
-        <figure class="about-sign-card">
-          <div class="about-sign-art">
-            <img
-              src={withBase("/brand/buffetkimz-calligraphy-ko-720.webp")}
-              srcset={`${withBase("/brand/buffetkimz-calligraphy-ko-360.webp")} 360w, ${withBase("/brand/buffetkimz-calligraphy-ko-720.webp")} 720w`}
-              sizes="(max-width: 899px) 82vw, 520px"
-              width="720"
-              height="194"
-              alt="한글 버핏킴즈 캘리그라피 — 흰 붓글씨와 푸른 빛줄기"
-              loading="lazy"
-              decoding="async"
-            />
-          </div>
-          <figcaption>
-            <span>한글 <b>버핏킴즈</b></span>
-            <span class="about-sign-dims">720 × 194</span>
-          </figcaption>
-        </figure>
-        <figure class="about-sign-card">
-          <div class="about-sign-art">
-            <img
-              src={withBase("/brand/buffetkimz-calligraphy-en-1400.webp")}
-              srcset={`${withBase("/brand/buffetkimz-calligraphy-en-700.webp")} 700w, ${withBase("/brand/buffetkimz-calligraphy-en-1400.webp")} 1400w`}
-              sizes="(max-width: 899px) 82vw, 520px"
-              width="1400"
-              height="467"
-              alt="영문 BuffetKimz 캘리그라피 — 흰 붓글씨와 푸른 빛줄기"
-              loading="lazy"
-              decoding="async"
-            />
-          </div>
-          <figcaption>
-            <span>영문 <b>BuffetKimz</b></span>
-            <span class="about-sign-dims">1400 × 467</span>
-          </figcaption>
-        </figure>
-      </div>
-      <p class="about-sign-note">
-        긴 글과 영문 자료에는 BuffetKimz, 국문 콘텐츠와 짧은 인사에는 버핏킴즈 — 장면에 맞춰 번갈아
-        씁니다. 어느 쪽이든 같은 이름입니다.
-      </p>
-    </div>
-  </section>
-
-  <!-- ⑧ 편집 원칙 + 다음 여정 -->
-  <section class="about-close" aria-labelledby="about-close-title">
-    <div class="wrap about-section-pad">
-      <div class="about-close-grid">
-        <div>
-          <p class="about-kicker about-kicker--ink">편집 · 검증</p>
-          <h2 class="about-h2" id="about-close-title">확인한 것만 싣고,<br />고친 기록을 남깁니다</h2>
-          <p class="about-close-body">
-            무엇을 싣고 무엇을 빼는지, 숫자를 어떻게 확인하는지 여섯 가지로 적어 두었습니다.
-            기준이 궁금하면 언제든 원문을 열어 확인하실 수 있습니다.
+      <div class="cta-band ab-cta">
+        <div class="ab-cta-copy">
+          <p class="ab-cta-label mono">{site.contact.label}</p>
+          <h3 class="ab-cta-title">내 숫자 하나부터, 함께 확인해 보시죠.</h3>
+          <p class="ab-cta-desc">
+            연금·세액공제·현금흐름·보장 중 어디서 막히는지 알려 주시면, 그 자리부터 숫자를 놓고 봅니다.
           </p>
-          <ul class="about-badges" aria-label="검증 절차">
-            {["출처 대조", "숫자 재계산", "사람이 다시 읽기", "정정 기록"].map((b) => (
-              <li class="about-badge">
-                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <path d="m5 12.4 4.4 4.4L19 6.8" />
-                </svg>
-                {b}
-              </li>
-            ))}
-          </ul>
-          <a href={withBase("/principles")} class="about-inline-link">
-            편집 원칙 여섯 가지 전체 보기
-            <span aria-hidden="true">→</span>
+        </div>
+        <div class="ab-cta-actions">
+          <a href={site.contact.url} target="_blank" rel="noopener noreferrer" class="btn cta-outline">
+            {site.contact.label}
           </a>
-        </div>
-
-        <div class="cta-band about-cta">
-          <p class="about-cta-label">다음 여정</p>
-          <h3 class="about-cta-title">내 숫자를 직접 넣어 확인해 보세요.</h3>
-          <p class="about-cta-desc">
-            도구는 가입 없이 브라우저에서 바로 열립니다. 입력한 값은 서버로 보내지 않습니다.
-          </p>
-          <div class="about-cta-actions">
-            <a href={withBase("/apps")} class="btn about-btn-solid">도구 써 보기</a>
-            <a href={withBase("/principles")} class="btn cta-outline">원칙 보기</a>
-          </div>
-          <p class="about-cta-links">
-            <a href={withBase("/posts")}>블로그 {posts.length}편</a>
-            <span aria-hidden="true">·</span>
-            <a href={withBase("/calendar")}>제도달력 {calendarCount}건</a>
-            <span aria-hidden="true">·</span>
-            <a href={site.contact.url} target="_blank" rel="noopener noreferrer">{site.contact.label}</a>
-          </p>
+          <a href="#diagnosis" class="btn cta-outline ab-cta-ghost">3초 진단 다시 보기</a>
         </div>
       </div>
 
-      <p class="about-legal">
+      <p class="ab-legal">
+        <a href={withBase("/principles")} class="link">편집 원칙</a>
+        <span aria-hidden="true">·</span>
         <a href={withBase("/privacy")} class="link">개인정보처리방침</a>
         <span aria-hidden="true">·</span>
         <a href={withBase("/terms")} class="link">이용약관</a>
@@ -654,6 +638,24 @@ const jsonLd = graph([
         { threshold: 0.4 }
       );
       counters.forEach((el) => io.observe(el));
+    }
+
+    /* 전문 영역 탭 — 한 번에 하나만. 자바스크립트가 없으면 첫 패널만 보인다. */
+    const tabWrap = document.querySelector<HTMLElement>("[data-ab-tabs]");
+    if (tabWrap) {
+      const tabs = [...tabWrap.querySelectorAll<HTMLElement>("[data-ab-tab]")];
+      const panels = [...document.querySelectorAll<HTMLElement>("[data-ab-panel]")];
+      const apply = (id: string) => {
+        tabs.forEach((t) => {
+          const on = t.dataset.abTab === id;
+          t.dataset.on = on ? "1" : "0";
+          t.setAttribute("aria-selected", on ? "true" : "false");
+        });
+        panels.forEach((p) => {
+          p.hidden = p.dataset.abPanel !== id;
+        });
+      };
+      tabs.forEach((t) => t.addEventListener("click", () => apply(t.dataset.abTab ?? "finance")));
     }
   </script>
 </Base>

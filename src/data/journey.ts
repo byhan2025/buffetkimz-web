@@ -96,7 +96,7 @@ const readingTracks: ReadingTrack[] = [
     ],
     end: {
       href: "/calendar",
-      name: "제도 일정 달력",
+      name: "금융캘린더",
       why: "지표를 읽었으니, 놓치면 손해가 생기는 기한과 절차를 날짜로 확인합니다",
     },
     why: {
@@ -170,7 +170,7 @@ export function nextReading(postId: string): ReadingNext | null {
 /**
  * 도구 여정 — '이 다음으로 많이 쓰는 도구'.
  * 예: 세액공제(넣는 돈) → 연금 인출(받는 돈) → 은퇴 현금흐름 → 복리 → 실손 비교 → 보장 점검 → 고지.
- * 마지막은 도구자료실 전체로 돌려 보낸다.
+ * 마지막은 앱스토어 전체로 돌려 보낸다.
  */
 export type ToolNext = { href: string; name: string; why: string };
 
@@ -197,7 +197,7 @@ const toolTrack: Record<string, ToolNext> = {
   },
   "compound-return": {
     href: "/calendar",
-    name: "제도 일정 달력",
+    name: "금융캘린더",
     why: "수익률 다음은 놓치면 손해인 기한 — 연말정산·납입 마감을 날짜로 봅니다",
   },
   "silson-compare": {
@@ -212,7 +212,7 @@ const toolTrack: Record<string, ToolNext> = {
   },
   "disclosure-check": {
     href: "/apps",
-    name: "도구자료실 전체",
+    name: "앱스토어 전체",
     why: "고지까지 확인했다면, 남은 계산 도구를 한자리에서 골라 봅니다",
   },
   "trade-timemachine": {
@@ -226,7 +226,7 @@ export function nextTool(slug: string): ToolNext {
   return (
     toolTrack[slug] ?? {
       href: "/apps",
-      name: "도구자료실 전체",
+      name: "앱스토어 전체",
       why: "다른 도구도 같은 자리에서 열어 볼 수 있습니다",
     }
   );

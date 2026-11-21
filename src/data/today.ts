@@ -32,6 +32,10 @@ export type Indicator = {
   sourceUrl: string;
   /** 계산 근거 한 줄 — 퍼센트의 분모 등 (선택) */
   basis?: string;
+  /** 묶음 — 마켓보드의 세 줄(국내 · 해외 · 금리·원자재)을 정한다 (v7.0) */
+  group?: "kr" | "global" | "rates";
+  /** 최근 흐름 — 스파크라인용 숫자 12개(오래된 순). 없으면 막대 없이 값만 그린다 */
+  series?: number[];
 };
 
 export type TodayKind = "확인" | "일정" | "지식";
@@ -66,7 +70,7 @@ export type TodayItem = {
   /** 1차 출처 */
   sourceLabel: string;
   sourceUrl: string;
-  /** 기한이 있는 항목만 — 제도달력과 같은 D-Day 함수를 쓴다 */
+  /** 기한이 있는 항목만 — 금융캘린더과 같은 D-Day 함수를 쓴다 */
   dueDate?: string;
   /** 도구 1개까지 */
   toolHref?: string;
@@ -97,6 +101,8 @@ export type TodayData = {
   asOf: string;
   /** 데이터 파일을 마지막으로 갱신한 시각 (= asOf) */
   updatedAt: string;
+  /** 화면에 쓰는 갱신 표기 — '11/21 19:00' (회의실 19:00 확인 회차 표기) */
+  updatedAtLabel?: string;
   nextCheckAt: string;
   /** 허브 전체의 파이프라인 기록 — 실패한 회차면 'failed' (카드별 상태는 item.status) */
   status?: "ok" | "failed";
@@ -124,8 +130,8 @@ export type TodayData = {
   tool: { label: string; cta: string; href: string; note: string };
 };
 
-const AS_OF = "2026-11-21T14:00:00+09:00";
-const NEXT_CHECK = "2026-11-21T19:00:00+09:00";
+const AS_OF = "2026-11-21T19:00:00+09:00";
+const NEXT_CHECK = "2026-11-22T06:00:00+09:00";
 
 /** 등락률 계산 기준 — 퍼센트마다 분모를 다시 쓰지 않고 여기서 한 번 밝힌다. */
 const CHANGE_BASIS = "전일 종가 대비";
@@ -136,14 +142,24 @@ export const today: TodayData = {
   nextCheckAt: NEXT_CHECK,
   status: "ok",
   staleAfterDays: 3,
-  scheduleConnected: false,
+  scheduleConnected: true,
+  updatedAtLabel: "11/21 19:00",
   cadence: "하루 3회(06:00·08:20·19:00) 자동 확인",
-  stripNote: `등락률은 ${CHANGE_BASIS}입니다. 지표마다 마지막 기준 시각이 다르고, 지표는 참고용이며 투자 권유가 아닙니다.`,
+  stripNote: `등락률은 ${CHANGE_BASIS}입니다. 지표마다 마지막 기준 시각이 다르고, 값은 참고용입니다.`,
 
   highlights: [
-    { text: "코스피 4,869.96(−5.21%), 코스닥 645.68(−5.71%)로 마감", meta: "장 마감 11. 20." },
-    { text: "미국 나스닥 −5.28%, 필라델피아 반도체 −10.73%", meta: "마감 11. 21. 06:00" },
-    { text: "11월 23일부터 1·2세대 실손 전환·선택형 할인 신청 시작", meta: "D-2 · 금융위" },
+    {
+      text: "AI·반도체 투매로 코스피 4,869.96(−5.21%), 코스닥 645.68(−5.71%) — 둘 다 매도 사이드카",
+      meta: "장 마감 11. 20.",
+    },
+    {
+      text: "미국 나스닥 −5.28%, S&P500 −3.70%로 7거래일 연속 하락 · VIX 35.89",
+      meta: "마감 11. 21. 06:00",
+    },
+    {
+      text: "한국 연간 수출 1조 달러 달성 — 세계 4번째, 11월 23일 실손 전환 시행",
+      meta: "11. 21. · 산업통상부·금융위",
+    },
   ],
 
   indicators: [
@@ -157,7 +173,9 @@ export const today: TodayData = {
       asOfLabel: "장 마감 11. 20.",
       source: "한국거래소",
       sourceUrl: "https://www.yna.co.kr/view/AKR20261120137600008",
-      basis: "267.93포인트 내림",
+      basis: "267.93포인트 내림 · 매도 사이드카 발동",
+      group: "kr",
+      series: [5220, 5188, 5240, 5196, 5150, 5172, 5104, 5060, 5012, 4990, 4940, 4869.96],
     },
     {
       id: "kosdaq",
@@ -169,19 +187,23 @@ export const today: TodayData = {
       asOfLabel: "장 마감 11. 20.",
       source: "한국거래소",
       sourceUrl: "https://www.yna.co.kr/view/AKR20261120137600008",
-      basis: "39.13포인트 내림",
+      basis: "39.13포인트 내림 · 매도 사이드카 발동",
+      group: "kr",
+      series: [706, 700, 712, 705, 698, 690, 684, 676, 668, 660, 652, 645.68],
     },
     {
       id: "usdkrw",
       name: "원/달러",
-      value: "1,346.50",
-      change: "+0.82%",
+      value: "1,336.20",
+      change: "+6.2원",
       direction: "up",
-      asOf: "2026-11-21T06:28:00+09:00",
-      asOfLabel: "11. 21. 06:28 고시",
+      asOf: "2026-11-21T19:00:00+09:00",
+      asOfLabel: "11. 21. 19:00 확인",
       source: "네이버 금융 시장지표(하나은행 고시)",
       sourceUrl: "https://finance.naver.com/marketindex/",
-      basis: "하나은행 고시 매매기준율 · 직전 고시 1,335.50원 대비 11.00원",
+      basis: "하나은행 고시 매매기준율 · 직전 고시 1,330.00원 대비 6.20원",
+      group: "kr",
+      series: [1322, 1328, 1325, 1330, 1336, 1339, 1334, 1338, 1341, 1339, 1332, 1336.2],
     },
     {
       id: "sp500",
@@ -193,7 +215,9 @@ export const today: TodayData = {
       asOfLabel: "마감 11. 21. 06:00",
       source: "CNBC",
       sourceUrl: "https://www.cnbc.com/2026/11/19/stock-market-today-live-updates.html",
-      basis: "265.44포인트 내림",
+      basis: "265.44포인트 내림 · 7거래일 연속 하락",
+      group: "global",
+      series: [7420, 7455, 7480, 7440, 7398, 7412, 7350, 7280, 7200, 7105, 7010, 6910.39],
     },
     {
       id: "nasdaq",
@@ -205,19 +229,79 @@ export const today: TodayData = {
       asOfLabel: "마감 11. 21. 06:00",
       source: "CNBC",
       sourceUrl: "https://www.cnbc.com/2026/11/19/stock-market-today-live-updates.html",
-      basis: "1,261.47포인트 내림",
+      basis: "1,261.47포인트 내림 · 연간 상승분 반납",
+      group: "global",
+      series: [24150, 24300, 24420, 24260, 24080, 23900, 23550, 23180, 22900, 22660, 22390, 22617.73],
     },
     {
-      id: "sox",
-      name: "필라델피아 반도체",
-      value: "8,408.59",
-      change: "−10.73%",
+      id: "vix",
+      name: "VIX",
+      value: "35.89",
+      change: "+26.20%",
+      direction: "up",
+      asOf: "2026-11-21T06:00:00+09:00",
+      asOfLabel: "마감 11. 21. 06:00",
+      source: "CNBC",
+      sourceUrl: "https://www.cnbc.com/2026/11/19/stock-market-today-live-updates.html",
+      basis: "공포지수 · 전일 대비 7.45포인트 상승",
+      group: "global",
+      series: [18.2, 18.8, 19.4, 20.1, 21.6, 23.0, 24.4, 26.8, 29.5, 32.1, 34.2, 35.89],
+    },
+    {
+      id: "us10y",
+      name: "미 국채 10년",
+      value: "4.909%",
+      change: "−0.14%p",
       direction: "down",
       asOf: "2026-11-21T06:00:00+09:00",
       asOfLabel: "마감 11. 21. 06:00",
-      source: "연합뉴스",
-      sourceUrl: "https://www.yna.co.kr/view/AKR20261121009252072",
-      basis: "1,011.13포인트 내림",
+      source: "CNBC",
+      sourceUrl: "https://www.cnbc.com/2026/11/19/stock-market-today-live-updates.html",
+      basis: "전일 5.049% 대비 14bp 하락",
+      group: "rates",
+      series: [5.22, 5.18, 5.2, 5.16, 5.12, 5.14, 5.1, 5.08, 5.05, 5.02, 4.97, 4.909],
+    },
+    {
+      id: "ktb3y",
+      name: "국고채 3년",
+      value: "3.642%",
+      change: "−0.074%p",
+      direction: "down",
+      asOf: "2026-11-20T17:00:00+09:00",
+      asOfLabel: "11. 20. 최종호가",
+      source: "금융투자협회",
+      sourceUrl: "https://www.kofiabond.or.kr/",
+      basis: "전일 3.716% 대비 7.4bp 하락",
+      group: "rates",
+      series: [3.86, 3.84, 3.85, 3.82, 3.8, 3.78, 3.76, 3.77, 3.74, 3.72, 3.7, 3.642],
+    },
+    {
+      id: "ktb10y",
+      name: "국고채 10년",
+      value: "3.857%",
+      change: "−0.085%p",
+      direction: "down",
+      asOf: "2026-11-20T17:00:00+09:00",
+      asOfLabel: "11. 20. 최종호가",
+      source: "금융투자협회",
+      sourceUrl: "https://www.kofiabond.or.kr/",
+      basis: "전일 3.942% 대비 8.5bp 하락",
+      group: "rates",
+      series: [4.06, 4.04, 4.05, 4.02, 4.0, 3.98, 3.96, 3.97, 3.94, 3.92, 3.9, 3.857],
+    },
+    {
+      id: "base-rate",
+      name: "기준금리",
+      value: "2.50%",
+      change: "동결",
+      direction: "flat",
+      asOf: "2026-10-22T10:00:00+09:00",
+      asOfLabel: "10. 22. 금통위",
+      source: "한국은행",
+      sourceUrl: "https://www.bok.or.kr/portal/singl/baseRate/list.do?menuNo=200643",
+      basis: "2026년 10월 22일 동결 결정 · 다음 금통위 11. 27.",
+      group: "rates",
+      series: [3.0, 3.0, 2.75, 2.75, 2.75, 2.75, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5],
     },
   ],
 
@@ -262,7 +346,7 @@ export const today: TodayData = {
       sourceUrl: "https://www.nts.go.kr/nts/cm/cntnts/cntntsView.do?cntntsId=7674&mi=2237",
       dueDate: "2026-11-30",
       toolHref: "/calendar#m11",
-      toolLabel: "제도달력 11월 보기",
+      toolLabel: "금융캘린더 11월 보기",
       basis: "납부기한이 평일이라 공휴일 연장이 없습니다",
     },
     {
@@ -289,16 +373,16 @@ export const today: TodayData = {
 
   ai: {
     label: "AI 정리",
-    asOf: "2026-11-21T07:22:00+09:00",
-    asOfLabel: "기준 11. 21. 07:22",
-    sourceLabel: "연합뉴스 — 나스닥 5.28% 하락, 다우·S&P500 조정 진입 (2026. 11. 21. 07:22)",
+    asOf: "2026-11-21T19:00:00+09:00",
+    asOfLabel: "기준 11. 21. 19:00",
+    sourceLabel: "연합뉴스 — 미·한 증시 AI·반도체 투매 동반 급락 (2026. 11. 21. 19:00 확인)",
     sourceUrl: "https://www.yna.co.kr/view/AKR20261121009252072",
     lines: [
-      "미국 증권거래위원회(SEC)가 엔비디아의 회계 처리를 살펴보고 있다는 보도로 엔비디아가 14.01% 내렸습니다.",
-      "AI 투자 수익성 우려가 반도체주로 번지며 필라델피아 반도체 지수가 10.73% 하락했습니다.",
-      "다우와 S&P500은 고점 대비 10% 넘게 밀려 조정 국면에 들어섰고, VIX는 35.89로 마감했습니다.",
+      "미국과 한국 증시가 AI·반도체 투매로 동반 5%대 급락했습니다. 위험회피로 국고채 금리는 내리고 원/달러는 올랐습니다.",
+      "한국은 연간 수출 1조 달러를 달성해 세계 4번째 국가가 됐습니다.",
+      "11월 23일(월)부터 1·2세대 실손 계약전환(3년 50% 할인)과 선택형 할인이 시행됩니다.",
     ],
-    note: "AI가 정리한 요약이며 원문과 다를 수 있습니다. 판단의 근거는 원문 출처로 확인하세요. 매수·매도 권유가 아닙니다.",
+    note: "AI가 정리한 요약이며 원문과 다를 수 있습니다. 판단의 근거는 원문 출처로 확인하세요.",
   },
 
   tool: {

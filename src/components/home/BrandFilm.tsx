@@ -13,8 +13,8 @@
  * 필름 구역에는 요약 설명을 붙이고 H1은 정적 록업이 갖는다(자바스크립트 없이도 읽힌다).
  */
 import { useEffect, useRef, useState } from "react";
-import BrandMark from "@/components/BrandMark.tsx";
 import { withBase } from "@/config/site";
+import { today as hub } from "@/data/today";
 
 const TOTAL = 12;
 const SCENES = [
@@ -48,13 +48,23 @@ const SIGN = {
     height: 467,
   },
   ko: {
-    src: withBase("/brand/buffetkimz-calligraphy-ko-720.webp"),
-    srcSet: `${withBase("/brand/buffetkimz-calligraphy-ko-360.webp")} 360w, ${withBase("/brand/buffetkimz-calligraphy-ko-720.webp")} 720w`,
-    width: 720,
-    height: 194,
+    /* v7.0 — 씬5의 주인공. 1440px 업스케일본까지 물려 큰 화면에서도 붓결이 버틴다. */
+    src: withBase("/brand/buffetkimz-calligraphy-ko-1440.webp"),
+    srcSet: `${withBase("/brand/buffetkimz-calligraphy-ko-360.webp")} 360w, ${withBase("/brand/buffetkimz-calligraphy-ko-720.webp")} 720w, ${withBase("/brand/buffetkimz-calligraphy-ko-1440.webp")} 1440w`,
+    width: 1420,
+    height: 376,
   },
 };
-const SIGN_SIZES = "(max-width: 767px) 72vw, 380px";
+const SIGN_SIZES = "(max-width: 767px) 88vw, min(72vw, 900px)";
+
+/** 장면2 하단 티커 — 값은 홈 마켓보드와 같은 데이터(today.ts)에서 온다. */
+const TICKER = hub.indicators.slice(0, 6).map((i) => ({
+  id: i.id,
+  name: i.name,
+  value: i.value,
+  change: i.change,
+  dir: i.direction,
+}));
 
 /** 빛 입자의 반지름·밝기·격자 — 시간 하나로만 결정된다(되감아도 같은 그림). */
 const KEYS = {
@@ -326,6 +336,7 @@ export default function BrandFilm({ appsHref = "/apps" }: { appsHref?: string })
         <div className="film-scenes">
           {/* Scene 1 — 0.0~1.5 폭발하고 응집하는 빛 */}
           <div className="film-scene" data-scene="1" aria-hidden="true">
+            <div className="fs1-gold" data-fs1-gold />
             <div className="fs1-core" data-fs1-core />
             <div className="fs1-rings" aria-hidden="true">
               <i />
@@ -333,8 +344,14 @@ export default function BrandFilm({ appsHref = "/apps" }: { appsHref?: string })
               <i />
             </div>
             <p className="film-mono fs1-cap" data-fs1-cap>
-              BUFFETKIMZ · BRAND FILM · 2026
+              버핏킴즈 · 브랜드 필름 · 2026
             </p>
+            <div className="fs1-axis" data-fs1-axis aria-hidden="true">
+              <i />
+              <i />
+              <i />
+              <i />
+            </div>
           </div>
 
           {/* Scene 2 — 1.5~3.8 다섯 키워드 0.46초 스왑 */}
@@ -351,6 +368,22 @@ export default function BrandFilm({ appsHref = "/apps" }: { appsHref?: string })
                     </span>
                     <span className="fs2-kr">{w.kr}</span>
                     <span className="fs2-line">{w.line}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            {/* 하단 티커 — 마켓보드와 같은 값. 장면2에서만 흐른다. */}
+            <div className="fs2-ticker" data-fs2-ticker>
+              <div className="fs2-ticker-track" data-fs2-ticker-track>
+                {[0, 1].map((copy) => (
+                  <div className="fs2-ticker-set" key={copy} aria-hidden={copy === 1}>
+                    {TICKER.map((t) => (
+                      <span className="fs2-ticker-item" key={`${copy}-${t.id}`}>
+                        <span className="fs2-ticker-name">{t.name}</span>
+                        <span className="fs2-ticker-value">{t.value}</span>
+                        <span className={`fs2-ticker-change is-${t.dir}`}>{t.change}</span>
+                      </span>
+                    ))}
                   </div>
                 ))}
               </div>
@@ -444,6 +477,11 @@ export default function BrandFilm({ appsHref = "/apps" }: { appsHref?: string })
                 <i key={`h${i}`} className="h" style={{ top: `${(i * 100) / 7}%` }} />
               ))}
             </div>
+            <div className="fs4-streaks" data-fs4-streaks aria-hidden="true">
+              {Array.from({ length: 9 }).map((_, i) => (
+                <i key={`s${i}`} style={{ top: `${8 + i * 10}%` }} />
+              ))}
+            </div>
             <div className="fs4-text">
               <p className="fs4-line" data-fs4-line1>
                 다섯 개의 시선,
@@ -454,31 +492,25 @@ export default function BrandFilm({ appsHref = "/apps" }: { appsHref?: string })
             </div>
           </div>
 
-          {/* Scene 5 — 7.8~10.2 시네마틱 브랜드 록업 */}
-          <div className="film-scene" data-scene="5" aria-hidden="true">
+          {/* Scene 5 — 7.8~10.2 시네마틱 브랜드 록업 (한글 단독) */}
+          <div className="film-scene film-scene--lockup" data-scene="5" aria-hidden="true">
             <div className="fs5-flash" data-fs5-flash />
+            <div className="fs5-beams" data-fs5-beams>
+              <i />
+              <i />
+              <i />
+              <i />
+              <i />
+            </div>
+            <div className="fs5-ring" data-fs5-ring aria-hidden="true" />
             <div className="fs5-wrap">
               <p className="film-mono fs5-kicker" data-fs5-kicker>
-                잠깐의 숫자가 아니라, 오래 쓰는 기준
+                금융 · 투자 · 연금 · 재무
               </p>
-              <p className="fs5-title" data-fs5-title>
-                숫자 너머의 기준
-              </p>
-              <p className="fs5-mark" data-fs5-mark>
-                <BrandMark tone="dark" />
-              </p>
-              <p className="fs5-sign" data-fs5-sign>
-                <img
-                  className="fs5-sign-art"
-                  data-fs5-sign-en
-                  src={SIGN.en.src}
-                  srcSet={SIGN.en.srcSet}
-                  sizes={SIGN_SIZES}
-                  width={SIGN.en.width}
-                  height={SIGN.en.height}
-                  alt=""
-                  decoding="async"
-                />
+
+              {/* 한글 캘리그라피가 주인공 — 영문 워드마크·심벌은 씬5에서 걷어냈다. */}
+              <div className="fs5-sign" data-fs5-sign>
+                <span className="fs5-sign-glow" aria-hidden="true" />
                 <img
                   className="fs5-sign-art"
                   data-fs5-sign-ko
@@ -490,12 +522,23 @@ export default function BrandFilm({ appsHref = "/apps" }: { appsHref?: string })
                   alt=""
                   decoding="async"
                 />
+              </div>
+
+              <p className="fs5-title" data-fs5-title>
+                숫자 너머의 기준
               </p>
+              <p className="fs5-rule" data-fs5-rule aria-hidden="true" />
               <p className="fs5-sub" data-fs5-sub>
-                금융 · 투자 · 연금 · 노후 · 보험을 매일 기록합니다
+                금융·투자·연금·재무를 하나의 기준으로 읽는 컨설팅 아카이브
               </p>
+              <ul className="fs5-tags" data-fs5-tags>
+                {["1차 출처", "기준일", "가정과 한계"].map((t) => (
+                  <li key={t}>{t}</li>
+                ))}
+              </ul>
             </div>
             <div className="fs5-sweep" data-fs5-sweep />
+            <div className="fs5-sweep fs5-sweep--gold" data-fs5-sweep-gold />
           </div>
 
           {/* Scene 6 — 10.2~12.0 스크롤 큐 */}
@@ -529,28 +572,22 @@ export default function BrandFilm({ appsHref = "/apps" }: { appsHref?: string })
           </div>
         </div>
 
-        {/* 정적 록업 — 자바스크립트 없음 · 모션 축소 · 첫 페인트 */}
+        {/* 정적 록업 — 자바스크립트 없음 · 모션 축소 · 첫 페인트 (한글 단독) */}
         <div className="film-static" data-film-static>
-          <p className="film-mono film-static-kicker">BUFFETKIMZ · BRAND FILM</p>
-          <p className="film-static-title">
-            숫자 너머의 기준,
-            <br />
-            <span className="film-static-mark">
-              <BrandMark tone="dark" />
-            </span>
-          </p>
+          <p className="film-mono film-static-kicker">브랜드 필름 · 2026</p>
           <p className="film-static-sign">
             <img
-              src={SIGN.en.src}
-              srcSet={SIGN.en.srcSet}
-              sizes="(max-width: 767px) 62vw, 300px"
-              width={SIGN.en.width}
-              height={SIGN.en.height}
-              alt="BuffetKimz — 붓글씨 브랜드 배너"
+              src={SIGN.ko.src}
+              srcSet={SIGN.ko.srcSet}
+              sizes="(max-width: 767px) 84vw, 620px"
+              width={SIGN.ko.width}
+              height={SIGN.ko.height}
+              alt="버핏킴즈 — 한글 붓글씨 브랜드 배너"
               decoding="async"
             />
           </p>
-          <p className="film-static-sub">숫자를 확인하고, 기록으로 남깁니다</p>
+          <p className="film-static-title">숫자 너머의 기준</p>
+          <p className="film-static-sub">금융 · 투자 · 연금 · 재무를 하나의 기준으로 읽습니다</p>
           <p className="film-mono film-static-fields">금융 · 투자 · 연금 · 노후 · 보험</p>
           <div className="film-static-actions">
             <a className="btn btn-primary film-btn-light" href="#about">
@@ -566,8 +603,8 @@ export default function BrandFilm({ appsHref = "/apps" }: { appsHref?: string })
         <div className="film-hud">
           <div className="film-hud-left">
             <p className="film-hud-brand">
-              <BrandMark tone="dark" size="21px" />
-              <span className="film-mono">BRAND FILM</span>
+              <span className="film-hud-ko">버핏킴즈</span>
+              <span className="film-mono">브랜드 필름</span>
             </p>
             <p className="film-hud-line">숫자를 확인하고, 기록으로 남깁니다</p>
           </div>
@@ -983,6 +1020,20 @@ function buildTimeline(gsap: any, root: HTMLElement) {
       1.22
     );
   }
+  /* 골드 플레어·축 — 폭발 순간을 한 번 더 밝힌다 */
+  const gold1 = q("[data-fs1-gold]");
+  if (gold1)
+    tl.fromTo(gold1, { scale: 0.2, autoAlpha: 0 }, { scale: 1.5, autoAlpha: 0.85, duration: 0.5, ease: "power2.out" }, 0.1).to(
+      gold1,
+      { autoAlpha: 0, scale: 2.1, duration: 0.7, ease: "power2.in" },
+      0.7
+    );
+  tl.fromTo(
+    qa("[data-fs1-axis] > i"),
+    { scaleX: 0, autoAlpha: 0 },
+    { scaleX: 1, autoAlpha: 0.7, duration: 0.42, stagger: 0.07, ease: "power3.out" },
+    0.28
+  ).to(qa("[data-fs1-axis] > i"), { autoAlpha: 0, duration: 0.25 }, 1.15);
 
   /* Scene 2 — 0.46초 단위 키네틱 타이포 ------------------------------ */
   qa("[data-fs2-word]").forEach((el, i) => {
@@ -1003,6 +1054,13 @@ function buildTimeline(gsap: any, root: HTMLElement) {
       3.55
     );
   }
+
+  /* 하단 티커 — 왼쪽으로 흐르며 '시장'의 리듬을 만든다 */
+  const ticker = q("[data-fs2-ticker]");
+  const tickerTrack = q("[data-fs2-ticker-track]");
+  if (ticker) tl.fromTo(ticker, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.3 }, 1.56).to(ticker, { autoAlpha: 0, duration: 0.22 }, 3.5);
+  if (tickerTrack)
+    tl.fromTo(tickerTrack, { xPercent: 6 }, { xPercent: -50, duration: 2.1, ease: "none" }, 1.6);
 
   /* Scene 3 — 곡선 드로잉 -------------------------------------------- */
   const grid3 = q("[data-fs3-grid]");
@@ -1065,60 +1123,97 @@ function buildTimeline(gsap: any, root: HTMLElement) {
     tl.fromTo(l2, { yPercent: 112, autoAlpha: 0 }, { yPercent: 0, autoAlpha: 1, duration: 0.24, ease: "power4.out" }, 6.62);
   if (g4) tl.to(g4, { autoAlpha: 0.25, duration: 0.4 }, 7.36);
 
-  /* Scene 5 — 시네마틱 록업 ------------------------------------------ */
+  /* 스피드 라인 — 와이프 뒤로 정보가 지나가는 느낌 */
+  const streaks = qa("[data-fs4-streaks] > i");
+  streaks.forEach((el, i) => {
+    tl.fromTo(
+      el,
+      { xPercent: 120, autoAlpha: 0, scaleX: 0.4 },
+      { xPercent: -140, autoAlpha: 0.8, scaleX: 1, duration: 0.9 + (i % 3) * 0.12, ease: "power2.out" },
+      6.08 + i * 0.055
+    ).to(el, { autoAlpha: 0, duration: 0.24 }, 6.85 + i * 0.055);
+  });
+
+  /* Scene 5 — 시네마틱 록업 (한글 단독) ------------------------------ */
   const flash = q("[data-fs5-flash]");
   if (flash)
-    tl.fromTo(flash, { autoAlpha: 0 }, { autoAlpha: 0.5, duration: 0.18, ease: "power2.out" }, 7.82).to(
+    tl.fromTo(flash, { autoAlpha: 0 }, { autoAlpha: 0.55, duration: 0.2, ease: "power2.out" }, 7.82).to(
       flash,
-      { autoAlpha: 0, duration: 0.62, ease: "power2.in" },
+      { autoAlpha: 0, duration: 0.66, ease: "power2.in" },
       8.06
     );
+
+  const beams = qa("[data-fs5-beams] > i");
+  beams.forEach((el, i) => {
+    tl.fromTo(
+      el,
+      { scaleY: 0.2, autoAlpha: 0, yPercent: -10 },
+      { scaleY: 1, autoAlpha: 0.5, yPercent: 0, duration: 0.7, ease: "power3.out" },
+      7.86 + i * 0.06
+    ).to(el, { autoAlpha: 0.12, duration: 0.9, ease: "sine.inOut" }, 8.6 + i * 0.05);
+  });
+
+  const ring5 = q("[data-fs5-ring]");
+  if (ring5)
+    tl.fromTo(ring5, { scale: 0.3, autoAlpha: 0 }, { scale: 1, autoAlpha: 0.55, duration: 0.7, ease: "power3.out" }, 7.9).to(
+      ring5,
+      { scale: 1.24, autoAlpha: 0.18, duration: 1.4, ease: "sine.inOut" },
+      8.7
+    );
+
   const k5 = q("[data-fs5-kicker]");
   const t5 = q("[data-fs5-title]");
-  const m5 = q("[data-fs5-mark]");
+  const r5 = q("[data-fs5-rule]");
   const s5 = q("[data-fs5-sub]");
-  if (k5) tl.fromTo(k5, { autoAlpha: 0, y: 8 }, { autoAlpha: 1, y: 0, duration: 0.3 }, 7.9);
-  if (t5)
-    tl.fromTo(
-      t5,
-      { autoAlpha: 0, y: 22, letterSpacing: "0.12em" },
-      { autoAlpha: 1, y: 0, letterSpacing: "-0.04em", duration: 0.5 },
-      7.98
-    );
-  if (m5)
-    tl.fromTo(
-      m5,
-      { autoAlpha: 0, scale: 0.9, filter: "blur(12px)" },
-      { autoAlpha: 1, scale: 1, filter: "blur(0px)", duration: 0.62, ease: "power3.out" },
-      8.16
-    ).to(m5, { scale: 1.015, duration: 0.6, ease: "sine.inOut" }, 8.85);
-  if (s5) tl.fromTo(s5, { autoAlpha: 0, y: 10 }, { autoAlpha: 1, y: 0, duration: 0.4 }, 8.52);
-
-  /* 손글씨 배너 — 영문이 먼저 지워지듯 나타났다가 한글로 넘어가 씬 끝까지 남는다 */
-  const signEn = q("[data-fs5-sign-en]");
   const signKo = q("[data-fs5-sign-ko]");
-  if (signEn)
-    tl.fromTo(
-      signEn,
-      { autoAlpha: 0, scale: 1.05, filter: "blur(10px)", clipPath: "inset(0% 10% 0% 10%)" },
-      { autoAlpha: 1, scale: 1, filter: "blur(0px)", clipPath: "inset(0% 0% 0% 0%)", duration: 0.7, ease: "power2.out" },
-      8.3
-    ).to(signEn, { autoAlpha: 0, scale: 1.02, duration: 0.32, ease: "power2.inOut" }, 9.02);
+  const signWrap = q("[data-fs5-sign]");
+  const sweep = q("[data-fs5-sweep]");
+  const sweepGold = q("[data-fs5-sweep-gold]");
+
+  if (k5) tl.fromTo(k5, { autoAlpha: 0, y: 8 }, { autoAlpha: 1, y: 0, duration: 0.26 }, 7.88);
+
+  /* 한글 캘리그라피 — 이 장면의 주인공. 크게, 느리게, 빛을 두르고 들어온다. */
   if (signKo)
     tl.fromTo(
       signKo,
-      { autoAlpha: 0, scale: 1.06, filter: "blur(10px)", clipPath: "inset(0% 10% 0% 10%)" },
-      { autoAlpha: 1, scale: 1, filter: "blur(0px)", clipPath: "inset(0% 0% 0% 0%)", duration: 0.6, ease: "power2.out" },
-      9.1
+      { autoAlpha: 0, scale: 1.16, filter: "blur(16px) brightness(1.5)" },
+      { autoAlpha: 1, scale: 1, filter: "blur(0px) brightness(1)", duration: 0.72, ease: "power3.out" },
+      7.96
+    ).to(signKo, { scale: 1.025, duration: 1.3, ease: "sine.inOut" }, 8.78);
+  if (signWrap) tl.fromTo(signWrap, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.2 }, 7.96);
+
+  if (t5)
+    tl.fromTo(
+      t5,
+      { autoAlpha: 0, y: 18, letterSpacing: "0.16em" },
+      { autoAlpha: 1, y: 0, letterSpacing: "-0.02em", duration: 0.46 },
+      8.5
     );
-  const sweep = q("[data-fs5-sweep]");
+  if (r5)
+    tl.fromTo(r5, { scaleX: 0, autoAlpha: 0 }, { scaleX: 1, autoAlpha: 1, duration: 0.5, ease: "power2.inOut" }, 8.62);
+  if (s5) tl.fromTo(s5, { autoAlpha: 0, y: 10 }, { autoAlpha: 1, y: 0, duration: 0.36 }, 8.72);
+  tl.fromTo(
+    qa("[data-fs5-tags] > li"),
+    { autoAlpha: 0, y: 8 },
+    { autoAlpha: 1, y: 0, duration: 0.26, stagger: 0.06 },
+    8.86
+  );
+
+  /* 빛줄기 — 흰 섬광과 골드 스윕이 차례로 지나간다 */
   if (sweep)
     tl.fromTo(
       sweep,
       { xPercent: -130, autoAlpha: 0 },
-      { xPercent: 130, autoAlpha: 0.9, duration: 0.85, ease: "power2.inOut" },
-      8.2
-    ).to(sweep, { autoAlpha: 0, duration: 0.1 }, 9.02);
+      { xPercent: 130, autoAlpha: 0.9, duration: 0.8, ease: "power2.inOut" },
+      8.12
+    ).to(sweep, { autoAlpha: 0, duration: 0.1 }, 8.92);
+  if (sweepGold)
+    tl.fromTo(
+      sweepGold,
+      { xPercent: 120, autoAlpha: 0 },
+      { xPercent: -130, autoAlpha: 0.7, duration: 0.95, ease: "power2.inOut" },
+      8.9
+    ).to(sweepGold, { autoAlpha: 0, duration: 0.12 }, 9.86);
 
   /* Scene 6 — 스크롤 큐 ---------------------------------------------- */
   const q6 = qa(".fs6-wrap > div:first-child > *, .fs6-cue");

@@ -6,13 +6,15 @@ import IntroPortrait from "@/components/home/IntroPortrait.astro";
 import ArchiveLibrary from "@/components/home/ArchiveLibrary.astro";
 import TrustSplit from "@/components/home/TrustSplit.astro";
 import ChannelBand from "@/components/home/ChannelBand.astro";
+import PortalPicks from "@/components/home/PortalPicks.astro";
 import FinanceStrip from "@/components/FinanceStrip.astro";
 import ToolPreview from "@/components/ToolPreview.astro";
 import Guide from "@/components/guide/Guide.astro";
 import { withBase, site } from "@/config/site";
 import { channels } from "@/data/channels";
 import { hubTools, homeMainTools, mainTools, riskTools } from "@/data/tools";
-import { apps } from "@/data/apps";
+import { apps, APP_CATEGORIES } from "@/data/apps";
+import { categoryCount, storeCount } from "@/data/store";
 import { calendar } from "@/data/calendar";
 import { allPosts, koreanDate } from "@/lib/posts";
 import { graph, organizationNode, personNode, websiteNode } from "@/lib/schema";
@@ -48,12 +50,13 @@ const internalApps = apps.filter((a) => a.internal);
 const financeToolCount = internalApps.filter((a) => FINANCE_TOOL_KINDS.includes(a.kind)).length;
 const riskCalcCount = internalApps.filter((a) => RISK_TOOL_KINDS.includes(a.kind)).length;
 const calendarToolCount = mainTools.filter((t) => !t.runHref).length;
-const hubToolTotal = hubTools.length;
-if (financeToolCount + riskCalcCount + calendarToolCount !== hubToolTotal) {
-  throw new Error(
-    `홈 도구 크레딧 숫자 불일치 — 금융·연금 ${financeToolCount} + 리스크 관리 ${riskCalcCount} + 달력 ${calendarToolCount} ≠ 허브 ${hubToolTotal}종. ` +
-      "apps.ts의 kind 또는 tools.ts의 도구 목록을 맞춰 주세요.",
-  );
+/**
+ * v7.0 — 크레딧의 앱 숫자는 앱스토어 진열대(store.ts)에서 센다.
+ * 카테고리 합과 총합이 다르면 빌드를 세운다(숫자 표기가 어긋나는 일을 막는다).
+ */
+const categorySum = APP_CATEGORIES.reduce((n, c) => n + categoryCount(c.id), 0);
+if (categorySum !== storeCount) {
+  throw new Error(`앱스토어 카테고리 합 ${categorySum} ≠ 전체 ${storeCount}. store.ts의 category를 확인하세요.`);
 }
 const channelCount = channels.length;
 
@@ -76,15 +79,15 @@ const previewVariant: Record<string, "pension" | "retirement" | "compound" | "ca
 
 /** 필름 아래 크레딧 줄 — 4대 축(기록·도구·일정·채널) */
 const credits = [
-  { href: "/posts", label: "블로그 기록", note: "기준일·출처 표기", count: `${posts.length}편` },
+  { href: "/posts", label: "금융지식", note: "기준일·출처 표기", count: `${posts.length}편` },
   {
     href: "/apps",
-    label: "도구",
-    note: `금융·연금 ${financeToolCount} + 리스크 관리 ${riskCalcCount} + 달력 ${calendarToolCount}`,
-    count: `${hubToolTotal}종`,
+    label: "앱스토어",
+    note: APP_CATEGORIES.map((c) => `${c.label} ${categoryCount(c.id)}`).join(" + "),
+    count: `${storeCount}종`,
   },
-  { href: "/calendar", label: "제도 일정", note: "1~12월 기한과 절차", count: `${sourcedCalendar.length}건` },
-  { href: "/#channels", label: "연결 채널", note: "채널 7곳 + 코드 보관소", count: `${channelCount}곳` },
+  { href: "/calendar", label: "금융캘린더", note: "1~12월 기한과 절차", count: `${sourcedCalendar.length}건` },
+  { href: "/#channels", label: "연결 채널", note: `채널 7곳 + 코드 보관소`, count: `${channelCount}곳` },
 ];
 
 const jsonLd = graph([websiteNode(), organizationNode(), personNode()]);
@@ -120,7 +123,7 @@ const jsonLd = graph([websiteNode(), organizationNode(), personNode()]);
       <div class="wrap flex flex-wrap items-center justify-between gap-2 border-t border-line-soft py-2">
         <p class="text-[12px] text-ink-faint">기준일 {koreanDate(site.today)} · 모든 글과 도구에 기준일·1차 출처</p>
         <p class="text-[12px] text-ink-faint">
-          도구 {hubTools.length}종 · 제도 일정 {sourcedCalendar.length}건 · 저장 0건
+          앱 {storeCount}종 · 금융 일정 {sourcedCalendar.length}건 · 기준일 {site.baseDateLabel}
         </p>
       </div>
     </div>
@@ -132,7 +135,10 @@ const jsonLd = graph([websiteNode(), organizationNode(), personNode()]);
   <!-- ③ 2페이지 — 버핏킴즈는 어떤 사람인가 (순수 소개, 도구 언급 0) -->
   <IntroPortrait />
 
-  <!-- ③ 아카이브 — 7대 주제·시리즈·처음 읽을 글 -->
+  <!-- ④ 포털 픽 — 금융지식 최신 3편 + 앱스토어 추천 4종 -->
+  <PortalPicks />
+
+  <!-- ⑤ 아카이브 — 7대 주제·시리즈·처음 읽을 글 -->
   <ArchiveLibrary />
 
   <!-- ④ 미스트 — 브라우저 도구 쇼케이스 -->
@@ -149,7 +155,7 @@ const jsonLd = graph([websiteNode(), organizationNode(), personNode()]);
             모든 도구에 예시 입력값·계산 기준·출처·기준일을 함께 적었습니다.
           </p>
           <div class="sec-head-actions">
-            <a href={withBase("/apps")} class="btn btn-secondary btn-sm">도구 소개 전체</a>
+            <a href={withBase("/apps")} class="btn btn-secondary btn-sm">앱스토어 전체</a>
           </div>
         </div>
       </div>

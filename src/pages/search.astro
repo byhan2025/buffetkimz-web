@@ -11,8 +11,8 @@ const posts = await allPosts();
 ---
 
 <Base
-  title="검색 — 블로그·앱·제도달력"
-  description="블로그 본문, 제목, 태그와 앱 이름, 제도달력 일정을 한 번에 찾습니다. 서버 없이 브라우저에서 검색합니다."
+  title="검색 — 금융지식·앱·금융캘린더"
+  description="금융지식 본문, 제목, 태그와 앱 이름, 금융캘린더 일정을 한 번에 찾습니다. 서버 없이 브라우저에서 검색합니다."
   path="/search"
   noindex={true}
 >
@@ -22,7 +22,7 @@ const posts = await allPosts();
       <p class="kicker">검색</p>
       <h1 class="h-display mt-3 max-w-[18ch]">한 번에 찾기.</h1>
       <p class="lede mt-3 max-w-[54ch]">
-        제목만이 아니라 본문, 태그, 앱 설명, 제도달력 일정까지 함께 찾습니다. 입력하는 즉시 결과가
+        제목만이 아니라 본문, 태그, 앱 설명, 금융캘린더 일정까지 함께 찾습니다. 입력하는 즉시 결과가
         바뀝니다.
       </p>
       <div class="mt-7 max-w-[760px]">
@@ -34,7 +34,7 @@ const posts = await allPosts();
   <section class="wrap py-8">
     <dl class="grid grid-cols-3 gap-4 border-t border-ink pt-4 text-[13px]">
       <div>
-        <dt class="text-ink-faint">블로그</dt>
+        <dt class="text-ink-faint">금융지식</dt>
         <dd class="mt-1 text-[19px] font-bold tabular-nums text-ink">{posts.length}편</dd>
       </div>
       <div>
@@ -42,7 +42,7 @@ const posts = await allPosts();
         <dd class="mt-1 text-[19px] font-bold tabular-nums text-ink">{apps.length}개</dd>
       </div>
       <div>
-        <dt class="text-ink-faint">제도달력</dt>
+        <dt class="text-ink-faint">금융캘린더</dt>
         <dd class="mt-1 text-[19px] font-bold tabular-nums text-ink">{calendar.length}건</dd>
       </div>
     </dl>

@@ -1,320 +1,391 @@
 ---
+/**
+ * 앱스토어(/apps) — v7.0.
+ *
+ * 회의실 요구: `앱스토어` → **앱스토어**, 내부를 `금융투자앱 · 보험앱 · 유용한앱` 카테고리로.
+ *   · 카테고리는 `data/apps.ts`의 APP_CATEGORIES 하나에서 온다. 배열에 한 줄만 더하면
+ *     히어로 요약 · 탭 · 섹션 · 개수가 자동으로 따라온다(페이지 코드를 고치지 않는다).
+ *   · 앱 항목도 `data/store.ts`가 apps.ts와 금융캘린더를 합쳐 만든다.
+ *   · 사이트 안에서 실행되는 계산 도구와 사이트 밖에서 열리는 앱은 배지로 구분한다.
+ *   · 실무자용 앱은 카드에 '실무자용' 표시를 달아 일반 독자용과 섞이지 않게 한다.
+ * URL은 링크 보존을 위해 `/apps/` 그대로 둔다.
+ */
 import Base from "@/layouts/Base.astro";
 import AdSlot from "@/components/AdSlot.astro";
-import AppArt from "@/components/AppArt.astro";
-import CoverageGauge from "@/components/CoverageGauge.astro";
 import HomePill from "@/components/HomePill.astro";
-import { withBase, site } from "@/config/site";
-import { apps } from "@/data/apps";
-import { hubTools, mainTools, riskTools } from "@/data/tools";
+import AppStoreIcon from "@/components/apps/AppStoreIcon.astro";
+import { withBase, site, menuLabel } from "@/config/site";
+import { APP_CATEGORIES } from "@/data/apps";
+import { categoryCount, storeByCategory, storeCount } from "@/data/store";
 import { breadcrumbList, graph, pageUrl, partOfWebsite } from "@/lib/schema";
 
-/** 사이트 밖 앱 — 일반 독자용(reader)과 실무자용(practitioner)을 처음부터 나눠 둔다 */
-const external = apps.filter((a) => !a.internal);
-const readerApps = external.filter((a) => a.scope !== "practitioner");
-const practitionerApps = external.filter((a) => a.scope === "practitioner");
-/** 외부 앱 배지 — 내부 계산 도구와 헷갈리지 않게 모든 외부 앱 카드에 같은 문구를 쓴다 */
-const EXTERNAL_BADGE = "외부 웹앱 · 새 창 열기";
-/** 홈과 같은 기준의 도구 수 — 금융·연금 계산 3 + 제도 일정 달력 1 + 리스크 관리 3 */
-const mainCalcCount = mainTools.filter((t) => t.runHref).length;
-const calendarCount = mainTools.length - mainCalcCount;
-const riskCalcCount = riskTools.filter((t) => t.runHref).length;
-const totalCount = hubTools.length;
+const externalCount = storeByCategory.reduce(
+  (n, s) => n + s.items.filter((i) => i.external).length,
+  0,
+);
+const practitionerCount = storeByCategory.reduce(
+  (n, s) => n + s.items.filter((i) => i.practitioner).length,
+  0,
+);
+
+const tabs = [
+  { id: "all", label: "전체", count: storeCount },
+  ...APP_CATEGORIES.map((c) => ({ id: c.id, label: c.label, count: categoryCount(c.id) })),
+];
 
 const jsonLd = graph([
   {
     "@type": "ItemList",
-    "@id": `${pageUrl("/apps")}#toollist`,
-    name: "buffetkimz 도구",
+    "@id": `${pageUrl("/apps")}#appstore`,
+    name: "버핏킴즈 앱스토어",
     url: pageUrl("/apps"),
     inLanguage: "ko-KR",
     isPartOf: partOfWebsite,
-    itemListElement: hubTools.map((t, i) => ({
+    itemListElement: storeByCategory.flatMap((s) => s.items).map((item, i) => ({
       "@type": "ListItem",
       position: i + 1,
       item: {
         "@type": "SoftwareApplication",
-        name: t.name,
-        description: t.what,
+        name: item.name,
+        description: item.summary,
         applicationCategory: "FinanceApplication",
         operatingSystem: "Web",
-        url: pageUrl(t.href),
+        url: pageUrl(item.href),
         offers: { "@type": "Offer", price: "0", priceCurrency: "KRW" },
       },
     })),
   },
   breadcrumbList([
     { name: "홈", path: "/" },
-    { name: "도구자료실", path: "/apps" },
+    { name: menuLabel.apps, path: "/apps" },
   ]),
 ]);
 ---
 
 <Base
-  title="도구자료실 — 금융·투자·연금 계산과 리스크 관리"
-  description="연금저축·IRP 세액공제, 은퇴 월 현금흐름, 투자 복리·세후 수익률, 연금 인출·세금, 1~12월 제도 일정 달력. 보험은 리스크 관리 참고 도구로 따로 모았습니다. 사이트 밖에서 돌아가는 직접 만든 앱은 일반 독자용(한국형 타임머신)과 실무자용(5대 담보 기준 가이드)을 나눠 소개합니다. 가입 없이 브라우저에서 실행하고 입력값은 서버로 보내지 않습니다."
+  title={`${menuLabel.apps} — 금융투자앱 · 보험앱 · 유용한앱`}
+  description={`연금저축·IRP 세액공제, 은퇴 월 현금흐름, 연금 인출 세금, 투자 복리·세후 수익률, 한국형 타임머신, 5대 담보·실손·고지 확인, 금융캘린더까지 ${storeCount}종. 금융투자앱·보험앱·유용한앱으로 나눠 필요할 때 바로 엽니다.`}
   path="/apps"
   jsonLd={jsonLd}
 >
-  <section class="scene-sky border-b border-line/70">
-    <div class="wrap py-10 md:py-14">
-      <HomePill />
-      <p class="kicker">도구자료실</p>
-      <h1 class="h-display mt-3 max-w-[18ch] text-ink">가진 숫자를 넣으면,<br />확인할 것이 남습니다.</h1>
-      <p class="lede mt-5 max-w-[54ch]">
-        금융·투자·연금 계산 네 가지와 제도 일정 달력을 앞에 두고, 보험은 리스크 관리 참고 도구로 뒤에
-        모았습니다. 맨 아래에는 사이트 밖에서 돌아가는 직접 만든 앱을 두었습니다 — 일반 독자가 쓰는
-        앱과 실무자용 앱을 나눠 놓았습니다. 모두 가입 없이 열리고, 입력한 값은 그 탭 안에서만 계산됩니다.
-      </p>
+  <!-- ① 히어로 — 앱스토어 -->
+  <section class="store-hero">
+    <div class="wrap store-hero-grid">
+      <div>
+        <HomePill />
+        <p class="store-kicker">APP STORE · {menuLabel.apps}</p>
+        <h1 class="store-title">
+          필요한 계산을,<br /><span class="store-title-em">필요한 순간에.</span>
+        </h1>
+        <p class="store-lede">
+          금융·투자·연금·재무의 숫자를 직접 넣어 확인하는 도구 {storeCount}종. 카테고리에서 골라
+          설치 없이 바로 열고, 모든 결과에 기준일과 출처를 함께 봅니다.
+        </p>
 
-      <div class="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-[12.5px] text-ink-muted">
-        <span data-tool-count={totalCount}>
-          도구 <strong class="font-semibold text-ink">{totalCount}종</strong>{" "}
-          <span class="text-ink-faint">
-            (금융·연금 {mainCalcCount} + 달력 {calendarCount} + 리스크 관리 {riskCalcCount})
-          </span>
-        </span>
-        <span data-app-count={external.length}>
-          직접 만든 앱 <strong class="font-semibold text-ink">{external.length}종</strong>{" "}
-          <span class="text-ink-faint">
-            (독자용 {readerApps.length} + 실무자용 {practitionerApps.length})
-          </span>
-        </span>
-        <span>입력값 서버 미전송</span>
-        <span class="mono">기준일 <time datetime={site.baseDate}>{site.baseDateLabel}</time></span>
-      </div>
-    </div>
-  </section>
+        <ul class="store-hero-chips" data-store-summary>
+          {
+            tabs.slice(1).map((t) => (
+              <li>
+                <a href={`#cat-${t.id}`} data-store-jump={t.id}>
+                  <b>{t.count}</b>
+                  {t.label}
+                </a>
+              </li>
+            ))
+          }
+          <li class="store-hero-chip-plain">외부 웹앱 {externalCount}종</li>
+          <li class="store-hero-chip-plain">실무자용 {practitionerCount}종</li>
+        </ul>
 
-  <!-- 메인 — 금융·투자·연금 도구 3종 + 제도 일정 달력 -->
-  <section class="scene-white" data-tool-grid="main">
-    <div class="wrap pb-8 pt-10 md:pt-12">
-      <div class="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <p class="kicker">메인</p>
-          <h2 class="h-section mt-1">금융 · 투자 · 연금 도구</h2>
-        </div>
-        <p class="text-[12.5px] text-ink-muted">계산 {mainCalcCount}종 + 제도 일정 달력 {calendarCount}종</p>
+        <p class="store-hero-meta mono">
+          기준일 <time datetime={site.baseDate}>{site.baseDateLabel}</time> · 입력값 브라우저 내 계산
+        </p>
       </div>
 
-      <ul class="mt-5 grid gap-3 md:grid-cols-2">
+      <!-- 오른쪽 — 카테고리 지도 -->
+      <div class="store-map" aria-hidden="true">
         {
-          mainTools.map((t) => (
-            <li class="card card-lift flex flex-col p-5 md:p-6" data-main-tool={t.key}>
-              <div class="flex items-start justify-between gap-3">
-                <h3 class="text-[17px] font-bold leading-snug tracking-[-0.03em] text-ink">{t.name}</h3>
-                <span class="chip shrink-0 !text-[12px]">
-                  {t.runHref ? "계산 도구" : "일정 보기"}
-                </span>
-              </div>
-              <p class="mt-2 text-[13.5px] leading-[1.72] text-ink-muted">{t.what}</p>
-              <p class="mt-3 text-[12px] text-ink-faint">{t.meta}</p>
-              <div class="mt-auto flex flex-wrap items-center gap-2 pt-4">
-                <a href={withBase(t.runHref ?? t.href)} class="btn btn-primary btn-sm">
-                  {t.runHref ? "실행 화면" : "달력 열기"}
-                </a>
-                <a href={withBase(t.href)} class="btn btn-secondary btn-sm">
-                  {t.runHref ? "계산 근거·출처" : "일정 기준·출처"}
-                </a>
-              </div>
-            </li>
+          APP_CATEGORIES.map((c) => (
+            <div class="store-map-row" data-cat={c.id}>
+              <span class="store-map-icon" style={`--tone-a:${c.tone[0]};--tone-b:${c.tone[1]}`}>
+                <AppStoreIcon name={c.icon} size={20} />
+              </span>
+              <span class="store-map-text">
+                <span class="store-map-en mono">{c.en}</span>
+                <span class="store-map-label">{c.label}</span>
+              </span>
+              <span class="store-map-count mono">{String(categoryCount(c.id)).padStart(2, "0")}</span>
+            </div>
           ))
         }
-      </ul>
+        <p class="store-map-foot mono">TAX · PENSION · RETURN · COVERAGE · CALENDAR</p>
+      </div>
     </div>
   </section>
 
-  <!-- 서브 — 리스크 관리(보험) 참고 도구 3종 -->
-  <section class="scene-cream border-y border-line" data-tool-grid="risk">
-    <div class="wrap py-8 md:py-10">
-      <div class="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <p class="kicker text-clay">서브 · 리스크 관리</p>
-          <h2 class="h-sub mt-1">보험 참고 도구</h2>
-        </div>
-        <p class="text-[12.5px] text-ink-muted">보장 점검 · 고지 항목 · 실손 세대 비교 {riskCalcCount}종</p>
-      </div>
-      <p class="mt-2 max-w-[62ch] text-[12.5px] leading-[1.7] text-ink-muted">
-        보험은 없애지 않고 순서를 바꿨습니다. 담보 금액을 확인하고, 고지 항목을 정리하고, 실손 세대별
-        자기부담을 비교하는 세 가지를 참고 도구로 모았습니다. 판정하지 않고 확인할 항목만 정리합니다.
-      </p>
-
-      <ul class="mt-4 grid gap-2.5 md:grid-cols-3">
+  <!-- ② 카테고리 탭 — 누르면 해당 섹션만 남는다(자바스크립트 없으면 전체가 그대로 보인다) -->
+  <div class="store-tabs-bar">
+    <div class="wrap">
+      <div class="store-tabs" role="tablist" aria-label="앱 카테고리" data-store-tabs>
         {
-          riskTools.map((t) => (
-            <li class="card flex flex-col p-4" data-risk-tool={t.key}>
-              <h3 class="text-[14.5px] font-bold leading-snug tracking-[-0.02em] text-ink">{t.name}</h3>
-              <p class="clamp-2 mt-1.5 text-[12.5px] leading-[1.65] text-ink-muted">{t.short}</p>
-              <p class="mt-2 text-[12px] text-ink-faint">{t.meta}</p>
-              <div class="mt-auto flex flex-wrap items-center gap-2 pt-3">
-                <a href={withBase(t.runHref ?? t.href)} class="btn btn-secondary btn-xs">
-                  실행 화면
-                </a>
-                <a href={withBase(t.href)} class="btn btn-tertiary-quiet btn-xs">
-                  기준·출처
-                </a>
-              </div>
-            </li>
+          tabs.map((t, i) => (
+            <button
+              type="button"
+              role="tab"
+              class="store-tab"
+              data-store-tab={t.id}
+              aria-selected={i === 0 ? "true" : "false"}
+              data-on={i === 0 ? "1" : "0"}
+            >
+              {t.label}
+              <span class="store-tab-count mono">{t.count}</span>
+            </button>
           ))
         }
-      </ul>
-
-      <div class="mt-5">
-        <CoverageGauge />
+        <label class="store-search">
+          <span class="store-search-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <circle cx="10.5" cy="10.5" r="6.2" />
+              <path d="m15.2 15.2 4.3 4.3" />
+            </svg>
+          </span>
+          <input
+            type="search"
+            class="store-search-input"
+            placeholder="앱 이름 · 기능 검색"
+            aria-label="앱스토어에서 앱 검색"
+            data-store-search
+          />
+          <span class="store-search-count mono" data-store-search-count hidden></span>
+        </label>
+        <a class="store-tab-link" href="#store-guide">고르는 기준</a>
       </div>
     </div>
-  </section>
+  </div>
 
-  <section class="scene-white">
-    <div class="wrap py-8 md:py-12">
-      <div class="grid gap-3 md:grid-cols-3">
-        <div class="card p-5">
-          <p class="text-[12px] font-semibold text-brand">예시 입력값</p>
-          <p class="mt-2 text-[13px] leading-[1.72] text-ink-muted">
-            모든 도구는 가상의 예시 값으로 시작합니다. 숫자를 바꾸면 결과가 즉시 달라지고, 예시 값으로
-            되돌릴 수 있습니다.
-          </p>
-        </div>
-        <div class="card p-5">
-          <p class="text-[12px] font-semibold text-brand">계산 기준과 출처</p>
-          <p class="mt-2 text-[13px] leading-[1.72] text-ink-muted">
-            각 도구는 공개된 1차 자료(법령·감독 당국 안내)를 근거로 계산하며, 기준일을 화면에 함께
-            표시합니다. 연금·은퇴 시뮬레이션은 가정을 단순화한 참고용 값임을 같은 화면에서 밝힙니다.
-          </p>
-        </div>
-        <div class="card p-5">
-          <p class="text-[12px] font-semibold text-brand">하지 않는 일</p>
-          <p class="mt-2 text-[13px] leading-[1.72] text-ink-muted">
-            보험금 지급, 가입 가능 여부, 세액공제·연금 수령액 확정을 판단하지 않습니다. 최종 확인은
-            약관·증권과 관계 기관 안내에 따릅니다.
-          </p>
-        </div>
-      </div>
-
-      {
-        external.length > 0 && (
-          <div class="mt-10" data-app-showcase>
-            <div class="flex flex-wrap items-end justify-between gap-3 border-b border-line pb-3">
-              <div>
-                <p class="kicker">앱 쇼케이스</p>
-                <h2 class="h-sub mt-1">직접 만든 앱</h2>
+  <!-- ③ 카테고리 섹션 -->
+  <div class="store-body" data-store-body>
+    {
+      storeByCategory.map(({ category, items }) => (
+        <section class="store-section" id={`cat-${category.id}`} data-store-cat={category.id}>
+          <div class="wrap">
+            <div class="store-sec-head">
+              <span
+                class="store-sec-icon"
+                style={`--tone-a:${category.tone[0]};--tone-b:${category.tone[1]}`}
+                aria-hidden="true"
+              >
+                <AppStoreIcon name={category.icon} size={22} />
+              </span>
+              <div class="store-sec-title">
+                <p class="mono store-sec-en">{category.en}</p>
+                <h2 class="store-h2">
+                  {category.label}
+                  <span class="store-sec-count">{items.length}</span>
+                </h2>
               </div>
-              <p class="text-[12.5px] text-ink-muted">사이트 밖에서 열리는 앱 · 설치 없이 실행</p>
+              <p class="store-sec-blurb">{category.blurb}</p>
             </div>
 
-            {
-              readerApps.length > 0 && (
-                <ul class={`mt-4 grid gap-3 ${readerApps.length > 1 ? "md:grid-cols-2" : ""}`} data-reader-apps>
-                  {readerApps.map((a) => (
-                    <li class="card card-lift flex flex-col overflow-hidden" data-app-card={a.slug}>
-                      <div class={`flex h-full flex-col ${readerApps.length === 1 ? "md:flex-row" : ""}`}>
-                        <div class={`border-b border-line ${readerApps.length === 1 ? "md:w-[48%] md:shrink-0 md:border-b-0 md:border-r" : ""}`}>
-                          <AppArt art={a.art} compact />
-                        </div>
-                        <div class={`flex flex-1 flex-col p-4 ${readerApps.length === 1 ? "md:justify-center md:p-6" : ""}`}>
-                          <div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
-                            <span class="text-[12px] font-semibold text-brand">{a.kind}</span>
-                            {a.externalUrl && (
-                              <span class="chip !text-[11px]" data-external-badge={EXTERNAL_BADGE}>
-                                {EXTERNAL_BADGE}
-                              </span>
-                            )}
-                          </div>
-                          <h3 class="mt-1.5 text-[16px] font-bold leading-snug tracking-[-0.03em] text-ink">
-                            {a.name}
-                          </h3>
-                          <p class="mt-1 text-[12.5px] leading-[1.7] text-ink-muted">{a.subtitle}</p>
-                          <p class="mt-2 text-[13px] leading-[1.72] text-ink-muted">{a.oneLine}</p>
-                          {a.notice && (
-                            <p class="mt-2 text-[12px] leading-[1.6] text-ink-faint" data-app-notice>
-                              {a.notice}
-                            </p>
-                          )}
-                          <div class="mt-auto flex flex-wrap items-center gap-2 pt-4">
-                            <a
-                              href={a.externalUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              class="btn btn-primary btn-sm"
-                            >
-                              새 창에서 열기
-                            </a>
-                            <a href={withBase(`/apps/${a.slug}`)} class="btn btn-secondary btn-sm">
-                              소개·근거 보기
-                            </a>
-                          </div>
-                        </div>
+            <ul class="store-grid">
+              {items.map((item) => (
+                <li
+                  class="store-card"
+                  data-store-item={item.id}
+                  data-kind={item.external ? "external" : "internal"}
+                  data-scope={item.practitioner ? "practitioner" : "reader"}
+                  data-text={`${item.name} ${item.tagline} ${item.summary} ${item.meta} ${item.tags.join(" ")}`.toLowerCase()}
+                >
+                  <div class="store-card-top">
+                    <span
+                      class="store-icon"
+                      style={`--tone-a:${category.tone[0]};--tone-b:${category.tone[1]}`}
+                      aria-hidden="true"
+                    >
+                      <AppStoreIcon name={item.icon} size={26} />
+                    </span>
+                    <div class="store-card-head">
+                      <div class="store-badges">
+                        <span class="store-badge store-badge--free">무료</span>
+                        {item.external ? (
+                          <span class="store-badge store-badge--ext" data-external-badge="외부 웹앱 · 새 창 열기">
+                            외부 웹앱
+                          </span>
+                        ) : (
+                          <span class="store-badge">브라우저 실행</span>
+                        )}
+                        {item.practitioner && (
+                          <span class="store-badge store-badge--pro" data-practitioner-badge>
+                            실무자용
+                          </span>
+                        )}
                       </div>
-                    </li>
-                  ))}
-                </ul>
-              )
-            }
-
-            {
-              practitionerApps.length > 0 && (
-                <div class="mt-5 card p-4 md:p-5" data-practitioner-apps>
-                  <div class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-                    <p class="kicker text-clay">실무자용</p>
-                    <span class="text-[12px] text-ink-faint">일반 독자용 목록과 섞지 않습니다</span>
+                      <h3 class="store-name">{item.name}</h3>
+                      <p class="store-tagline">{item.tagline}</p>
+                    </div>
                   </div>
-                  <h3 class="mt-1 text-[15.5px] font-bold leading-snug tracking-[-0.03em] text-ink">
-                    설계사 현장 상담 도구
-                  </h3>
-                  <p class="mt-2 max-w-[64ch] text-[12.5px] leading-[1.7] text-ink-muted">
-                    아래 도구는 보험설계사가 상담 자리에서 쓰는 실무 도구입니다. 일반 독자가 바로 쓰는 계산
-                    도구가 아니므로 위 목록에는 올리지 않고, 무엇을 하는 도구인지만 여기 따로 적습니다.
-                  </p>
-                  <ul class="mt-3 divide-y divide-line-soft border-t border-line-soft">
-                    {practitionerApps.map((a) => (
-                      <li
-                        class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 py-3"
-                        data-practitioner-card={a.slug}
-                      >
-                        <div class="min-w-0">
-                          <p class="flex flex-wrap items-center gap-2 text-[14px] font-semibold leading-snug text-ink">
-                            {a.name}
-                            {a.externalUrl && (
-                              <span class="chip !text-[11px]" data-external-badge={EXTERNAL_BADGE}>
-                                {EXTERNAL_BADGE}
-                              </span>
-                            )}
-                          </p>
-                          <p class="mt-1 text-[12.5px] leading-[1.65] text-ink-muted">
-                            {a.subtitle} · {a.kind}
-                          </p>
-                        </div>
-                        <div class="flex flex-wrap items-center gap-2">
-                          <a href={withBase(`/apps/${a.slug}`)} class="btn btn-secondary btn-xs">소개 보기</a>
-                          <a
-                            href={a.externalUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            class="btn btn-tertiary-quiet btn-xs"
-                          >
-                            앱 열기
-                          </a>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )
-            }
 
-            <p class="mt-2 text-[12px] leading-[1.7] text-ink-faint">
-              위의 계산 도구는 사이트 안에서 바로 실행되고, 이 앱들은 사이트 밖에서 열립니다. 새 앱이 준비되면
-              이 자리에 함께 놓습니다.
-            </p>
+                  <p class="store-summary">{item.summary}</p>
+                  <p class="store-meta mono">{item.meta}</p>
+
+                  <div class="store-actions">
+                    <a
+                      href={item.external ? item.openHref : withBase(item.openHref)}
+                      class="btn btn-primary btn-sm"
+                      {...(item.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                    >
+                      {item.external ? "새 창에서 열기" : "바로 열기"}
+                    </a>
+                    <a href={withBase(item.href)} class="btn btn-secondary btn-sm">
+                      소개·근거
+                    </a>
+                  </div>
+                </li>
+              ))}
+
+              {
+                category.id === "utility" && (
+                  <li class="store-card store-card--empty" data-store-coming="utility">
+                    <div class="store-card-top">
+                      <span class="store-icon store-icon--empty" aria-hidden="true">
+                        <AppStoreIcon name="grid" size={26} />
+                      </span>
+                      <div class="store-card-head">
+                        <div class="store-badges">
+                          <span class="store-badge">준비 중</span>
+                        </div>
+                        <h3 class="store-name">다음 생활 도구</h3>
+                        <p class="store-tagline">새 앱이 준비되면 이 칸에 놓입니다</p>
+                      </div>
+                    </div>
+                    <p class="store-summary">
+                      날짜·서류·절차처럼 반복해서 확인하는 일을 도구로 옮기는 중입니다. 완성되는 대로 같은
+                      카테고리 안에 나란히 놓습니다.
+                    </p>
+                  </li>
+                )
+              }
+            </ul>
+
+            {category.id === "insurance" && (
+              <p class="store-sec-note">
+                <span class="store-sec-note-tag">실무자용</span>
+                설계사가 상담 자리에서 쓰는 앱은 카드에 <b>실무자용</b> 표시를 달았습니다. 일반 독자용
+                계산 도구와 같은 칸에 두되, 표시로 구분합니다.
+              </p>
+            )}
           </div>
-        )
-      }
+        </section>
+      ))
+    }
+  </div>
+
+  <!-- ④ 고르는 기준 -->
+  <section class="store-guide" id="store-guide">
+    <div class="wrap">
+      <div class="store-guide-head">
+        <p class="mono store-kicker-ink">HOW IT WORKS</p>
+        <h2 class="store-h2 store-h2--dark">앱스토어에서 확인하는 세 가지</h2>
+      </div>
+      <ul class="store-guide-grid">
+        <li>
+          <p class="store-guide-no mono">01</p>
+          <h3>기준과 출처를 함께</h3>
+          <p>
+            모든 앱은 법령·감독 당국 안내를 근거로 계산하고, 결과 옆에 기준일과 출처를 붙입니다. 제도가
+            바뀌면 기준일이 먼저 바뀝니다.
+          </p>
+        </li>
+        <li>
+          <p class="store-guide-no mono">02</p>
+          <h3>예시 값에서 내 숫자로</h3>
+          <p>
+            각 앱은 가상의 예시 입력값으로 열립니다. 숫자를 바꾸면 결과가 그 자리에서 달라지고, 언제든
+            예시로 되돌릴 수 있습니다.
+          </p>
+        </li>
+        <li>
+          <p class="store-guide-no mono">03</p>
+          <h3>계산은 브라우저 안에서</h3>
+          <p>
+            입력한 금액은 그 탭의 메모리에서만 계산됩니다. 결과는 판정이 아니라, 약관·증권·원문에서 더
+            확인할 항목입니다.
+          </p>
+        </li>
+      </ul>
+
+      <p class="store-protect">
+        모든 시뮬레이션은 참고용 단순 모의계산입니다. 결과는 약관·증권·원문으로 다시 확인해 주세요.
+      </p>
+
+      <div class="store-guide-links">
+        <a href={withBase("/posts")} class="btn btn-secondary btn-sm">{menuLabel.posts}에서 기준 읽기</a>
+        <a href={withBase("/calendar")} class="btn btn-tertiary btn-sm">금융캘린더 열기</a>
+        <a href={withBase("/principles")} class="btn btn-tertiary-quiet btn-sm">편집 원칙</a>
+      </div>
 
       <div class="mt-8">
         <AdSlot id="apps-index-bottom" size="leaderboard" region="tools-bottom" />
       </div>
-
       <HomePill position="bottom" />
     </div>
   </section>
 </Base>
+
+<script>
+  /*
+   * 카테고리 탭 — 섹션을 숨기고 보여 주는 것만 한다.
+   * URL 해시(#cat-insurance)로 들어오면 그 카테고리로 시작한다.
+   * 자바스크립트가 없으면 모든 섹션이 그대로 보인다(점진적 향상).
+   */
+  const tabs = [...document.querySelectorAll<HTMLElement>("[data-store-tab]")];
+  const sections = [...document.querySelectorAll<HTMLElement>("[data-store-cat]")];
+  if (tabs.length && sections.length) {
+    const apply = (id: string) => {
+      tabs.forEach((t) => {
+        const on = t.dataset.storeTab === id;
+        t.dataset.on = on ? "1" : "0";
+        t.setAttribute("aria-selected", on ? "true" : "false");
+      });
+      sections.forEach((s) => {
+        s.hidden = id !== "all" && s.dataset.storeCat !== id;
+      });
+      document.querySelectorAll<HTMLAnchorElement>("[data-store-jump]").forEach((a) => {
+        a.dataset.on = a.dataset.storeJump === id ? "1" : "0";
+      });
+    };
+    tabs.forEach((t) => t.addEventListener("click", () => apply(t.dataset.storeTab ?? "all")));
+    document.querySelectorAll<HTMLAnchorElement>("[data-store-jump]").forEach((a) =>
+      a.addEventListener("click", () => apply(a.dataset.storeJump ?? "all")),
+    );
+    const hash = location.hash.match(/^#cat-(.+)$/);
+    if (hash) apply(hash[1]);
+
+    /* 검색 — 이름·한 줄·요약·태그를 한 번에 훑는다. 카테고리 탭과 함께 걸린다. */
+    const input = document.querySelector<HTMLInputElement>("[data-store-search]");
+    const countEl = document.querySelector<HTMLElement>("[data-store-search-count]");
+    const cards = [...document.querySelectorAll<HTMLElement>("[data-store-item]")];
+    const sections2 = [...document.querySelectorAll<HTMLElement>("[data-store-cat]")];
+    const normalize = (v: string) => v.replace(/\s+/g, " ").trim().toLowerCase();
+    if (input) {
+      input.addEventListener("input", () => {
+        const q = normalize(input.value);
+        if (q) apply("all");
+        let shown = 0;
+        cards.forEach((c) => {
+          const hit = !q || (c.dataset.text ?? "").includes(q);
+          c.hidden = !hit;
+          if (hit) shown += 1;
+        });
+        sections2.forEach((sec) => {
+          const any = [...sec.querySelectorAll<HTMLElement>("[data-store-item]")].some((c) => !c.hidden);
+          sec.hidden = !any;
+        });
+        if (countEl) {
+          countEl.hidden = !q;
+          countEl.textContent = q ? `${shown}개` : "";
+        }
+      });
+    }
+  }
+</script>

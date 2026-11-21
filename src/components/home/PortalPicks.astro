@@ -1,0 +1,94 @@
+---
+/**
+ * 포털 픽 — v7.0 홈.
+ *
+ * 왼쪽: 금융지식(/posts) 최신 3편 — 카테고리·제목·기준일·읽는 시간.
+ * 오른쪽: 앱스토어(/apps) 추천 4종 — 아이콘·이름·한 줄·바로 열기.
+ *
+ * 글은 컬렉션에서, 앱은 store.ts에서 읽는다. 손으로 적은 제목·숫자를 두지 않는다.
+ */
+import { withBase, site, menuLabel } from "@/config/site";
+import { featuredStore } from "@/data/store";
+import AppStoreIcon from "@/components/apps/AppStoreIcon.astro";
+import { allPosts, categoryLabel, postPath, formatDate } from "@/lib/posts";
+
+const posts = (await allPosts()).slice(0, 3);
+const picks = featuredStore.slice(0, 4);
+---
+
+<section class="scene-cream border-b border-line" data-area="picks" id="picks">
+  <div class="wrap py-10 md:py-12">
+    <div class="picks-head">
+      <div>
+        <p class="eyebrow">읽고 · 열어 보기</p>
+        <h2 class="sec-title">오늘의 금융지식과<br />앱스토어 추천</h2>
+      </div>
+      <p class="sec-desc">
+        글에서 기준을 읽고, 도구에서 내 숫자로 확인합니다.<br />
+        두 곳은 같은 기준일과 출처를 씁니다.
+      </p>
+    </div>
+
+    <div class="picks-grid">
+      <!-- 금융지식 -->
+      <div class="picks-panel">
+        <div class="picks-panel-head">
+          <p class="picks-panel-label">
+            {menuLabel.posts}
+            <span class="picks-panel-sub">최신 3편</span>
+          </p>
+          <a href={withBase("/posts")} class="picks-more">전체 보기 →</a>
+        </div>
+        <ul class="picks-posts">
+          {
+            posts.map((p) => (
+              <li>
+                <a href={withBase(postPath(p))} class="picks-post">
+                  <span class="picks-post-cat">{categoryLabel(p)}</span>
+                  <span class="picks-post-title">{p.data.title}</span>
+                  <span class="picks-post-meta mono">
+                    {formatDate(p.data.baseDate ?? p.data.publishedAt)} · {p.data.readingMinutes}분
+                  </span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <!-- 앱스토어 -->
+      <div class="picks-panel picks-panel--apps">
+        <div class="picks-panel-head">
+          <p class="picks-panel-label">
+            {menuLabel.apps}
+            <span class="picks-panel-sub">추천 4종</span>
+          </p>
+          <a href={withBase("/apps")} class="picks-more">앱스토어 →</a>
+        </div>
+        <ul class="picks-apps">
+          {
+            picks.map((app) => (
+              <li>
+                <a href={withBase(app.href)} class="picks-app">
+                  <span class="picks-app-icon" aria-hidden="true">
+                    <AppStoreIcon name={app.icon} size={18} />
+                  </span>
+                  <span class="picks-app-body">
+                    <span class="picks-app-name">{app.name}</span>
+                    <span class="picks-app-line">{app.tagline}</span>
+                  </span>
+                  <span class="picks-app-open" aria-hidden="true">
+                    →
+                  </span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+        <a href={withBase("/apps")} class="btn btn-primary btn-sm picks-cta">앱스토어에서 골라 쓰기</a>
+      </div>
+    </div>
+
+    <p class="picks-note">기준일 {site.baseDateLabel} · 모든 글과 도구에 1차 출처와 계산 기준을 함께 적습니다.</p>
+  </div>
+</section>

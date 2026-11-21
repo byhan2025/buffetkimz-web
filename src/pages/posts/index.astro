@@ -56,7 +56,7 @@ const jsonLd = graph([
     "@type": "CollectionPage",
     "@id": `${pageUrl("/posts")}#webpage`,
     name: "buffetkimz 기록",
-    description: "금융·투자·경제·보험·노후준비·연금·AI·철학을 매일 기록하는 블로그.",
+    description: "금융·투자·경제·보험·노후준비·연금·AI·철학을 매일 기록하는 금융지식.",
     url: pageUrl("/posts"),
     inLanguage: "ko-KR",
     isPartOf: partOfWebsite,
@@ -72,13 +72,13 @@ const jsonLd = graph([
   },
   breadcrumbList([
     { name: "홈", path: "/" },
-    { name: "기록", path: "/posts" },
+    { name: "금융지식", path: "/posts" },
   ]),
 ]);
 ---
 
 <Base
-  title="기록 — 매일 쌓이는 금융 기록"
+  title="금융지식 — 매일 쌓이는 금융·투자 기록"
   description="금리·환율·보험·연금·노후·AI. 확인한 것을 매일 한 편씩 남깁니다. 모든 글에 기준일과 1차 출처를 붙이고, 본문까지 검색할 수 있습니다."
   path="/posts"
   jsonLd={jsonLd}
@@ -86,7 +86,7 @@ const jsonLd = graph([
   <section class="scene-sky border-b border-line/70">
     <div class="wrap py-8 md:py-12">
       <HomePill />
-      <p class="kicker">기록</p>
+      <p class="kicker">금융지식 · 투자백서</p>
       <h1 class="h-display mt-3 max-w-[17ch] text-ink">확인한 것을<br />매일 남깁니다.</h1>
       <p class="lede mt-5 max-w-[54ch]">
         금리와 환율, 보험과 연금, 노후와 AI. 그날 확인한 기준과 출처를 붙여 적습니다. 글마다 이어지는
@@ -94,7 +94,7 @@ const jsonLd = graph([
       </p>
 
       <div class="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-[12.5px] text-ink-muted">
-        <span>기록 <strong class="font-semibold text-ink">{posts.length}편</strong></span>
+        <span>금융지식 <strong class="font-semibold text-ink">{posts.length}편</strong></span>
         <span>{categories.length}개 분야</span>
         <span class="mono">기준일 <time datetime={latestBasis.toISOString().slice(0, 10)}>{formatDate(latestBasis)}</time></span>
         {basisAgeDays >= 2 && <span class="text-ink-faint">기준일이 {basisAgeDays}일 지났습니다</span>}

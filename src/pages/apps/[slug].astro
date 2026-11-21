@@ -50,7 +50,7 @@ const tagPosts = all.filter(
 );
 const posts = [...appPosts, ...tagPosts].slice(0, 3);
 
-/** v6.1 도구 여정 — 이 도구 다음에 많이 이어 쓰는 도구 한 곳 (없으면 도구자료실 전체) */
+/** v6.1 도구 여정 — 이 도구 다음에 많이 이어 쓰는 도구 한 곳 (없으면 앱스토어 전체) */
 const toolNext = nextTool(app.slug);
 const toolJourney = {
   mode: "tool" as const,
@@ -83,7 +83,7 @@ const jsonLd = graph([
   },
   breadcrumbList([
     { name: "홈", path: "/" },
-    { name: "도구자료실", path: "/apps" },
+    { name: "앱스토어", path: "/apps" },
     { name: app.name, path: pagePath },
   ]),
 ]);
@@ -159,7 +159,7 @@ const jsonLd = graph([
           {
             app.scope === "practitioner" && (
               <p class="mt-2 max-w-[48ch] text-[12px] leading-[1.7] text-ink-faint" data-scope-note>
-                실무자용 앱입니다 — 일반 독자용 도구자료실 목록에는 싣지 않고, 도구자료실 맨 아래
+                실무자용 앱입니다 — 일반 독자용 앱스토어 목록에는 싣지 않고, 앱스토어 맨 아래
                 ‘실무자용’ 칸과 이 소개에만 둡니다.
               </p>
             )

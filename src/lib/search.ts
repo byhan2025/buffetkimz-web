@@ -134,7 +134,7 @@ export function searchDocs(docs: SearchDoc[], query: string, options: SearchOpti
   const rank: Record<SearchDoc["type"], number> = { post: 0, app: 1, calendar: 2, today: 1 };
   return hits.sort((a, b) => {
     if (b.score !== a.score) return b.score - a.score;
-    // 점수가 같으면 글 → 앱 → 제도달력 순 (이 사이트의 본체는 글)
+    // 점수가 같으면 글 → 앱 → 금융캘린더 순 (이 사이트의 본체는 글)
     if (a.doc.type !== b.doc.type) return rank[a.doc.type] - rank[b.doc.type];
     return (b.doc.date ?? "").localeCompare(a.doc.date ?? "");
   });
@@ -184,8 +184,8 @@ export function splitHighlight(text: string, terms: string[]): { text: string; h
 export const popularQueries = ["연금", "실손", "5세대", "세액공제", "고지의무", "금리", "환율", "간병비"];
 
 export const typeLabels: Record<SearchDoc["type"], string> = {
-  post: "블로그",
+  post: "금융지식",
   app: "앱",
-  calendar: "제도달력",
+  calendar: "금융캘린더",
   today: "오늘 확인",
 };

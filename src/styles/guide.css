@@ -410,3 +410,14 @@ html.bk-off-tool .journey-bar[data-store="bk_tool_guide_v1"] {
     padding: 14px 14px 10px;
   }
 }
+
+/* v7.0 — 필름 위에서는 컨트롤 바(약 92px) 위로 */
+.guide-dock[data-over-film="1"] {
+  bottom: calc(104px + env(safe-area-inset-bottom));
+}
+
+@media (max-width: 767px) {
+  .guide-dock[data-over-film="1"] {
+    bottom: calc(136px + env(safe-area-inset-bottom));
+  }
+}

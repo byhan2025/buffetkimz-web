@@ -35,9 +35,9 @@ type TypeFilter = "all" | "post" | "app" | "calendar";
 
 const TYPE_TABS: { value: TypeFilter; label: string }[] = [
   { value: "all", label: "전체" },
-  { value: "post", label: "블로그" },
+  { value: "post", label: "금융지식" },
   { value: "app", label: "앱" },
-  { value: "calendar", label: "제도달력" },
+  { value: "calendar", label: "금융캘린더" },
 ];
 
 function Highlight({ text, terms }: { text: string; terms: string[] }) {
@@ -97,9 +97,9 @@ function HitRow({
 }
 
 const SECTION_ORDER: { type: SearchDoc["type"]; label: string }[] = [
-  { type: "post", label: "블로그 글" },
+  { type: "post", label: "금융지식 글" },
   { type: "app", label: "앱" },
-  { type: "calendar", label: "제도달력" },
+  { type: "calendar", label: "금융캘린더" },
 ];
 
 type Props = {
@@ -188,7 +188,7 @@ export default function SearchApp({ variant = "page", onClose, initialQuery = ""
     <div onKeyDown={onKeyDown}>
       <div className="relative">
         <label htmlFor={`search-input-${variant}`} className="sr-only">
-          블로그 글, 앱, 제도달력 검색
+          금융지식 글, 앱, 금융캘린더 검색
         </label>
         <input
           ref={inputRef}

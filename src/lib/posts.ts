@@ -106,10 +106,10 @@ const categoryTool: Record<string, PostTool> = {
     kind: "tool",
   },
   economy: {
-    name: "제도 일정 달력",
+    name: "금융캘린더",
     href: "/calendar",
     what: "올해 남은 마감·변경 일정을 날짜와 출처로 확인합니다.",
-    cta: "제도 일정 달력 열어 보기",
+    cta: "금융캘린더 열어 보기",
     kind: "tool",
   },
   insurance: {
@@ -134,10 +134,10 @@ const categoryTool: Record<string, PostTool> = {
     kind: "tool",
   },
   ai: {
-    name: "도구자료실",
+    name: "앱스토어",
     href: "/apps",
     what: "직접 만든 계산·점검 도구를 한자리에서 열어 봅니다.",
-    cta: "도구자료실 둘러보기",
+    cta: "앱스토어 둘러보기",
     kind: "tool",
   },
   philosophy: {

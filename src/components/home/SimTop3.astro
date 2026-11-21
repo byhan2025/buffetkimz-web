@@ -1,0 +1,66 @@
+---
+/**
+ * 지금 바로 쓰는 시뮬레이터 TOP 3 — v7.0 홈 금융포털 3번째 모듈.
+ *
+ * 앱스토어(`store.ts`)의 항목을 그대로 읽어 이름·아이콘·배지가 앱스토어와 어긋나지 않게 한다.
+ * 순서는 '오늘 확인할 숫자' 기준 — 세액공제(연말) → 은퇴 현금흐름 → 계획 검증(타임머신).
+ * 홈에서 도구로 가는 큰 버튼은 이 세 칸과 아래 '대표 도구' 하나뿐이다.
+ */
+import { withBase } from "@/config/site";
+import { storeById } from "@/data/store";
+import AppStoreIcon from "@/components/apps/AppStoreIcon.astro";
+
+const picks = ["pension-tax", "retirement-flow", "trade-timemachine"]
+  .map((id) => storeById(id))
+  .filter((x): x is NonNullable<typeof x> => Boolean(x));
+
+const blurb: Record<string, string> = {
+  "pension-tax": "올해 납입액으로 예상 세액공제와 12월 전 채울 금액을 계산합니다.",
+  "retirement-flow": "은퇴 시점 월 수령액을 명목과 오늘 가치로 나눠 보여 줍니다.",
+  "trade-timemachine": "진입·손절·목표를 과거 봉에 1만 번 다시 걸어 분포를 셉니다.",
+};
+---
+
+<div class="simtop" data-sim-top id="mod-sim">
+  <div class="simtop-head">
+    <p class="simtop-label">바로 쓰는 시뮬레이터</p>
+    <a class="simtop-all" href={withBase("/apps")}>앱스토어 전체 →</a>
+  </div>
+  <p class="mod-chip mono">기준일 11. 21. · 소득세법 · 금융위</p>
+
+  <ol class="simtop-list">
+    {
+      picks.map((app, i) => (
+        <li class="simtop-item" data-sim={app.id}>
+          <span class="simtop-rank mono" aria-hidden="true">
+            {String(i + 1).padStart(2, "0")}
+          </span>
+          <span class="simtop-icon" aria-hidden="true">
+            <AppStoreIcon name={app.icon} size={20} />
+          </span>
+          <span class="simtop-body">
+            <span class="simtop-meta">
+              <span class="simtop-badge">시뮬레이터</span>
+              {app.external && <span class="simtop-badge simtop-badge--ext">외부 웹앱</span>}
+              <span class="simtop-free">무료</span>
+            </span>
+            <span class="simtop-name">{app.name}</span>
+            <span class="simtop-desc">{blurb[app.id] ?? app.tagline}</span>
+          </span>
+          <span class="simtop-actions">
+            <a
+              class="btn btn-primary btn-xs"
+              href={app.external ? app.openHref : withBase(app.openHref)}
+              {...(app.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+            >
+              {app.external ? "새 창" : "계산"}
+            </a>
+            <a class="simtop-more" href={withBase(app.href)}>
+              근거
+            </a>
+          </span>
+        </li>
+      ))
+    }
+  </ol>
+</div>

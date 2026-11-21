@@ -15,7 +15,7 @@ const jsonLd = graph([
     "@type": "FAQPage",
     "@id": `${pageUrl("/calendar")}#faq`,
     url: pageUrl("/calendar"),
-    name: "제도달력 — 1~12월 보험·연금·건보·절세 일정",
+    name: "금융캘린더 — 1~12월 보험·연금·건보·절세 일정",
     inLanguage: "ko-KR",
     isPartOf: partOfWebsite,
     mainEntity: keyItems.slice(0, 6).map((k) => ({
@@ -26,13 +26,13 @@ const jsonLd = graph([
   },
   breadcrumbList([
     { name: "홈", path: "/" },
-    { name: "제도달력", path: "/calendar" },
+    { name: "금융캘린더", path: "/calendar" },
   ]),
 ]);
 ---
 
 <Base
-  title="제도달력 — 1~12월 보험·연금·건보·절세 일정"
+  title="금융캘린더 — 1~12월 보험·연금·건보·절세 일정"
   description="연말정산, 연금저축 납입 마감, 건강보험료 정산, 실손 갱신까지. 매달 확인해야 할 보험·연금·건보·절세 일정을 1월부터 12월까지 정리했습니다."
   path="/calendar"
   jsonLd={jsonLd}
@@ -40,7 +40,7 @@ const jsonLd = graph([
   <section class="scene-sky border-b border-line/70">
     <div class="wrap py-9 md:py-12">
       <HomePill />
-      <p class="kicker">제도달력</p>
+      <p class="kicker">금융캘린더</p>
       <h1 class="h-display mt-3 max-w-[18ch]">1월부터 12월까지,<br />놓치면 손해인 날.</h1>
       <p class="lede mt-4 max-w-[56ch]">
         금융 사고는 대개 날짜를 놓쳐서 생깁니다. 연말정산, 연금 납입 마감, 건보료 정산, 실손 갱신.

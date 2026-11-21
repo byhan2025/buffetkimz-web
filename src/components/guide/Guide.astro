@@ -84,6 +84,23 @@ const { mode, journey } = Astro.props;
 
   if (dock) {
     const mode = (dock.dataset.guideMode as Mode | undefined) ?? "home";
+
+    /*
+     * v7.0 — 브랜드 필름 위에서는 가이드 버튼이 영상 컨트롤·CTA를 가리지 않게 위로 올린다.
+     * 필름이 화면에 걸쳐 있는 동안만 dock에 표시를 주고, 지나가면 원래 자리로 돌린다.
+     */
+    const filmStage = document.querySelector<HTMLElement>("[data-film-stage]");
+    if (filmStage && "IntersectionObserver" in window) {
+      const io = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((e) => {
+            dock.dataset.overFilm = e.isIntersecting ? "1" : "0";
+          });
+        },
+        { threshold: 0.12 }
+      );
+      io.observe(filmStage);
+    }
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const KEY_TOUR = "bk_tour_done_v1";
 
@@ -163,7 +180,7 @@ const { mode, journey } = Astro.props;
     };
 
     if (mode === "home") {
-      /* ① 첫 방문 — 오늘 확인 허브 → 추천 시작 글 → 도구자료실, 3스텝 */
+      /* ① 첫 방문 — 오늘 확인 허브 → 추천 시작 글 → 앱스토어, 3스텝 */
       const steps: DriveStep[] = [
         {
           element: '[data-guide="hub"]',
@@ -188,9 +205,9 @@ const { mode, journey } = Astro.props;
         {
           element: '[data-guide="tools"]',
           popover: {
-            title: "③ 도구자료실",
+            title: "③ 앱스토어",
             description:
-              "계산이 필요할 때는 도구자료실로. 입력한 값은 서버로 보내지 않고 브라우저 안에서만 계산합니다.",
+              "계산이 필요할 때는 앱스토어로. 입력한 값은 서버로 보내지 않고 브라우저 안에서만 계산합니다.",
             side: "top",
             align: "start",
           },

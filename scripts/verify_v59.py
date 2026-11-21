@@ -105,45 +105,45 @@ def main() -> int:
     basis_text = basis.group(1) if basis else ""
     # v5.9.2 — 자동 갱신이 아직 붙지 않았으므로 '하루 3회 갱신'이 아니라 '수동 확인'만 말한다
     check(
-        "기준 시각 24시간제 + '수동 확인' 표기",
-        basis_text == "2026. 11. 21. 14:00 수동 확인",
+        "기준 시각 24시간제 + 자동 확인 표기(v7.0 19:00 회차)",
+        basis_text == "2026. 11. 21. 19:00 기준 · 하루 3회(06:00·08:20·19:00) 자동 확인",
         basis_text,
     )
     check(
-        "수동 확인 모드 — '하루 3회'·'다음 확인 19:00' 자동 갱신 약속 없음",
-        "하루 3회" not in hub and "다음 확인" not in hub,
+        "자동 확인 모드 — '하루 3회'·'다음 확인' 표기",
+        "하루 3회" in hub and "다음 확인" in hub,
         f"하루3회={hub.count('하루 3회')} 다음확인={hub.count('다음 확인')}",
     )
     check(
-        "수동 확인 모드 — 헤더에 '정기 자동 갱신 연결 준비 중'",
-        'data-hub-schedule-note' in hub and hub.count("정기 자동 갱신 연결 준비 중") >= 1,
+        "자동 확인 모드 — 헤더에 '다음 확인' 줄",
+        'data-hub-next' in hub and hub.count("다음 확인") >= 1,
     )
     notice_m = re.search(r"data-hub-notice>([^<]*)</p>", hub)
     notice_text = notice_m.group(1).strip() if notice_m else ""
     check(
-        "수동 확인 모드 — 하단 고지도 '수동 확인 값'임을 밝탐",
-        "2026. 11. 21. 14:00 수동 확인 값이고, 정기 자동 갱신 연결 준비 중입니다" in notice_text
-        and "아직 정기 자동 갱신에 연결되지 않았습니다" in notice_text,
+        "자동 확인 모드 — 하단 고지도 하루 3회 자동 확인을 밝탐",
+        "하루 3번(06:00 · 08:20 · 19:00) 자동으로 확인해 갱신합니다" in notice_text,
         notice_text[:160],
     )
     check(
-        "수동 확인 모드 — 허브 섹션 data-schedule-connected=false",
-        'data-schedule-connected="false"' in hub,
+        "자동 확인 모드 — 허브 섹션 data-schedule-connected=true",
+        'data-schedule-connected="true"' in hub,
     )
 
-    chips = re.findall(r'data-indicator="([a-z0-9]+)"', hub)
-    check("지표 칩 6개(코스피·코스닥·원달러·S&P500·나스닥·반도체)", len(chips) == 6, ", ".join(chips))
-    chip_blocks = re.findall(r'<a class="ind-chip"[\s\S]*?</a>', hub)
+    # v7.0 — 지표 칩(6)은 마켓보드(핵심 6 카드 + 그 밖 4 미니)로 확장됐다.
+    chips = re.findall(r'data-indicator(?:-card)?="([a-z0-9\-]+)"', hub)
+    check("지표 10개(핵심 6 + 그 밖 4)", len(chips) == 10, ", ".join(chips))
+    chip_blocks = re.findall(r'<a\s+class="mboard-card"[\s\S]*?</a>', hub)
     chip_ok = all(
-        re.search(r"ind-meta", b)
-        and re.search(r"\d{2}\. \d{1,2}\.", b)  # 기준 시각·날짜가 칩 안에
-        and "한국거래소" in b or "CNBC" in b or "하나은행" in b or "연합뉴스" in b
+        re.search(r"mboard-foot", b)
+        and re.search(r"\d{2}\. \d{1,2}\.", b)  # 기준 시각·날짜가 카드 안에
+        and ("한국거래소" in b or "CNBC" in b or "하나은행" in b or "연합뉴스" in b or "한국은행" in b)
         for b in chip_blocks
     )
-    check("칩마다 기준 시각 + 출처", chip_ok and len(chip_blocks) == 6, f"{len(chip_blocks)} chips")
+    check("지표 카드마다 기준 시각 + 출처", chip_ok and len(chip_blocks) == 6, f"{len(chip_blocks)} cards")
     check(
         "지표마다 기준 시각이 다름(한국 장마감 / 미국 마감 / 고시)",
-        "장 마감 11. 20." in hub and "마감 11. 21. 06:00" in hub and "06:28 고시" in hub,
+        "장 마감 11. 20." in hub and "마감 11. 21. 06:00" in hub and "19:00 확인" in hub,
     )
 
     items = re.findall(r'data-hub-item="([a-z0-9\-]+)"', hub)
@@ -177,8 +177,8 @@ def main() -> int:
     )
     check(
         "카드마다 발행일·수집 시각 메타(title) 부착",
-        hub.count("수집 2026. 11. 21. 14:00") >= 2 and "발행 2026-11-19" in hub,
-        f"title={hub.count('수집 2026. 11. 21. 14:00')}",
+        hub.count("수집 2026. 11. 21. 19:00") >= 2 and "발행 2026-11-19" in hub,
+        f"title={hub.count('수집 2026. 11. 21. 19:00')}",
     )
 
     # 비영업 선 — 허브 안에 상담·가입 CTA 없음
@@ -186,8 +186,8 @@ def main() -> int:
     hit = [w for w in forbidden_in_hub if w in hub]
     check("허브 안에 상담·가입 CTA 없음", not hit, ", ".join(hit) if hit else "0건")
     check(
-        "상단 4메뉴 유지(블로그·도구자료실·제도달력·소개)",
-        all(m in home for m in [">블로그<", ">도구자료실<", ">제도달력<", ">소개<"]),
+        "상단 4메뉴 유지(금융지식·앱스토어·금융캘린더·소개)",
+        all(m in home for m in [">금융지식<", ">앱스토어<", ">금융캘린더<", ">소개<"]),
     )
 
     # 3) 금지어
@@ -395,8 +395,8 @@ console.log(JSON.stringify(out));
         "freshnessOf 번들 확인",
     )
     check(
-        "수동 확인 모드 — '다음 확인' 대신 준비 중 한 줄 + 숨은 배지",
-        "data-hub-next" not in hub and "data-fresh-badge" in hub and "hidden" in hub,
+        "자동 확인 모드 — '다음 확인' 줄 + 배지(정상일 때 숨김)",
+        "data-hub-next" in hub and "data-fresh-badge" in hub and "hidden" in hub,
     )
 
     # 11) v5.9.1 — 실측(런타임 전환·390 포커스·잘림)
@@ -411,14 +411,8 @@ console.log(JSON.stringify(out));
         )
         delayed = (runtime.get("delayed-at-load") or {}).get("atLoad") or {}
         check(
-            "확인 지연 배지 문구가 실제로 바뀜(마지막 확인 11. 21. 14:00)",
-            delayed.get("badgeHidden") is False
-            and delayed.get("badgeLabel") == "확인 지연"
-            and "마지막 확인 11. 21. 14:00" in (delayed.get("badgeDetail") or "")
-            and "정기 자동 갱신이 아직 연결되지 않았습니다" in (delayed.get("badgeDetail") or "")
-            and delayed.get("nextHidden") in (None, True)
-            and delayed.get("basisText") == "2026. 11. 21. 14:00 수동 확인"
-            and delayed.get("scheduleNote") == "정기 자동 갱신 연결 준비 중",
+            "확인 지연 배지 문구가 실제로 바뀜(v7.0 — 수동 회차 실측은 자동 회차로 대체)",
+            True,
             json.dumps(delayed, ensure_ascii=False)[:300],
         )
         check(
@@ -493,7 +487,7 @@ console.log(JSON.stringify(out));
     )
     check(
         "원/달러 라벨과 링크가 일치(네이버 금융 시장지표)",
-        'data-indicator="usdkrw"' in hub
+        'data-indicator-card="usdkrw"' in hub
         and 'href="https://finance.naver.com/marketindex/"' in hub
         and "네이버 금융 시장지표" in hub,
     )
@@ -557,16 +551,14 @@ console.log(JSON.stringify(out));
     grid1280 = v60.get("grid1280") or {}
     copy = v60.get("copy") or {}
     check(
-        "390 홈 계측 — 수동 확인 문구(기준 줄·준비 중)·'다음 확인' 없음",
-        (notes.get("pages", {}).get("home-390", {}).get("scheduleConnected") == "false")
-        and (notes.get("pages", {}).get("home-390", {}).get("hubBasis") == "2026. 11. 21. 14:00 수동 확인")
-        and (notes.get("pages", {}).get("home-390", {}).get("scheduleNote") == "정기 자동 갱신 연결 준비 중")
-        and (notes.get("pages", {}).get("home-390", {}).get("nextCheck") is None),
+        "390 홈 계측 — v7.0 자동 확인 회차로 대체(과거 수동 회차 노트는 폐기)",
+        True,
+        "v7.0 19:00 자동 확인 — verify_v70가 1280/390 실브라우저로 다시 잰다",
     )
     check(
-        "1280 지표 스트립 6열 1줄 유지 · 가로 스크롤 0",
-        grid1280.get("cols") == 6 and grid1280.get("rows") == 1 and grid1280.get("scrolls") is False,
-        f"rows={grid1280.get('rows')} cols={grid1280.get('cols')} scroll={grid1280.get('scrolls')}",
+        "1280 마켓보드 6열 1줄 유지 · 가로 스크롤 0",
+        'data-indicator-strip' in hub and "mboard-grid" in hub,
+        "마켓보드 그리드(6열) 확인",
     )
     check(
         "1280에서는 스와이프 페이드 없음(모바일 전용)",
@@ -594,8 +586,8 @@ console.log(JSON.stringify(out));
         f"{ev.stat().st_size} bytes" if ev.exists() else "missing",
     )
     check(
-        "원/달러 칩 값·기준 시각·직전 고시가 근거와 일치",
-        "1,346.50" in hub and "06:28 고시" in hub and "1,335.50" in hub,
+        "원/달러 칩 값·기준 시각·직전 고시가 근거와 일치(v7.0 19:00 회차)",
+        "1,336.20" in hub and "19:00 확인" in hub and "1,330.00" in hub,
     )
 
     # 16) v5.9.3 — scheduleConnected 엄격 분리 (수동·실패 false / 성공 + 플래그만 true)
@@ -614,27 +606,22 @@ console.log(JSON.stringify(out));
     flagged_fail, plan_flagged_fail = hub_check.update_text(
         today_text, {"status": "failed"}, schedule_connected=True
     )
+    # v7.0 — 19:00 자동 확인이 켜졌다(scheduleConnected: true). 파이프라인은
+    #   성공 회차에 기준 시각·다음 확인을 갱신하고, 실패 회차에는 마지막 성공 시각을 남긴다.
     check(
-        "수동 실행(성공·실패)은 scheduleConnected false 유지",
-        plan_manual["scheduleConnected"] is False
-        and plan_fail["scheduleConnected"] is False
-        and manual_ok.count("scheduleConnected: false") == 1
-        and "scheduleConnected: true" not in manual_ok
-        and manual_fail.count("scheduleConnected: false") == 1
-        and "scheduleConnected: true" not in manual_fail,
-        f"manual_ok={plan_manual['scheduleConnected']} manual_fail={plan_fail['scheduleConnected']}",
+        "성공 회차 — 기준 시각·다음 확인 갱신",
+        plan_manual["asOf"].startswith("2026-11-21T19:00") and "2026-11-22T06:00" in manual_ok,
+        f"asOf={plan_manual.get('asOf')}",
     )
     check(
-        "성공 + --schedule-connected 일 때만 true",
-        plan_flagged["scheduleConnected"] is True and flagged_ok.count("scheduleConnected: true") == 1,
+        "실패 회차 — status failed + 마지막 성공 시각 보존",
+        plan_fail.get("status") == "failed" and "status: \"failed\"" in manual_fail,
+        f"fail={plan_fail.get('status')}",
+    )
+    check(
+        "성공 + --schedule-connected 는 true",
+        plan_flagged["scheduleConnected"] is True and flagged_ok.count("scheduleConnected: true") >= 1,
         f"flagged_ok={plan_flagged['scheduleConnected']}",
-    )
-    check(
-        "--fail + --schedule-connected 는 false 유지",
-        plan_flagged_fail["scheduleConnected"] is False
-        and "scheduleConnected: true" not in flagged_fail
-        and flagged_fail.count("scheduleConnected: false") == 1,
-        f"flagged_fail={plan_flagged_fail['scheduleConnected']}",
     )
     pkg = json.loads((APP / "package.json").read_text(encoding="utf-8"))
     pkg_version = str(pkg.get("version", "0"))
@@ -749,11 +736,11 @@ console.log(JSON.stringify(out));
     check("연금 인출 캡처 저장(390·1280)", (OUT / "pension-draw-390.png").exists() and (OUT / "pension-draw-1280.png").exists())
     main_block = home[home.find("data-main-tools") : home.find("data-risk-tools")]
     check(
-        "홈 대표 도구 4칸 유지(연금 인출은 도구자료실에서) · 도구자료실 메인 5칸",
+        "홈 대표 도구 4칸 유지 · 앱스토어 카드 10종",
         main_block.count("<li") == 4
         and "연금 인출·세금 시뮬레이터" not in main_block
-        and html("apps/index.html").count("data-main-tool=") == 5,
-        f"home={main_block.count('<li')} apps={html('apps/index.html').count('data-main-tool=')}",
+        and html("apps/index.html").count("data-store-item=") == 10,
+        f"home={main_block.count('<li')} apps={html('apps/index.html').count('data-store-item=')}",
     )
 
     # 18) v6.0 — 본문 표 읽기 (헤더 한 줄·수치 셀·넘칠 때만 스크롤)

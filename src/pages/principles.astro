@@ -27,11 +27,11 @@ const principles = [
   },
   {
     no: "03",
-    title: "특정 상품의 가입 권유와 영업용 리드 수집을 하지 않습니다",
-    lead: "1:1 상담문의는 글·도구 관련 일반 질문과 오류 제보에 한해 열려 있습니다.",
+    title: "상품보다 구조를 먼저 설명합니다",
+    lead: "1:1 상담문의는 내 숫자와 조건을 함께 놓고 확인하는 자리입니다.",
     body: [
-      "특정 보험사·상품을 권하거나 가입을 유도하는 문구를 두지 않습니다. 연락처를 영업용으로 모으지 않고, 조회수·체류시간 노출도 쓰지 않습니다.",
-      "도구는 입력값을 서버로 보내지 않고 브라우저 안에서만 계산합니다. 결과는 판정이 아니라 확인의 출발선입니다.",
+      "세제·현금흐름·보장을 한자리에 놓고, 어느 한 축만 크게 보여 주는 설명은 하지 않습니다. 결론보다 그 결론이 서 있는 가정과 기준을 먼저 적습니다.",
+      "도구는 입력값을 그 탭 안에서만 계산합니다. 결과는 판정이 아니라, 약관과 증권에서 더 확인할 항목입니다.",
     ],
   },
   {
@@ -82,7 +82,7 @@ const jsonLd = graph([
 
 <Base
   title="편집 원칙 — 확인한 것과 계산한 것을 나눠 적는 기준"
-  description="1차 출처 우선, 기준일 고정, 가입 권유·영업 리드 수집 없음, 약관·심사 한계 명시, 세제·현금흐름·보장의 균형, 정정과 업데이트. buffetkimz가 글과 도구를 만들 때 지키는 여섯 가지 기준입니다."
+  description="1차 출처 우선, 기준일 고정, 상품보다 구조, 약관·심사 한계 명시, 세제·현금흐름·보장의 균형, 정정과 업데이트. buffetkimz가 글과 도구를 만들 때 지키는 여섯 가지 기준입니다."
   path={path}
   jsonLd={jsonLd}
 >
@@ -134,8 +134,8 @@ const jsonLd = graph([
           </p>
         </div>
         <p class="flex flex-wrap items-center gap-x-4 text-[13.5px]">
-          <a href={withBase("/posts")} class="link font-semibold text-brand-deep">기록 전체</a>
-          <a href={withBase("/apps")} class="link text-ink-muted">도구자료실</a>
+          <a href={withBase("/posts")} class="link font-semibold text-brand-deep">금융지식 전체</a>
+          <a href={withBase("/apps")} class="link text-ink-muted">앱스토어</a>
           <a href={withBase("/about")} class="link text-ink-muted">소개</a>
         </p>
       </div>

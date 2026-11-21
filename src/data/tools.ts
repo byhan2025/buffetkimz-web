@@ -3,7 +3,7 @@ import { calendar } from "./calendar";
 /**
  * 홈·/apps 도구 허브가 보여 주는 여덟 가지.
  *
- * v4.0 — 금융·투자·연금 도구 3종과 제도 일정 달력을 '메인'에 두고,
+ * v4.0 — 금융·투자·연금 도구 3종과 금융캘린더을 '메인'에 두고,
  * 보험 3종은 '리스크 관리 참고 도구'로 내려 비중을 줄였다.
  * 문구는 '무엇을 확인·계산하는가'만 쓴다(추천·가입 유도 문구 없음).
  */
@@ -16,7 +16,7 @@ export type HubTool = {
   meta: string;
   href: string;
   runHref?: string;
-  /** main: 금융·투자·연금·제도 일정 / risk: 리스크 관리(보험) 참고 */
+  /** main: 금융·투자·연금·금융 일정 / risk: 리스크 관리(보험) 참고 */
   group: "main" | "risk";
 };
 
@@ -63,7 +63,7 @@ export const hubTools: HubTool[] = [
   },
   {
     key: "calendar",
-    name: "제도 일정 달력",
+    name: "금융캘린더",
     what: "연말정산·연금 납입 마감·건보료 정산처럼 날짜를 놓치면 손해가 생기는 절차를 1~12월로 봅니다.",
     short: "놓치면 손해인 기한과 절차를 1~12월로 확인합니다.",
     meta: `일정 ${calendar.length}건 · 월별 분류`,
@@ -102,14 +102,14 @@ export const hubTools: HubTool[] = [
   },
 ];
 
-/** 메인 — 금융·투자·연금 계산 4종 + 제도 일정 달력 1종 */
+/** 메인 — 금융·투자·연금 계산 4종 + 금융캘린더 1종 */
 export const mainTools = hubTools.filter((t) => t.group === "main");
 /** 서브 — 리스크 관리(보험) 참고 도구 3종 */
 export const riskTools = hubTools.filter((t) => t.group === "risk");
 
 /**
  * 홈 메인 도구 상단 4칸 (요청된 순서: 세액공제 → 은퇴 현금흐름 → 복리 → 달력).
- * v6.0 연금 인출 시뮬레이터는 도구자료실·링크로 먼저 열고, 홈 4칸은 기존 구성을 유지한다
+ * v6.0 연금 인출 시뮬레이터는 앱스토어·링크로 먼저 열고, 홈 4칸은 기존 구성을 유지한다
  * (설계서 §10.2 — 홈에 넣으려면 5번째 칸이 필요하다).
  */
 export const homeMainTools = mainTools.filter((t) => t.key !== "pension-draw");

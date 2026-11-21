@@ -3,7 +3,7 @@ import { glob } from "astro/loaders";
 import { z } from "astro/zod";
 
 /**
- * 블로그 시리즈 4종 — v5.9.
+ * 금융지식 시리즈 4종 — v5.9.
  *
  * 글을 '분야(category)'로만 나누면 목록이 납짝해진다. 시리즈는 같은 질문으로 묶는 층이다.
  * 메뉴를 늘리지 않고 깊이를 만드는 장치이므로, 새 시리즈는 이 네 이름 안에서 고른다.
@@ -12,11 +12,23 @@ import { z } from "astro/zod";
  *   약관 해독   — 약관·중권을 읽는 기준(보험은 리스크 관리로만)
  *   도구 노트   — 직접 만든 도구·AI를 써 보고 남긴 기록
  */
-export const SERIES_NAMES = ["내 돈 체크", "연금 지도", "약관 해독", "도구 노트"] as const;
+export const SERIES_NAMES = [
+  "내 돈 체크",
+  "연금 지도",
+  "약관 해독",
+  "도구 노트",
+  /**
+   * v7.0 — 연금·퇴직 마스터 가이드.
+   * 43쪽 분량의 「사계정원 연금노트」를 5~6편으로 나눠 편입할 때 쓰는 섹터 이름이다.
+   * 지금은 뼈대만 열어 두었고, 글이 들어오면 `series: { name: "연금·퇴직 마스터 가이드", no }`만 적으면
+   * 카드·상세 머리·시리즈 목록에 자동으로 붙는다(src/data/library.ts의 같은 시리즈와 짝).
+   */
+  "연금·퇴직 마스터 가이드",
+] as const;
 export type SeriesName = (typeof SERIES_NAMES)[number];
 
 /**
- * 블로그 글 컬렉션.
+ * 금융지식 글 컬렉션.
  * src/content/posts/ 에 .{md,mdx} 파일을 하나 추가하면
  * 피드·카테고리·검색 인덱스·RSS·사이트맵이 빌드할 때 자동으로 갱신된다.
  */

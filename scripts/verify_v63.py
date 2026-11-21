@@ -102,29 +102,19 @@ APPS_JS = """() => {
   const q = (s) => document.querySelector(s);
   const all = (s) => [...document.querySelectorAll(s)];
   const block = (sel) => { const el = q(sel); return el ? el.innerText.replace(/\\s+/g, ' ').trim() : null; };
-  const reader = q('[data-reader-apps]');
-  const pract = q('[data-practitioner-apps]');
   return {
-    mainTools: all('[data-main-tool]').length,
-    riskTools: all('[data-risk-tool]').length,
-    toolCount: block('[data-tool-count]'),
-    appCount: block('[data-app-count]'),
-    readerCards: reader ? reader.querySelectorAll('[data-app-card]').length : 0,
-    readerSlugs: reader ? [...reader.querySelectorAll('[data-app-card]')].map(e => e.getAttribute('data-app-card')) : [],
-    readerHasBojang: !!(reader && reader.querySelector('[data-app-card="bojang-counsel-guide"]')),
-    practCards: pract ? pract.querySelectorAll('[data-practitioner-card]').length : 0,
-    practSlugs: pract ? [...pract.querySelectorAll('[data-practitioner-card]')].map(e => e.getAttribute('data-practitioner-card')) : [],
-    practAfterReader: !!(reader && pract && (reader.compareDocumentPosition(pract) & Node.DOCUMENT_POSITION_FOLLOWING)),
+    tabs: all('[data-store-tab]').map(t => ({ id: t.dataset.storeTab, text: t.innerText.replace(/\\s+/g,' ').trim() })),
+    cats: all('[data-store-cat]').map(e => e.dataset.storeCat),
+    items: all('[data-store-item]').map(e => e.dataset.storeItem),
+    counts: all('.store-sec-count').map(e => e.textContent.trim()),
     badges: all('[data-external-badge]').map(e => e.textContent.trim()),
-    externalLinks: all('a[target="_blank"]').map(a => ({
-      href: a.getAttribute('href'),
-      rel: a.getAttribute('rel'),
-      text: a.innerText.replace(/\\s+/g, ' ').trim().slice(0, 30),
-    })),
-    timemachineText: block('[data-app-card="trade-timemachine"]'),
-    bojangText: block('[data-practitioner-card="bojang-counsel-guide"]'),
+    practitioner: all('[data-practitioner-badge]').length,
+    summary: block('[data-store-summary]'),
+    protect: block('.store-protect'),
+    externalLinks: all('a[target="_blank"]').map(a => ({ href: a.getAttribute('href'), rel: a.getAttribute('rel'), text: a.innerText.replace(/\\s+/g, ' ').trim().slice(0, 30) })),
   };
-}"""
+}
+"""
 
 
 def main() -> int:
@@ -166,22 +156,22 @@ def main() -> int:
 
                 if key == "apps":
                     a = page.evaluate(APPS_JS)
-                    add(f"{label} 도구자료실 내부 계산 8종(5+3)", a["mainTools"] == 5 and a["riskTools"] == 3, a)
-                    add(f"{label} 외부 앱 배지 = 앱 카드 수", len(a["badges"]) == 2 and all("외부 웹앱 · 새 창 열기" == b for b in a["badges"]), a["badges"])
-                    add(f"{label} 독자용 앱 칸 = 타임머신 1", a["readerCards"] == 1 and a["readerSlugs"] == ["trade-timemachine"], a["readerSlugs"])
-                    add(f"{label} 실무자용 칸 = 5대 담보 1 · 독자용과 분리", a["practCards"] == 1 and a["practSlugs"] == ["bojang-counsel-guide"] and not a["readerHasBojang"] and a["practAfterReader"], {"pract": a["practSlugs"], "readerHasBojang": a["readerHasBojang"], "after": a["practAfterReader"]})
-                    add(f"{label} 타임머신 카드에 비투자권유 고지", "투자 권유" in (a["timemachineText"] or ""), (a["timemachineText"] or "")[:160])
+                    add(f"{label} 앱스토어 탭 4(전체+3)", [t["id"] for t in a["tabs"]] == ["all", "finance", "insurance", "utility"], a["tabs"])
+                    add(f"{label} 앱스토어 섹션 3 · 카드 10", a["cats"] == ["finance", "insurance", "utility"] and len(a["items"]) == 10, {"cats": a["cats"], "n": len(a["items"])})
+                    add(f"{label} 카테고리 개수 5·4·1", a["counts"] == ["5", "4", "1"], a["counts"])
+                    add(f"{label} 외부 웹앱 배지 2", len(a["badges"]) == 2 and all(b == "외부 웹앱" for b in a["badges"]), a["badges"])
+                    add(f"{label} 실무자용 배지 1", a["practitioner"] == 1, a["practitioner"])
                     tm_links = [l for l in a["externalLinks"] if l["href"] and "trade-timemachine" in l["href"]]
                     add(
                         f"{label} 타임머신 링크 새 창 + noopener",
                         len(tm_links) >= 1 and all("noopener" in (l["rel"] or "") for l in tm_links),
                         tm_links,
                     )
-                    add(f"{label} 도구 8종 표기", "8" in (a["toolCount"] or ""), a["toolCount"])
-                    add(f"{label} 직접 만든 앱 2종 표기(독자용 1+실무자용 1)", "2" in (a["appCount"] or "") and "독자용 1" in (a["appCount"] or ""), a["appCount"])
+                    add(f"{label} 앱스토어 요약(카테고리 개수 칩)", "금융투자앱" in (a["summary"] or "") and "보험앱" in (a["summary"] or ""), a["summary"])
+                    add(f"{label} 이용자 보호 고지 1줄", "참고용" in (a["protect"] or ""), a["protect"])
 
                 if key == "home":
-                    # v6.3 — 크레딧 줄의 분해 숫자 합이 바로 옆 총합과 같아야 한다(4+3=8 같은 표기 방지)
+                    # v7.0 — 크레딧의 앱스토어 숫자: 카테고리 3개 합 = 총합
                     credit = page.evaluate(
                         """() => [...document.querySelectorAll('.film-credit')].map(a => ({
                           label: (a.querySelector('.film-credit-label')?.childNodes[0]?.textContent ?? '').trim(),
@@ -189,13 +179,13 @@ def main() -> int:
                           count: (a.querySelector('.film-credit-count')?.textContent ?? '').trim(),
                         }))"""
                     )
-                    tool = next((c for c in credit if c["label"] == "도구"), {})
-                    nums = [int(x) for x in re.findall(r"\d+", tool.get("note") or "")]
-                    total = int("".join(ch for ch in (tool.get("count") or "") if ch.isdigit()) or 0)
+                    app_credit = next((c for c in credit if c["label"] == "앱스토어"), {})
+                    nums = [int(x) for x in re.findall(r"\d+", app_credit.get("note") or "")]
+                    total = int("".join(ch for ch in (app_credit.get("count") or "") if ch.isdigit()) or 0)
                     add(
-                        f"{label} 홈 도구 크레딧 분해 합 = 총합",
-                        len(nums) == 3 and sum(nums) == total and total == 8,
-                        {"note": tool.get("note"), "count": tool.get("count"), "sum": sum(nums)},
+                        f"{label} 홈 앱스토어 크레딧 분해 합 = 총합",
+                        len(nums) == 3 and sum(nums) == total and total == 10,
+                        {"note": app_credit.get("note"), "count": app_credit.get("count"), "sum": sum(nums)},
                     )
 
                 if key == "notfound":
@@ -207,8 +197,8 @@ def main() -> int:
         # 상세 페이지 — 외부 앱 배지·고지·실무자용 표기
         for label, vp in VIEWPORTS.items():
             for slug, must in (
-                ("trade-timemachine", "투자 권유·매매 신호가 아닙니다"),
-                ("bojang-counsel-guide", "실무자용 앱입니다"),
+                ("trade-timemachine", "투자 권유"),
+                ("bojang-counsel-guide", "실무자용"),
             ):
                 page = browser.new_page(viewport=vp, locale="ko-KR")
                 console: list[str] = []
@@ -221,14 +211,14 @@ def main() -> int:
                 over = page.evaluate(OVERFLOW_JS)
                 add(f"{label} /apps/{slug}/ 가로 넘침 0", over["overflow"] == 0, over)
                 badge = page.evaluate("() => document.querySelector('[data-external-badge]')?.textContent.trim() ?? null")
-                add(f"{label} /apps/{slug}/ 외부 웹앱 배지", badge == "외부 웹앱 · 새 창 열기", badge)
+                add(f"{label} /apps/{slug}/ 외부 웹앱 표기", bool(badge) and "외부 웹앱" in badge, badge)
                 body = page.evaluate("() => document.body.innerText")
                 add(f"{label} /apps/{slug}/ 고지·표기", must in body, must)
                 page.close()
 
         # 버전 표기 — package.json(v6.3.0)이 빌드에 반영됐는지(사이트맵 lastmod·구조화 데이터 아님)
         pkg = json.loads((APP / "package.json").read_text(encoding="utf-8"))
-        add("package.json 버전 6.3.0", pkg.get("version") == "6.3.0", str(pkg.get("version")))
+        add("package.json 버전 7.0.0", pkg.get("version") == "7.0.0", str(pkg.get("version")))
         manifest = (APP / "dist" / "search-index.json")
         add("검색 인덱스에 실무자용 구분", "실무자용" in manifest.read_text(encoding="utf-8"), "")
 

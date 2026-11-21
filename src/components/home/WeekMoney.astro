@@ -1,0 +1,58 @@
+---
+/**
+ * 이번 주 돈의 일정 — v7.0 홈 금융포털 2번째 모듈.
+ *
+ * `today.ts`의 확인 항목 중 기한(`dueDate`)이 가까운 순서로 세 건만 큰 D-Day 카드로 세운다.
+ * D-Day 계산은 사이트의 다른 곳과 같은 `lib/dday.ts`를 쓴다(숫자가 화면마다 달라지지 않게).
+ */
+import { withBase, site } from "@/config/site";
+import { today as hub } from "@/data/today";
+import { ddayOf, isUpcoming } from "@/lib/dday";
+
+const dated = hub.items
+  .filter((i) => i.dueDate)
+  .map((i) => ({ item: i, dday: ddayOf(i.dueDate as string, site.today) }))
+  .filter((x) => isUpcoming(x.item.dueDate as string, site.today))
+  .sort((a, b) => (a.item.dueDate as string).localeCompare(b.item.dueDate as string))
+  .slice(0, 3);
+---
+
+<div class="wmoney" data-week-money id="mod-money">
+  <div class="wmoney-head">
+    <p class="wmoney-label">이번 주 돈의 일정</p>
+    <a class="wmoney-all" href={withBase("/calendar")}>금융캘린더 전체 →</a>
+  </div>
+  <p class="mod-chip mono">기준 11. 21. 14:00 · 금융위 · 국세청</p>
+
+  <ol class="wmoney-list">
+    {
+      dated.map(({ item, dday }) => (
+        <li class="wmoney-item" data-due={item.dueDate}>
+          <span class={`wmoney-dday tone-${dday.tone}`} aria-label={dday.aria}>
+            <b>{dday.label}</b>
+            <span class="mono">{dday.dateLabel}</span>
+          </span>
+          <span class="wmoney-body">
+            <span class="wmoney-title">{item.title}</span>
+            <span class="wmoney-why">{item.why}</span>
+            <span class="wmoney-actions">
+              {item.toolHref && (
+                <a class="wmoney-tool" href={withBase(item.toolHref)}>
+                  {item.toolLabel}
+                  <span aria-hidden="true">→</span>
+                </a>
+              )}
+              <a class="wmoney-src" href={item.sourceUrl} target="_blank" rel="noopener noreferrer">
+                {item.sourceLabel}
+              </a>
+            </span>
+          </span>
+        </li>
+      ))
+    }
+  </ol>
+
+  <p class="wmoney-note">
+    기한이 지나면 그해 혜택이 사라지는 항목만 모았습니다. 일정은 {site.baseDateLabel} 기준 확인값입니다.
+  </p>
+</div>

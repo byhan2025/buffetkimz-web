@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 /**
- * 블로그 대표이미지(썸네일) 규칙.
+ * 금융지식 대표이미지(썸네일) 규칙.
  *
  * · 글에 `thumb`가 있으면 그 파일을 쓴다 — public/thumbs/*.webp (16:10, 1280×800)
  * · 없으면 분야(7대 주제) 기본 이미지를 쓴다. 새 글을 쓸 때 이미지를 만들지 않아도

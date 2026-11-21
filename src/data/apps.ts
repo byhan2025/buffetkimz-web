@@ -5,6 +5,61 @@
  */
 export type AppStatus = "live" | "preview";
 
+/**
+ * v7.0 — 앱스토어 주제별 카테고리.
+ *
+ * 새 카테고리를 만들려면 이 배열에 한 줄을 더하고, 앱의 `category`에 그 id를 적는다.
+ * `/apps` 페이지의 탭·섹션·개수 표기가 이 배열 하나에서 자동으로 만들어진다
+ * (앱을 추가할 때마다 페이지 코드를 고치지 않는다).
+ *
+ * 순서가 화면 순서다 — 금융·투자가 앞, 보험과 생활 도구가 뒤.
+ */
+export type AppCategoryId = "finance" | "insurance" | "utility";
+
+export type AppCategory = {
+  id: AppCategoryId;
+  /** 탭·섹션 제목 */
+  label: string;
+  /** 영문 태그 — 탭 위 작은 라벨 */
+  en: string;
+  /** 섹션 머리 한 줄 */
+  blurb: string;
+  /** 카드 아이콘 바탕 (그라디언트 두 색) */
+  tone: [string, string];
+  /** 아이콘 키 — AppStoreIcon이 해석한다 */
+  icon: "chart" | "shield" | "grid";
+};
+
+export const APP_CATEGORIES: AppCategory[] = [
+  {
+    id: "finance",
+    label: "금융투자앱",
+    en: "FINANCE · INVEST",
+    blurb: "금리·세금·연금·수익률을 내 숫자로 계산하는 금융·투자 도구입니다.",
+    tone: ["#0e5344", "#146c58"],
+    icon: "chart",
+  },
+  {
+    id: "insurance",
+    label: "보험앱",
+    en: "RISK · COVERAGE",
+    blurb: "담보·고지·실손을 약관 기준으로 확인하는 리스크 관리 도구입니다.",
+    tone: ["#243b53", "#3c5a7c"],
+    icon: "shield",
+  },
+  {
+    id: "utility",
+    label: "유용한앱",
+    en: "UTILITY",
+    blurb: "날짜와 절차를 놓치지 않게 잡아 주는 생활·업무 도구입니다.",
+    tone: ["#6b5322", "#8a6320"],
+    icon: "grid",
+  },
+];
+
+export const categoryById = (id: AppCategoryId) =>
+  APP_CATEGORIES.find((c) => c.id === id) ?? APP_CATEGORIES[0];
+
 export type App = {
   slug: string;
   name: string;
@@ -44,15 +99,17 @@ export type App = {
   externalUrl?: string;
   /**
    * 독자 범위.
-   *  - reader(기본): 일반 독자용 도구자료실에 그대로 소개한다.
+   *  - reader(기본): 일반 독자용 앱스토어에 그대로 소개한다.
    *  - practitioner: 설계사현장 상담용처럼 실무자 도구라 일반 목록과 섞지 않고
-   *    도구자료실 맨 아래 '실무자용' 칸에서만 소개한다.
+   *    앱스토어 맨 아래 '실무자용' 칸에서만 소개한다.
    */
   scope?: "reader" | "practitioner";
   /** 내부 실행 앱 여부 (실행 화면이 있는 앱) */
   internal?: boolean;
   /** 카드·상세에서 함께 읽는 고지 (필요한 앱만) */
   notice?: string;
+  /** 앱스토어 주제 카테고리 (APP_CATEGORIES의 id) */
+  category: AppCategoryId;
   /** 카드 아트 종류 */
   art: "guide" | "coverage" | "disclosure" | "silson" | "pension" | "pension-draw" | "retirement" | "compound" | "timemachine";
   /** 관련 글 태그 (검색 보조) */
@@ -111,6 +168,7 @@ export const apps: App[] = [
     ],
     externalUrl: "https://byhan2025.github.io/bojang-counsel-guide/",
     scope: "practitioner",
+    category: "insurance",
     art: "guide",
     tags: ["보장분석", "5대 담보", "PDF", "PWA", "고지의무"],
   },
@@ -159,6 +217,7 @@ export const apps: App[] = [
       "가입금액만 비교하며, 지급 조건·면책·감액 기간은 계산하지 않습니다.",
     ],
     internal: true,
+    category: "insurance",
     art: "coverage",
     tags: ["보장분석", "5대 담보", "진단비", "수술비", "간병비"],
   },
@@ -207,6 +266,7 @@ export const apps: App[] = [
       "상품별 질문표가 다르므로 실제 해당 여부는 청약서로 확인해야 합니다.",
     ],
     internal: true,
+    category: "insurance",
     art: "disclosure",
     tags: ["고지의무", "간편고지", "305", "325", "355", "병력"],
   },
@@ -224,7 +284,7 @@ export const apps: App[] = [
       "급여·중증 비급여·비중증 비급여를 나눠 입력하고, 세대별 자기부담금과 예상 환급액을 나란히 봅니다.",
     why: [
       "2026년 5월 6일부터 5세대 실손이 판매되기 시작했습니다. 보험료는 4세대보다 약 30% 낮아졌지만, 비중증 비급여의 자기부담률은 30%에서 50%로 올라갔습니다.",
-      "보험료만 보면 싸진 것이 맞습니다. 다만 그 차이가 병원비에서 어떻게 되돌아오는지는 계산해 보지 않으면 보이지 않습니다. 이 도구는 전환을 권하지 않고, 차이만 보여 줍니다.",
+      "보험료만 보면 싸진 것이 맞습니다. 다만 그 차이가 병원비에서 어떻게 되돌아오는지는 계산해 보지 않으면 보이지 않습니다. 이 도구는 같은 병원비에 두 세대를 나란히 놓아 차이를 숫자로 보여 줍니다.",
     ],
     features: [
       {
@@ -255,6 +315,7 @@ export const apps: App[] = [
       "1·2세대는 약관 구조가 달라 계산하지 않고 '약관 확인 필요'로 표시합니다.",
     ],
     internal: true,
+    category: "insurance",
     art: "silson",
     tags: ["실손보험", "5세대 실손", "자기부담률", "비급여", "실손 전환"],
   },
@@ -303,6 +364,7 @@ export const apps: App[] = [
       "세액공제는 그해 산출세액을 넘을 수 없으므로, 결과는 한도 기준의 예상액입니다.",
     ],
     internal: true,
+    category: "finance",
     art: "pension",
     tags: ["연금저축", "IRP", "세액공제", "연말정산", "절세"],
   },
@@ -321,7 +383,7 @@ export const apps: App[] = [
       "세액공제 계산기는 납입까지만 답합니다. 그다음 질문은 '받을 때 얼마를 떼나'인데, 그 숫자는 다른 곳에서 찾아야 했습니다.",
       "사적연금은 연 1,500만원을 기준으로 과세 방법이 갈립니다. 기준 이하이면 연령별 세율로 원천징수로 끝내거나 종합소득에 합산하고, 넘으면 종합과세와 15% 분리과세 중 유리한 쪽을 고릅니다.",
       "1,500만원을 넘으면 사적연금 전액이 분리과세 대상에서 빠집니다. 그래서 '넘으면 무조건 손해'도, '넘지 않게만 받으면 된다'도 아닙니다. 이 도구는 두 갈래를 같은 화면에 놓고, 다른 소득이 적을 때는 넘어도 세금이 줄어드는 경우까지 숫자로 보여 줍니다.",
-      "결론은 사실 비교만 합니다. '이렇게 받으세요'라고 권하지 않고, 상담·가입 버튼도 두지 않았습니다.",
+      "결론은 두 갈래의 세금을 같은 화면에 놓는 데서 끝납니다. 어떤 쪽이 유리한지는 수령액과 다른 소득에 따라 달라지므로, 숫자와 가정을 함께 남깁니다.",
     ],
     features: [
       {
@@ -369,6 +431,7 @@ export const apps: App[] = [
       "건강보험은 공적연금의 피부양자 소득요건(연 2,000만원)만 확인하며, 보험료 금액과 재산·부양요건은 계산하지 않습니다.",
     ],
     internal: true,
+    category: "finance",
     art: "pension-draw",
     tags: ["연금", "연금소득세", "인출", "1,500만원", "분리과세"],
   },
@@ -449,6 +512,7 @@ export const apps: App[] = [
       "결과는 확정 수령액이 아니라 가정을 바꿔 볼 수 있는 참고용 시뮬레이션입니다.",
     ],
     internal: true,
+    category: "finance",
     art: "retirement",
     tags: ["은퇴설계", "노후준비", "국민연금", "퇴직연금", "연금저축", "월 현금흐름"],
   },
@@ -533,6 +597,7 @@ export const apps: App[] = [
       "결과는 확정 수익이 아니라 가정을 바꿔 볼 수 있는 참고용 추정치입니다.",
     ],
     internal: true,
+    category: "finance",
     art: "compound",
     tags: ["복리", "적립식", "세후수익률", "ISA", "연금저축", "장기투자"],
   },
@@ -607,6 +672,7 @@ export const apps: App[] = [
     ],
     notice: "투자 권유·매매 신호가 아닙니다 · 개인 연구용 비상업 통계 시뮬레이터",
     externalUrl: "https://byhan2025.github.io/trade-timemachine/",
+    category: "finance",
     art: "timemachine",
     tags: ["타임머신", "몬테카를로", "백테스트", "5분봉", "손절", "손익 분포", "통계 시뮬레이터"],
   },

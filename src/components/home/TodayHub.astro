@@ -1,32 +1,28 @@
 ---
 /**
- * 홈 최상단 '오늘 확인 허브' — v5.9.
+ * 홈 '금융 포털' 허브 — v7.0.
  *
- * 브랜드 필름(1P) 아래, 순수 소개(2P) 위. 필름을 가리지 않고 '오늘 무엇을 확인할지'만 남긴다.
+ * 브랜드 필름(1P) 아래, 소개(2P) 위. 브리프의 종합 금융포털 4대 모듈을 이 한 구역에 담는다.
+ *   ① 마켓 보드 — 핵심 6지표 + 그 밖의 지표(변동 흐름 스파크라인)
+ *   ② 이번 주 돈의 일정 D-Day 3건
+ *   ③ 지금 바로 쓰는 시뮬레이터 TOP 3
+ *   ④ 분야별 30초 브리핑 탭 피드(투자·연금 / 절세·세법 / 보험·리스크)
+ * 그 아래에 '오늘 확인할 것' 3건과 대표 도구 하나를 둔다.
  *
- * 순서 (390px 포함 동일)
- *   ① 기준 시각 한 줄 → ② 지표 스트립 → ③ 오늘의 핵심 3줄 → ④ 세로 '오늘 확인할 것' 최대 3건
- *   → ⑤ 대표 도구 바로가기 1개
- *
- * 이 블록 안에는 상담·가입 CTA를 두지 않는다. 링크는 카드마다 도구 1 + 출처 1까지.
- *
- * v5.9.1 — 신선도를 **브라우저에서도** 다시 계산한다. 빌드 시각에만 계산하면 19:00이 지나도
- * 화면이 '정상'에 머문다. 그래서 판정에 필요한 값(asOf·nextCheckAt·staleDays·status·lastGoodAsOf)을
- * data-* 속성으로 심어 두고, 아래 스크립트가 페이지 로드 시 + 1분마다 같은 규칙(fresh.ts)으로
- * 배지·안내 문구를 갱신한다. JS가 없으면 빌드 시점 계산값이 그대로 보인다(점진적 향상).
- *
- * v5.9.2 — 자동 갱신이 아직 붙지 않았으므로(`scheduleConnected: false`) '하루 3회 갱신'·'다음 확인 19:00'을
- * 쓰지 않는다. 기준 줄은 '2026. 11. 21. 14:00 수동 확인', 그 자리에 '정기 자동 갱신 연결 준비 중'을 둔다.
- * 파이프라인이 실제로 돌면 update_today_hub.py가 이 값을 true로 바꾸고 '자동 확인' 문구가 켜진다.
- *
- * v6.0 — 390px 지표 스트립을 가로 스와이프 대신 **2열×3행 격자**로 바꿨다(부이 대리 지적: 첫 화면에서
- * 6개가 스와이프 없이 전부 보여야 한다). 768~1023은 3열×2행, 1024부터 6열 1줄. 오른쪽 페이드 힌트는
- * 넘치는 가로 스크롤이 없어져 함께 걷어냈다. '30초 요약' 카드에는 [3줄 복사] 버튼을 붙였다.
+ * 지키는 것
+ *  · 값·기한·출처는 전부 `data/today.ts`·`pulse.ts`·`store.ts`에서 온다(화면에서 숫자를 만들지 않는다).
+ *  · 지표마다 기준 시각이 다르고, 등락률의 분모는 전일 종가·직전 고시다.
+ *  · 신선도는 빌드 시각과 브라우저 시각 양쪽에서 같은 규칙(lib/fresh.ts)으로 다시 계산한다.
+ *  · 자동 갱신이 아직 붙지 않았으므로('수동 확인') 하루 3회 갱신을 약속하지 않는다.
  */
 import { withBase, site } from "@/config/site";
 import { today as hub, hubBasisLine, hubNotice } from "@/data/today";
 import { asOfLabel, clockLabel, freshnessOf } from "@/lib/fresh";
 import { ddayOf, isUpcoming } from "@/lib/dday";
+import MarketBoard from "@/components/home/MarketBoard.astro";
+import WeekMoney from "@/components/home/WeekMoney.astro";
+import SimTop3 from "@/components/home/SimTop3.astro";
+import BriefTabs from "@/components/home/BriefTabs.astro";
 
 /** 배지는 빌드 시각으로 정한다 — 배포 뒤 시간이 지나면 '확인 지연'으로 바뀐다. */
 const buildNow = new Date();
@@ -54,9 +50,6 @@ const items = hub.items.slice(0, 3).map((item) => ({
   dday: item.dueDate ? ddayOf(item.dueDate, site.today) : undefined,
 }));
 
-const dirClass = (d: "up" | "down" | "flat") =>
-  d === "down" ? "ind-change is-down" : d === "up" ? "ind-change is-up" : "ind-change";
-
 const ddayClass: Record<string, string> = {
   later: "dday dday--later",
   soon: "dday dday--soon",
@@ -83,15 +76,16 @@ const ddayClass: Record<string, string> = {
   <div class="wrap py-9 md:py-12">
     <div class="hub-head" data-guide="hub">
       <div>
-        <p class="eyebrow">오늘 확인 허브</p>
-        <h2 id="hub-title" class="sec-title">오늘 확인할 것</h2>
+        <p class="eyebrow">금융 포털 · 오늘</p>
+        <h2 id="hub-title" class="sec-title">오늘의 시장과<br />확인할 것</h2>
       </div>
       <div class="hub-head-side">
         <p class="hub-basis mono" data-hub-basis>{hubBasisLine(hub)}</p>
-        {/*
-          자동 갱신 연결 전에는 '다음 확인 19:00'을 그리지 않는다(없는 약속을 만들지 않는다).
-          그 자리에 준비 중임을 한 줄로 밝힌다. 연결 뒤에는 두 줄을 모두 두고 숨김만 바꾼다.
-        */}
+        {hub.updatedAtLabel && (
+          <p class="hub-updated mono" data-hub-updated>
+            업데이트 {hub.updatedAtLabel}
+          </p>
+        )}
         {hub.scheduleConnected ? (
           <p class="hub-next mono" data-hub-next hidden={fresh.state !== "ok"}>
             다음 확인 {clockLabel(hub.nextCheckAt)}
@@ -113,97 +107,112 @@ const ddayClass: Record<string, string> = {
       </div>
     </div>
 
-    {/* ② 지표 스트립 — 지표마다 기준 시각·출처가 다르다 */}
+    {/* 모바일 모듈 격자 — 네 모듈로 바로 건너뛰는 2×2 타일(넓은 화면에서는 숨김) */}
+    <ul class="hub-modgrid" aria-label="오늘의 포털 모듈">
+      <li>
+        <a href="#mod-market" data-mod="market">
+          <span class="hub-modgrid-no mono">01</span>
+          <span class="hub-modgrid-name">시장 지표</span>
+          <span class="hub-modgrid-note">코스피 · 환율 · 금리</span>
+        </a>
+      </li>
+      <li>
+        <a href="#mod-money" data-mod="money">
+          <span class="hub-modgrid-no mono">02</span>
+          <span class="hub-modgrid-name">돈의 일정</span>
+          <span class="hub-modgrid-note">D-2 · D-9 · D-40</span>
+        </a>
+      </li>
+      <li>
+        <a href="#mod-sim" data-mod="sim">
+          <span class="hub-modgrid-no mono">03</span>
+          <span class="hub-modgrid-name">시뮬레이터</span>
+          <span class="hub-modgrid-note">세액 · 은퇴 · 계획</span>
+        </a>
+      </li>
+      <li>
+        <a href="#mod-brief" data-mod="brief">
+          <span class="hub-modgrid-no mono">04</span>
+          <span class="hub-modgrid-name">브리핑</span>
+          <span class="hub-modgrid-note">투자 · 절세 · 보험</span>
+        </a>
+      </li>
+    </ul>
+
+    {/* ① 마켓 보드 — 핵심 6지표 + 변동 흐름 */}
     <div class="mt-4" data-indicator-strip>
-      {/* v6.0 — 6개를 격자로 펼친다(390: 2×3 · 768: 3×2 · 1024~: 6×1). 가로 스크롤 없음. */}
-      <div class="ind-strip-wrap" data-strip-wrap>
-        <ul class="ind-strip no-scrollbar" aria-label="오늘의 지표">
-        {
-          hub.indicators.map((ind) => (
-            <li>
-              <a
-                class="ind-chip"
-                href={ind.sourceUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                data-indicator={ind.id}
-                tabindex="0"
-                title={`${ind.name} ${ind.value} ${ind.change} · ${ind.asOfLabel} · ${ind.source}${ind.basis ? ` (${ind.basis})` : ""}`}
-              >
-                <span class="ind-name">{ind.name}</span>
-                <span class="ind-row">
-                  <span class="ind-value">{ind.value}</span>
-                  <span class={dirClass(ind.direction)}>{ind.change}</span>
+      <MarketBoard />
+    </div>
+
+    {/* ②③④ — 모듈+사이드(8:4). 모바일은 모듈 격자 */}
+    <div class="hub-layout mt-4">
+      <div class="hub-main">
+        <div class="hub-brief" data-hub-brief>
+        <div class="hub-brief-head">
+          <p class="hub-label">30초 요약</p>
+          <button type="button" class="hub-copy" data-hub-copy aria-label="오늘 확인 3줄을 복사">
+            3줄 복사
+          </button>
+        </div>
+        <ol class="hub-brief-list">
+          {
+            hub.highlights.map((h, i) => (
+              <li data-brief-line={i + 1} data-brief-text={h.text} data-brief-meta={h.meta}>
+                <span class="hub-brief-no mono" aria-hidden="true">
+                  {String(i + 1).padStart(2, "0")}
                 </span>
-                <span class="ind-meta mono">
-                  {ind.asOfLabel}
-                  <span class="ind-source">{ind.source}</span>
-                </span>
-              </a>
-            </li>
-          ))
+                <span class="hub-brief-text">{h.text}</span>
+                <span class="hub-brief-meta mono">{h.meta}</span>
+              </li>
+            ))
           }
-        </ul>
-      </div>
-      <p class="mt-1.5 text-[11.5px] leading-[1.6] text-ink-faint">{hub.stripNote}</p>
-    </div>
-
-    <div class="hub-mid mt-4">
-      {/* ③ 오늘의 핵심 3줄 */}
-      <div class="hub-brief" data-hub-brief>
-      <div class="hub-brief-head">
-        <p class="hub-label">30초 요약</p>
-        {/* v6.0 — 읽은 사람이 카톡·메모장에 바로 붙여 넣도록 3줄 복사 */}
-        <button type="button" class="hub-copy" data-hub-copy aria-label="오늘 확인 3줄을 복사">
-          3줄 복사
-        </button>
-      </div>
-      <ol class="hub-brief-list">
+        </ol>
         {
-          hub.highlights.map((h, i) => (
-            <li data-brief-line={i + 1} data-brief-text={h.text} data-brief-meta={h.meta}>
-              <span class="hub-brief-no mono" aria-hidden="true">
-                {String(i + 1).padStart(2, "0")}
-              </span>
-              <span class="hub-brief-text">{h.text}</span>
-              <span class="hub-brief-meta mono">{h.meta}</span>
-            </li>
-          ))
+          ai && (
+            <div class="hub-ai" data-hub-ai>
+              <div class="hub-ai-head">
+                <span class="hub-ai-label">{ai.label}</span>
+                <span class="mono text-[11.5px] text-ink-faint">{ai.asOfLabel}</span>
+                <a
+                  class="hub-ai-source link mono text-[11.5px]"
+                  href={ai.sourceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  원문 보기
+                </a>
+              </div>
+              <ul class="hub-ai-lines">
+                {ai.lines.map((line) => (
+                  <li>{line}</li>
+                ))}
+              </ul>
+              <p class="hub-ai-note">
+                {ai.note} <span class="text-ink-faint">원문: {ai.sourceLabel}</span>
+              </p>
+            </div>
+          )
         }
-      </ol>
+        </div>
+
+        {/* ④ 분야별 30초 브리핑 탭 */}
+        <div class="mt-3">
+          <BriefTabs />
+        </div>
+      </div>
+
+      <aside class="hub-side">
+        <WeekMoney />
+        <SimTop3 />
+      </aside>
     </div>
 
-      {/* AI 요약 — 3종 세트(라벨·기준 시각·원문 링크)가 모두 있을 때만 */}
-      {
-        ai && (
-          <div class="hub-ai" data-hub-ai>
-          <div class="hub-ai-head">
-            <span class="hub-ai-label">{ai.label}</span>
-            <span class="mono text-[11.5px] text-ink-faint">{ai.asOfLabel}</span>
-            <a
-              class="hub-ai-source link mono text-[11.5px]"
-              href={ai.sourceUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              원문 보기
-            </a>
-          </div>
-          <ul class="hub-ai-lines">
-            {ai.lines.map((line) => (
-              <li>{line}</li>
-            ))}
-          </ul>
-            <p class="hub-ai-note">
-              {ai.note} <span class="text-ink-faint">원문: {ai.sourceLabel}</span>
-            </p>
-          </div>
-        )
-      }
+    {/* 오늘 확인할 것 — 세로 최대 3건 */}
+    <div class="hub-items-head">
+      <h3 class="hub-items-title">오늘 확인할 것</h3>
+      <p class="mono hub-items-note">기한·금액·출처를 함께 남깁니다</p>
     </div>
-
-    {/* ④ 오늘 확인할 것 — 세로 최대 3건 */}
-    <ol class="hub-items mt-4" data-hub-items>
+    <ol class="hub-items mt-3" data-hub-items>
       {
         items.map((item) => (
           <li
@@ -267,7 +276,7 @@ const ddayClass: Record<string, string> = {
       }
     </ol>
 
-    {/* ⑤ 대표 도구 — 이 블록에서 도구로 가는 큰 버튼 하나 */}
+    {/* 대표 도구 — 이 구역에서 도구로 가는 큰 버튼 하나 */}
     <div class="hub-tool mt-3" data-hub-tool>
       <div class="hub-tool-body">
         <p class="hub-label">대표 도구</p>
@@ -298,21 +307,8 @@ const ddayClass: Record<string, string> = {
     });
 
     /*
-     * 키보드로 지표 칩에 들어올 때 — 브라우저의 기본 포커스 스크롤이 가로 스크롤 스트립을
-     * 따라오지 않는 경우가 있다(2026-11-21 390px 실측: 원/달러에서 scrollLeft 0 유지 → 칩 오른쪽이 잘림).
-     * 키보드 포커스(:focus-visible)일 때만 직접 화면 안으로 맞춘다. scroll-margin이 여백을 만든다.
-     */
-    for (const chip of section.querySelectorAll<HTMLElement>(".ind-chip")) {
-      chip.addEventListener("focus", () => {
-        if (chip.matches(":focus-visible")) chip.scrollIntoView({ block: "nearest", inline: "nearest" });
-      });
-    }
-
-    /*
-     * v6.0 — '30초 요약' 3줄 복사.
-     * 줄 문구는 서버가 그린 li의 data-* 에서 그대로 읽는다(화면 문장과 복사문이 갈라지지 않게).
-     * 클립보드가 막힌 브라우저에서는 임시 textarea + execCommand로 한 번 더 시도하고,
-     * 그것도 안 되면 버튼이 '3줄을 길게 눌러 복사'로 바뀐다.
+     * '30초 요약' 3줄 복사 — 줄 문구는 서버가 그린 li의 data-*에서 그대로 읽는다.
+     * 클립보드가 막힌 브라우저에서는 임시 textarea + execCommand로 한 번 더 시도한다.
      */
     const copyBtn = section.querySelector<HTMLButtonElement>("[data-hub-copy]");
     const briefLines = [...section.querySelectorAll<HTMLElement>("[data-brief-line]")];
