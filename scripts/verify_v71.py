@@ -9,7 +9,9 @@
   D. 연금 마스터 6편 — 시리즈 번호·목차·결론 앵커·비교 카드·썸네일 로드·허브 시리즈 블록
   E. 앱스토어 — 카드 12(앱 11 + 금융캘린더 + 자료앨범), 개수 6·4·2, 4대 계좌 앱 상세·실행
   F. 자료앨범 — 탭 5 · 카드 4 · 캐러셀 넘김 · 검색 · 라이트박스 · 다운로드 · 세트 다운로드 · 업로드 입력 0
-  G. 캡처 — reports/buffetkimz-web/v71-pension/{about-1280,posts-series-1280,account-compare-1280,
+  G. v7.2 — 데스크톱 메뉴 5칸(자료앨범 포함) · 모바일 퀵 탭 5칸(+360px 넘침 0) ·
+     ≡ 세로 드로어에 전체 메뉴 · 홈 크레딧 5칸·허브 자료앨범 CTA · dist 전체 <del> 0건
+  H. 캡처 — reports/buffetkimz-web/v71-pension/{about-1280,posts-series-1280,account-compare-1280,
      account-compare-390,apps-1280,gallery-1280,gallery-390,gallery-lightbox-1280}.png
 
 사용:
@@ -157,6 +159,30 @@ GALLERY_JS = """() => {
   };
 }"""
 
+# v7.2 — 상단 메뉴·퀵 탭·크레딧·드로어. 각 칸이 한 줄인지(lines)와 넘침을 함께 잰다.
+HEADER_JS = """() => {
+  const nav = document.querySelector('.site-nav');
+  const quick = document.querySelector('[data-quick-tabs]');
+  const rects = (el) => { const rg = document.createRange(); rg.selectNodeContents(el); return [...rg.getClientRects()]; };
+  const lines = (el) => new Set(rects(el).map(r => Math.round(r.top))).size;
+  const items = nav ? [...nav.querySelectorAll(':scope > .nav-group > .nav-link')] : [];
+  const quickLinks = quick ? [...quick.querySelectorAll(':scope > li > a')] : [];
+  return {
+    navLabels: items.map(a => a.innerText.trim()),
+    navRows: new Set(items.map(a => Math.round(a.getBoundingClientRect().top))).size,
+    quickLabels: quickLinks.map(a => a.innerText.trim()),
+    quickLines: quickLinks.map(a => lines(a.querySelector('.site-quick-text') || a)),
+    quickCells: quickLinks.map(a => Math.round(a.parentElement.getBoundingClientRect().width)),
+    quickTextW: quickLinks.map(a => Math.round(Math.max(...rects(a.querySelector('.site-quick-text') || a).map(r => r.width), 0))),
+    quickOverflow: quick ? Math.round(quick.scrollWidth - quick.clientWidth) : 0,
+    credits: [...document.querySelectorAll('.film-credit')].map(a => ({ label: a.innerText.replace(/\\s+/g,' ').trim(), href: a.getAttribute('href') })),
+    hubGallery: !!document.querySelector('[data-hub-gallery]'),
+    hubGalleryHref: document.querySelector('[data-hub-gallery]')?.getAttribute('href') ?? '',
+    drawerItems: [...document.querySelectorAll('#mobile-menu a')].map(a => a.innerText.replace(/\\s+/g, ' ').trim()),
+    docOver: document.documentElement.scrollWidth - window.innerWidth,
+  };
+}"""
+
 
 class Handler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *a, **kw):
@@ -209,6 +235,28 @@ def main() -> int:
                 add(f"{label} {route} 콘솔 오류 0", not console, console[:2])
                 over = page.evaluate(OVERFLOW_JS)
                 add(f"{label} {route} 가로 넘침 0", over["overflow"] == 0, over)
+
+                # v7.2 — 상단 메뉴(데스크톱 5칸) · 퀵 탭(모바일 5칸) · 크레딧 · 드로어
+                hd = page.evaluate(HEADER_JS)
+                if key == "home" and label == "1280":
+                    add("1280 데스크톱 메뉴 5칸", hd["navLabels"] == ["자산리포트", "앱스토어", "골든타임", "자료앨범", "버핏킴즈"], hd["navLabels"])
+                    add("1280 데스크톱 메뉴 한 줄", hd["navRows"] == 1, hd["navRows"])
+                if key == "home" and label == "390":
+                    add("390 퀵 탭 6칸(6대 메뉴)", hd["quickLabels"] == ["홈", "자산리포트", "앱스토어", "골든타임", "자료앨범", "버핏킴즈"], hd["quickLabels"])
+                    add("390 퀵 탭 글자 한 줄·넘침 0", all(n == 1 for n in hd["quickLines"]) and hd["quickOverflow"] == 0, {"lines": hd["quickLines"], "over": hd["quickOverflow"]})
+                    page.evaluate("() => document.querySelector('[data-menu-toggle]')?.click()")
+                    page.wait_for_timeout(280)
+                    drawer = page.evaluate(HEADER_JS)
+                    add("390 드로어 전체 메뉴", drawer["drawerItems"] == ["자산리포트", "앱스토어", "골든타임", "자료앨범", "버핏킴즈", "검색"], drawer["drawerItems"])
+                    add("390 드로어 세로 한 줄씩", page.evaluate("() => { const r = [...document.querySelectorAll('#mobile-menu a')].filter(a => a.offsetParent !== null).map(a => a.getBoundingClientRect()); return r.length >= 5 && r.every((x, i) => i === 0 || x.top > r[i - 1].top); }"), "")
+                    page.screenshot(path=str(OUT / "home-drawer-390.png"))
+                    shots.append(str(OUT / "home-drawer-390.png"))
+                    page.evaluate("() => document.querySelector('[data-menu-toggle]')?.click()")
+                    page.wait_for_timeout(200)
+                if key == "home":
+                    add(f"{label} 홈 크레딧 5칸", len(hd["credits"]) == 5, [c["label"] for c in hd["credits"]])
+                    add(f"{label} 크레딧 자료앨범 →/gallery", any("자료앨범" in c["label"] and c["href"].endswith("/gallery") for c in hd["credits"]), hd["credits"][:2])
+                    add(f"{label} 허브 자료앨범 CTA", hd["hubGallery"] and hd["hubGalleryHref"].endswith("/gallery"), hd["hubGalleryHref"])
 
                 body = page.evaluate("() => document.body.innerText")
                 hits = [w for w in FORBIDDEN if w in body]
@@ -418,7 +466,92 @@ def main() -> int:
 
         # 대표 캡처 — about / posts / apps 는 full_page 로 이미 저장, 390 갤러리도 위에서 저장
         pkg = json.loads((APP / "package.json").read_text(encoding="utf-8"))
-        add("package.json 버전 7.1.1", pkg.get("version") == "7.1.1", str(pkg.get("version")))
+
+        # v7.2 — 메뉴판(하위 드롭다운): 활성/준비중 분리 · 항목 수 칩 · 화면 폭 안 · 다시 탭 닫기
+        MENU_JS = """() => {
+          const open = [...document.querySelectorAll('[data-nav-drop]')].find(d => !d.hidden);
+          const panel = [...document.querySelectorAll('[data-quick-panel]')].find(p => !p.hidden);
+          const info = (el) => el ? {
+            links: [...el.querySelectorAll('a')].map(a => a.getAttribute('href')),
+            soon: [...el.querySelectorAll('[aria-disabled="true"]')].map(s => s.innerText.replace(/\\s+/g,' ').trim()),
+            chips: [...el.querySelectorAll('.nav-drop-chip, .quick-panel-chip')].map(c => c.innerText.trim()),
+            head: el.querySelector('.nav-drop-head, .quick-panel-head')?.innerText.replace(/\\s+/g,' ').trim() ?? '',
+            rect: (({left, right, width}) => ({left: Math.round(left), right: Math.round(right), width: Math.round(width)}))(el.getBoundingClientRect()),
+          } : null;
+          return { desk: info(open), quick: info(panel), vw: window.innerWidth };
+        }"""
+        page = browser.new_page(viewport={"width": 1280, "height": 900}, locale="ko-KR")
+        page.goto(f"{BASE}/", wait_until="networkidle", timeout=60000)
+        page.wait_for_timeout(700)
+        page.evaluate("(i) => document.querySelectorAll('[data-nav-toggle]')[i].click()", 0)
+        page.wait_for_timeout(300)
+        m = page.evaluate(MENU_JS)
+        add("1280 메뉴판 열림(금융지식)", bool(m["desk"]), m["desk"])
+        if m["desk"]:
+            add("1280 메뉴판 글 7 + 준비중 2", len(m["desk"]["links"]) == 7 and len(m["desk"]["soon"]) == 2, {"links": len(m["desk"]["links"]), "soon": m["desk"]["soon"]})
+            add("1280 메뉴판 항목 수 칩", len(m["desk"]["chips"]) >= 7, m["desk"]["chips"])
+            add("1280 메뉴판 화면 안", m["desk"]["rect"]["right"] <= m["vw"] - 8 and m["desk"]["rect"]["left"] >= 8, m["desk"]["rect"])
+        page.screenshot(path=str(OUT / "menu-drop-posts-1280.png"))
+        shots.append(str(OUT / "menu-drop-posts-1280.png"))
+        page.evaluate("() => document.querySelectorAll('[data-nav-toggle]')[3].click()")
+        page.wait_for_timeout(300)
+        m2 = page.evaluate(MENU_JS)
+        if m2["desk"]:
+            add("1280 메뉴판 준비중 배지", any("준비중" in s for s in m2["desk"]["soon"]), m2["desk"]["soon"])
+            add("1280 자료앨범 메뉴판 화면 안", m2["desk"]["rect"]["right"] <= m2["vw"] - 8, m2["desk"]["rect"])
+        page.screenshot(path=str(OUT / "menu-drop-gallery-1280.png"))
+        shots.append(str(OUT / "menu-drop-gallery-1280.png"))
+        page.close()
+
+        page = browser.new_page(viewport={"width": 390, "height": 844}, locale="ko-KR", is_mobile=True, has_touch=True)
+        page.goto(f"{BASE}/", wait_until="networkidle", timeout=60000)
+        page.wait_for_timeout(700)
+        page.click("[data-quick-tabs] li:nth-child(2) a")
+        page.wait_for_timeout(350)
+        mq = page.evaluate(MENU_JS)
+        add("390 메뉴판 열림(금융지식)", bool(mq["quick"]), mq["quick"])
+        if mq["quick"]:
+            add("390 메뉴판 화면 폭 안", mq["quick"]["rect"]["left"] >= 8 and mq["quick"]["rect"]["right"] <= mq["vw"] - 8, mq["quick"]["rect"])
+            add("390 메뉴판 글 7 + 준비중 2", len(mq["quick"]["links"]) >= 1 and len(mq["quick"]["soon"]) == 2, {"soon": mq["quick"]["soon"]})
+            add("390 메뉴판 칩·전체 보기", bool(mq["quick"]["chips"]) and "전체 보기" in mq["quick"]["head"], mq["quick"]["head"])
+        add("390 메뉴판 가로 넘침 0", page.evaluate("() => document.documentElement.scrollWidth - innerWidth") == 0, "")
+        page.screenshot(path=str(OUT / "menu-drop-posts-390.png"))
+        shots.append(str(OUT / "menu-drop-posts-390.png"))
+        page.click("[data-quick-tabs] li:nth-child(2) a")
+        page.wait_for_timeout(300)
+        add("390 같은 탭 다시 누르면 닫힘", not page.evaluate("() => [...document.querySelectorAll('[data-quick-panel]')].some(p => !p.hidden)"), "")
+        page.close()
+
+        # /gallery/?cat=carousel — 메뉴에서 들어오면 그 분류 탭이 열린 상태
+        page = browser.new_page(viewport={"width": 1280, "height": 900}, locale="ko-KR")
+        page.goto(f"{BASE}/gallery/?cat=carousel", wait_until="networkidle", timeout=60000)
+        page.wait_for_timeout(600)
+        vis = page.evaluate("() => [...document.querySelectorAll('[data-gallery-item]')].filter(c => !c.hidden).map(c => c.dataset.galleryItem)")
+        act = page.evaluate("() => document.querySelector('[data-gallery-tab].is-active')?.dataset.galleryTab")
+        add("?cat=carousel 탭 열림", act == "carousel" and vis == ["pension-accounts"], {"tab": act, "vis": vis})
+        page.close()
+        add("package.json 버전 7.2.0", pkg.get("version") == "7.2.0", str(pkg.get("version")))
+
+        # v7.2 — dist 전체 <del> 0건 (물결표 2개가 취소선으로 먹히면 글자가 사라진다)
+        if MODE == "local":
+            del_hits = [
+                str(h.relative_to(ROOT))
+                for h in ROOT.rglob("*.html")
+                if "<del" in h.read_text(encoding="utf-8", errors="ignore")
+            ]
+            add("dist 전체 <del> 0건", not del_hits, del_hits[:5])
+
+            # 360px — 퀵 탭 글자가 한 줄이고 칸보다 넓지 않은가(가장 좁은 기준 폭)
+            page360 = browser.new_page(viewport={"width": 360, "height": 780}, locale="ko-KR", is_mobile=True, has_touch=True)
+            page360.goto(f"{BASE}/", wait_until="networkidle", timeout=60000)
+            page360.wait_for_timeout(700)
+            hd360 = page360.evaluate(HEADER_JS)
+            add("360 퀵 탭 글자 한 줄", all(n == 1 for n in hd360["quickLines"]), hd360["quickLines"])
+            add("360 퀵 탭 넘침 0", hd360["quickOverflow"] == 0 and hd360["docOver"] == 0, {"list": hd360["quickOverflow"], "doc": hd360["docOver"]})
+            add("360 퀵 탭 칸 ≥ 글자", all(c >= w for c, w in zip(hd360["quickCells"], hd360["quickTextW"])), {"cells": hd360["quickCells"], "text": hd360["quickTextW"]})
+            page360.screenshot(path=str(OUT / "home-360.png"))
+            shots.append(str(OUT / "home-360.png"))
+            page360.close()
 
         browser.close()
     if httpd:

@@ -47,7 +47,7 @@ export const pulseGroups: PulseGroup[] = [
       {
         title: "적립식은 금액보다 간격이 먼저",
         line: "매달 같은 날 같은 금액이 들어가면, 시장이 흔들릴 때 매수 단가가 스스로 분산됩니다.",
-        meta: "기준 11. 21. · 금융지식",
+        meta: "기준 11. 21. · 자산리포트",
         href: "/posts/invest-dca-rule",
         cta: "글 읽기",
       },
@@ -78,7 +78,7 @@ export const pulseGroups: PulseGroup[] = [
         line: "고지서가 나온 사업소득자는 이 날까지 내야 합니다. 넘기면 납부지연 가산세가 붙습니다.",
         meta: "국세청 · D-9",
         href: "/calendar#m11",
-        cta: "금융캘린더 11월",
+        cta: "골든타임 11월",
       },
       {
         title: "ISA 만기 이전은 추가 공제",
@@ -105,7 +105,7 @@ export const pulseGroups: PulseGroup[] = [
       {
         title: "5대 담보는 이름보다 지급 조건",
         line: "같은 '암 진단비'라도 일반암·소액암·유사암의 지급액이 다릅니다. 금액만 비교하면 절반만 보는 셈입니다.",
-        meta: "기준 11. 21. · 금융지식",
+        meta: "기준 11. 21. · 자산리포트",
         href: "/posts/insurance-coverage-conditions",
         cta: "지급 조건 읽기",
       },

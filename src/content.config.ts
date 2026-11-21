@@ -3,7 +3,7 @@ import { glob } from "astro/loaders";
 import { z } from "astro/zod";
 
 /**
- * 금융지식 시리즈 4종 — v5.9.
+ * 자산리포트 시리즈 4종 — v5.9.
  *
  * 글을 '분야(category)'로만 나누면 목록이 납짝해진다. 시리즈는 같은 질문으로 묶는 층이다.
  * 메뉴를 늘리지 않고 깊이를 만드는 장치이므로, 새 시리즈는 이 네 이름 안에서 고른다.
@@ -28,7 +28,7 @@ export const SERIES_NAMES = [
 export type SeriesName = (typeof SERIES_NAMES)[number];
 
 /**
- * 금융지식 글 컬렉션.
+ * 자산리포트 글 컬렉션.
  * src/content/posts/ 에 .{md,mdx} 파일을 하나 추가하면
  * 피드·카테고리·검색 인덱스·RSS·사이트맵이 빌드할 때 자동으로 갱신된다.
  */

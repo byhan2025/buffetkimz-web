@@ -8,7 +8,7 @@ import type { SearchDoc } from "@/lib/search";
 
 /**
  * 빌드 시 한 번 만들어지는 통합 검색 인덱스.
- * 글·앱·금융캘린더이 여기에 모이고, 브라우저가 이 파일 하나만 받아 검색한다.
+ * 글·앱·골든타임이 여기에 모이고, 브라우저가 이 파일 하나만 받아 검색한다.
  */
 export const GET: APIRoute = async () => {
   const posts = await allPosts();

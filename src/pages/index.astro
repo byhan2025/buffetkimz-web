@@ -16,6 +16,7 @@ import { hubTools, homeMainTools, mainTools, riskTools } from "@/data/tools";
 import { apps, APP_CATEGORIES } from "@/data/apps";
 import { categoryCount, storeCount } from "@/data/store";
 import { calendar } from "@/data/calendar";
+import { galleryCount, gallerySlideCount } from "@/data/gallery";
 import { allPosts, koreanDate } from "@/lib/posts";
 import { graph, organizationNode, personNode, websiteNode } from "@/lib/schema";
 
@@ -77,16 +78,25 @@ const previewVariant: Record<string, "pension" | "retirement" | "compound" | "ca
   calendar: "calendar",
 };
 
-/** 필름 아래 크레딧 줄 — 4대 축(기록·도구·일정·채널) */
+/**
+ * 필름 아래 크레딧 줄 — 5대 축(기록·도구·일정·자료·채널).
+ * v7.2에서 '자료앨범'을 넣어, 브랜드 필름을 지나 첫 스크롤에서 바로 카드뉴스를 내려받게 한다.
+ */
 const credits = [
-  { href: "/posts", label: "금융지식", note: "기준일·출처 표기", count: `${posts.length}편` },
+  { href: "/posts", label: "자산리포트", note: "기준일·출처 표기", count: `${posts.length}편` },
   {
     href: "/apps",
     label: "앱스토어",
     note: APP_CATEGORIES.map((c) => `${c.label} ${categoryCount(c.id)}`).join(" + "),
     count: `${storeCount}종`,
   },
-  { href: "/calendar", label: "금융캘린더", note: "1~12월 기한과 절차", count: `${sourcedCalendar.length}건` },
+  { href: "/calendar", label: "골든타임", note: "1–12월 금융·세제 일정", count: `${sourcedCalendar.length}건` },
+  {
+    href: "/gallery",
+    label: "자료앨범",
+    note: `카드뉴스·체크리스트 ${galleryCount}세트`,
+    count: `${gallerySlideCount}장`,
+  },
   { href: "/#channels", label: "연결 채널", note: `채널 7곳 + 코드 보관소`, count: `${channelCount}곳` },
 ];
 
@@ -135,7 +145,7 @@ const jsonLd = graph([websiteNode(), organizationNode(), personNode()]);
   <!-- ③ 2페이지 — 버핏킴즈는 어떤 사람인가 (순수 소개, 도구 언급 0) -->
   <IntroPortrait />
 
-  <!-- ④ 포털 픽 — 금융지식 최신 3편 + 앱스토어 추천 4종 -->
+  <!-- ④ 포털 픽 — 자산리포트 최신 3편 + 앱스토어 추천 4종 -->
   <PortalPicks />
 
   <!-- ⑤ 아카이브 — 7대 주제·시리즈·처음 읽을 글 -->
