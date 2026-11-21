@@ -416,8 +416,9 @@ html.bk-off-tool .journey-bar[data-store="bk_tool_guide_v1"] {
   bottom: calc(104px + env(safe-area-inset-bottom));
 }
 
+/* 모바일 필름 위에서는 컨트롤과 겹치므로 가이드 버튼을 잠시 감춘다 */
 @media (max-width: 767px) {
-  .guide-dock[data-over-film="1"] {
-    bottom: calc(136px + env(safe-area-inset-bottom));
+  .guide-dock[data-over-film="1"] .guide-btn {
+    display: none;
   }
 }

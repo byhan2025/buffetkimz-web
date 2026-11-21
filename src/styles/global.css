@@ -8868,7 +8868,7 @@
     width: 100%;
     height: auto;
     opacity: 0;
-    filter: drop-shadow(0 18px 48px rgb(56 183 149 / 0.3)) drop-shadow(0 0 24px rgb(255 255 255 / 0.22));
+    filter: drop-shadow(0 16px 38px rgb(56 183 149 / 0.26)) drop-shadow(0 0 14px rgb(255 255 255 / 0.14));
     will-change: opacity, transform, filter;
   }
 
