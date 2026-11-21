@@ -2671,13 +2671,11 @@
     opacity: 0;
   }
 
-  /* v5.6 — 손글씨 시그니처. 영문·한글 배너를 같은 상자에 겹쳐 두고 GSAP이 넘긴다.
-     바탕을 지운 알파 WebP라 사각 테두리 없이 붓글씨만 남고, 높은 화면에서는
-     vh로 한 번 더 묶어 제목·시안 A 록업을 밀지 않게 한다. */
+  /* v7.9.0 — 씬5 시그니처 상자. 확정 국문 로고(3332×921) 비율을 그대로 쓴다. */
   .fs5-sign {
     position: relative;
     width: min(clamp(220px, 34vw, 420px), 44vh);
-    aspect-ratio: 1400 / 467;
+    aspect-ratio: 3332 / 921;
     margin: 16px auto 0;
   }
 
@@ -2986,11 +2984,6 @@
     font-weight: 600;
     letter-spacing: -0.005em;
     color: #b7cddc;
-  }
-
-  .film-hud-brand .serif {
-    font-size: 21px;
-    line-height: 1;
   }
 
   .film-hud-brand .film-mono {
@@ -3586,7 +3579,7 @@
     }
   }
 
-  /* 시안 A 서표 록업 — 두 캘리그라피가 같은 이름의 다른 손이라는 것을 한 줄로 보인다 */
+  /* (v7.9.0) 옛 캘리그라피 쇼케이스 잔여 클래스 — 현재 화면에서는 쓰이지 않는다 */
   .brand-sign-mark {
     margin-top: 22px;
     color: #eef7ff;
