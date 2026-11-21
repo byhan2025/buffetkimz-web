@@ -7,6 +7,8 @@ import BrandLockup from "@/components/BrandLockup.astro";
 import CompareCard from "@/components/CompareCard.astro";
 import { affiliateDisclosure } from "@/config/monetization";
 import HomePill from "@/components/HomePill.astro";
+import Guide from "@/components/guide/Guide.astro";
+import { nextReading } from "@/data/journey";
 import { withBase, absolute } from "@/config/site";
 import { categoryBySlug, categoryName } from "@/data/categories";
 import { allPosts, postPath, formatDate, summaryOf, toolOf } from "@/lib/posts";
@@ -74,6 +76,28 @@ const byTag = all.filter(
 );
 const recent = all.filter((p) => p.id !== post.id && !sameCategory.some((s) => s.id === p.id));
 const related = [...sameCategory, ...byTag, ...recent].slice(0, 3);
+
+/**
+ * v6.1 읽기 여정 — 같은 트랙의 다음 글, 트랙이 끝나면 이 글의 도구.
+ * 제목은 빌드할 때 글 컬렉션에서 가져오므로 손으로 적은 '다음 글'이 없다.
+ */
+const nextRead = nextReading(post.id);
+const nextPost = nextRead?.kind === "post" ? all.find((p) => p.id === nextRead.id) : undefined;
+const readingTool = toolOf(post);
+const readingJourney = {
+  mode: "read" as const,
+  stage: nextRead?.kind === "post" ? nextRead.stage : "실전 도구",
+  kicker: "다음 추천",
+  title: nextPost ? nextPost.data.title : readingTool.name,
+  href: withBase(nextPost ? postPath(nextPost) : readingTool.href),
+  why:
+    nextRead?.why ??
+    (readingTool.what
+      ? `${readingTool.what} 이 글의 기준을 내 숫자로 옮겨 계산해 봅니다.`
+      : "이 글의 기준을 내 숫자로 옮겨 계산해 봅니다."),
+  storageKey: "bk_read_guide_v1",
+  skipLabel: "필요 없어요",
+};
 
 const jsonLd = graph([
   {
@@ -423,4 +447,7 @@ const jsonLd = graph([
       </div>
     </div>
   </article>
+
+  <!-- v6.1 읽기 여정 바 — 다음 글/도구로 이어 주고, '필요 없어요'로 접는다 -->
+  <Guide mode="post" journey={readingJourney} />
 </Base>

@@ -7,6 +7,8 @@ import HomePill from "@/components/HomePill.astro";
 import { withBase, site } from "@/config/site";
 import { apps } from "@/data/apps";
 import { hubTools } from "@/data/tools";
+import { nextTool } from "@/data/journey";
+import Guide from "@/components/guide/Guide.astro";
 import { allPosts, postPath, formatDate } from "@/lib/posts";
 import { AUTHOR_ID, ORG_ID, breadcrumbList, graph, pageUrl, partOfWebsite } from "@/lib/schema";
 
@@ -47,6 +49,19 @@ const tagPosts = all.filter(
   (p) => p.data.app !== app.slug && p.data.tags.some((t) => appTags.has(t))
 );
 const posts = [...appPosts, ...tagPosts].slice(0, 3);
+
+/** v6.1 도구 여정 — 이 도구 다음에 많이 이어 쓰는 도구 한 곳 (없으면 도구자료실 전체) */
+const toolNext = nextTool(app.slug);
+const toolJourney = {
+  mode: "tool" as const,
+  stage: "다음 도구",
+  kicker: "이 다음으로 많이 쓰는 도구",
+  title: toolNext.name,
+  href: withBase(toolNext.href),
+  why: toolNext.why,
+  storageKey: "bk_tool_guide_v1",
+  skipLabel: "건너뛰기",
+};
 
 const pagePath = `/apps/${app.slug}`;
 const jsonLd = graph([
@@ -289,4 +304,7 @@ const jsonLd = graph([
       </div>
     </div>
   </section>
+
+  <!-- v6.1 도구 여정 바 — 다음에 많이 쓰는 도구로 이어 주고, '건너뛰기'로 접는다 -->
+  <Guide mode="tool" journey={toolJourney} />
 </Base>

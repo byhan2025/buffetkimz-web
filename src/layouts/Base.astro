@@ -44,6 +44,17 @@ const naverVerification = envOf("NAVER_SITE_VERIFICATION");
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <!--
+      v6.1 여정 바 접힘 기억 — 첫 페인트 전에 감춰야 접어 둔 바가 깜빡이지 않는다.
+      (Guide.astro가 접기·다시 켜기 때 같은 클래스를 붙이고 뗀다)
+    -->
+    <script is:inline>
+      try {
+        var bkStore = window.localStorage;
+        if (bkStore.getItem("bk_read_guide_v1") === "off") document.documentElement.classList.add("bk-off-read");
+        if (bkStore.getItem("bk_tool_guide_v1") === "off") document.documentElement.classList.add("bk-off-tool");
+      } catch (e) {}
+    </script>
     <Seo
       title={title}
       description={description}

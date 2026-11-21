@@ -1,0 +1,395 @@
+/* ------------------------------------------------------------------
+   v6.1 방문자 동선 가이드
+   · 하단 여정 바(읽기·도구) + `? 가이드` 미니 버튼
+   · driver.js 스포트라이트 투어 테마(딥그린 · 크림 페이퍼)
+
+   바는 화면 아래에 떠 있으므로 본문·푸터를 가리지 않게 footer 여백을 함께 준다.
+   모바일 도구 화면의 sticky 결과 바(.sticky-summary, 100px) 위로 올라선다.
+   ------------------------------------------------------------------ */
+
+.guide-dock {
+  position: fixed;
+  z-index: 60;
+  left: 0;
+  right: 0;
+  bottom: calc(12px + env(safe-area-inset-bottom));
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+  gap: 8px;
+  padding: 0 12px;
+  pointer-events: none;
+}
+
+.guide-dock > * {
+  pointer-events: auto;
+}
+
+@media (min-width: 768px) {
+  .guide-dock {
+    bottom: 20px;
+    padding: 0 20px;
+  }
+}
+
+/* 모바일 도구 화면 — 하단 결과 바 위로 */
+@media (max-width: 767px) {
+  body:has([data-sticky-summary]) .guide-dock {
+    bottom: calc(110px + env(safe-area-inset-bottom));
+  }
+}
+
+/* ---------- 여정 바 ---------- */
+.journey-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  max-width: min(520px, calc(100% - 56px));
+  padding: 8px 8px 8px 12px;
+  border: 1px solid var(--color-line);
+  border-radius: 14px;
+  background: rgb(255 255 255 / 0.97);
+  box-shadow: 0 18px 40px -28px rgb(11 27 41 / 0.7);
+}
+
+@supports (backdrop-filter: blur(4px)) {
+  .journey-bar {
+    backdrop-filter: blur(8px);
+  }
+}
+
+.journey-bar[hidden] {
+  display: none;
+}
+
+/* 첫 페인트 전에 '접어 둔 사람'의 바를 감춘다 (Base.astro head의 인라인 스크립트가 클래스를 단다) */
+html.bk-off-read .journey-bar[data-store="bk_read_guide_v1"],
+html.bk-off-tool .journey-bar[data-store="bk_tool_guide_v1"] {
+  display: none;
+}
+
+.journey-main {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  min-height: 44px;
+  justify-content: center;
+  text-decoration: none;
+  color: inherit;
+  border-radius: 10px;
+}
+
+.journey-main:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 3px;
+}
+
+.journey-kicker {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+  color: var(--color-ink-faint);
+  white-space: nowrap;
+}
+
+.journey-chip {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  background: var(--color-brand-soft);
+  color: var(--color-brand-deep);
+  padding: 1.5px 7px;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0;
+  line-height: 1.35;
+}
+
+.journey-line {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+}
+
+.journey-title {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13.5px;
+  font-weight: 700;
+  letter-spacing: -0.022em;
+  line-height: 1.35;
+  color: var(--color-ink);
+}
+
+.journey-arrow {
+  flex: none;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-brand);
+  transition: transform 0.18s var(--ease-out-soft);
+}
+
+.journey-main:hover .journey-title {
+  color: var(--color-brand-deep);
+}
+
+.journey-main:hover .journey-arrow {
+  transform: translateX(2px);
+}
+
+.journey-skip {
+  flex: none;
+  min-height: 44px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--color-ink-faint);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.journey-skip:hover {
+  background: var(--color-paper-deep);
+  color: var(--color-ink);
+}
+
+.journey-skip:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 2px;
+}
+
+/* ---------- ? 가이드 ---------- */
+.guide-btn {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 44px;
+  min-width: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--color-line);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--color-ink-soft);
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  box-shadow: 0 12px 30px -22px rgb(11 27 41 / 0.75);
+  cursor: pointer;
+}
+
+.guide-btn:hover {
+  border-color: var(--color-brand);
+  color: var(--color-brand-deep);
+}
+
+.guide-btn:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 2px;
+}
+
+.guide-btn-mark {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background: var(--color-brand-soft);
+  color: var(--color-brand-deep);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+@media (max-width: 767px) {
+  .guide-btn {
+    width: 44px;
+    padding: 0;
+  }
+
+  .guide-btn-label {
+    display: none;
+  }
+
+  .journey-kicker {
+    font-size: 11px;
+  }
+
+  .journey-title {
+    font-size: 13px;
+  }
+}
+
+/* 바·버튼이 푸터 마지막 줄을 가리지 않게 */
+@media (max-width: 767px) {
+  body:has([data-guide-dock]) footer {
+    padding-bottom: 84px;
+  }
+
+  body:has([data-guide-dock]):has([data-sticky-summary]) footer {
+    padding-bottom: 176px;
+  }
+}
+
+/* ---------- driver.js 투어 (딥그린 · 크림 종이) ---------- */
+.driver-popover.bk-tour {
+  max-width: 320px;
+  padding: 16px 16px 12px;
+  border: 1px solid var(--color-line);
+  border-radius: 16px;
+  background-color: #fff;
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  box-shadow: 0 28px 60px -34px rgb(11 27 41 / 0.8);
+}
+
+.driver-popover.bk-tour .driver-popover-title {
+  padding-right: 22px;
+  font-family: var(--font-sans);
+  font-size: 15.5px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.4;
+  color: var(--color-ink);
+}
+
+.driver-popover.bk-tour .driver-popover-description {
+  margin-top: 6px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.68;
+  letter-spacing: -0.012em;
+  color: var(--color-ink-muted);
+  word-break: keep-all;
+}
+
+.driver-popover.bk-tour .driver-popover-close-btn {
+  top: 6px;
+  right: 6px;
+  width: 28px;
+  height: 28px;
+  color: var(--color-ink-faint);
+  font-size: 17px;
+  line-height: 1;
+  border-radius: 999px;
+}
+
+.driver-popover.bk-tour .driver-popover-close-btn:hover,
+.driver-popover.bk-tour .driver-popover-close-btn:focus-visible {
+  background-color: var(--color-paper-deep);
+  color: var(--color-ink);
+}
+
+.driver-popover.bk-tour .driver-popover-footer {
+  margin-top: 12px;
+  gap: 4px;
+}
+
+.driver-popover.bk-tour .driver-popover-progress-text {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-ink-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.driver-popover.bk-tour .driver-popover-footer-btn {
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.4;
+  padding: 7px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--color-line);
+  color: var(--color-ink-soft);
+  background-color: #fff;
+}
+
+.driver-popover.bk-tour .driver-popover-footer-btn:hover,
+.driver-popover.bk-tour .driver-popover-footer-btn:focus-visible {
+  background-color: var(--color-paper-deep);
+}
+
+.driver-popover.bk-tour .driver-popover-next-btn {
+  border-color: var(--color-brand-deep);
+  background-color: var(--color-brand-deep);
+  color: #fff;
+}
+
+.driver-popover.bk-tour .driver-popover-next-btn:hover,
+.driver-popover.bk-tour .driver-popover-next-btn:focus-visible {
+  border-color: var(--color-ink);
+  background-color: var(--color-ink);
+  color: #fff;
+}
+
+.driver-popover.bk-tour .driver-popover-prev-btn {
+  color: var(--color-ink-faint);
+  border-color: transparent;
+  background-color: transparent;
+}
+
+/* 건너뛰기 — 어느 단계에서든 한 번에 끝낸다 (진행 숫자 옆, 왼쪽) */
+.driver-popover.bk-tour .bk-tour-skip {
+  flex: none;
+  margin-right: auto;
+  padding: 7px 4px;
+  border: 0;
+  background: transparent;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--color-ink-faint);
+  text-decoration: underline;
+  text-decoration-color: var(--color-line);
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.driver-popover.bk-tour .bk-tour-skip:hover,
+.driver-popover.bk-tour .bk-tour-skip:focus-visible {
+  color: var(--color-ink);
+}
+
+.driver-popover.bk-tour .driver-popover-arrow {
+  border-color: #fff;
+}
+
+.driver-popover.bk-tour .driver-popover-arrow-side-left {
+  border-right-color: transparent;
+}
+
+.driver-popover.bk-tour .driver-popover-arrow-side-right {
+  border-left-color: transparent;
+}
+
+.driver-popover.bk-tour .driver-popover-arrow-side-top {
+  border-bottom-color: transparent;
+}
+
+.driver-popover.bk-tour .driver-popover-arrow-side-bottom {
+  border-top-color: transparent;
+}
+
+@media (max-width: 420px) {
+  .driver-popover.bk-tour {
+    max-width: min(300px, calc(100vw - 32px));
+    padding: 14px 14px 10px;
+  }
+}

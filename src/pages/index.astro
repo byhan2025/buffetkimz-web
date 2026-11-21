@@ -8,6 +8,7 @@ import TrustSplit from "@/components/home/TrustSplit.astro";
 import ChannelBand from "@/components/home/ChannelBand.astro";
 import FinanceStrip from "@/components/FinanceStrip.astro";
 import ToolPreview from "@/components/ToolPreview.astro";
+import Guide from "@/components/guide/Guide.astro";
 import { withBase, site } from "@/config/site";
 import { channels } from "@/data/channels";
 import { hubTools, homeMainTools, mainTools, riskTools } from "@/data/tools";
@@ -119,7 +120,7 @@ const jsonLd = graph([websiteNode(), organizationNode(), personNode()]);
   <!-- ④ 미스트 — 브라우저 도구 쇼케이스 -->
   <section class="scene-mist border-b border-line" data-area="4" id="tools">
     <div class="wrap py-10 md:py-14">
-      <div class="sec-head">
+      <div class="sec-head" data-guide="tools">
         <div>
           <p class="eyebrow">도구</p>
           <h2 class="sec-title">가입 없이,<br />브라우저에서 바로</h2>
@@ -205,4 +206,7 @@ const jsonLd = graph([websiteNode(), organizationNode(), personNode()]);
 
   <!-- ⑥ 7개 채널 + 딥그린 상담문의 배너 -->
   <ChannelBand />
+
+  <!-- v6.1 — 첫 방문 3스텝 스포트라이트 투어 + `? 가이드` (driver.js) -->
+  <Guide mode="home" />
 </Base>

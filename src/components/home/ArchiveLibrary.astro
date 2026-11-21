@@ -179,7 +179,7 @@ const totalMinutes = posts.reduce((sum, p) => sum + p.data.readingMinutes, 0);
       </div>
 
       <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
-        <div>
+        <div data-guide="first-reads">
           <div class="flex items-baseline justify-between gap-3">
             <h3 class="text-[15px] font-bold tracking-[-0.025em] text-ink">처음 읽을 글</h3>
             <span class="mono text-[12px] text-ink-faint">{first.length}편</span>

@@ -1,0 +1,259 @@
+---
+/**
+ * v6.1 방문자 동선 가이드 — 화면 아래 도크 하나로 세 가지를 맡는다.
+ *
+ *  · `home`  : 첫 방문 스포트라이트 투어(driver.js) 3스텝 + `? 가이드`로 다시 보기
+ *  · `post`  : 읽기 여정 바 — '다음 추천' 글/도구 → 이동, '필요 없어요'로 접기
+ *  · `tool`  : 도구 여정 바 — '이 다음으로 많이 쓰는 도구' → 이동, '건너뛰기'로 접기
+ *
+ * 접힘은 브라우저(localStorage)에 기억한다(Base.astro head의 인라인 스크립트가 첫 페인트 전에 감춘다).
+ * `? 가이드`는 접어 둔 바를 다시 켜고, 그 바가 무엇을 하는지 한 단계로 짚어 준다.
+ */
+import "@/styles/guide.css";
+import "driver.js/dist/driver.css";
+
+interface Journey {
+  /** read | tool — 접힘 기억 키를 가른다 */
+  mode: "read" | "tool";
+  stage: string;
+  kicker: string;
+  title: string;
+  href: string;
+  /** 왜 이어지는지 한 줄 — `? 가이드` 팝오버에 쓴다 */
+  why: string;
+  storageKey: string;
+  skipLabel: string;
+}
+
+interface Props {
+  mode: "home" | "post" | "tool";
+  journey?: Journey;
+}
+
+const { mode, journey } = Astro.props;
+---
+
+<div class="guide-dock" data-guide-dock data-guide-mode={mode}>
+  {
+    journey && (
+      <div
+        class="journey-bar"
+        data-journey-bar
+        data-store={journey.storageKey}
+        data-why={journey.why}
+        data-guide-mode={journey.mode}
+      >
+        <a
+          class="journey-main"
+          href={journey.href}
+          aria-label={`${journey.kicker}: ${journey.title}`}
+        >
+          <span class="journey-kicker">
+            <span class="journey-chip">{journey.stage}</span>
+            <span>{journey.kicker}</span>
+          </span>
+          <span class="journey-line">
+            <span class="journey-title">{journey.title}</span>
+            <span class="journey-arrow" aria-hidden="true">→</span>
+          </span>
+        </a>
+        <button
+          type="button"
+          class="journey-skip"
+          data-journey-skip
+          aria-label={`${journey.kicker} 안내 접기`}
+        >
+          {journey.skipLabel}
+        </button>
+      </div>
+    )
+  }
+
+  <button type="button" class="guide-btn" data-guide-open aria-label="가이드 다시 보기" title="가이드">
+    <span class="guide-btn-mark" aria-hidden="true">?</span>
+    <span class="guide-btn-label">가이드</span>
+  </button>
+</div>
+
+<script>
+  import { driver, type Driver, type DriveStep } from "driver.js";
+
+  type Mode = "home" | "post" | "tool";
+
+  const dock = document.querySelector<HTMLElement>("[data-guide-dock]");
+
+  if (dock) {
+    const mode = (dock.dataset.guideMode as Mode | undefined) ?? "home";
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const KEY_TOUR = "bk_tour_done_v1";
+
+    const read = (key: string): string | null => {
+      try {
+        return window.localStorage.getItem(key);
+      } catch {
+        return null;
+      }
+    };
+    const write = (key: string, value: string) => {
+      try {
+        if (key) window.localStorage.setItem(key, value);
+      } catch {
+        /* 저장이 막힌 브라우저(사생활 보호 모드) — 이번 화면에서만 동작한다 */
+      }
+    };
+
+    const bar = dock.querySelector<HTMLElement>("[data-journey-bar]");
+    const skipBtn = dock.querySelector<HTMLButtonElement>("[data-journey-skip]");
+    const openBtn = dock.querySelector<HTMLButtonElement>("[data-guide-open]");
+
+    /** 접어 둔 바를 다시 켠다 — 이 선택은 기억한다 */
+    const showBar = () => {
+      if (!bar) return;
+      bar.hidden = false;
+      document.documentElement.classList.remove("bk-off-read", "bk-off-tool");
+      write(bar.dataset.store ?? "", "on");
+    };
+
+    skipBtn?.addEventListener("click", () => {
+      if (!bar) return;
+      const key = bar.dataset.store ?? "";
+      write(key, "off");
+      document.documentElement.classList.add(
+        key === "bk_tool_guide_v1" ? "bk-off-tool" : "bk-off-read"
+      );
+      bar.hidden = true;
+      // 접힌 버튼에 키보드 초점이 남지 않게 `? 가이드`로 옮긴다
+      openBtn?.focus({ preventScroll: true });
+    });
+
+    /**
+     * 투어 한 벌 — 매 단계에 `건너뛰기` 버튼을 붙인다.
+     * 닫기(×)·배경 클릭·Esc도 같은 곳으로 끝나고, 끝나면 onExit가 한 번 불린다.
+     */
+    const createTour = (steps: DriveStep[], onExit?: () => void): Driver => {
+      let tour: Driver;
+      tour = driver({
+        steps,
+        showProgress: true,
+        progressText: "{{current}} / {{total}}",
+        nextBtnText: "다음",
+        prevBtnText: "이전",
+        doneBtnText: "확인",
+        closeBtnLabel: "닫기",
+        allowClose: true,
+        overlayColor: "#0b1b29",
+        overlayOpacity: 0.66,
+        stagePadding: 8,
+        stageRadius: 14,
+        popoverClass: "bk-tour",
+        animate: !reduce,
+        smoothScroll: !reduce,
+        onPopoverRender: (popover) => {
+          if (popover.footer.querySelector(".bk-tour-skip")) return;
+          const skip = document.createElement("button");
+          skip.type = "button";
+          skip.className = "bk-tour-skip";
+          skip.textContent = "건너뛰기";
+          skip.addEventListener("click", () => tour.destroy());
+          popover.footer.insertBefore(skip, popover.footerButtons);
+        },
+        onDestroyed: () => onExit?.(),
+      });
+      return tour;
+    };
+
+    if (mode === "home") {
+      /* ① 첫 방문 — 오늘 확인 허브 → 추천 시작 글 → 도구자료실, 3스텝 */
+      const steps: DriveStep[] = [
+        {
+          element: '[data-guide="hub"]',
+          popover: {
+            title: "① 오늘 확인할 것",
+            description:
+              "기준일과 지표, 오늘 확인할 세 가지를 먼저 모아 두었습니다. 매일 여기서 시작하면 됩니다.",
+            side: "top",
+            align: "start",
+          },
+        },
+        {
+          element: '[data-guide="first-reads"]',
+          popover: {
+            title: "② 처음 읽을 글",
+            description:
+              "어디서부터 읽을지 모르겠다면 이 세 편부터. 왜 이 글부터인지도 함께 적어 두었습니다.",
+            side: "top",
+            align: "start",
+          },
+        },
+        {
+          element: '[data-guide="tools"]',
+          popover: {
+            title: "③ 도구자료실",
+            description:
+              "계산이 필요할 때는 도구자료실로. 입력한 값은 서버로 보내지 않고 브라우저 안에서만 계산합니다.",
+            side: "top",
+            align: "start",
+          },
+        },
+      ].filter((step) => typeof step.element === "string" && document.querySelector(step.element));
+
+      const tour = createTour(steps, () => write(KEY_TOUR, "done"));
+
+      /* 첫 방문 자동 시작 — 브랜드 필름(12초)이 끝난 뒤에 연다.
+         이미 다른 길로 들어선 사람(링크·버튼을 누름, 화면 아래로 내려감)에게는 끼어들지 않는다. */
+      const AUTO_DELAY = 12_600;
+      let cancelled = false;
+      document.addEventListener(
+        "pointerdown",
+        (event) => {
+          const target = event.target as HTMLElement | null;
+          if (target?.closest?.("a, button, input, select, textarea")) cancelled = true;
+        },
+        { passive: true, capture: true }
+      );
+
+      window.setTimeout(() => {
+        if (cancelled || document.visibilityState !== "visible") return;
+        if (window.scrollY > 1600) return;
+        if (read(KEY_TOUR) || tour.isActive()) return;
+        if (steps.length === 0) return;
+        tour.drive(0);
+        // 느린 기기에서 필름·글꼴이 늦게 자리를 잡으면 한 번 더 기준을 잡는다
+        window.setTimeout(() => {
+          if (tour.isActive()) tour.refresh();
+        }, 900);
+      }, AUTO_DELAY);
+
+      openBtn?.addEventListener("click", () => {
+        cancelled = true;
+        if (tour.isActive()) tour.destroy();
+        window.setTimeout(() => tour.drive(0), 50);
+      });
+    } else if (bar) {
+      /* ②③ 여정 바 — `? 가이드`는 접힌 바를 다시 켜고, 이 바의 쓰임을 한 단계로 짚는다 */
+      const hint = createTour(
+        [
+          {
+            element: '[data-journey-bar]',
+            popover: {
+              title: mode === "tool" ? "도구 여정 안내" : "읽기 여정 안내",
+              description: `${
+                bar.dataset.why ?? ""
+              } 이 바가 다음에 볼 것을 계속 알려 줍니다. 필요 없으면 바의 버튼으로 접어 두세요 — 이 ? 버튼으로 언제든 다시 켤 수 있습니다.`,
+              side: "top",
+              align: "end",
+            },
+          },
+        ],
+        undefined
+      );
+
+      openBtn?.addEventListener("click", () => {
+        // 접힌 바는 html 클래스로 감춰져 있어 bar.hidden이 false일 수 있다 — 항상 다시 켠다
+        showBar();
+        if (hint.isActive()) hint.destroy();
+        window.setTimeout(() => hint.drive(0), 50);
+      });
+    }
+  }
+</script>

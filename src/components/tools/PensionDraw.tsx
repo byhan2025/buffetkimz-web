@@ -143,6 +143,16 @@ export default function PensionDraw({ compact = false }: { compact?: boolean }) 
   const [other, setOther] = useState(3000); // 만원
   const [balance, setBalance] = useState(15000); // 만원, 0이면 분산 카드 숨김
   const [copyState, setCopyState] = useState<"idle" | "done" | "failed">("idle");
+  /** 예시 값 그대로인지 — 결론 카드의 '예시 값 기준 / 내 조건 기준' 칩 */
+  const [touched, setTouched] = useState(false);
+
+  /** 값을 한 번이라도 만지면 '내 조건'으로 바꾼다 */
+  const edit =
+    <T,>(set: (v: T) => void) =>
+    (v: T) => {
+      setTouched(true);
+      set(v);
+    };
 
   const out = useMemo(
     () =>
@@ -189,8 +199,8 @@ export default function PensionDraw({ compact = false }: { compact?: boolean }) 
         <div>
           <div className="rounded-xl border border-line bg-white p-4">
             <h3 className="text-[17px] font-bold tracking-[-0.02em] text-ink">내 조건</h3>
-            <p className="mt-0.5 text-[14px] leading-[1.5] text-ink-faint">
-              값을 움직이면 결과가 바로 바뀝니다. 입력값은 저장되지 않습니다.
+            <p className="mt-0.5 text-[14px] leading-[1.5] text-ink-faint" data-pdraw-guide>
+              기본 예시 값입니다. 내 값으로 바꿔 보세요 — 움직이는 즉시 계산됩니다(저장 안 됨).
             </p>
 
             <div className="mt-3">
@@ -199,7 +209,7 @@ export default function PensionDraw({ compact = false }: { compact?: boolean }) 
                 sub="만 55세 이후부터 받을 수 있습니다"
                 unit="세"
                 value={age}
-                onChange={setAge}
+                onChange={edit(setAge)}
                 min={55}
                 max={90}
                 step={1}
@@ -210,7 +220,7 @@ export default function PensionDraw({ compact = false }: { compact?: boolean }) 
                 sub="연금저축·IRP에서 받는 연금(퇴직금 재원 제외)"
                 unit="만원"
                 value={priv}
-                onChange={setPriv}
+                onChange={edit(setPriv)}
                 min={0}
                 max={6000}
                 step={50}
@@ -221,7 +231,7 @@ export default function PensionDraw({ compact = false }: { compact?: boolean }) 
                 sub="1,500만원 기준에는 들어가지 않습니다"
                 unit="만원"
                 value={pub}
-                onChange={setPub}
+                onChange={edit(setPub)}
                 min={0}
                 max={3600}
                 step={20}
@@ -244,7 +254,10 @@ export default function PensionDraw({ compact = false }: { compact?: boolean }) 
                         key={o.label}
                         type="button"
                         aria-pressed={active}
-                        onClick={() => setHasOther(o.key)}
+                        onClick={() => {
+                          setTouched(true);
+                          setHasOther(o.key);
+                        }}
                         className={
                           "min-h-[44px] rounded-full px-4 text-[14px] font-semibold transition-colors " +
                           (active
@@ -263,7 +276,7 @@ export default function PensionDraw({ compact = false }: { compact?: boolean }) 
                       label="연간 그 밖의 소득"
                       unit="만원"
                       value={other}
-                      onChange={setOther}
+                      onChange={edit(setOther)}
                       min={0}
                       max={20000}
                       step={100}
@@ -275,38 +288,58 @@ export default function PensionDraw({ compact = false }: { compact?: boolean }) 
             </div>
           </div>
 
-          {/* 연금 잔액 — 선택. 비우면(0) '나눠 받으면' 카드가 사라진다 */}
-          <div className="mt-3 rounded-xl border border-line bg-white p-4">
-            <h3 className="text-[17px] font-bold tracking-[-0.02em] text-ink">
-              연금 잔액 <span className="text-[14px] font-medium text-ink-faint">(선택)</span>
-            </h3>
-            <p className="mt-0.5 text-[14px] leading-[1.5] text-ink-faint">
-              넣으면 연 1,500만원을 넘지 않는 분산 인출 연수를 계산합니다.
-            </p>
-            <div className="mt-2">
-              <Field
-                label="적격 사적연금 잔액"
-                unit="만원"
-                value={balance}
-                onChange={setBalance}
-                min={0}
-                max={100000}
-                step={500}
-                guess={{ value: 0, label: "잔액 비우기 — 분산 계산 끄기" }}
-              />
+          {/* 연금 잔액 — 선택. 기본은 접어 두고, 필요한 사람만 펼쳐 5번째 값을 넣는다 */}
+          <details className="group mt-3 rounded-xl border border-line bg-white" data-pdraw-balance>
+            <summary className="flex min-h-[52px] cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 [&::-webkit-details-marker]:hidden">
+              <span className="text-[15px] font-semibold leading-snug tracking-[-0.01em] text-ink-soft">
+                더 정확히 보기 — 연금 잔액 넣기{" "}
+                <span className="text-[14px] font-medium text-ink-faint">(선택)</span>
+              </span>
+              <span
+                aria-hidden="true"
+                className="shrink-0 text-[13px] text-ink-faint transition-transform group-open:rotate-180"
+              >
+                ▾
+              </span>
+            </summary>
+            <div className="border-t border-line-soft px-4 pb-4 pt-3">
+              <p className="text-[14px] leading-[1.5] text-ink-faint">
+                넣으면 연 1,500만원을 넘지 않는 분산 인출 연수를 계산합니다.
+              </p>
+              <div className="mt-2">
+                <Field
+                  label="적격 사적연금 잔액"
+                  unit="만원"
+                  value={balance}
+                  onChange={edit(setBalance)}
+                  min={0}
+                  max={100000}
+                  step={500}
+                  guess={{ value: 0, label: "잔액 비우기 — 분산 계산 끄기" }}
+                />
+              </div>
+              <p className="mt-1 text-[14px] leading-[1.5] text-ink-faint">
+                잔액 <strong className="font-semibold text-brand">{manLabel(balance * WON)}원</strong> · 운용수익은
+                반영하지 않습니다.
+              </p>
             </div>
-            <p className="mt-1 text-[14px] leading-[1.5] text-ink-faint">
-              잔액 <strong className="font-semibold text-brand">{manLabel(balance * WON)}원</strong> · 운용수익은
-              반영하지 않습니다.
-            </p>
-          </div>
+          </details>
         </div>
 
         {/* ── 결과 ─────────────────────────────────────────────── */}
         <div className="space-y-3">
           {/* ① 결론 한 줄 */}
           <div className="rounded-2xl bg-brand p-4 text-white">
-            <p className="text-[14px] font-semibold text-white/80">결론</p>
+            <p className="flex flex-wrap items-center gap-2 text-[14px] font-semibold text-white/80">
+              결론
+              <span
+                className="rounded-full bg-white/15 px-2 py-0.5 text-[12px] font-bold leading-[1.4] text-white"
+                data-pdraw-basis
+                aria-live="polite"
+              >
+                {touched ? "내 조건 기준" : "예시 값 기준"}
+              </span>
+            </p>
             <p className="mt-1 text-[19px] font-bold leading-[1.5] tracking-[-0.02em]" aria-live="polite">
               {out.headline}
             </p>
