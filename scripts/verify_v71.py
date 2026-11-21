@@ -395,7 +395,7 @@ def main() -> int:
 
                         # 다운로드 링크가 실제 파일을 가리키는지(HTTP 200)
                         href = page.locator('[data-gallery-item="pension-accounts"] [data-gallery-download-current]').get_attribute("href") or ""
-                        dl_url = href if href.startswith("http") else f"{BASE}{href}"
+                        dl_url = page.evaluate("(h) => new URL(h, location.href).href", href)
                         dresp = page.request.get(dl_url)
                         add("1280 다운로드 URL 200", dresp.status == 200, dresp.status)
 
