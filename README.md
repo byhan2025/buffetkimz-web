@@ -34,7 +34,10 @@ v3: 20개 대표 사이트 벤치마킹(보고서 `reports/buffetkimz-web/benchm
 - **검증** — `verify_v79.py` **41/41**(자산·옛 심볼 0·토큰·16px 실측), `verify_v77.py` **32/32**,
   세율 일관성 **22/22**, `audit_dist_links.py` 링크·이미지 **0/0**.
 - **캡처** — `reports/buffetkimz-web/v79-official-logo/`(홈 1280·390, 헤더·푸터, `/about` 시그니처,
-  `/gallery`, 필름 씬5, 검색 오버레이, 로컬·라이브).
+  `/gallery`, 필름 씬5, 검색 오버레이, 글 하단 브랜드 카드 — 로컬·라이브 각각).
+- **라이브** — `main` `010ef4e`(그 앞 `7da100f`·`69ec133`) · `gh-pages` `5d41aca`
+  → https://byhan2025.github.io/buffetkimz-web/ . 라이브 전수 확인: 주요 7p HTTP 200 · 새 로고 링크 12곳(홈) ·
+  옛 심볼 0 · 캘리그라피 0 · 가로 넘침 0 · 콘솔 오류 0, `verify_v77 --live` **32/32**.
 
 ### v7.8.0 — 3D 스토리 캐러셀 2세트 등록 (실손 계약전환 · 연말 900만 원)
 
