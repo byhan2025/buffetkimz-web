@@ -24,7 +24,14 @@ export type StoreIcon =
   | "guide"
   | "timemachine"
   | "calendar"
-  | "gallery";
+  | "gallery"
+  | "exif"
+  | "url"
+  | "pdf"
+  | "compress"
+  | "qr"
+  | "resize"
+  | "watermark";
 
 export type StoreItem = {
   id: string;
@@ -65,6 +72,13 @@ const artToIcon: Record<App["art"], StoreIcon> = {
   compound: "compound",
   accounts: "accounts",
   timemachine: "timemachine",
+  "u-exif": "exif",
+  "u-url": "url",
+  "u-pdf": "pdf",
+  "u-compress": "compress",
+  "u-qr": "qr",
+  "u-resize": "resize",
+  "u-watermark": "watermark",
 };
 
 /** 홈 진열 순서 — 금융·연금 계산이 먼저, 앱이 뒤, 보험이 마지막. */
@@ -79,6 +93,13 @@ const orderBySlug: Record<string, number> = {
   "silson-compare": 20,
   "disclosure-check": 30,
   "bojang-counsel-guide": 40,
+  "exif-mosaic": 30,
+  "url-cleaner": 40,
+  "pdf-image": 50,
+  "image-compress": 60,
+  "qr-generator": 70,
+  "image-resize": 80,
+  watermark: 90,
 };
 
 const fromApps: StoreItem[] = apps.map((a) => ({

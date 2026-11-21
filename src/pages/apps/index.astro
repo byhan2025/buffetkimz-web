@@ -64,7 +64,7 @@ const jsonLd = graph([
 
 <Base
   title={`${menuLabel.apps} — 금융투자앱 · 보험앱 · 유용한앱`}
-  description={`연금저축·IRP 세액공제, 은퇴 월 현금흐름, 연금 인출 세금, 투자 복리·세후 수익률, 한국형 타임머신, 5대 담보·실손·고지 확인, 금융캘린더까지 ${storeCount}종. 금융투자앱·보험앱·유용한앱으로 나눠 필요할 때 바로 엽니다.`}
+  description={`연금저축·IRP 세액공제, 은퇴 월 현금흐름, 연금 인출 세금, 투자 복리·세후 수익률, 한국형 타임머신, 5대 담보·실손·고지 확인, 금융캘린더에 더해 EXIF 제거·URL 추적제거·PDF 변환·이미지 압축·QR 생성·SNS 리사이즈·워터마크까지 ${storeCount}종. 금융투자앱·보험앱·유용한앱으로 나눠 필요할 때 바로 엽니다.`}
   path="/apps"
   jsonLd={jsonLd}
 >
@@ -78,7 +78,7 @@ const jsonLd = graph([
           필요한 계산을,<br /><span class="store-title-em">필요한 순간에.</span>
         </h1>
         <p class="store-lede">
-          금융·투자·연금·재무의 숫자를 직접 넣어 확인하는 도구 {storeCount}종. 카테고리에서 골라
+          금융·투자·연금·재무 계산부터 사진·문서 도구까지 {storeCount}종. 카테고리에서 골라
           설치 없이 바로 열고, 모든 결과에 기준일과 출처를 함께 봅니다.
         </p>
 
@@ -118,7 +118,7 @@ const jsonLd = graph([
             </div>
           ))
         }
-        <p class="store-map-foot mono">TAX · PENSION · RETURN · COVERAGE · CALENDAR</p>
+        <p class="store-map-foot mono">TAX · PENSION · RETURN · COVERAGE · IMAGE</p>
       </div>
     </div>
   </section>
@@ -244,7 +244,7 @@ const jsonLd = graph([
               ))}
 
               {
-                category.id === "utility" && (
+                category.id === "utility" && items.length < 3 && (
                   <li class="store-card store-card--empty" data-store-coming="utility">
                     <div class="store-card-top">
                       <span class="store-icon store-icon--empty" aria-hidden="true">
