@@ -399,9 +399,9 @@ export default function BrandFilm({ appsHref = "/apps" }: { appsHref?: string })
                   <p className="fs3-title">시간이 만드는 차이</p>
                 </div>
                 <p className="fs3-note">
-                  수익률을 약속하지 않습니다.
-                  <br />
                   가정과 기준일을 함께 적습니다.
+                  <br />
+                  원금 손실 가능성도 함께 봅니다.
                 </p>
               </div>
               <div className="fs3-chart">
