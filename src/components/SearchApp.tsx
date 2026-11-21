@@ -158,7 +158,8 @@ export default function SearchApp({ variant = "page", onClose, initialQuery = ""
 
   const openHit = useCallback(
     (hit: SearchHit) => {
-      window.location.assign(hit.doc.url);
+      /* 서브패스 배포(/buffetkimz-web)에서도 검색 결과로 이동하도록 접두를 붙인다. */
+      window.location.assign(withBase(hit.doc.url));
     },
     []
   );
