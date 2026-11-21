@@ -2293,6 +2293,28 @@
     opacity: 0;
   }
 
+  /* v5.6 — 손글씨 시그니처. 영문·한글 배너를 같은 상자에 겹쳐 두고 GSAP이 넘긴다.
+     바탕을 지운 알파 WebP라 사각 테두리 없이 붓글씨만 남고, 높은 화면에서는
+     vh로 한 번 더 묶어 제목·시안 A 록업을 밀지 않게 한다. */
+  .fs5-sign {
+    position: relative;
+    width: min(clamp(220px, 34vw, 420px), 44vh);
+    aspect-ratio: 1400 / 467;
+    margin: 16px auto 0;
+  }
+
+  .fs5-sign-art {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    opacity: 0;
+    visibility: hidden;
+    filter: drop-shadow(0 8px 26px rgb(56 183 149 / 0.22));
+    will-change: opacity, transform, filter;
+  }
+
   /* ---------- Scene 6 — 다음 장면 ---------- */
   .fs6-wrap {
     display: flex;
@@ -2488,6 +2510,18 @@
     margin-top: 10px;
     font-size: clamp(13px, 1.5vw, 16px);
     color: #c6dbe9;
+  }
+
+  /* 정적 록업(no-JS·모션 축소)에도 같은 손글씨 배너를 둔다 — JS 없이도 서명이 남는다 */
+  .film-static-sign {
+    width: min(clamp(200px, 30vw, 330px), 28vh);
+    margin-top: 4px;
+  }
+
+  .film-static-sign img {
+    display: block;
+    width: 100%;
+    height: auto;
   }
 
   .film-static-fields {
@@ -3073,5 +3107,141 @@
 
   .prose-article blockquote {
     font-size: 15.5px;
+  }
+}
+
+/* ==================================================================
+   v5.6 — 브랜드 시그니처 (소개 페이지)
+   1페이지 필름과 같은 딥 네이비(#04101a) 한 칸 안에 손글씨 배너 두 장을 나란히.
+   배너는 바탕을 지운 알파 WebP라 어떤 다크 면 위에서도 사각 테두리가 보이지 않는다.
+   ================================================================== */
+@layer components {
+  .brand-sign {
+    position: relative;
+    overflow: hidden;
+    background-color: #04101a;
+    background-image:
+      radial-gradient(58% 74% at 16% 4%, rgb(16 74 70 / 0.55) 0%, rgb(4 16 26 / 0) 68%),
+      radial-gradient(72% 84% at 90% -6%, rgb(18 62 92 / 0.6) 0%, rgb(4 16 26 / 0) 62%),
+      linear-gradient(162deg, #05141f 0%, #04101a 54%, #020a12 100%);
+    color: #eef7ff;
+  }
+
+  .brand-sign-inner {
+    position: relative;
+    padding-block: 44px 48px;
+  }
+
+  @media (min-width: 768px) {
+    .brand-sign-inner {
+      padding-block: 60px 64px;
+    }
+  }
+
+  .brand-sign-kicker {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    color: #7fe3c4;
+  }
+
+  .brand-sign-title {
+    margin-top: 10px;
+    color: #ffffff;
+    letter-spacing: -0.038em;
+  }
+
+  .brand-sign-lede {
+    margin-top: 12px;
+    max-width: 60ch;
+    font-size: 14.5px;
+    line-height: 1.82;
+    color: #c6dbe9;
+  }
+
+  @media (min-width: 768px) {
+    .brand-sign-lede {
+      font-size: 15.5px;
+    }
+  }
+
+  /* 시안 A 서표 록업 — 두 캘리그라피가 같은 이름의 다른 손이라는 것을 한 줄로 보인다 */
+  .brand-sign-mark {
+    margin-top: 22px;
+    color: #eef7ff;
+  }
+
+  .brand-sign-grid {
+    display: grid;
+    gap: 14px;
+    margin-top: 26px;
+    padding: 0;
+    list-style: none;
+  }
+
+  @media (min-width: 900px) {
+    .brand-sign-grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-top: 32px;
+    }
+  }
+
+  .brand-sign-card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px 16px 13px;
+    border: 1px solid rgb(255 255 255 / 0.1);
+    border-radius: var(--radius-card);
+    background:
+      radial-gradient(80% 120% at 50% 0%, rgb(16 60 78 / 0.5) 0%, rgb(4 16 26 / 0) 70%),
+      linear-gradient(180deg, rgb(9 26 41 / 0.92) 0%, rgb(4 16 26 / 0.92) 100%);
+  }
+
+  .brand-sign-art {
+    display: grid;
+    place-items: center;
+    aspect-ratio: 3 / 1;
+    border-radius: 10px;
+    background: radial-gradient(64% 130% at 50% 54%, rgb(14 48 66 / 0.55) 0%, rgb(4 16 26 / 0) 78%);
+  }
+
+  .brand-sign-art img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .brand-sign-cap {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 4px 12px;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #dbe9f3;
+  }
+
+  .brand-sign-cap b {
+    font-weight: 650;
+    color: #ffffff;
+  }
+
+  .brand-sign-cap span:last-child {
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    letter-spacing: 0.08em;
+    color: #8fa8ba;
+  }
+
+  .brand-sign-note {
+    margin-top: 18px;
+    font-size: 12.5px;
+    line-height: 1.8;
+    color: #9fb6c6;
+    max-width: 74ch;
   }
 }

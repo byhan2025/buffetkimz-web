@@ -1,6 +1,7 @@
 ---
 import Base from "@/layouts/Base.astro";
 import HomePill from "@/components/HomePill.astro";
+import BrandLockup from "@/components/BrandLockup.astro";
 import { withBase, site } from "@/config/site";
 import { categories } from "@/data/categories";
 import { apps } from "@/data/apps";
@@ -37,6 +38,65 @@ const jsonLd = {
       <p class="lede mt-5 max-w-[58ch]">
         buffetkimz는 금융과 돈에 관한 기록을 매일 쌓는 개인 아카이브입니다. 스레드, 인스타그램,
         블로그, 유튜브에 흩어질 이야기를 한곳에 모으고, 직접 만든 계산 도구를 함께 둡니다.
+      </p>
+    </div>
+  </section>
+
+  <section class="brand-sign" id="brand" aria-labelledby="brand-sign-title">
+    <div class="wrap brand-sign-inner">
+      <p class="brand-sign-kicker">표식</p>
+      <h2 class="h-section brand-sign-title" id="brand-sign-title">
+        서표 하나, 손글씨 두 장
+      </h2>
+      <p class="brand-sign-lede">
+        서표 모양의 심볼과 손으로 쓴 배너 두 장이 이 사이트의 공식 표식입니다. 긴 글과 영문 자료에는
+        BuffetKimz, 국문 콘텐츠와 짧은 인사에는 버핏킴즈 — 장면에 맞춰 번갈아 씁니다. 어느 쪽이든 같은
+        이름입니다.
+      </p>
+      <div class="brand-sign-mark">
+        <BrandLockup tone="dark" size="30.8px" />
+      </div>
+      <ul class="brand-sign-grid">
+        <li class="brand-sign-card">
+          <div class="brand-sign-art">
+            <img
+              src={withBase("/brand/buffetkimz-calligraphy-ko-720.webp")}
+              srcset={`${withBase("/brand/buffetkimz-calligraphy-ko-360.webp")} 360w, ${withBase("/brand/buffetkimz-calligraphy-ko-720.webp")} 720w`}
+              sizes="(max-width: 899px) 82vw, 400px"
+              width="720"
+              height="194"
+              alt="한글 버핏킴즈 캘리그라피 — 흰 붓글씨와 푸른 빛줄기"
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+          <p class="brand-sign-cap">
+            <span>한글 <b>버핏킴즈</b></span>
+            <span>공식 배너 · 720 × 194</span>
+          </p>
+        </li>
+        <li class="brand-sign-card">
+          <div class="brand-sign-art">
+            <img
+              src={withBase("/brand/buffetkimz-calligraphy-en-1400.webp")}
+              srcset={`${withBase("/brand/buffetkimz-calligraphy-en-700.webp")} 700w, ${withBase("/brand/buffetkimz-calligraphy-en-1400.webp")} 1400w`}
+              sizes="(max-width: 899px) 82vw, 400px"
+              width="1400"
+              height="467"
+              alt="영문 BuffetKimz 캘리그라피 — 흰 붓글씨와 푸른 빛줄기"
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+          <p class="brand-sign-cap">
+            <span>영문 <b>BuffetKimz</b></span>
+            <span>공식 배너 · 1400 × 467</span>
+          </p>
+        </li>
+      </ul>
+      <p class="brand-sign-note">
+        두 배너는 2026년 11월에 공식 자산으로 확정했습니다. 비율을 바꾸거나 색을 덧칠하지 않고 그대로
+        씁니다. 새 채널을 열어 같은 표식이 필요해지면 이 두 장을 그대로 쓰면 됩니다.
       </p>
     </div>
   </section>

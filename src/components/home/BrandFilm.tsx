@@ -14,6 +14,7 @@
  */
 import { useEffect, useRef, useState } from "react";
 import BrandMark from "@/components/BrandMark.tsx";
+import { withBase } from "@/config/site";
 
 const TOTAL = 12;
 const SCENES = [
@@ -34,6 +35,26 @@ const WORDS = [
 ];
 
 const SLOT = 0.46;
+
+/*
+ * v5.6 — 손글씨 배너(2026-11-20 확정). 딥블루 바탕은 알파로 지워 두었으므로
+ * 어떤 장면 위에 얹어도 사각 테두리 없이 붓글씨만 남는다. 영문 → 한글 순으로 넘긴다.
+ */
+const SIGN = {
+  en: {
+    src: withBase("/brand/buffetkimz-calligraphy-en-1400.webp"),
+    srcSet: `${withBase("/brand/buffetkimz-calligraphy-en-700.webp")} 700w, ${withBase("/brand/buffetkimz-calligraphy-en-1400.webp")} 1400w`,
+    width: 1400,
+    height: 467,
+  },
+  ko: {
+    src: withBase("/brand/buffetkimz-calligraphy-ko-720.webp"),
+    srcSet: `${withBase("/brand/buffetkimz-calligraphy-ko-360.webp")} 360w, ${withBase("/brand/buffetkimz-calligraphy-ko-720.webp")} 720w`,
+    width: 720,
+    height: 194,
+  },
+};
+const SIGN_SIZES = "(max-width: 767px) 72vw, 380px";
 
 /** 빛 입자의 반지름·밝기·격자 — 시간 하나로만 결정된다(되감아도 같은 그림). */
 const KEYS = {
@@ -446,6 +467,30 @@ export default function BrandFilm({ appsHref = "/apps" }: { appsHref?: string })
               <p className="fs5-mark" data-fs5-mark>
                 <BrandMark tone="dark" />
               </p>
+              <p className="fs5-sign" data-fs5-sign>
+                <img
+                  className="fs5-sign-art"
+                  data-fs5-sign-en
+                  src={SIGN.en.src}
+                  srcSet={SIGN.en.srcSet}
+                  sizes={SIGN_SIZES}
+                  width={SIGN.en.width}
+                  height={SIGN.en.height}
+                  alt=""
+                  decoding="async"
+                />
+                <img
+                  className="fs5-sign-art"
+                  data-fs5-sign-ko
+                  src={SIGN.ko.src}
+                  srcSet={SIGN.ko.srcSet}
+                  sizes={SIGN_SIZES}
+                  width={SIGN.ko.width}
+                  height={SIGN.ko.height}
+                  alt=""
+                  decoding="async"
+                />
+              </p>
               <p className="fs5-sub" data-fs5-sub>
                 금융 · 투자 · 연금 · 노후 · 보험을 매일 기록합니다
               </p>
@@ -493,6 +538,17 @@ export default function BrandFilm({ appsHref = "/apps" }: { appsHref?: string })
             <span className="film-static-mark">
               <BrandMark tone="dark" />
             </span>
+          </p>
+          <p className="film-static-sign">
+            <img
+              src={SIGN.en.src}
+              srcSet={SIGN.en.srcSet}
+              sizes="(max-width: 767px) 62vw, 300px"
+              width={SIGN.en.width}
+              height={SIGN.en.height}
+              alt="BuffetKimz — 붓글씨 브랜드 배너"
+              decoding="async"
+            />
           </p>
           <p className="film-static-sub">숫자를 확인하고, 기록으로 남깁니다</p>
           <p className="film-mono film-static-fields">금융 · 투자 · 연금 · 노후 · 보험</p>
@@ -1037,6 +1093,24 @@ function buildTimeline(gsap: any, root: HTMLElement) {
       8.16
     ).to(m5, { scale: 1.015, duration: 0.6, ease: "sine.inOut" }, 8.85);
   if (s5) tl.fromTo(s5, { autoAlpha: 0, y: 10 }, { autoAlpha: 1, y: 0, duration: 0.4 }, 8.52);
+
+  /* 손글씨 배너 — 영문이 먼저 지워지듯 나타났다가 한글로 넘어가 씬 끝까지 남는다 */
+  const signEn = q("[data-fs5-sign-en]");
+  const signKo = q("[data-fs5-sign-ko]");
+  if (signEn)
+    tl.fromTo(
+      signEn,
+      { autoAlpha: 0, scale: 1.05, filter: "blur(10px)", clipPath: "inset(0% 10% 0% 10%)" },
+      { autoAlpha: 1, scale: 1, filter: "blur(0px)", clipPath: "inset(0% 0% 0% 0%)", duration: 0.7, ease: "power2.out" },
+      8.3
+    ).to(signEn, { autoAlpha: 0, scale: 1.02, duration: 0.32, ease: "power2.inOut" }, 9.02);
+  if (signKo)
+    tl.fromTo(
+      signKo,
+      { autoAlpha: 0, scale: 1.06, filter: "blur(10px)", clipPath: "inset(0% 10% 0% 10%)" },
+      { autoAlpha: 1, scale: 1, filter: "blur(0px)", clipPath: "inset(0% 0% 0% 0%)", duration: 0.6, ease: "power2.out" },
+      9.1
+    );
   const sweep = q("[data-fs5-sweep]");
   if (sweep)
     tl.fromTo(
