@@ -4963,13 +4963,13 @@
   .about-strip-item {
     display: flex;
     height: 100%;
+    transition: background-color 160ms var(--ease-out-soft), transform 160ms var(--ease-out-soft);
     min-height: 56px;
     flex-direction: column;
     justify-content: center;
     gap: 1px;
     padding: 4px 10px;
     border-radius: 10px;
-    transition: background-color 160ms var(--ease-out-soft);
   }
 
   .about-strip > li:first-child .about-strip-item {
@@ -4977,7 +4977,8 @@
   }
 
   .about-strip-item:hover {
-    background-color: rgb(20 108 88 / 0.06);
+    transform: translateY(-1px);
+    background-color: rgb(20 108 88 / 0.07);
   }
 
   .about-strip-label {
