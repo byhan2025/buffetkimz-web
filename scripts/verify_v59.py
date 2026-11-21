@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""v5.9 오늘 확인 허브 — 빌드 산출물 전수 검증 (v5.9.2 판).
+"""v5.9 오늘 확인 허브 — 빌드 산출물 전수 검증 (v5.9.3 판).
 
 경로는 이 파일 위치 기준 상대경로다 — 압축을 풀어 다른 폴더에 놓아도 그대로 재실행된다.
   APP  = <repo>/apps/buffetkimz-web        (이 파일의 부모의 부모)
   DIST = APP/dist                          (npm run build 결과)
-  OUT  = <repo>/reports/buffetkimz-web/v592-hub
+  OUT  = <repo>/reports/buffetkimz-web/v593-hub
 
 검사 항목 (실패하면 exit 1, JSON 요약은 OUT/verify-v59.json)
   1) 빌드 페이지 수·링크/이미지 무결 (audit_dist_links 결과)
@@ -21,6 +21,8 @@
      · 실손 청약철회 3단계 조건 · 원/달러 라벨=링크 · '초기 실손' 용어 정리 · 제도달력 1차 출처
  12) v5.9.2 — 실손 옛 문구('6개월간 시행'·'연장 여부') 0건 + 공식 기준 문장 반영,
      '수동 확인' 모드(자동 갱신 약속 없음) · 390 스와이프 힌트 24px 페이드 · 원/달러 근거 스냅샷 동봉
+ 13) v5.9.3 — scheduleConnected 엄격 분리(수동·실패 false / 성공 + --schedule-connected 만 true),
+     package.json 버전 5.9.3 일치, 리포트·번들 존재
 """
 from __future__ import annotations
 
@@ -36,7 +38,8 @@ import tempfile
 APP = pathlib.Path(__file__).resolve().parent.parent
 DIST = APP / "dist"
 REPO = APP.parent.parent
-OUT = REPO / "reports" / "buffetkimz-web" / "v592-hub"
+OUT = REPO / "reports" / "buffetkimz-web" / "v593-hub"
+REPORT_DIR = OUT
 SRC = APP / "src"
 NODE = shutil.which("node") or "/workspace/.local/node-v22/bin/node"
 
@@ -598,9 +601,75 @@ console.log(JSON.stringify(out));
         "1,346.50" in hub and "06:28 고시" in hub and "1,335.50" in hub,
     )
 
+    # 16) v5.9.3 — scheduleConnected 엄격 분리 (수동·실패 false / 성공 + 플래그만 true)
+    sys.path.insert(0, str(APP / "scripts"))
+    import update_today_hub as hub_check  # noqa: E402
+
+    today_text = hub_check.DEFAULT_FILE.read_text(encoding="utf-8")
+    payload_ok = {
+        "asOf": "2026-11-21T19:00:41+09:00",
+        "nextCheckAt": "2026-11-22T06:00:00+09:00",
+        "indicators": [],
+    }
+    manual_ok, plan_manual = hub_check.update_text(today_text, payload_ok)
+    manual_fail, plan_fail = hub_check.update_text(today_text, {"status": "failed"})
+    flagged_ok, plan_flagged = hub_check.update_text(today_text, payload_ok, schedule_connected=True)
+    flagged_fail, plan_flagged_fail = hub_check.update_text(
+        today_text, {"status": "failed"}, schedule_connected=True
+    )
+    check(
+        "수동 실행(성공·실패)은 scheduleConnected false 유지",
+        plan_manual["scheduleConnected"] is False
+        and plan_fail["scheduleConnected"] is False
+        and manual_ok.count("scheduleConnected: false") == 1
+        and "scheduleConnected: true" not in manual_ok
+        and manual_fail.count("scheduleConnected: false") == 1
+        and "scheduleConnected: true" not in manual_fail,
+        f"manual_ok={plan_manual['scheduleConnected']} manual_fail={plan_fail['scheduleConnected']}",
+    )
+    check(
+        "성공 + --schedule-connected 일 때만 true",
+        plan_flagged["scheduleConnected"] is True and flagged_ok.count("scheduleConnected: true") == 1,
+        f"flagged_ok={plan_flagged['scheduleConnected']}",
+    )
+    check(
+        "--fail + --schedule-connected 는 false 유지",
+        plan_flagged_fail["scheduleConnected"] is False
+        and "scheduleConnected: true" not in flagged_fail
+        and flagged_fail.count("scheduleConnected: false") == 1,
+        f"flagged_fail={plan_flagged_fail['scheduleConnected']}",
+    )
+    pkg = json.loads((APP / "package.json").read_text(encoding="utf-8"))
+    check("package.json 버전 5.9.3 일치", pkg.get("version") == "5.9.3", str(pkg.get("version")))
+
+    report = (REPORT_DIR / "00-v593-report.md")
+    report_text = report.read_text(encoding="utf-8", errors="ignore") if report.exists() else ""
+    check(
+        "리포트에 범위 명시 — Pages 정보허브 패치 / 도메인 컷오버는 3단계 범위",
+        "byhan2025.github.io/buffetkimz-web/` 기준 정보허브 패치이며 `buffetkimz.com` DNS·CNAME은 별도 3단계 도메인 컷오버 범위임"
+        in report_text,
+        f"{len(report_text)} chars",
+    )
+    check(
+        "리포트에 원/달러 기준일(11. 20.)·고시시각(11. 21. 06:28) 구분",
+        "기준일 11. 20." in report_text and "06:28" in report_text and "localTradedAt \"2026-11-20\"" in report_text,
+    )
+    flip = OUT / "auto-mode-flip.json"
+    flip_json = json.loads(flip.read_text(encoding="utf-8")) if flip.exists() else {}
+    flip_auto = (flip_json.get("auto") or {}).get("1280") or {}
+    check(
+        "자동 모드 실측·원상 복구 기록(auto-mode-flip.json)",
+        flip.exists()
+        and flip_json.get("file_after") == "scheduleConnected: true"
+        and flip_auto.get("scheduleConnected") == "true"
+        and "자동 확인" in (flip_auto.get("hubBasis") or "")
+        and all((flip_json.get("restored") or {}).values()),
+        json.dumps(flip_json.get("restored"), ensure_ascii=False),
+    )
+
     failed = [r for r in results if not r["ok"]]
     summary = {
-        "version": "5.9.2",
+        "version": "5.9.3",
         "checks": len(results),
         "passed": len(results) - len(failed),
         "failed": len(failed),

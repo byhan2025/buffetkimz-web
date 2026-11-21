@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""오늘 확인 허브 데이터 갱신 — `src/data/today.ts` 를 JSON 입력으로 안전하게 바꾼다 (v5.9.1 초안).
+"""오늘 확인 허브 데이터 갱신 — `src/data/today.ts` 를 JSON 입력으로 안전하게 바꾼다 (v5.9.3).
 
 06:00 · 08:20 · 19:00 파이프라인이 수집 결과를 JSON 한 장으로 넘기면, 이 스크립트가
 `src/data/today.ts` 의 **값과 시각만** 고친다(구조·주석·타입은 건드리지 않는다).
@@ -11,15 +11,20 @@
           화면은 직전 정상값을 그대로 보여 주면서 '갱신 실패'라고 말한다(빈 카드 금지).
   · 쓰기 전에 후보 파일을 Node로 실제로 import 해 값이 맞는지 확인하고, `--build` 면 `npm run build`까지
     통과해야 원본을 바꾼다. 하나라도 실패하면 원본은 **한 바이트도 바뀌지 않는다**.
-  · v5.9.2 — 이 스크립트가 실제로 돈 회차(성공·실패 모두)는 파이프라인이 붙은 것이므로
-    `scheduleConnected: true`로 바꾼다. 그때부터 화면은 '자동 확인'을 말한다.
-    (값을 손으로 고칠 때는 이 스크립트를 거치므로, 파일에 false가 남아 있으면 아직 자동화가 없다는 뜻이다.)
+  · v5.9.3 — `scheduleConnected`(자동 갱신 연결 표시)는 **등록된 정기 스케줄러가 넘기는
+    명시적 플래그 --schedule-connected 와 성공 회차가 둘 다일 때만** true 로 켠다.
+      - 기본(수동) 실행: 기존 값을 그대로 둔다 → false 는 계속 false ('수동 확인' 유지).
+      - `--fail` 회차: 플래그가 와도 false 를 유지한다(실패한 회차는 자동 갱신을 약속할 근거가 아니다).
+      - 이미 true 인 파일을 수동 실행해도 false 로 되돌리지 않는다(연결을 끊는 일은 별도 판단).
 
 사용
-  python3 scripts/update_today_hub.py --input payload.json            # 갱신 + import 검증
+  python3 scripts/update_today_hub.py --input payload.json            # 수동 갱신 + import 검증
   python3 scripts/update_today_hub.py --input payload.json --build    # + npm run build 검증
   python3 scripts/update_today_hub.py --input payload.json --dry-run  # 미리보기(파일 안 씀)
   python3 scripts/update_today_hub.py --fail "19:00 수집 실패: 원문 응답 없음"   # 실패 회차 기록
+
+  # 등록된 정기 스케줄러(06:00·08:20·19:00)만 넘기는 플래그 — 성공했을 때만 '자동 확인'으로 전환
+  python3 scripts/update_today_hub.py --input payload.json --schedule-connected --build
 
 입력 JSON (성공 회차)
   {
@@ -75,7 +80,7 @@ HEADER_RE = re.compile(
     r"(?:  lastGoodAsOf: \"[^\"]*\",\n)?"
     r"  staleAfterDays: (\d+),\n"
 )
-# 파이프라인 연결 스위치 (v5.9.2) — 이 스크립트가 돈 회차는 true로 바뀐다
+# 파이프라인 연결 스위치 (v5.9.2 값) — v5.9.3부터는 성공 회차 + --schedule-connected 일 때만 켜진다
 SCHEDULE_CONNECTED_RE = re.compile(r"\n  scheduleConnected: (true|false),\n")
 AS_OF_LINE_RE = re.compile(r'const AS_OF = "[^"]*";')
 NEXT_CHECK_LINE_RE = re.compile(r'const NEXT_CHECK = "[^"]*";')
@@ -335,9 +340,18 @@ def insert_after_field(block: str, after: str, field: str, value: str, indent: s
 
 
 # ---------------------------------------------------------------------------- 갱신
-def update_text(text: str, payload: dict) -> tuple[str, dict]:
+def update_text(text: str, payload: dict, *, schedule_connected: bool = False) -> tuple[str, dict]:
+    """갱신 결과 텍스트와 계획을 돌려준다.
+
+    schedule_connected 는 **등록된 스케줄러가 호출할 때만** True 로 넘긴다.
+    그래도 성공 회차(plan.status == 'ok')가 아니면 켜지 않는다 — 실패 회차는 자동 갱신의 근거가 아니다.
+    """
     current = snapshot(text)
     plan = validate(payload, current)
+    # 전환 판단은 여기 한 곳에서만 한다: 기존 값 유지, 단 '성공 + 명시 플래그'일 때만 켠다.
+    plan["scheduleConnected"] = bool(
+        current["scheduleConnected"] or (schedule_connected and plan["status"] == "ok")
+    )
     out = text
 
     if plan["status"] == "failed":
@@ -359,8 +373,8 @@ def update_text(text: str, payload: dict) -> tuple[str, dict]:
             new_block = replace_field(block, "status", "failed")
             new_block = insert_after_field(new_block, "status", "lastGoodAsOf", last_good)
             out = out.replace(block, new_block, 1)
-        # 실패 회차도 파이프라인이 실제로 돈 것이다 — '자동 갱신이 붙었다'는 사실은 바뀌지 않는다
-        out = SCHEDULE_CONNECTED_RE.sub("\n  scheduleConnected: true,\n", out, count=1)
+        # 실패 회차는 자동 갱신 연결을 켜지 않는다(기존 값 유지)
+        out = set_schedule_connected(out, plan["scheduleConnected"])
         return out, plan
 
     # 성공 회차 — 기준 시각부터
@@ -439,9 +453,18 @@ def update_text(text: str, payload: dict) -> tuple[str, dict]:
         )
         out = out[:start] + new_ai + out[tail_end:]
 
-    # 성공 회차: 파이프라인 연결 스위치를 켠다('수동 확인' → '자동 확인')
-    out = SCHEDULE_CONNECTED_RE.sub("\n  scheduleConnected: true,\n", out, count=1)
+    # 성공 회차: --schedule-connected 로 등록된 스케줄러가 불렀을 때만 켠다('수동 확인' → '자동 확인')
+    out = set_schedule_connected(out, plan["scheduleConnected"])
     return out, plan
+
+
+def set_schedule_connected(text: str, connected: bool) -> str:
+    """`scheduleConnected` 한 줄만 바꾼다(이미 같은 값이면 그대로)."""
+    value = "true" if connected else "false"
+    new, count = SCHEDULE_CONNECTED_RE.subn(f"\n  scheduleConnected: {value},\n", text, count=1)
+    if count == 0:
+        raise UpdateError("today.ts에 scheduleConnected 필드가 없습니다 — v5.9.2 스키마를 확인하세요")
+    return new
 
 
 def _first_highlight_text(text: str) -> str:  # pragma: no cover - 테스트·수동 점검용
@@ -482,9 +505,11 @@ def verify_import(candidate: pathlib.Path, plan: dict) -> None:
     data = json.loads(run.stdout.strip().splitlines()[-1])
     if data["asOf"] != plan["asOf"] or data["nextCheckAt"] != plan["nextCheckAt"]:
         raise UpdateError(f"기준 시각이 반영되지 않았습니다: {data['asOf']} / {data['nextCheckAt']}")
-    if data.get("scheduleConnected") is not True:
+    if data.get("scheduleConnected") is not plan["scheduleConnected"]:
         raise UpdateError(
-            "scheduleConnected가 true로 바뀌지 않았습니다 — 파이프라인이 붙었는데 화면은 '수동 확인'에 머뭅니다"
+            "scheduleConnected가 계획과 다릅니다 "
+            f"(파일: {data.get('scheduleConnected')!r} / 기대: {plan['scheduleConnected']!r}) — "
+            "수동·실패 회차는 false, 성공 + --schedule-connected 에서만 true 여야 합니다"
         )
     if plan["status"] == "ok":
         for row in plan["indicators"]:
@@ -515,13 +540,18 @@ def run_build(expect_as_of: str | None = None) -> None:
 
 # ---------------------------------------------------------------------------- CLI
 def main(argv: list[str] | None = None) -> int:
-    ap = argparse.ArgumentParser(description="오늘 확인 허브(today.ts) 갱신 — v5.9.1 초안")
+    ap = argparse.ArgumentParser(description="오늘 확인 허브(today.ts) 갱신 — v5.9.3")
     ap.add_argument("--input", help="수집 결과 JSON 경로")
     ap.add_argument("--fail", help="실패 회차로 기록한다(사유). 값은 그대로 두고 status: failed")
     ap.add_argument("--last-good-as-of", help="실패 회차의 마지막 정상 기준 시각(기본: 지금 파일의 asOf)")
     ap.add_argument("--file", default=str(DEFAULT_FILE), help="대상 파일(기본 src/data/today.ts)")
     ap.add_argument("--dry-run", action="store_true", help="파일을 쓰지 않고 결과만 확인")
     ap.add_argument("--build", action="store_true", help="쓰기 전에 npm run build 까지 검증")
+    ap.add_argument(
+        "--schedule-connected",
+        action="store_true",
+        help="등록된 정기 스케줄러가 넘기는 플래그 — 성공 회차에서만 '자동 확인'으로 전환(수동 실행은 쓰지 않는다)",
+    )
     ap.add_argument("--no-verify", action="store_true", help="Node import 검증 건너뛰기(테스트용)")
     args = ap.parse_args(argv)
 
@@ -533,6 +563,12 @@ def main(argv: list[str] | None = None) -> int:
     if bool(args.input) == bool(args.fail):
         print("--input 또는 --fail 중 하나만 주세요", file=sys.stderr)
         return 2
+
+    schedule_flag = bool(args.schedule_connected)
+    if args.fail and schedule_flag:
+        # 실패 회차에 연결 플래그가 와도 켜지 않는다 — 무시했다는 사실을 조용히 넘기지 않는다
+        print("안내: 실패 회차(--fail)이므로 --schedule-connected 를 무시합니다 — 연결 표시는 그대로 둡니다", file=sys.stderr)
+        schedule_flag = False
 
     if args.fail:
         payload: dict = {"status": "failed", "reason": args.fail}
@@ -547,7 +583,7 @@ def main(argv: list[str] | None = None) -> int:
 
     original = target.read_text(encoding="utf-8")
     try:
-        updated, plan = update_text(original, payload)
+        updated, plan = update_text(original, payload, schedule_connected=schedule_flag)
     except UpdateError as exc:
         print(f"거부: {exc}", file=sys.stderr)
         return 1
@@ -558,7 +594,10 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.dry_run:
         changed = sum(1 for a, b in zip(original.splitlines(), updated.splitlines()) if a != b)
-        print(f"미리보기 — {changed}줄이 바뀝니다 (status={plan['status']}, asOf={plan['asOf']})")
+        print(
+            f"미리보기 — {changed}줄이 바뀝니다 (status={plan['status']}, asOf={plan['asOf']}, "
+            f"scheduleConnected={str(plan['scheduleConnected']).lower()})"
+        )
         return 0
 
     tmp = target.with_name(f"{target.stem}.candidate{target.suffix}")
@@ -575,7 +614,10 @@ def main(argv: list[str] | None = None) -> int:
                 except UpdateError:
                     target.write_text(original, encoding="utf-8")
                     raise
-                print(f"갱신 완료 + build 통과 — {target} (status={plan['status']}, asOf={plan['asOf']})")
+                print(
+                    f"갱신 완료 + build 통과 — {target} (status={plan['status']}, asOf={plan['asOf']}, "
+                    f"scheduleConnected={str(plan['scheduleConnected']).lower()})"
+                )
                 return 0
             run_build()
     except UpdateError as exc:
@@ -584,7 +626,10 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     os.replace(tmp, target)
-    print(f"갱신 완료 — {target} (status={plan['status']}, asOf={plan['asOf']})")
+    print(
+        f"갱신 완료 — {target} (status={plan['status']}, asOf={plan['asOf']}, "
+        f"scheduleConnected={str(plan['scheduleConnected']).lower()})"
+    )
     return 0
 
 
