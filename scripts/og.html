@@ -10,144 +10,74 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" />
     <style>
       * { margin: 0; padding: 0; box-sizing: border-box; }
+      /* v7.9.0 — 확정 공식 로고(밝은 바탕 영문)를 중심으로 한 기본 OG 카드 */
       body {
         width: 1200px;
         height: 630px;
         position: relative;
         overflow: hidden;
-        background-color: #04101a;
+        background-color: #faf7ef;
         background-image:
-          radial-gradient(70% 60% at 50% 46%, #10514c 0%, rgba(4, 16, 26, 0) 66%),
-          radial-gradient(80% 62% at 88% 2%, #123b52 0%, rgba(4, 16, 26, 0) 58%),
-          linear-gradient(158deg, #05141f 0%, #04101a 46%, #020a12 100%);
-        color: #ffffff;
-        font-family: "Pretendard Variable", Pretendard, -apple-system, "Apple SD Gothic Neo",
-          "Noto Sans KR", sans-serif;
-        padding: 62px 76px 58px;
+          radial-gradient(58% 52% at 50% 0%, #eef2ff 0%, rgba(250, 247, 239, 0) 68%),
+          radial-gradient(40% 40% at 100% 100%, #f2f4ff 0%, rgba(250, 247, 239, 0) 60%);
+        color: #0b1b29;
+        font-family: "Pretendard Variable", Pretendard, -apple-system, "Apple SD Gothic Neo", "Noto Sans KR",
+          sans-serif;
+        padding: 54px 72px 44px;
         display: flex;
         flex-direction: column;
+        align-items: center;
         justify-content: space-between;
         word-break: keep-all;
       }
-      /* 빛 입자 — 장식. 로고는 시안 A(서표·인덱스 탭) 락업만 쓴다 */
-      .dust { position: absolute; inset: 0; pointer-events: none; }
-      .dust i {
-        position: absolute;
-        display: block;
-        border-radius: 999px;
-        background: #7fe3c4;
-        opacity: 0.55;
-        box-shadow: 0 0 8px rgba(127, 227, 196, 0.8);
-      }
-      .rings {
-        position: absolute;
-        left: 50%;
-        top: 52%;
-        width: 560px;
-        height: 560px;
-        margin: -280px 0 0 -280px;
-        border-radius: 999px;
-        border: 1px solid rgba(127, 227, 196, 0.22);
-        pointer-events: none;
-      }
-      .rings::after {
-        content: "";
-        position: absolute;
-        inset: 96px;
-        border-radius: 999px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-      }
-      .top { display: flex; align-items: center; justify-content: space-between; position: relative; }
-      /* 브랜드 록업 — 심볼 = 워드마크의 0.909배(28 : 30.8 비율 유지) */
-      .lockup { display: inline-flex; align-items: center; gap: 13px; color: #faf9f6; }
-      .lockup svg { width: 48px; height: 48px; display: block; }
-      .wordmark {
-        font-family: "Instrument Serif", Georgia, serif;
-        font-size: 52px;
-        line-height: 1;
-        letter-spacing: -0.01em;
-        color: #faf9f6;
-      }
-      .kicker {
-        font-family: ui-monospace, "SF Mono", Menlo, monospace;
-        font-size: 15px;
-        letter-spacing: 0.22em;
-        color: #7fe3c4;
-      }
-      .mid { position: relative; text-align: center; }
-      .line1 {
-        font-size: 22px;
-        font-weight: 600;
-        letter-spacing: -0.005em;
-        color: #c6dbe9;
-      }
+      .bar { position: absolute; left: 0; right: 0; top: 0; height: 6px; background: #1a4ffd; }
+      .logo { height: 122px; margin-top: 44px; display: block; }
+      .mid { text-align: center; margin-top: -26px; }
       .thesis {
-        margin-top: 10px;
-        font-size: 76px;
+        font-size: 64px;
         font-weight: 800;
-        line-height: 1.06;
-        letter-spacing: -0.035em;
-        color: #ffffff;
-        text-shadow: 0 0 60px rgba(127, 227, 196, 0.35);
+        line-height: 1.1;
+        letter-spacing: -0.04em;
+        color: #0b1b29;
+      }
+      .line {
+        margin-top: 18px;
+        font-size: 22px;
+        font-weight: 500;
+        letter-spacing: -0.01em;
+        color: #3f4b57;
       }
       .bottom {
-        position: relative;
+        width: 100%;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        border-top: 1px solid rgba(255, 255, 255, 0.18);
-        padding-top: 18px;
-        font-size: 15px;
-        color: #a9c0d0;
+        border-top: 1px solid #dde3e8;
+        padding-top: 16px;
+        font-size: 18px;
+        color: #55626e;
       }
+      .bottom b { color: #0b1b29; font-weight: 650; }
       .bottom .mono {
         font-family: ui-monospace, "SF Mono", Menlo, monospace;
         letter-spacing: 0.06em;
-        color: #8fa8ba;
+        color: #55626e;
       }
-      .bottom b { color: #ffffff; font-weight: 600; }
     </style>
   </head>
   <body>
-    <div class="dust" id="dust"></div>
-    <div class="rings"></div>
+    <span class="bar"></span>
 
-    <div class="top">
-      <span class="lockup">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M3.9 2H13.9V22L8.9 16.2 3.9 22Z" fill="#faf9f6" />
-          <rect x="13.9" y="5.8" width="6.4" height="2.8" rx="1.4" fill="#7fe3c4" />
-        </svg>
-        <span class="wordmark">buffetkimz</span>
-      </span>
-      <span class="kicker">BRAND · 2026</span>
-    </div>
+    <img class="logo" src="../public/brand/logo-en-light-tr-1920.webp" alt="buffetkimz" />
 
     <div class="mid">
-      <p class="line1">금융 · 투자 · 연금 · 노후 · 보험을 매일 기록합니다</p>
       <p class="thesis">숫자 너머의 기준</p>
+      <p class="line">금융 · 투자 · 연금 · 노후 · 보험 — 매일 기록하고, 기준일과 1차 출처를 함께 남깁니다</p>
     </div>
 
     <div class="bottom">
-      <span><b>기록 · 기준 · 태도</b> — 모든 글에 기준일과 1차 출처</span>
-      <span class="mono">buffetkimz.com · 2026. 11. 19.</span>
+      <span><b>buffetkimz.com</b> — 모든 글과 도구에 기준일·1차 출처</span>
+      <span class="mono">기록 · 기준 · 도구</span>
     </div>
-
-    <script>
-      // 고정된 씨앗으로 같은 그림을 만든다(캡처가 매번 같도록).
-      let s = 20261119;
-      const rnd = () => ((s = (s * 1103515245 + 12345) % 2147483648) / 2147483648);
-      const box = document.getElementById("dust");
-      for (let i = 0; i < 90; i++) {
-        const el = document.createElement("i");
-        const size = 1 + rnd() * 3.4;
-        el.style.width = `${size}px`;
-        el.style.height = `${size}px`;
-        el.style.left = `${rnd() * 100}%`;
-        el.style.top = `${rnd() * 100}%`;
-        el.style.opacity = String(0.16 + rnd() * 0.6);
-        box.appendChild(el);
-      }
-    </script>
   </body>
 </html>

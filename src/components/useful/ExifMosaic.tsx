@@ -227,7 +227,7 @@ export default function ExifMosaic({ compact = false }: { compact?: boolean }) {
     for (const r of regions) applyRegion(ctx, canvas, r);
     if (draft) {
       ctx.save();
-      ctx.strokeStyle = "#146c58";
+      ctx.strokeStyle = "#1a4ffd";
       ctx.lineWidth = Math.max(1.5, canvas.width / 500);
       ctx.setLineDash([6, 4]);
       ctx.strokeRect(draft.x * canvas.width, draft.y * canvas.height, draft.w * canvas.width, draft.h * canvas.height);
@@ -325,7 +325,7 @@ export default function ExifMosaic({ compact = false }: { compact?: boolean }) {
               />
             ) : (
               <>
-                <div className="rounded-xl border border-line bg-[#f6f8f7] p-2">
+                <div className="rounded-xl border border-line bg-[#f7f8fb] p-2">
                   <canvas
                     ref={canvasRef}
                     onPointerDown={onPointerDown}

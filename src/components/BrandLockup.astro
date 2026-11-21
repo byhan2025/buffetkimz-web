@@ -1,34 +1,56 @@
 ---
 /**
- * 브랜드 록업 — 시안 A '서표 · 인덱스 탭' (2026-11-21 확정).
+ * v7.9.0 — 확정 공식 로고 록업 (2026-11-22 사용자 확정).
  *
- *  - 심볼: 24 격자 인라인 SVG. 외부 참조 0건(파일 요청 없음), 낭독 제외(aria-hidden).
- *  - 워드마크: Instrument Serif — 사이트가 이미 쓰는 서체.
- *  - 비율: 심볼 = 워드마크 글자 크기 × 0.909 (28px : 30.8px, 시안 A 1:0.55 균형 비율).
- *  - 색: 먹(잉크 네이비)은 currentColor, 포인트 1색은 라이트 딥그린 / 다크 배경 민트(#7fe3c4).
+ *  · light(기본) : 밝은 바탕 영문 `logo-en-light-tr` — 헤더·푸터·글 하단·검색
+ *  · dark + en   : 어두운 바탕 영문 `logo-en-dark-tr`  — 다크 섹션·필름
+ *  · dark + ko   : 어두운 바탕 국문 `logo-ko-dark-tr`  — 국문 강조 배너·필름 엔딩
  *
- * 글자 크기는 `size`(예: "30.8px")로 넘긴다. 생략하면 부모의 font-size(1em)를 따른다.
+ *  파일은 8K 원본에서 배경색을 되돌려(unpremultiply) 만든 여백 크롭·투명 PNG라
+ *  어떤 바탕 위에 놓아도 크림/흰 테두리나 잘림이 없다. 생성: scripts/make_brand_assets.py
+ *
+ *  높이는 `size`(예: "22px")로 넘기고, 생략하면 CSS의 `--lockup-h`(클래스별 기본값)를 따른다.
+ *  폭은 원본 비율 그대로 — width/height 속성으로 자리를 미리 잡아 흔들림(CLS)을 막는다.
  */
+import { withBase } from "@/config/site";
+
 interface Props {
-  /** 워드마크 글자 크기 — 심볼·간격이 여기에 비례한다 */
+  /** 로고 높이 — 예: "22px". 생략하면 CSS `--lockup-h` */
   size?: string;
-  /** dark: 잉크 네이비 바탕 위에서 종이색 + 민트 */
+  /** light: 밝은 바탕 / dark: 어두운 바탕 */
   tone?: "light" | "dark";
+  /** en: 영문 / ko: 국문(어두운 바탕 전용) */
+  variant?: "en" | "ko";
+  /** srcset 크기 힌트 — 큰 로고를 쓰는 자리에서 넘긴다 */
+  sizes?: string;
   class?: string;
-  /** 화면에 워드마크를 함께 보일지 (심볼만 쓸 때 false) */
-  wordmark?: boolean;
 }
 
-const { size, tone = "light", class: className, wordmark = true } = Astro.props;
+const { size, tone = "light", variant = "en", sizes, class: className } = Astro.props;
+
+const ko = variant === "ko";
+const file = ko ? "logo-ko-dark" : tone === "dark" ? "logo-en-dark" : "logo-en-light";
+/** 크롭 PNG 실제 픽셀 크기 — 비율 계산과 width/height 속성에 쓴다 */
+const [W, H] = ko ? [3332, 921] : tone === "dark" ? [3109, 803] : [3342, 883];
+
+const srcset = [480, 960, 1920]
+  .map((w) => `${withBase(`/brand/${file}-tr-${w}.webp`)} ${w}w`)
+  .join(", ");
+
+const alt = ko ? "버핏킴즈" : "buffetkimz";
 ---
 
 <span
-  class:list={["brand-lockup", tone === "dark" && "is-dark", className]}
-  style={size ? `--lockup-size:${size}` : undefined}
+  class:list={["brand-lockup", className]}
+  style={size ? `--lockup-h:${size}` : undefined}
 >
-  <svg class="brand-lockup__symbol" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-    <path class="brand-lockup__ink" d="M3.9 2H13.9V22L8.9 16.2 3.9 22Z"></path>
-    <rect class="brand-lockup__tab" x="13.9" y="5.8" width="6.4" height="2.8" rx="1.4"></rect>
-  </svg>
-  {wordmark && <span class="brand-lockup__word serif">buffetkimz</span>}
+  <img
+    src={withBase(`/brand/${file}-tr-960.webp`)}
+    srcset={srcset}
+    sizes={sizes ?? "(max-width: 767px) 240px, 420px"}
+    width={W}
+    height={H}
+    alt={alt}
+    decoding="async"
+  />
 </span>

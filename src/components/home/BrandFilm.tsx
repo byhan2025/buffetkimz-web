@@ -38,22 +38,22 @@ const WORDS = [
 const SLOT = 0.46;
 
 /*
- * v5.6 — 손글씨 배너(2026-11-20 확정). 딥블루 바탕은 알파로 지워 두었으므로
- * 어떤 장면 위에 얹어도 사각 테두리 없이 붓글씨만 남는다. 영문 → 한글 순으로 넘긴다.
+ * v7.9.0 — 확정 공식 로고(2026-11-22). 필름은 딥네이비 바탕이므로 다크 로고를 쓴다.
+ *   · 씬5·정적 록업 = 국문(버핏킴즈) · 영문 배너 자리 = 영문(BuffetKimz)
+ *   투명 PNG(원본 크롭)라 어떤 장면 위에도 사각 테두리 없이 얹힌다.
  */
 const SIGN = {
   en: {
-    src: withBase("/brand/buffetkimz-calligraphy-en-1400.webp"),
-    srcSet: `${withBase("/brand/buffetkimz-calligraphy-en-700.webp")} 700w, ${withBase("/brand/buffetkimz-calligraphy-en-1400.webp")} 1400w`,
-    width: 1400,
-    height: 467,
+    src: withBase("/brand/logo-en-dark-tr-1920.webp"),
+    srcSet: `${withBase("/brand/logo-en-dark-tr-480.webp")} 480w, ${withBase("/brand/logo-en-dark-tr-960.webp")} 960w, ${withBase("/brand/logo-en-dark-tr-1920.webp")} 1920w`,
+    width: 3109,
+    height: 803,
   },
   ko: {
-    /* v7.0 — 씬5의 주인공. 1440px 업스케일본까지 물려 큰 화면에서도 붓결이 버틴다. */
-    src: withBase("/brand/buffetkimz-calligraphy-ko-1440.webp"),
-    srcSet: `${withBase("/brand/buffetkimz-calligraphy-ko-360.webp")} 360w, ${withBase("/brand/buffetkimz-calligraphy-ko-720.webp")} 720w, ${withBase("/brand/buffetkimz-calligraphy-ko-1440.webp")} 1440w`,
-    width: 1420,
-    height: 376,
+    src: withBase("/brand/logo-ko-dark-tr-1920.webp"),
+    srcSet: `${withBase("/brand/logo-ko-dark-tr-480.webp")} 480w, ${withBase("/brand/logo-ko-dark-tr-960.webp")} 960w, ${withBase("/brand/logo-ko-dark-tr-1920.webp")} 1920w`,
+    width: 3332,
+    height: 921,
   },
 };
 const SIGN_SIZES = "(max-width: 767px) 88vw, min(72vw, 900px)";
@@ -419,8 +419,8 @@ export default function BrandFilm({ appsHref = "/apps" }: { appsHref?: string })
                 <svg viewBox="0 0 900 330" className="fs3-svg" aria-hidden="true">
                   <defs>
                     <linearGradient id="bkFilmArea" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#38b795" stopOpacity="0.42" />
-                      <stop offset="100%" stopColor="#38b795" stopOpacity="0" />
+                      <stop offset="0%" stopColor="#1a4ffd" stopOpacity="0.42" />
+                      <stop offset="100%" stopColor="#1a4ffd" stopOpacity="0" />
                     </linearGradient>
                   </defs>
                   <g className="fs3-grid" data-fs3-grid>
@@ -583,7 +583,7 @@ export default function BrandFilm({ appsHref = "/apps" }: { appsHref?: string })
               sizes="(max-width: 767px) 84vw, 620px"
               width={SIGN.ko.width}
               height={SIGN.ko.height}
-              alt="버핏킴즈 — 한글 붓글씨 브랜드 배너"
+              alt="버핏킴즈 — 공식 국문 로고"
               decoding="async"
             />
           </p>
@@ -604,7 +604,16 @@ export default function BrandFilm({ appsHref = "/apps" }: { appsHref?: string })
         <div className="film-hud">
           <div className="film-hud-left">
             <p className="film-hud-brand">
-              <span className="film-hud-ko">버핏킴즈</span>
+              <img
+                className="film-hud-logo"
+                src={SIGN.en.src}
+                srcSet={SIGN.en.srcSet}
+                sizes="140px"
+                width={SIGN.en.width}
+                height={SIGN.en.height}
+                alt="버핏킴즈"
+                decoding="async"
+              />
               <span className="film-mono">브랜드 필름</span>
             </p>
             <p className="film-hud-line">숫자를 확인하고, 기록으로 남깁니다</p>
@@ -697,7 +706,7 @@ function buildField2D(canvas: HTMLCanvasElement, stage: HTMLElement) {
 
   const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
   const COUNT = 760;
-  const palette = ["#38b795", "#63b8ff", "#dff2ff", "#1f7a62", "#8ce8cd"];
+  const palette = ["#1a4ffd", "#63b8ff", "#dff2ff", "#1233b8", "#b7c6ff"];
   const gxN = 20;
   const gyN = 11;
 
@@ -842,12 +851,13 @@ function buildField(THREE: any, canvas: HTMLCanvasElement, stage: HTMLElement) {
   const gridPos = new Float32Array(COUNT * 3);
   const pos = new Float32Array(COUNT * 3);
 
+  /* v7.9.0 — 파티클도 확정 로고의 블루 계열로(구 초록/민트 제거) */
   const palette = [
-    [0.22, 0.72, 0.58],
-    [0.38, 0.76, 1.0],
-    [0.86, 0.96, 1.0],
-    [0.12, 0.48, 0.4],
-    [0.55, 0.9, 0.82],
+    [0.10, 0.31, 0.99],
+    [0.38, 0.72, 1.0],
+    [0.87, 0.93, 1.0],
+    [0.07, 0.20, 0.72],
+    [0.55, 0.66, 1.0],
   ];
 
   const gx = 20;

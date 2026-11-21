@@ -171,7 +171,7 @@ export default function PasswordGenerator() {
                   type="checkbox"
                   checked={excludeSimilar}
                   onChange={(e) => setExcludeSimilar(e.target.checked)}
-                  className="h-4 w-4 accent-[#23483a]"
+                  className="h-4 w-4 accent-[#1233b8]"
                 />
                 헷갈리는 글자 빼기 <span className="mono text-[12px] text-ink-faint">I l 1 O 0 o</span>
               </label>

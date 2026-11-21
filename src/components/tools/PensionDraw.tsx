@@ -482,7 +482,7 @@ export default function PensionDraw({ compact = false }: { compact?: boolean }) 
                 ].map((q) => (
                   <li key={q}>
                     <label className="flex min-h-[44px] cursor-pointer items-start gap-2 py-1.5 text-[15px] leading-[1.55] text-ink-soft">
-                      <input type="checkbox" className="mt-1 h-4 w-4 shrink-0 accent-[#146c58]" />
+                      <input type="checkbox" className="mt-1 h-4 w-4 shrink-0 accent-[#1a4ffd]" />
                       <span>{q}</span>
                     </label>
                   </li>

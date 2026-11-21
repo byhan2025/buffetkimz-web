@@ -1,24 +1,45 @@
 /**
- * 브랜드 록업(React) — 1P 브랜드 필름처럼 React 컴포넌트 안에서 쓰는 자리용.
- * 도형·비율·색은 src/components/BrandLockup.astro와 같다(시안 A · 서표/인덱스 탭).
+ * 브랜드 록업(React) — React 컴포넌트 안에서 쓰는 자리용.
+ * v7.9.0 — 확정 공식 로고(2026-11-22) 이미지를 그대로 쓴다.
+ * 파일·비율은 `src/components/BrandLockup.astro`와 같다.
  */
+import { withBase } from "@/config/site";
+
 type Props = {
   tone?: "light" | "dark";
+  /** en: 영문 / ko: 국문(어두운 바탕 전용) */
+  variant?: "en" | "ko";
   className?: string;
-  /** 워드마크 글자 크기. 생략하면 부모 font-size(1em)를 따른다 */
-  size?: string;
-  wordmark?: boolean;
+  /** 로고 높이(CSS) — 예: "20px" */
+  height?: string;
+  sizes?: string;
 };
 
-export default function BrandMark({ tone = "dark", className = "", size, wordmark = true }: Props) {
-  const style = size ? ({ "--lockup-size": size } as React.CSSProperties) : undefined;
+export default function BrandMark({
+  tone = "dark",
+  variant = "en",
+  className = "",
+  height = "22px",
+  sizes = "(max-width: 767px) 240px, 420px",
+}: Props) {
+  const ko = variant === "ko";
+  const file = ko ? "logo-ko-dark" : tone === "dark" ? "logo-en-dark" : "logo-en-light";
+  const [W, H] = ko ? [3332, 921] : tone === "dark" ? [3109, 803] : [3342, 883];
+  const srcset = [480, 960, 1920]
+    .map((w) => `${withBase(`/brand/${file}-tr-${w}.webp`)} ${w}w`)
+    .join(", ");
+
   return (
-    <span className={`brand-lockup${tone === "dark" ? " is-dark" : ""}${className ? ` ${className}` : ""}`} style={style}>
-      <svg className="brand-lockup__symbol" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-        <path className="brand-lockup__ink" d="M3.9 2H13.9V22L8.9 16.2 3.9 22Z" />
-        <rect className="brand-lockup__tab" x="13.9" y="5.8" width="6.4" height="2.8" rx="1.4" />
-      </svg>
-      {wordmark && <span className="brand-lockup__word serif">buffetkimz</span>}
+    <span className={`brand-lockup${className ? ` ${className}` : ""}`} style={{ "--lockup-h": height } as React.CSSProperties}>
+      <img
+        src={withBase(`/brand/${file}-tr-960.webp`)}
+        srcSet={srcset}
+        sizes={sizes}
+        width={W}
+        height={H}
+        alt={ko ? "버핏킴즈" : "buffetkimz"}
+        decoding="async"
+      />
     </span>
   );
 }

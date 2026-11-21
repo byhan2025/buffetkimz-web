@@ -172,7 +172,7 @@ export default function TextCounter() {
                 type="checkbox"
                 checked={numbering}
                 onChange={(e) => setNumbering(e.target.checked)}
-                className="h-4 w-4 accent-[#23483a]"
+                className="h-4 w-4 accent-[#1233b8]"
               />
               각 편에 <span className="mono">1/4</span> 번호 붙이기 (번호 자리만큼 5자 확보)
             </label>

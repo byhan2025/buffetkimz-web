@@ -228,7 +228,7 @@ export default function PrivacyMasker() {
                 type="checkbox"
                 checked={showOriginal}
                 onChange={(e) => setShowOriginal(e.target.checked)}
-                className="h-4 w-4 accent-[#23483a]"
+                className="h-4 w-4 accent-[#1233b8]"
               />
             </label>
             {showOriginal && (

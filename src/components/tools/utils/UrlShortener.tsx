@@ -218,7 +218,7 @@ export default function UrlShortener() {
             type="checkbox"
             checked={dropTracking}
             onChange={(e) => setDropTracking(e.target.checked)}
-            className="h-4 w-4 accent-[#146c58]"
+            className="h-4 w-4 accent-[#1a4ffd]"
           />
           추적 파라미터(utm_*·fbclid 등) 떼기
         </label>

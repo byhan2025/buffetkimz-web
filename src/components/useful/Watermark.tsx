@@ -34,7 +34,7 @@ const POSITIONS: { value: Position; label: string }[] = [
   { value: "tile", label: "타일 반복" },
 ];
 
-const SWATCHES = ["#ffffff", "#0b1b29", "#146c58", "#a85a3b", "#f2d98d"];
+const SWATCHES = ["#ffffff", "#0b1b29", "#1a4ffd", "#a85a3b", "#f2d98d"];
 
 export default function Watermark({ compact = false }: { compact?: boolean }) {
   const [file, setFile] = useState<File | null>(null);

@@ -30,7 +30,7 @@ const LEVEL_LABEL: Record<Level, string> = {
   H: "H · 30% 복원 (로고 넣을 때)",
 };
 
-const PRESET_COLORS = ["#0b1b29", "#0e5344", "#146c58", "#a85a3b", "#ffffff"];
+const PRESET_COLORS = ["#0b1b29", "#1233b8", "#1a4ffd", "#a85a3b", "#ffffff"];
 
 /** 모듈 행렬 → SVG path. 가로로 이어진 칸은 한 번에 그려 path 길이를 줄인다. */
 function matrixToPath(size: number, data: Uint8Array, offset: number): string {

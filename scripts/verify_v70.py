@@ -8,7 +8,7 @@
   C. 방어적 표현 0 — 비영업 / 권하지 않습니다 / 저장 0건 / 중개 아님 / 가입 권유 (주요 페이지 본문)
   D. 앱스토어 — 카테고리 탭 4(전체·금융투자앱·보험앱·유용한앱) · 섹션 3 · 카드 10 · 검색 동작
   E. 홈 — 마켓보드 12지표(핵심 6 + 그 밖 6) · D-Day 3 · 시뮬레이터 3 · 브리핑 탭 3
-  F. 브랜드 필름 — 씬5에 한글 캘리그라피만(영문 워드마크 없음) · 정지 컷 대응
+  F. 브랜드 필름 — 씬5에 확정 국문 로고만(영문 워드마크 없음) · 정지 컷 대응
   G. 소개 — 히어로 · 고민 칩 4 · 클릭 결과 · 전문 영역 탭 3 · 브랜드 쇼케이스
   H. 캡처 — reports/buffetkimz-web/v70-portal/{home-1280,home-390,about-1280,about-390,apps-1280,film-scene5-1280}.png
 
@@ -125,8 +125,8 @@ FILM_JS = """() => {
   const s5 = document.querySelector('[data-scene="5"]');
   const imgs = s5 ? [...s5.querySelectorAll('img')] : [];
   return {
-    ko: imgs.filter(i => i.getAttribute('src') && i.getAttribute('src').includes('calligraphy-ko')).length,
-    en: imgs.filter(i => i.getAttribute('src') && i.getAttribute('src').includes('calligraphy-en')).length,
+    ko: imgs.filter(i => i.getAttribute('src') && i.getAttribute('src').includes('logo-ko-dark-tr')).length,
+    en: imgs.filter(i => i.getAttribute('src') && i.getAttribute('src').includes('logo-en-dark-tr')).length,
     text: s5 ? s5.innerText.replace(/\\s+/g,' ').trim() : '',
     hasMark: s5 ? !!s5.querySelector('.fs5-mark') : true,
     state: document.querySelector('[data-film]')?.dataset.filmState ?? '',

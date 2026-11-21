@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import SearchApp from "./SearchApp";
+import { withBase } from "@/config/site";
 
 /**
  * 헤더의 검색 버튼 + 전체 화면 검색 오버레이.
@@ -79,7 +80,14 @@ export default function HeaderSearch() {
           >
             <div className="wrap pb-16 pt-4">
               <div className="flex items-center justify-between border-b border-ink pb-3">
-                <span className="serif text-[21px] tracking-[-0.01em] text-ink">buffetkimz</span>
+                <img
+                  src={withBase("/brand/logo-en-light-tr-480.webp")}
+                  width={3342}
+                  height={883}
+                  alt="buffetkimz"
+                  className="h-[26px] w-auto"
+                  decoding="async"
+                />
                 <button
                   ref={closeRef}
                   type="button"

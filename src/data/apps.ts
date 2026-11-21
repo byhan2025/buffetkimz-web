@@ -42,7 +42,7 @@ export const APP_CATEGORIES: AppCategory[] = [
     label: "금융투자앱",
     en: "FINANCE · INVEST",
     blurb: "금리·세금·연금·수익률을 내 숫자로 계산하는 금융·투자 도구입니다.",
-    tone: ["#0e5344", "#146c58"],
+    tone: ["#1233b8", "#1a4ffd"],
     icon: "chart",
   },
   {

@@ -9,6 +9,7 @@
  * 개인 신상(가족·직장·소속)은 쓰지 않는다. 확인한 방식과 다루는 범위만 적는다.
  */
 import { site } from "@/config/site";
+import BrandLockup from "@/components/BrandLockup.astro";
 
 const identities = [
   {
@@ -167,7 +168,7 @@ const principles = [
         </div>
         <p class="mt-5 flex items-baseline gap-3 border-t border-line-soft pt-4">
           <span class="text-[12px] text-ink-faint">기록하는 사람</span>
-          <span class="serif text-[24px] leading-none text-ink">buffetkimz</span>
+          <BrandLockup size="22px" />
           <span class="mono ml-auto text-[12px] text-ink-faint">{site.baseDateLabel}</span>
         </p>
       </div>

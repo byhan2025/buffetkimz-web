@@ -135,7 +135,7 @@ export function Toggle({ label, description, checked, onChange }: ToggleProps) {
         type="checkbox"
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
-        className="mt-0.5 h-4 w-4 shrink-0 accent-[#23483a]"
+        className="mt-0.5 h-4 w-4 shrink-0 accent-[#1233b8]"
       />
       <span>
         <span className="block text-[13px] font-semibold leading-snug text-ink">{label}</span>

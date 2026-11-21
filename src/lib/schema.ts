@@ -32,7 +32,7 @@ export function sameAs(): string[] {
   return Array.from(new Set(list));
 }
 
-/** 조직 — publisher 로 글마다 @id 참조된다. 로고는 OG 카드(1200×630)를 쓴다. */
+/** 조직 — publisher 로 글마다 @id 참조된다. 로고는 확정 심볼 앱 아이콘(512×512)을 쓴다. */
 export function organizationNode() {
   return {
     "@type": "Organization",
@@ -42,9 +42,9 @@ export function organizationNode() {
     description: site.description,
     logo: {
       "@type": "ImageObject",
-      url: absolute("/og.png"),
-      width: 1200,
-      height: 630,
+      url: absolute("/icon-512.png"),
+      width: 512,
+      height: 512,
     },
     ...(sameAs().length ? { sameAs: sameAs() } : {}),
   };

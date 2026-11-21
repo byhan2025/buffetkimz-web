@@ -538,7 +538,7 @@ export default function ImageUpscale() {
                     setSharpen(e.target.checked);
                     setResult(null);
                   }}
-                  className="h-4 w-4 accent-[#146c58]"
+                  className="h-4 w-4 accent-[#1a4ffd]"
                 />
                 경계 선명화
               </label>
