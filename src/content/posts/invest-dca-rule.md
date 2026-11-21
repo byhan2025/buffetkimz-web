@@ -2,15 +2,41 @@
 title: "적립식이 유리한 이유는 수익률이 아니라 '실수 횟수'에 있다"
 category: "invest"
 description: "거치식과 적립식의 차이는 기대수익률이 아니라, 판단을 몇 번 하는가에 있습니다. 배분과 리밸런싱 규칙을 먼저 정하는 이유를 정리했습니다."
+summary: "거치식과 적립식의 차이는 기대수익률이 아니라 판단을 몇 번 하는가에 있습니다. 손실 한도 → 계좌 배분 → 자산 배분 → 납입·리밸런싱 규칙 순으로 정하면 상품 선택은 마지막에 남습니다."
 thumb: "/thumbs/invest-dca-rule.webp"
+thumbAlt: "같은 높이로 놓인 동전 다섯 무더기 — 매달 같은 금액을 나눠 넣는 적립의 모양"
 question: "매달 사는 게 정말 유리할까"
 publishedAt: 2026-11-15
+baseDate: 2026-11-21
 readingMinutes: 8
 series:
   name: "내 돈 체크"
   no: 1
 app: "pension-tax"
 tags: ["적립식", "리밸런싱", "자산배분"]
+compare:
+  title: "거치식 vs 적립식"
+  asOfLabel: "금융투자협회 공시·투자설명서 · 기준 2026. 11. 21."
+  a:
+    label: "거치식"
+    points:
+      - "판단이 한 번입니다"
+      - "그 한 번이 틀리면 되돌릴 기회가 없습니다"
+      - "고점에 넣은 뒤에는 계좌를 열어 보지 않게 됩니다"
+  b:
+    label: "적립식"
+    points:
+      - "판단이 여러 번이지만 매번의 금액이 작습니다"
+      - "한 번의 실수가 전체를 무너뜨리지 않습니다"
+      - "하락장이 평균단가를 낮추는 구간이 됩니다"
+  note: "적립식의 값은 기대수익률을 높이는 데 있지 않고, 규칙을 오래 유지하게 만드는 데 있습니다."
+  toolHref: "/apps/compound-return/run"
+  toolLabel: "복리·세후 수익률 계산"
+  sources:
+    - label: "금융투자협회 공시 및 투자설명서"
+      url: "https://dis.kofia.or.kr"
+    - label: "소득세법 제59조의3(연금계좌 세액공제)"
+      url: "https://www.law.go.kr"
 sources:
   - label: "금융투자협회 공시 및 투자설명서"
     url: "https://dis.kofia.or.kr"

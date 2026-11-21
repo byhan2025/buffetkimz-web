@@ -32,8 +32,8 @@ function earnedIncomeDeduction(gross: number): number {
   let d: number;
   if (gross <= 500 * MAN) d = gross * 0.7;
   else if (gross <= 1500 * MAN) d = 350 * MAN + (gross - 500 * MAN) * 0.4;
-  else if (gross <= 4500 * MAN) d = 850 * MAN + (gross - 1500 * MAN) * 0.15;
-  else if (gross <= 10000 * MAN) d = 1300 * MAN + (gross - 4500 * MAN) * 0.05;
+  else if (gross <= 4500 * MAN) d = 750 * MAN + (gross - 1500 * MAN) * 0.15;
+  else if (gross <= 10000 * MAN) d = 1200 * MAN + (gross - 4500 * MAN) * 0.05;
   else d = 1475 * MAN + (gross - 10000 * MAN) * 0.02;
   return Math.min(d, 2000 * MAN);
 }

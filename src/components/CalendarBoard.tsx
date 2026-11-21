@@ -161,8 +161,10 @@ export default function CalendarBoard({ items, initialMonth, note, todayIso }: P
       {/* 목록 */}
       <div id="calendar-panel" role="tabpanel" className="mt-3">
         {monthItems.length === 0 ? (
-          <p className="border-t border-line py-12 text-center text-[13px] text-ink-faint">
+          <p className="border-t border-line py-12 text-center text-[13px] leading-[1.7] text-ink-faint">
             이 달에는 선택한 분류의 일정이 없습니다.
+            <br />
+            분류를 <strong className="font-semibold text-ink-soft">전체</strong>로 바꾸거나 다른 달을 골라 보세요.
           </p>
         ) : (
           <ul className="border-t border-ink">

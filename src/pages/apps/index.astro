@@ -15,7 +15,7 @@ import AdSlot from "@/components/AdSlot.astro";
 import HomePill from "@/components/HomePill.astro";
 import AppStoreIcon from "@/components/apps/AppStoreIcon.astro";
 import { withBase, site, menuLabel } from "@/config/site";
-import { APP_CATEGORIES } from "@/data/apps";
+import { APP_CATEGORIES, apps } from "@/data/apps";
 import { categoryCount, storeByCategory, storeById, storeCount } from "@/data/store";
 import { breadcrumbList, graph, pageUrl, partOfWebsite } from "@/lib/schema";
 
@@ -84,6 +84,9 @@ const jsonLd = graph([
         <p class="store-lede">
           금융·투자·연금·재무 계산부터 사진·문서 도구까지 {storeCount}종. 카테고리에서 골라
           설치 없이 바로 열고, 모든 결과에 기준일과 출처를 함께 봅니다.
+        </p>
+        <p class="store-lede-note">
+          {storeCount}종 = 계산·도구 {apps.length}종 + 금융 일정 달력 + 자료앨범(내려받기 전용).
         </p>
 
         <ul class="store-hero-chips hidden sm:flex" data-store-summary>

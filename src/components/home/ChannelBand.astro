@@ -15,13 +15,13 @@ import { channels, confirmedLinks } from "@/data/channels";
   <div class="wrap py-10 md:py-14">
     <div class="sec-head">
       <div>
-        <p class="eyebrow">소식 · SNS {channels.length}곳</p>
+        <p class="eyebrow">소식 · SNS · 확인된 링크 {confirmedLinks.length}곳</p>
         <h2 class="sec-title">짧은 소식은 각 채널에서,<br />기록은 이곳에</h2>
       </div>
       <div class="sec-head-side">
         <p class="sec-desc">
           긴 글과 기록은 이곳에 남깁니다. 짧은 소식은 각 채널에서 만나요.<br />
-          확정된 주소부터 순차적으로 연결합니다.
+          주소가 확인된 채널부터 열고, 확인 전에는 이름만 적어 둡니다(아래 {channels.length}곳).
         </p>
       </div>
     </div>

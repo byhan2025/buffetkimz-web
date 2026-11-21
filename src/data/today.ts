@@ -79,8 +79,8 @@ export type TodayItem = {
   basis?: string;
 };
 
-/** 30초 요약 3줄 — 각 줄에 기준 표기를 붙인다. */
-export type Highlight = { text: string; meta: string };
+/** 30초 요약 3줄 — 각 줄에 기준 표기를 붙이고, 1차 출처가 있으면 링크를 함께 둔다. */
+export type Highlight = { text: string; meta: string; sourceUrl?: string };
 
 /**
  * AI 요약 — label·asOf·sourceUrl이 모두 있어야 화면에 그린다.
@@ -157,8 +157,9 @@ export const today: TodayData = {
       meta: "마감 11. 21. 06:00",
     },
     {
-      text: "한국 연간 수출 1조 달러 달성 — 세계 4번째, 11월 23일 실손 전환 시행",
-      meta: "11. 21. · 산업통상부·금융위",
+      text: "한국 연간 수출 1조 달러 달성 — 독일·미국·중국에 이어 세계 4번째 국가",
+      meta: "산업통상부 2026. 11. 19.",
+      sourceUrl: "https://www.motir.go.kr/kor/article/ATCL03465409b/171860/view",
     },
   ],
 
@@ -175,7 +176,7 @@ export const today: TodayData = {
       sourceUrl: "https://www.yna.co.kr/view/AKR20261120137600008",
       basis: "267.93포인트 내림 · 매도 사이드카 발동",
       group: "kr",
-      series: [5220, 5188, 5240, 5196, 5150, 5172, 5104, 5060, 5012, 4990, 4940, 4869.96],
+      series: [5220, 5188, 5240, 5196, 5150, 5172, 5104, 5060, 5012, 5010, 5137.49, 4869.96],
     },
     {
       id: "kosdaq",
@@ -189,7 +190,7 @@ export const today: TodayData = {
       sourceUrl: "https://www.yna.co.kr/view/AKR20261120137600008",
       basis: "39.13포인트 내림 · 매도 사이드카 발동",
       group: "kr",
-      series: [706, 700, 712, 705, 698, 690, 684, 676, 668, 660, 652, 645.68],
+      series: [706, 700, 712, 705, 698, 690, 684, 676, 668, 670, 684.79, 645.68],
     },
     {
       id: "usdkrw",
@@ -203,7 +204,7 @@ export const today: TodayData = {
       sourceUrl: "https://finance.naver.com/marketindex/",
       basis: "하나은행 고시 매매기준율 · 직전 고시 1,330.00원 대비 6.20원",
       group: "kr",
-      series: [1322, 1328, 1325, 1330, 1336, 1339, 1334, 1338, 1341, 1339, 1332, 1336.2],
+      series: [1322, 1328, 1325, 1330, 1336, 1339, 1334, 1338, 1341, 1339, 1330.0, 1336.2],
     },
     {
       id: "sp500",
@@ -217,7 +218,7 @@ export const today: TodayData = {
       sourceUrl: "https://www.cnbc.com/2026/11/19/stock-market-today-live-updates.html",
       basis: "265.44포인트 내림 · 7거래일 연속 하락",
       group: "global",
-      series: [7420, 7455, 7480, 7440, 7398, 7412, 7350, 7280, 7200, 7105, 7010, 6910.39],
+      series: [7420, 7455, 7480, 7440, 7398, 7412, 7350, 7280, 7200, 7280, 7175.9, 6910.39],
     },
     {
       id: "nasdaq",
@@ -231,7 +232,7 @@ export const today: TodayData = {
       sourceUrl: "https://www.cnbc.com/2026/11/19/stock-market-today-live-updates.html",
       basis: "1,261.47포인트 내림 · 연간 상승분 반납",
       group: "global",
-      series: [24150, 24300, 24420, 24260, 24080, 23900, 23550, 23180, 22900, 22660, 22390, 22617.73],
+      series: [24150, 24300, 24420, 24260, 24080, 23900, 23550, 23180, 22900, 23250, 23878.6, 22617.73],
     },
     {
       id: "vix",
@@ -245,7 +246,7 @@ export const today: TodayData = {
       sourceUrl: "https://www.cnbc.com/2026/11/19/stock-market-today-live-updates.html",
       basis: "공포지수 · 전일 대비 7.45포인트 상승",
       group: "global",
-      series: [18.2, 18.8, 19.4, 20.1, 21.6, 23.0, 24.4, 26.8, 29.5, 32.1, 34.2, 35.89],
+      series: [18.2, 18.8, 19.4, 20.1, 21.6, 23.0, 24.4, 26.8, 29.5, 30.2, 28.44, 35.89],
     },
     {
       id: "us10y",
@@ -259,7 +260,7 @@ export const today: TodayData = {
       sourceUrl: "https://www.cnbc.com/2026/11/19/stock-market-today-live-updates.html",
       basis: "전일 5.049% 대비 14bp 하락",
       group: "rates",
-      series: [5.22, 5.18, 5.2, 5.16, 5.12, 5.14, 5.1, 5.08, 5.05, 5.02, 4.97, 4.909],
+      series: [5.22, 5.18, 5.2, 5.16, 5.12, 5.14, 5.1, 5.08, 5.05, 5.03, 5.049, 4.909],
     },
     {
       id: "ktb3y",
@@ -273,7 +274,7 @@ export const today: TodayData = {
       sourceUrl: "https://www.kofiabond.or.kr/",
       basis: "전일 3.716% 대비 7.4bp 하락",
       group: "rates",
-      series: [3.86, 3.84, 3.85, 3.82, 3.8, 3.78, 3.76, 3.77, 3.74, 3.72, 3.7, 3.642],
+      series: [3.86, 3.84, 3.85, 3.82, 3.8, 3.78, 3.76, 3.77, 3.74, 3.73, 3.716, 3.642],
     },
     {
       id: "ktb10y",
@@ -287,7 +288,7 @@ export const today: TodayData = {
       sourceUrl: "https://www.kofiabond.or.kr/",
       basis: "전일 3.942% 대비 8.5bp 하락",
       group: "rates",
-      series: [4.06, 4.04, 4.05, 4.02, 4.0, 3.98, 3.96, 3.97, 3.94, 3.92, 3.9, 3.857],
+      series: [4.06, 4.04, 4.05, 4.02, 4.0, 3.98, 3.96, 3.97, 3.94, 3.955, 3.942, 3.857],
     },
     {
       id: "base-rate",
@@ -313,7 +314,7 @@ export const today: TodayData = {
       why: "1세대 계약자는 전환하면 월 17만 6,982원이 2만 1,620원이 됩니다(연 212만 4,000원 → 25만 9,000원, 60대 여성·6개 손보사 예시).",
       points: [
         "무엇이 — 5세대로 바꾸면 3년간 5세대 보험료의 50% 할인, 계약을 그대로 두면 고른 항목만 빼고 최대 37% 할인",
-        "언제까지 — 신청은 2027년 5월 22일까지. 청약철회는 전환 후 3개월은 조건 없이, 3~6개월은 보험사고가 없을 때만 할 수 있습니다",
+        "언제까지 — 계약전환 할인 신청은 2027년 5월 22일까지, 선택형 할인 특약은 기한 없음. 청약철회는 전환 후 3개월은 조건 없이, 3~6개월은 보험사고가 없을 때만 할 수 있습니다",
         "누구에게 — 2013년 3월 이전 가입·재가입 조건이 없는 실손 계약",
       ],
       publishedAt: "2026-11-19",
@@ -353,7 +354,7 @@ export const today: TodayData = {
       id: "pension-limit-2026",
       kind: "일정",
       title: "12월 31일까지 넣은 연금저축·IRP만 올해 세액공제를 받습니다",
-      why: "900만원을 채우면 최대 148만 5,000원(공제율 16.5%, 지방소득세 포함)을 돌려받습니다. 1,000만원을 넣어도 공제는 900만원까지입니다.",
+      why: "900만원을 채우면 최대 148만 5,000원(공제율 16.5%, 지방소득세 포함)만큼 세금이 줄어듭니다. 1,000만원을 넣어도 공제는 900만원까지입니다.",
       points: [
         "무엇이 — 연금저축 600만원, IRP를 합쳐 900만원까지 공제 대상입니다",
         "누구에게 — 총급여에 따라 공제율이 16.5%와 13.2%로 갈립니다",
@@ -367,7 +368,7 @@ export const today: TodayData = {
       sourceLabel: "소득세법 제59조의3 (연금계좌세액공제)",
       sourceUrl: "https://www.law.go.kr/LSW/lsLinkCommonInfo.do?lsJoLnkSeq=1032880515",
       dueDate: "2026-12-31",
-      basis: "세액공제는 산출세액에서 빼는 방식이라, 세액이 적은 해에는 한도만큼 돌려받지 못합니다",
+      basis: "세액공제는 산출세액에서 빼는 방식이라, 세액이 적은 해에는 한도만큼 세금이 줄지 않습니다",
     },
   ],
 
@@ -379,7 +380,6 @@ export const today: TodayData = {
     sourceUrl: "https://www.yna.co.kr/view/AKR20261121009252072",
     lines: [
       "미국과 한국 증시가 AI·반도체 투매로 동반 5%대 급락했습니다. 위험회피로 국고채 금리는 내리고 원/달러는 올랐습니다.",
-      "한국은 연간 수출 1조 달러를 달성해 세계 4번째 국가가 됐습니다.",
       "11월 23일(월)부터 1·2세대 실손 계약전환(3년 50% 할인)과 선택형 할인이 시행됩니다.",
     ],
     note: "AI가 정리한 요약이며 원문과 다를 수 있습니다. 판단의 근거는 원문 출처로 확인하세요.",

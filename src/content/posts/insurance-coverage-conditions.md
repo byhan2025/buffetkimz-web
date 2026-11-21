@@ -2,15 +2,41 @@
 title: "보장은 '가입금액'이 아니라 '지급 조건'에서 갈린다"
 category: "insurance"
 description: "암 진단비 1,000만원과 5,000만원은 같은 이름의 담보지만 역할이 다릅니다. 5대 담보를 볼 때 실제로 확인해야 할 조건을 정리했습니다."
+summary: "같은 이름의 암 진단비라도 지급 트리거·면책·감액·지급 횟수가 다르면 실제로 받는 금액이 달라집니다. 5대 담보는 가입금액보다 조건을 먼저 확인해야 하고, 가입 시점이 보장의 세기를 정합니다."
 thumb: "/thumbs/insurance-coverage-conditions.webp"
+thumbAlt: "돋보기로 펼친 책의 문장을 비춰 보는 장면 — 가입금액이 아니라 지급 조건을 읽는 일"
 question: "같은 암보험인데 왜 한쪽만 나올까"
 publishedAt: 2026-11-13
+baseDate: 2026-11-21
 readingMinutes: 9
 series:
   name: "약관 해독"
   no: 1
 app: "coverage-check"
 tags: ["보장분석", "5대 담보", "감액기간"]
+compare:
+  title: "가입금액만 볼 때 vs 지급 조건까지 볼 때"
+  asOfLabel: "보험업감독규정·표준약관 · 기준 2026. 11. 21."
+  a:
+    label: "가입금액만 볼 때"
+    points:
+      - "암이 3,000만원인지 5,000만원인지만 비교합니다"
+      - "이름이 같은 담보를 같은 보장으로 봅니다"
+      - "면책·감액 기간과 지급 횟수를 놓칩니다"
+  b:
+    label: "지급 조건까지 볼 때"
+    points:
+      - "진단 확정 기준과 유사암·소액암 구분을 봅니다"
+      - "가입 후 90일 면책과 감액 기간을 확인합니다"
+      - "질병·상해 수술비가 따로 있는지 봅니다"
+  note: "금액은 늘릴 수 있지만 조건이 없는 담보는 새로 들어야 하고, 새로 들면 면책·감액 기간이 다시 시작됩니다."
+  toolHref: "/apps/coverage-check/run"
+  toolLabel: "보장 점검 열기"
+  sources:
+    - label: "보험업감독규정 및 표준약관(생명·손해보험협회 공시)"
+      url: "https://www.knia.or.kr"
+    - label: "금융감독원 보험 소비자 안내(보험금 지급 조건)"
+      url: "https://www.fss.or.kr"
 sources:
   - label: "보험업감독규정 및 표준약관(생명·손해보험협회 공시)"
     url: "https://www.knia.or.kr"

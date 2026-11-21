@@ -135,7 +135,9 @@ const ddayClass: Record<string, string> = {
         <a href="#mod-money" data-mod="money">
           <span class="hub-modgrid-no mono">02</span>
           <span class="hub-modgrid-name">돈의 일정</span>
-          <span class="hub-modgrid-note">D-2 · D-9 · D-40</span>
+          <span class="hub-modgrid-note">
+            {items.filter((i) => i.dday).map((i) => (i.dday as NonNullable<typeof i.dday>).label).join(" · ") || "기한 3건"}
+          </span>
         </a>
       </li>
       <li>
@@ -177,7 +179,20 @@ const ddayClass: Record<string, string> = {
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <span class="hub-brief-text">{h.text}</span>
-                <span class="hub-brief-meta mono">{h.meta}</span>
+                <span class="hub-brief-meta mono">
+                  {h.meta}
+                  {h.sourceUrl && (
+                    <a
+                      class="hub-brief-src"
+                      href={h.sourceUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`${h.text} — 1차 출처 열기`}
+                    >
+                      원문
+                    </a>
+                  )}
+                </span>
               </li>
             ))
           }

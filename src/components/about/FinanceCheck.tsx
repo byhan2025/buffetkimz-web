@@ -31,7 +31,16 @@ type Rec = {
   /** 고민에 맞춘 안내 문장 — 두 문장 */
   consult: string[];
   apps: { name: string; href: string; note: string }[];
-  post: { title: string; href: string };
+  /**
+   * 추천 글 — href가 진실이고, title은 글 컬렉션에서 온 값으로 덮인다.
+   * (손으로 적은 제목과 실제 글 제목이 갈라지지 않게 한다)
+   */
+  post: { href: string; title: string };
+};
+
+export type FinanceCheckProps = {
+  /** postPath('/posts/…') → 실제 글 제목. 소개 페이지가 컬렉션에서 만들어 넘긴다. */
+  postTitles?: Record<string, string>;
 };
 
 const RECS: Record<Interest, Rec> = {
@@ -44,7 +53,7 @@ const RECS: Record<Interest, Rec> = {
       { name: "은퇴 월 현금흐름 시뮬레이터", href: "/apps/retirement-flow/run", note: "은퇴 시점 월 수령액을 명목과 오늘 가치로" },
       { name: "연금 인출·세금 시뮬레이터", href: "/apps/pension-draw/run", note: "1,500만 원 경계, 종합과세와 분리과세 비교" },
     ],
-    post: { title: "연금은 넣는 순서보다 받는 순서가 어렵습니다", href: "/posts/pension-tax-order" },
+    post: { title: "인출 순서 4단계와 연 1,500만 원 — 3.3~5.5% 저율과세 지키는 법", href: "/posts/pension-master-05-draw-1500" },
   },
   invest: {
     consult: [
@@ -55,7 +64,7 @@ const RECS: Record<Interest, Rec> = {
       { name: "투자 복리·세후 수익률 계산기", href: "/apps/compound-return/run", note: "일반·ISA·연금저축 과세 방식 비교" },
       { name: "한국형 타임머신", href: "/apps/trade-timemachine", note: "계획을 과거 봉에 1만 번 다시 걸어 보기" },
     ],
-    post: { title: "적립식 투자에서 먼저 정할 것은 금액이 아닙니다", href: "/posts/invest-dca-rule" },
+    post: { title: "적립식이 유리한 이유는 수익률이 아니라 '실수 횟수'에 있다", href: "/posts/invest-dca-rule" },
   },
   tax: {
     consult: [
@@ -66,7 +75,7 @@ const RECS: Record<Interest, Rec> = {
       { name: "연금저축·IRP 세액공제 계산기", href: "/apps/pension-tax/run", note: "올해 남은 한도와 12월 전 채울 금액" },
       { name: "연금 인출·세금 시뮬레이터", href: "/apps/pension-draw/run", note: "받을 때의 세금까지 이어서" },
     ],
-    post: { title: "12월 31일 전에 확인할 연금계좌 순서", href: "/posts/pension-tax-order" },
+    post: { title: "연금저축 900만원보다 먼저 계산해야 할 것", href: "/posts/pension-tax-order" },
   },
   risk: {
     consult: [
@@ -77,7 +86,7 @@ const RECS: Record<Interest, Rec> = {
       { name: "실손 세대별 비교기", href: "/apps/silson-compare/run", note: "같은 병원비로 4·5세대 환급액 비교" },
       { name: "보장 점검 시뮬레이터", href: "/apps/coverage-check/run", note: "5대 담보를 연령대 기준점과 나란히" },
     ],
-    post: { title: "보험료가 낮아진 대신 무엇이 올라갔나", href: "/posts/insurance-silson-5th" },
+    post: { title: "실손 5세대, 보험료 30% 낮아졌다는 말의 앞뒤", href: "/posts/insurance-silson-5th" },
   },
 };
 
@@ -94,7 +103,7 @@ const STAGE_HINT: Record<Interest, string> = {
   risk: "가진 금액을 넣으면 먼저 볼 항목 세 개가 정리됩니다.",
 };
 
-export default function FinanceCheck() {
+export default function FinanceCheck({ postTitles = {} }: FinanceCheckProps = {}) {
   const [interest, setInterest] = useState<Interest | null>(null);
   const [horizon, setHorizon] = useState<Horizon>("mid");
 
@@ -178,7 +187,7 @@ export default function FinanceCheck() {
 
           <a href={withBase(rec.post.href)} className="fcheck-post">
             <span className="fcheck-post-label mono">함께 읽기</span>
-            <span className="fcheck-post-title">{rec.post.title}</span>
+            <span className="fcheck-post-title">{postTitles[rec.post.href] ?? rec.post.title}</span>
           </a>
 
           <p className="fcheck-stage">{STAGE_HINT[interest as Interest]}</p>

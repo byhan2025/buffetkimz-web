@@ -351,7 +351,7 @@ export default function PensionDraw({ compact = false }: { compact?: boolean }) 
             <p className="mt-0.5 text-[14px] leading-[1.5] text-ink-faint">
               {out.routes.threshold.status === "below"
                 ? "연 1,500만원 이하 — 원천징수로 끝내거나, 종합소득에 합산"
-                : "연 1,500만원 초과 — 종합과세와 15% 분리과세 중 선택"}
+                : "연 1,500만원 초과 — 종합과세와 16.5% 분리과세 중 선택"}
             </p>
             <div className="mt-3 space-y-2">
               {[winner, runnerUp].filter(Boolean).map((o, i) => {

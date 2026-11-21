@@ -2,9 +2,12 @@
 title: "노후 파산은 큰 병보다 매달 나가는 고정비에서 시작된다"
 category: "retire"
 description: "은퇴 후 30년을 버티게 하는 것은 목돈이 아니라 매달 나가는 돈의 구조입니다. 건강보험료, 갱신 보험료, 간병비를 순서대로 정리했습니다."
+summary: "은퇴 후 30년을 무너뜨리는 것은 목돈이 아니라 매달 나가는 고정비입니다. 건강보험료(지역가입자·피부양자), 갱신형 보험료, 간병비를 순서대로 계산해 국민연금·퇴직연금 수령액과의 차이를 먼저 알아야 합니다."
 thumb: "/thumbs/retire-fixed-cost.webp"
+thumbAlt: "기와지붕 아래 세 개의 봉투 — 매달 나가는 건강보험료·갱신 보험료·간병비"
 question: "은퇴 후 매달 나가는 돈은 얼마일까"
 publishedAt: 2026-11-12
+baseDate: 2026-11-21
 readingMinutes: 9
 series:
   name: "연금 지도"
@@ -13,6 +16,29 @@ app: "retirement-flow"
 toolTitle: "은퇴 계산 열기"
 toolHref: "/apps/retirement-flow/run"
 tags: ["노후준비", "건강보험료", "피부양자"]
+compare:
+  title: "목돈을 모을 때 vs 매달 나가는 돈을 볼 때"
+  asOfLabel: "건강보험공단·국민연금공단 안내 · 기준 2026. 11. 21."
+  a:
+    label: "목돈부터 볼 때"
+    points:
+      - "'얼마를 모아야 하나'에서 막힙니다"
+      - "은퇴하면 지출이 줄 것이라고 가정합니다"
+      - "건보료·갱신 보험료를 계산에 넣지 않습니다"
+  b:
+    label: "고정비부터 볼 때"
+    points:
+      - "건강보험료(지역가입자·피부양자)를 먼저 계산합니다"
+      - "갱신 예정일과 예상 보험료를 적어 둡니다"
+      - "간병비 일당·지급 기간·요양병원 포함 여부를 봅니다"
+  note: "고정비 합계가 국민연금·퇴직연금 수령액보다 크면 그 차이가 매달 메워야 하는 금액입니다. 모을 목돈은 그다음에 정합니다."
+  toolHref: "/apps/retirement-flow/run"
+  toolLabel: "은퇴 계산 열기"
+  sources:
+    - label: "국민건강보험공단 — 지역가입자 보험료 부과 안내"
+      url: "https://www.nhis.or.kr"
+    - label: "국민연금공단 — 국민연금 수령 안내"
+      url: "https://www.nps.or.kr"
 sources:
   - label: "국민건강보험공단 — 지역가입자 보험료 부과 안내"
     url: "https://www.nhis.or.kr"

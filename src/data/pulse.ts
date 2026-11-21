@@ -68,7 +68,7 @@ export const pulseGroups: PulseGroup[] = [
     items: [
       {
         title: "12월 31일까지 넣은 금액만 공제",
-        line: "연금저축 600만 원, IRP 합산 900만 원. 채우면 최대 148만 5,000원을 돌려받습니다.",
+        line: "연금저축 600만 원, IRP 합산 900만 원. 채우면 최대 148만 5,000원만큼 세금이 줄어듭니다(결정세액 한도 내).",
         meta: "소득세법 제59조의3 · D-40",
         href: "/apps/pension-tax/run",
         cta: "남은 한도 계산",
@@ -82,7 +82,7 @@ export const pulseGroups: PulseGroup[] = [
       },
       {
         title: "ISA 만기 이전은 추가 공제",
-        line: "ISA 만기금을 연금계좌로 옮기면 300만 원까지 더 공제됩니다. 이전 기한이 따로 있습니다.",
+        line: "옮긴 금액의 10%(최대 300만 원)만큼 공제 대상 납입액이 늘어납니다. 실제 절감은 49만 5,000원 또는 39만 6,000원입니다.",
         meta: "조세특례제한법 · 기준일 11. 21.",
         href: "/posts/isa-pension-300",
         cta: "이전 조건 읽기",

@@ -35,7 +35,15 @@ const HOUSE_LEASE: { max: number; rate: number; cap?: number }[] = [
 ];
 
 const won = (n: number) => `${Math.floor(n).toLocaleString("ko-KR")}원`;
-const manLabel = (man: number) => (man === Infinity ? "15억 이상" : `${num(man)}만원`);
+/** 표·구간 표기 — 1억원 이상은 억 단위로 읽는다(150,000만원 대신 15억원). */
+const wonLabel = (man: number) => {
+  if (man === Infinity) return "15억원";
+  if (man >= 10000) {
+    const eok = man / 10000;
+    return `${Number.isInteger(eok) ? eok.toLocaleString("ko-KR") : eok.toFixed(1)}억원`;
+  }
+  return `${num(man)}만원`;
+};
 
 export default function BrokerageFeeCalc({ compact = false }: { compact?: boolean }) {
   const [deal, setDeal] = useState<Deal>("sale");
@@ -73,7 +81,7 @@ export default function BrokerageFeeCalc({ compact = false }: { compact?: boolea
       cap = row.cap;
       const idx = table.indexOf(row);
       const from = idx === 0 ? 0 : table[idx - 1].max;
-      band = `${from === 0 ? "5천만원 미만" : `${num(from)}만원 이상`} ~ ${row.max === Infinity ? "15억원 이상" : `${num(row.max)}만원 미만`}`;
+      band = `${from === 0 ? "5천만원 미만" : `${wonLabel(from)} 이상`} ~ ${row.max === Infinity ? "15억원 이상" : `${wonLabel(row.max)} 미만`}`;
     } else if (target === "officetel") {
       rate = deal === "sale" ? 0.005 : 0.004;
       band = "주거용 오피스텔(전용 85㎡ 이하)";
@@ -200,7 +208,7 @@ export default function BrokerageFeeCalc({ compact = false }: { compact?: boolea
               <tbody>
                 {HOUSE_SALE.map((row, i) => {
                   const from = i === 0 ? 0 : HOUSE_SALE[i - 1].max;
-                  const isNow = deal === "sale" && calc.band.startsWith(from === 0 ? "5천만원 미만" : `${num(from)}만원 이상`);
+                  const isNow = deal === "sale" && calc.band.startsWith(from === 0 ? "5천만원 미만" : `${wonLabel(from)} 이상`);
                   return (
                     <tr
                       key={`s${i}`}
@@ -208,7 +216,13 @@ export default function BrokerageFeeCalc({ compact = false }: { compact?: boolea
                         "border-b border-line-soft last:border-0 " + (isNow ? "bg-brand-soft/60 font-bold text-brand" : "text-ink-muted")
                       }
                     >
-                      <td className="py-1.5 pr-2">{from === 0 ? "5천만원 미만" : `${num(from)}만원~${manLabel(row.max)}`}</td>
+                      <td className="py-1.5 pr-2">
+                        {from === 0
+                          ? "5천만원 미만"
+                          : row.max === Infinity
+                            ? `${wonLabel(from)} 이상`
+                            : `${wonLabel(from)}~${wonLabel(row.max)}`}
+                      </td>
                       <td className="py-1.5 pr-2 text-right tabular-nums">
                         {num(row.rate * 100, 1)}%{row.cap ? ` (${num(row.cap / 10000)}만)` : ""}
                       </td>

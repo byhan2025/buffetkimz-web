@@ -95,8 +95,8 @@ export const librarySeries: LibrarySeries[] = [
   {
     id: "invest-tax",
     no: "02",
-    title: "투자·절세",
-    line: "수익률 앞에 규칙과 세금을 먼저 둡니다.",
+    title: "투자·금리",
+    line: "수익률 앞에 규칙과 금리 구조를 먼저 둡니다.",
     postIds: ["invest-dca-rule", "invest-dividend-total-return", "finance-rate-gap"],
   },
   {

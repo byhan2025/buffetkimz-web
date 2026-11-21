@@ -67,12 +67,17 @@ const jsonLd = graph([
       <div class="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-[12.5px] text-ink-muted">
         <span>발행 <strong class="font-semibold text-ink">{letters.length}호</strong></span>
         {
-          latest && (
+          latest && letters.length > 1 && (
             <span class="mono">
               최근 {issueLabel(latest.data.issue)} · <time datetime={latest.data.date.toISOString().slice(0, 10)}>{formatDate(latest.data.date)}</time>
             </span>
           )
         }
+        {latest && letters.length === 1 && (
+          <span class="mono">
+            <time datetime={latest.data.date.toISOString().slice(0, 10)}>{formatDate(latest.data.date)}</time>
+          </span>
+        )}
         <a href={withBase("/posts")} class="inline-flex min-h-[44px] items-center font-semibold text-brand-deep md:min-h-[24px]">
           자산리포트 기록 보기
         </a>

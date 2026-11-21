@@ -2,9 +2,12 @@
 title: "물가가 잡혀도 체감이 남는 이유 — 서비스 물가의 시차"
 category: "economy"
 description: "지표상 물가 상승률이 둔해져도 장바구니와 고정비는 그대로일 수 있습니다. 상품과 서비스의 가격이 정해지는 방식이 다르기 때문입니다."
+summary: "물가 상승률은 오르는 속도이고 체감은 가격의 높이입니다. 상품 값은 원자재·환율을 따라 빨리 오르내리지만, 서비스 값은 인건비·임대료 때문에 오르면 잘 내리지 않습니다."
 thumb: "/thumbs/economy-service-prices.webp"
+thumbAlt: "미용실 가죽 의자와 수건 위의 가위 — 인건비와 임대료로 값이 정해지는 서비스"
 question: "미용실·배달비는 왜 안 내려갈까"
 publishedAt: 2026-11-18
+baseDate: 2026-11-21
 readingMinutes: 7
 series:
   name: "내 돈 체크"
@@ -12,6 +15,27 @@ series:
 toolTitle: "제도 일정 달력 열기"
 toolHref: "/calendar"
 tags: ["소비자물가", "서비스물가", "체감물가"]
+compare:
+  title: "상품 물가 vs 서비스 물가"
+  asOfLabel: "통계청 소비자물가조사·한국은행 자료 · 기준 2026. 11. 21."
+  a:
+    label: "상품"
+    points:
+      - "원자재·환율·유통 비용이 값을 정합니다"
+      - "오르내림이 빠릅니다"
+      - "하락 국면에서 가격이 내려옵니다"
+  b:
+    label: "서비스"
+    points:
+      - "인건비·임대료·계약이 값을 정합니다"
+      - "오르면 잘 내리지 않습니다(하방 경직성)"
+      - "상승 국면에서도 늦게 오릅니다"
+  note: "지표 2%는 내 지출표의 2%가 아닙니다. 내 소비에서 그 항목이 차지하는 몫을 함께 봐야 체감과 지표가 맞아떨어집니다."
+  sources:
+    - label: "통계청 — 소비자물가조사(품목·가중치)"
+      url: "https://kostat.go.kr"
+    - label: "한국은행 — 물가안정목표 운영 상황 점검"
+      url: "https://www.bok.or.kr"
 sources:
   - label: "통계청 — 소비자물가조사(품목·가중치)"
     url: "https://kostat.go.kr"

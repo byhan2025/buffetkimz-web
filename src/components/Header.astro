@@ -56,6 +56,15 @@ const splitMenu = (children: { label: string; href?: string; note?: string; soon
   live: children.filter((c) => !c.soon && c.href),
   soon: children.filter((c) => c.soon || !c.href),
 });
+
+/**
+ * 하위 메뉴 머리의 개수 — '전체' 줄(부모와 같은 주소)은 분류가 아니므로 빼고 센다.
+ * 자산리포트는 하위 메뉴가 곧 분류, 나머지는 항목이다.
+ */
+const menuCountText = (item: (typeof nav)[number], menu: { live: { href?: string }[] }) => {
+  const n = menu.live.filter((c) => c.href !== item.href).length;
+  return item.match === "/posts" ? `${n}개 분류` : `${n}개 항목`;
+};
 ---
 
 <header class="site-header sticky top-0 z-40 border-b border-line/80 bg-paper/[0.98] backdrop-blur-md">
@@ -109,7 +118,7 @@ const splitMenu = (children: { label: string; href?: string; note?: string; soon
                   <div class="nav-drop-head-wrap">
                     <p class="nav-drop-head">
                       <span>{item.label}</span>
-                      <span class="nav-drop-head-note">{menu.live.length}개 분류</span>
+                      <span class="nav-drop-head-note">{menuCountText(item, menu)}</span>
                     </p>
                     <p class="nav-drop-desc">{item.desc}</p>
                   </div>

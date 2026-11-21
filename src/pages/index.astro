@@ -11,7 +11,7 @@ import FinanceStrip from "@/components/FinanceStrip.astro";
 import ToolPreview from "@/components/ToolPreview.astro";
 import Guide from "@/components/guide/Guide.astro";
 import { withBase, site } from "@/config/site";
-import { channels } from "@/data/channels";
+import { channels, confirmedLinks } from "@/data/channels";
 import { hubTools, homeMainTools, mainTools, riskTools } from "@/data/tools";
 import { apps, APP_CATEGORIES } from "@/data/apps";
 import { categoryCount, storeCount } from "@/data/store";
@@ -60,6 +60,7 @@ if (categorySum !== storeCount) {
   throw new Error(`앱스토어 카테고리 합 ${categorySum} ≠ 전체 ${storeCount}. store.ts의 category를 확인하세요.`);
 }
 const channelCount = channels.length;
+const confirmedChannelCount = confirmedLinks.length;
 
 const shortToolLabel: Record<string, string> = {
   pension: "세액공제 계산 열기",
@@ -97,7 +98,12 @@ const credits = [
     note: `카드뉴스·체크리스트 ${galleryCount}세트`,
     count: `${gallerySlideCount}장`,
   },
-  { href: "/#channels", label: "연결 채널", note: `채널 7곳 + 코드 보관소`, count: `${channelCount}곳` },
+  {
+    href: "/#channels",
+    label: "연결 채널",
+    note: `확인된 링크 ${confirmedChannelCount}곳 · 채널 ${channelCount}곳 주소 확인 중`,
+    count: `${confirmedChannelCount}곳`,
+  },
 ];
 
 const jsonLd = graph([websiteNode(), organizationNode(), personNode()]);

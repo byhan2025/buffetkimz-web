@@ -114,7 +114,7 @@ export default function SilsonCompare({ compact = false }: { compact?: boolean }
             { value: "general", label: "종합병원" },
             { value: "tertiary", label: "상급종합" },
           ]}
-          hint="5세대 급여 통원은 건강보험 본인부담률과 연동됩니다."
+          hint="5세대 급여 통원은 건강보험 본인부담률(의원 30%·병원 40%·종합병원 50%·상급종합 60%)과 연동됩니다."
         />
         <MoneySlider label="급여 입원 의료비(본인부담 총액)" value={inpatient} onChange={setInpatient} min={0} max={3000} step={10} />
         <MoneySlider label="급여 통원 의료비" value={outpatient} onChange={setOutpatient} min={0} max={300} step={5} />

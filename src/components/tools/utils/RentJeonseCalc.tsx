@@ -237,10 +237,10 @@ export default function RentJeonseCalc({ compact = false }: { compact?: boolean 
             <Line label="대출이자 (연)" value={formatMan(calc.loanInterest)} />
             <Line label="손익분기 월세" value={`${formatMan(calc.breakEvenRent)} / 월`} strong tone="brand" />
             <Line
-              label="전환율 – 법정 상한"
+              label="법정 상한 대비"
               value={`${calc.conversionGap >= 0 ? "+" : ""}${calc.conversionGap.toFixed(2)}%p`}
               tone={calc.conversionGap > 0 ? "clay" : "default"}
-              sub={`상한 ${calc.legalCap.toFixed(2)}%`}
+              sub={`상한 ${calc.legalCap.toFixed(2)}% · 내 전환율 ${calc.conversion.toFixed(2)}%`}
             />
           </div>
         </div>

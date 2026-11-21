@@ -54,8 +54,8 @@ export const LAW = Object.freeze({
   basicDeduction: 1_500_000,
   seniorDeduction: 1_000_000,
   seniorAge: 70,
-  /** 표준세액공제 — 제59조의4⑨2호나목 (연 7만원, 다른 세액공제 없을 때) */
-  standardTaxCredit: 70_000,
+  /** 표준세액공제 — 제59조의4⑨2호나목 (연 13만원, 다른 세액공제 없을 때. 2023년 이후 적용) */
+  standardTaxCredit: 130_000,
   /** 기본세율 — 제55조① */
   brackets: [
     { upTo: 14_000_000, base: 0, rate: 0.06 },
@@ -109,7 +109,7 @@ export const TAX_CONFIG = Object.freeze({
     { item: "종신계약 연금 원천징수", value: "3%", effectiveFrom: "2026-01-01", note: "종전 4%" },
     { item: "이연퇴직소득 연금수령 과세", value: "70% / 10년 초과 60% / 20년 초과 50%", effectiveFrom: "2026-01-01" },
     { item: "사적연금 분리과세 기준", value: "연 1,500만원", effectiveFrom: "2024-01-01", note: "종전 1,200만원" },
-    { item: "15% 분리과세 선택", value: "종합과세 또는 15% 선택", effectiveFrom: "2023-01-01" },
+    { item: "16.5% 분리과세 선택", value: "종합과세 또는 16.5% 선택", effectiveFrom: "2023-01-01" },
   ],
 });
 
@@ -181,7 +181,7 @@ function previousCap(bracket) {
  * @param {number} [p.otherIncome] 그 밖의 종합소득(근로·사업·이자·배당·기타)
  * @param {number} [p.age] 수령 나이(경로우대공제 판단)
  * @param {boolean} [p.applyBasicDeduction] 기본공제 150만원 적용(기본 true)
- * @param {boolean} [p.applyStandardCredit] 표준세액공제 7만원 적용(기본 true)
+ * @param {boolean} [p.applyStandardCredit] 표준세액공제 13만원 적용(기본 true)
  */
 export function comprehensivePensionTax({
   taxablePrivate = 0,
@@ -223,11 +223,11 @@ export function comprehensivePensionTax({
  * 사적연금 인출 한 해의 세 부담 비교 — 소득세법 제14조③9호·제64조의4.
  *
  *  · 연 1,500만원 이하: ① 원천징수(3~5.5%)로 종결 vs ② 종합소득에 합산
- *  · 연 1,500만원 초과: ① 종합과세 vs ② 15%(+지방 1.5%) 분리과세
+ *  · 연 1,500만원 초과: ① 종합과세 vs ② 16.5%(소득세 15% + 지방소득세) 분리과세
  *
  * 비교는 '사적연금 때문에 늘어나는 세금'만 본다(공적연금·기타소득의 세금은 양쪽에 같게 들어가므로 상쇄).
  *  - 종합과세 쪽 증분 = T(전체) − T(사적연금 제외)
- *  - 15% 분리과세 쪽 = 사적연금 × 16.5%
+ *  - 16.5% 분리과세 쪽 = 사적연금 × 16.5%
  *
  * @param {object} p
  * @param {number} p.privatePension 연간 사적연금 수령액(과세대상 기준)
@@ -290,9 +290,9 @@ export function compareRoutes({
     });
     options.push({
       key: "separate15",
-      label: "15% 분리과세",
+      label: "16.5% 분리과세",
       tax: s,
-      basis: "제64조의4 제2호가목 — 15% + 지방소득세(공제 없음)",
+      basis: "제64조의4 제2호가목 — 소득세 15% + 지방소득세(공제 없음)",
       detail: { rate: LAW.separateRate15 * (1 + LAW.localTaxRate) },
     });
   }
@@ -718,7 +718,7 @@ export function simulate(input) {
   assumptions.push({ key: "law", label: "법령 기준", value: LAW_VERSION });
   assumptions.push({ key: "age", label: "수령 시작 나이", value: `${startAge}세` });
   if (lifelong) assumptions.push({ key: "lifelong", label: "종신계약", value: "사망 때까지 수령(3%)" });
-  assumptions.push({ key: "deduction", label: "공제 가정", value: "기본공제 150만원 · 표준세액공제 7만원 · 경로우대 100만원(70세 이상)" });
+  assumptions.push({ key: "deduction", label: "공제 가정", value: "기본공제 150만원 · 표준세액공제 13만원 · 경로우대 100만원(70세 이상)" });
   assumptions.push({ key: "taxable", label: "과세 대상", value: "적격 사적연금(세액공제분·운용수익)만 — 비과세 원금·퇴직소득 유래는 제외" });
   if (otherIncome > 0) {
     assumptions.push({ key: "otherIncome", label: "그 밖의 소득", value: `연 ${Math.round(otherIncome / 10_000).toLocaleString()}만원 가정` });
