@@ -68,7 +68,9 @@ python3 scripts/capture_v592.py   # Playwright 필요 (1280·390 · 런타임 �
 
 - 이 묶음에는 **라이브 배포본이 아닙니다**. `gh-pages` 푸시는 하지 않았습니다(지시대로).
 - 캡처는 1280·390 두 폭, 지표 칩 포커스(390, Tab), 오른쪽 24px 스와이프 페이드, 모킹된 미래 시각의 '확인 지연' 상태를 포함합니다.
-- 화면은 아직 **수동 확인 모드**입니다(`scheduleConnected: false`). `scripts/update_today_hub.py`가 한 번이라도 실제로 돌면 true로 바뀌고 '자동 확인' 문구가 켜집니다(테스트 5건으로 검증).
+- 화면은 아직 **수동 확인 모드**입니다(`scheduleConnected: false`).
+- ⚠️ 이 문장은 v5.9.2 시점의 설명입니다. **v5.9.3에서 판정이 바뀌었습니다** — 수동·`--fail` 실행은 `false`를 유지하고,
+  등록된 스케줄러가 `--schedule-connected`를 넘긴 성공 회차에서만 true가 됩니다(`reports/buffetkimz-web/v593-hub/00-v593-report.md`).
 """
 
 
