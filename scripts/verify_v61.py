@@ -31,6 +31,8 @@ OUT = APP.parent.parent / "reports" / "buffetkimz-web" / "v61-guide"
 PORT = 8123
 CHROME = "/workspace/.cache/ms-playwright/chromium-1255/chrome-linux64/chrome"
 BASE = f"http://127.0.0.1:{PORT}"
+# 서브패스 빌드로 배포한 dist도 같은 주소 모양으로 재현한다
+PREFIX = "/buffetkimz-web"
 
 VIEWPORTS = {"1280": {"width": 1280, "height": 900}, "390": {"width": 390, "height": 844}}
 
@@ -38,6 +40,15 @@ VIEWPORTS = {"1280": {"width": 1280, "height": 900}, "390": {"width": 390, "heig
 class Handler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *a, **kw):
         super().__init__(*a, directory=str(ROOT), **kw)
+
+    def translate_path(self, path):
+        # 서브패스 빌드(dist가 /buffetkimz-web/… 를 가려도) 그대로 서빙 — 배포본 검증용(v6.3)
+        p = path.split("?", 1)[0].split("#", 1)[0]
+        if p == PREFIX:
+            p = "/"
+        elif p.startswith(PREFIX + "/"):
+            p = p[len(PREFIX):]
+        return super().translate_path(p)
 
     def log_message(self, *a):
         pass
