@@ -130,8 +130,8 @@ export type TodayData = {
   tool: { label: string; cta: string; href: string; note: string };
 };
 
-const AS_OF = "2026-11-21T19:00:00+09:00";
-const NEXT_CHECK = "2026-11-22T06:00:00+09:00";
+const AS_OF = "2026-11-22T06:15:00+09:00";
+const NEXT_CHECK = "2026-11-22T08:20:00+09:00";
 
 /** 등락률 계산 기준 — 퍼센트마다 분모를 다시 쓰지 않고 여기서 한 번 밝힌다. */
 const CHANGE_BASIS = "전일 종가 대비";
@@ -148,19 +148,9 @@ export const today: TodayData = {
   stripNote: `등락률은 ${CHANGE_BASIS}입니다. 지표마다 마지막 기준 시각이 다르고, 값은 참고용입니다.`,
 
   highlights: [
-    {
-      text: "AI·반도체 투매로 코스피 4,869.96(−5.21%), 코스닥 645.68(−5.71%) — 둘 다 매도 사이드카",
-      meta: "장 마감 11. 20.",
-    },
-    {
-      text: "미국 나스닥 −5.28%, S&P500 −3.70%로 7거래일 연속 하락 · VIX 35.89",
-      meta: "마감 11. 21. 06:00",
-    },
-    {
-      text: "한국 연간 수출 1조 달러 달성 — 독일·미국·중국에 이어 세계 4번째 국가",
-      meta: "산업통상부 2026. 11. 19.",
-      sourceUrl: "https://www.motir.go.kr/kor/article/ATCL03465409b/171860/view",
-    },
+    { text: "주말 휴장 · 미 S&P500 6,910.39(−3.70%), 나스닥 22,617.73(−5.28%)로 7거래일 연속 하락", meta: "마감 11. 21. 06:00" },
+    { text: "필라델피아 반도체(SOX) 8,408.59(−10.73%) · VIX 35.89 · 미 국채 10년 4.909%", meta: "마감 11. 21. 06:00" },
+    { text: "내일(11. 23.)부터 1·2세대 실손 계약전환(3년 50% 할인)·선택형 할인 신청 시작", meta: "금융위원회 · 시행 D-1" },
   ],
 
   indicators: [
@@ -198,8 +188,8 @@ export const today: TodayData = {
       value: "1,336.20",
       change: "+6.2원",
       direction: "up",
-      asOf: "2026-11-21T19:00:00+09:00",
-      asOfLabel: "11. 21. 19:00 확인",
+      asOf: "2026-11-22T06:15:00+09:00",
+      asOfLabel: "11. 22. 06:15 확인",
       source: "네이버 금융 시장지표(하나은행 고시)",
       sourceUrl: "https://finance.naver.com/marketindex/",
       basis: "하나은행 고시 매매기준율 · 직전 고시 1,330.00원 대비 6.20원",
@@ -318,9 +308,9 @@ export const today: TodayData = {
         "누구에게 — 2013년 3월 이전 가입·재가입 조건이 없는 실손 계약",
       ],
       publishedAt: "2026-11-19",
-      asOf: AS_OF,
-      fetchedAt: AS_OF,
-      nextCheckAt: NEXT_CHECK,
+      asOf: "2026-11-22T06:15:00+09:00",
+      fetchedAt: "2026-11-22T06:15:00+09:00",
+      nextCheckAt: "2026-11-22T08:20:00+09:00",
       status: "ok",
       sourceLabel: "금융위원회 보도자료 (2026. 11. 19.)",
       sourceUrl: "https://www.fsc.go.kr/no010101/88173",
@@ -339,9 +329,9 @@ export const today: TodayData = {
         "누구에게 — 사업소득이 있는 개인. 보험 모집수당만 있는 경우는 제외 대상입니다",
         "확인 — 홈택스·손택스에서 고지 여부와 금액을 조회하고, 1천만원이 넘으면 분납을 고릅니다",
       ],
-      asOf: AS_OF,
-      fetchedAt: AS_OF,
-      nextCheckAt: NEXT_CHECK,
+      asOf: "2026-11-22T06:15:00+09:00",
+      fetchedAt: "2026-11-22T06:15:00+09:00",
+      nextCheckAt: "2026-11-22T08:20:00+09:00",
       status: "ok",
       sourceLabel: "국세청 — 중간예납 안내 (납부기한 2026. 11. 30.)",
       sourceUrl: "https://www.nts.go.kr/nts/cm/cntnts/cntntsView.do?cntntsId=7674&mi=2237",
@@ -361,9 +351,9 @@ export const today: TodayData = {
         "확인 — 금융사 마감 시각을 피해 12월 29~30일에 이체를 마칩니다",
       ],
       publishedAt: "2026-07-01",
-      asOf: AS_OF,
-      fetchedAt: AS_OF,
-      nextCheckAt: NEXT_CHECK,
+      asOf: "2026-11-22T06:15:00+09:00",
+      fetchedAt: "2026-11-22T06:15:00+09:00",
+      nextCheckAt: "2026-11-22T08:20:00+09:00",
       status: "ok",
       sourceLabel: "소득세법 제59조의3 (연금계좌세액공제)",
       sourceUrl: "https://www.law.go.kr/LSW/lsLinkCommonInfo.do?lsJoLnkSeq=1032880515",
@@ -374,13 +364,13 @@ export const today: TodayData = {
 
   ai: {
     label: "AI 정리",
-    asOf: "2026-11-21T19:00:00+09:00",
-    asOfLabel: "기준 11. 21. 19:00",
-    sourceLabel: "연합뉴스 — 미·한 증시 AI·반도체 투매 동반 급락 (2026. 11. 21. 19:00 확인)",
-    sourceUrl: "https://www.yna.co.kr/view/AKR20261121009252072",
+    asOf: "2026-11-22T06:15:00+09:00",
+    asOfLabel: "기준 11. 22. 06:15",
+    sourceLabel: "CNBC · 금융위원회 — 주말 휴장 직전 미 증시 조정과 11. 23. 실손 개편 (11. 22. 06:15 확인)",
+    sourceUrl: "https://www.cnbc.com/2026/11/20/sp-500-correction-market-sell-off.html",
     lines: [
-      "미국과 한국 증시가 AI·반도체 투매로 동반 5%대 급락했습니다. 위험회피로 국고채 금리는 내리고 원/달러는 올랐습니다.",
-      "11월 23일(월)부터 1·2세대 실손 계약전환(3년 50% 할인)과 선택형 할인이 시행됩니다.",
+      "미 증시는 주말 휴장 중이며, 직전 거래일(11. 20.) 앤트로픽 IPO 차익실현과 엔비디아·반도체 투매로 S&P500(−3.70%)·나스닥(−5.28%)이 동반 조정받았습니다.",
+      "내일 11월 23일(월)부터 1·2세대 실손 계약전환(3년 50% 할인)과 선택형 할인특약이 시행되며, 26일에는 한국은행 금통위가 열립니다.",
     ],
     note: "AI가 정리한 요약이며 원문과 다를 수 있습니다. 판단의 근거는 원문 출처로 확인하세요.",
   },
