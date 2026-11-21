@@ -10,7 +10,7 @@ import FinanceStrip from "@/components/FinanceStrip.astro";
 import ToolPreview from "@/components/ToolPreview.astro";
 import { withBase, site } from "@/config/site";
 import { channels } from "@/data/channels";
-import { hubTools, mainTools, riskTools } from "@/data/tools";
+import { hubTools, homeMainTools, mainTools, riskTools } from "@/data/tools";
 import { calendar } from "@/data/calendar";
 import { allPosts, koreanDate } from "@/lib/posts";
 import { graph, organizationNode, personNode, websiteNode } from "@/lib/schema";
@@ -39,12 +39,13 @@ const riskCalcCount = riskTools.filter((t) => t.runHref).length;
 const channelCount = channels.length;
 
 const shortToolLabel: Record<string, string> = {
-  "pension-tax": "세액공제 계산 열기",
+  pension: "세액공제 계산 열기",
+  "pension-draw": "인출 세금 계산 열기",
   "retirement-flow": "은퇴 계산 열기",
   "compound-return": "복리 계산 열기",
-  "coverage-check": "보장 점검 열기",
-  "disclosure-check": "고지 체크 열기",
-  "silson-compare": "실손 비교 열기",
+  coverage: "보장 점검 열기",
+  disclosure: "고지 체크 열기",
+  silson: "실손 비교 열기",
 };
 
 const previewVariant: Record<string, "pension" | "retirement" | "compound" | "calendar"> = {
@@ -140,7 +141,7 @@ const jsonLd = graph([websiteNode(), organizationNode(), personNode()]);
 
       <ul class="mt-3 grid gap-3 md:grid-cols-3" data-main-tools>
         {
-          mainTools.map((t) => (
+          homeMainTools.map((t) => (
             <li
               class={`card card-lift flex flex-col p-4 md:p-5 ${
                 t.key === "calendar" ? "md:col-span-3 md:flex-row md:items-center md:gap-6" : ""
@@ -163,7 +164,7 @@ const jsonLd = graph([websiteNode(), organizationNode(), personNode()]);
                   href={withBase(t.runHref ?? t.href)}
                   class={`btn btn-secondary btn-sm ${t.key === "calendar" ? "" : "w-full"}`}
                 >
-                  {t.runHref ? "계산해 보기" : "달력 열기"}
+                  {shortToolLabel[t.key] ?? (t.runHref ? "계산해 보기" : "달력 열기")}
                 </a>
               </div>
             </li>

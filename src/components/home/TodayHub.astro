@@ -18,7 +18,10 @@
  * v5.9.2 — 자동 갱신이 아직 붙지 않았으므로(`scheduleConnected: false`) '하루 3회 갱신'·'다음 확인 19:00'을
  * 쓰지 않는다. 기준 줄은 '2026. 11. 21. 14:00 수동 확인', 그 자리에 '정기 자동 갱신 연결 준비 중'을 둔다.
  * 파이프라인이 실제로 돌면 update_today_hub.py가 이 값을 true로 바꾸고 '자동 확인' 문구가 켜진다.
- * 390px 지표 스트립에는 오른쪽 24px 페이드로 가로 스와이프 가능함을 드러낸다.
+ *
+ * v6.0 — 390px 지표 스트립을 가로 스와이프 대신 **2열×3행 격자**로 바꿨다(부이 대리 지적: 첫 화면에서
+ * 6개가 스와이프 없이 전부 보여야 한다). 768~1023은 3열×2행, 1024부터 6열 1줄. 오른쪽 페이드 힌트는
+ * 넘치는 가로 스크롤이 없어져 함께 걷어냈다. '30초 요약' 카드에는 [3줄 복사] 버튼을 붙였다.
  */
 import { withBase, site } from "@/config/site";
 import { today as hub, hubBasisLine, hubNotice } from "@/data/today";
@@ -112,7 +115,7 @@ const ddayClass: Record<string, string> = {
 
     {/* ② 지표 스트립 — 지표마다 기준 시각·출처가 다르다 */}
     <div class="mt-4" data-indicator-strip>
-      {/* 390px에서는 오른쪽 페이드가 '옆으로 더 있다'를 알린다(.ind-strip-wrap::after) */}
+      {/* v6.0 — 6개를 격자로 펼친다(390: 2×3 · 768: 3×2 · 1024~: 6×1). 가로 스크롤 없음. */}
       <div class="ind-strip-wrap" data-strip-wrap>
         <ul class="ind-strip no-scrollbar" aria-label="오늘의 지표">
         {
@@ -148,11 +151,17 @@ const ddayClass: Record<string, string> = {
     <div class="hub-mid mt-4">
       {/* ③ 오늘의 핵심 3줄 */}
       <div class="hub-brief" data-hub-brief>
-      <p class="hub-label">30초 요약</p>
+      <div class="hub-brief-head">
+        <p class="hub-label">30초 요약</p>
+        {/* v6.0 — 읽은 사람이 카톡·메모장에 바로 붙여 넣도록 3줄 복사 */}
+        <button type="button" class="hub-copy" data-hub-copy aria-label="오늘 확인 3줄을 복사">
+          3줄 복사
+        </button>
+      </div>
       <ol class="hub-brief-list">
         {
           hub.highlights.map((h, i) => (
-            <li>
+            <li data-brief-line={i + 1} data-brief-text={h.text} data-brief-meta={h.meta}>
               <span class="hub-brief-no mono" aria-hidden="true">
                 {String(i + 1).padStart(2, "0")}
               </span>
@@ -300,19 +309,50 @@ const ddayClass: Record<string, string> = {
     }
 
     /*
-     * 390 가로 스와이프 힌트(v5.9.2) — 끝까지 밀면 오른쪽 페이드를 끈다.
-     * 페이드가 마지막 칩의 기준 시각·출처 위에 남아 글자를 가리는 일을 막는다.
+     * v6.0 — '30초 요약' 3줄 복사.
+     * 줄 문구는 서버가 그린 li의 data-* 에서 그대로 읽는다(화면 문장과 복사문이 갈라지지 않게).
+     * 클립보드가 막힌 브라우저에서는 임시 textarea + execCommand로 한 번 더 시도하고,
+     * 그것도 안 되면 버튼이 '3줄을 길게 눌러 복사'로 바뀐다.
      */
-    const wrap = section.querySelector<HTMLElement>("[data-strip-wrap]");
-    const strip = wrap?.querySelector<HTMLElement>(".ind-strip");
-    if (wrap && strip) {
-      const syncFade = () => {
-        const atEnd = strip.scrollLeft + strip.clientWidth >= strip.scrollWidth - 2;
-        wrap.classList.toggle("is-at-end", atEnd);
-      };
-      syncFade();
-      strip.addEventListener("scroll", syncFade, { passive: true });
-      window.addEventListener("resize", syncFade);
+    const copyBtn = section.querySelector<HTMLButtonElement>("[data-hub-copy]");
+    const briefLines = [...section.querySelectorAll<HTMLElement>("[data-brief-line]")];
+    const briefText = () =>
+      briefLines
+        .map((li) => `${li.dataset.briefLine}. ${li.dataset.briefText} — ${li.dataset.briefMeta}`)
+        .join("\n");
+
+    const legacyCopy = (text: string) => {
+      const area = document.createElement("textarea");
+      area.value = text;
+      area.setAttribute("readonly", "");
+      area.style.position = "fixed";
+      area.style.opacity = "0";
+      document.body.appendChild(area);
+      area.select();
+      let ok = false;
+      try {
+        ok = document.execCommand("copy");
+      } catch {
+        ok = false;
+      }
+      area.remove();
+      return ok;
+    };
+
+    if (copyBtn && briefLines.length) {
+      const reset = () => window.setTimeout(() => (copyBtn.textContent = "3줄 복사"), 2200);
+      copyBtn.addEventListener("click", async () => {
+        const text = briefText();
+        let ok = false;
+        try {
+          await navigator.clipboard.writeText(text);
+          ok = true;
+        } catch {
+          ok = legacyCopy(text);
+        }
+        copyBtn.textContent = ok ? "복사했습니다" : "3줄을 길게 눌러 복사";
+        reset();
+      });
     }
   }
 </script>

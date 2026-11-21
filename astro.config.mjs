@@ -1,8 +1,10 @@
 import { defineConfig } from 'astro/config';
+import { unified } from '@astrojs/markdown-remark';
 import react from '@astrojs/react';
 import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 import { rehypeAdBreak } from './src/lib/rehype-ad-break.mjs';
+import { rehypeTableWrap } from './src/lib/rehype-table-wrap.mjs';
 
 /**
  * 배포 주소 분기.
@@ -56,7 +58,14 @@ export default defineConfig({
     }),
   ],
   markdown: {
-    rehypePlugins: [rehypeBase(BASE), rehypeAdBreak()],
+    /*
+     * v6.0 — 본문 표를 .table-wrap으로 감싸고(수치 셀 tabular-nums) 내부 링크에 배포 접두를 붙이는
+     * rehype 플러그인을 쓰려면 unified 프로세서를 명시해야 한다. Astro 7 기본 프로세서(Sätteri)는
+     * `markdown.rehypePlugins`를 읽지 않아, 그대로 두면 이 플러그인들이 조용히 무시된다.
+     */
+    processor: unified({
+      rehypePlugins: [rehypeTableWrap(), rehypeBase(BASE), rehypeAdBreak],
+    }),
   },
   vite: {
     plugins: [tailwindcss()],

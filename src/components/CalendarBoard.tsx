@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { CalendarItem, CalendarTag } from "../data/calendar";
+import { withBase } from "@/config/site";
 import { tagStyle } from "../data/calendar";
 import { ddayOf, isUpcoming } from "../lib/dday";
 
@@ -210,6 +211,15 @@ export default function CalendarBoard({ items, initialMonth, note, todayIso }: P
                       </a>
                     ) : (
                       <p className="mt-1.5 text-[12px] text-ink-faint">출처: {item.source}</p>
+                    )}
+                    {item.toolHref && (
+                      <a
+                        href={withBase(item.toolHref)}
+                        className="mt-1 inline-flex min-h-[44px] items-center text-[13px] font-semibold text-brand-deep underline decoration-brand/30 underline-offset-4"
+                        data-calendar-tool={item.toolHref}
+                      >
+                        {item.toolLabel ?? "관련 도구 열기"} →
+                      </a>
                     )}
                   </div>
                 </li>

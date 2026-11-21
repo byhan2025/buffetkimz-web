@@ -5,7 +5,7 @@
 import { RETIREMENT_EXAMPLE, COMPOUND_EXAMPLE, compoundProjection, retirementProjection } from "@/lib/finance";
 
 interface Props {
-  art: "guide" | "coverage" | "disclosure" | "silson" | "pension" | "retirement" | "compound" | "timemachine";
+  art: "guide" | "coverage" | "disclosure" | "silson" | "pension" | "pension-draw" | "retirement" | "compound" | "timemachine";
   compact?: boolean;
 }
 const { art, compact = false } = Astro.props;
@@ -157,6 +157,29 @@ const tmOutcomes = [
           </div>
         </div>
         <p class="mt-3 text-[12px] text-ink-faint">단위 만원 · 12월 31일까지</p>
+      </div>
+    )
+  }
+
+  {
+    art === "pension-draw" && (
+      /* 기존 'pension' 아트의 두 막대 구조를 그대로 쓴다(새 창작물을 승인 없이 만들지 않는다).
+         라벨·숫자만 인출 단계(설계서 §3.1 기본 조건)에 맞춘다. */
+      <div class="relative">
+        <p class="text-[12px] font-semibold tracking-[0.01em] text-ink-faint">받을 때의 세금</p>
+        <div class="mt-4 flex items-end gap-4">
+          <div class="flex-1">
+            <p class="text-[12px] text-ink-muted">종합과세</p>
+            <div class="mt-2 h-[70px] w-full bg-line-soft"><div class="mt-auto h-[66%] w-full bg-brand/80"></div></div>
+            <p class="mt-1.5 serif text-[15px] tabular-nums text-ink">122</p>
+          </div>
+          <div class="flex-1">
+            <p class="text-[12px] text-ink-muted">15% 분리과세</p>
+            <div class="mt-2 h-[70px] w-full bg-line-soft"><div class="mt-auto h-[100%] w-full bg-brand"></div></div>
+            <p class="mt-1.5 serif text-[15px] tabular-nums text-ink">297</p>
+          </div>
+        </div>
+        <p class="mt-3 text-[12px] text-ink-faint">단위 만원 · 연 1,500만원 기준</p>
       </div>
     )
   }

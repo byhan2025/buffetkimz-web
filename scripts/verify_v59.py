@@ -38,7 +38,8 @@ import tempfile
 APP = pathlib.Path(__file__).resolve().parent.parent
 DIST = APP / "dist"
 REPO = APP.parent.parent
-OUT = REPO / "reports" / "buffetkimz-web" / "v593-hub"
+OUT = REPO / "reports" / "buffetkimz-web" / "v60-live"  # v6.0 실측(capture_v60.py)
+LEGACY = REPO / "reports" / "buffetkimz-web" / "v593-hub"  # v5.9.3 증빙(리포트·플립·원문 스냅샷)
 REPORT_DIR = OUT
 SRC = APP / "src"
 NODE = shutil.which("node") or "/workspace/.local/node-v22/bin/node"
@@ -59,7 +60,7 @@ def html(rel: str) -> str:
 def main() -> int:
     OUT.mkdir(parents=True, exist_ok=True)
     pages = sorted(DIST.rglob("*.html"))
-    check("빌드 페이지 수 84", len(pages) == 84, f"{len(pages)} pages")
+    check("빌드 페이지 수 88 (v6.0 연금 인출 4페이지 추가)", len(pages) == 88, f"{len(pages)} pages")
 
     # 1) 링크·이미지 무결
     audit = subprocess.run(
@@ -333,10 +334,19 @@ console.log(JSON.stringify(out));
         overflow = {k: v.get("overflow") for k, v in notes["pages"].items()}
         check("가로 넘침 0 (1280·390 전 페이지)", all(v == 0 for v in overflow.values()), json.dumps(overflow))
         home390 = notes["pages"].get("home-390", {})
+        grid = (notes.get("v60") or {}).get("grid390") or {}
         check(
-            "390 지표 스트립 1줄 + 가로 스크롤",
-            home390.get("stripRows") == 1 and home390.get("stripScrolls") is True,
-            f"rows={home390.get('stripRows')} scrolls={home390.get('stripScrolls')}",
+            "390 지표 6개가 2열×3행 격자(스와이프 없이 한 화면)",
+            home390.get("stripRows") == 3
+            and grid.get("cols") == 2
+            and home390.get("stripScrolls") is False
+            and grid.get("allInViewport") is True,
+            f"rows={home390.get('stripRows')} cols={grid.get('cols')} scroll={home390.get('stripScrolls')} allInView={grid.get('allInViewport')}",
+        )
+        check(
+            "390 지표 격자 — 가로 넘침 0 · 페이드 힌트 제거",
+            grid.get("stripOverflowX") == "visible" and grid.get("fadeWidth") in ("auto", "0px"),
+            f"overflowX={grid.get('stripOverflowX')} fade={grid.get('fadeWidth')}",
         )
         chips390 = home390.get("chips") or []
         check(
@@ -445,9 +455,8 @@ console.log(JSON.stringify(out));
             json.dumps([(s["id"], s["outline"]["width"]) for s in steps], ensure_ascii=False),
         )
         check(
-            "뒤쪽 칩에서 스트립이 실제로 가로 스크롤됨",
-            (steps[-1]["strip"]["scrollLeft"] if steps else 0) > 0
-            and any((s["strip"]["scrollLeft"] or 0) > 0 for s in steps[2:]),
+            "격자에서는 스트립 가로 스크롤 0(포커스가 칩을 옆으로 밀지 않음)",
+            bool(steps) and all((s["strip"]["scrollLeft"] or 0) == 0 for s in steps),
             json.dumps([(s["id"], s["strip"]["scrollLeft"]) for s in steps], ensure_ascii=False),
         )
         check(
@@ -541,55 +550,43 @@ console.log(JSON.stringify(out));
         "6개월간(2027년 5월 22일까지) 받으며" in tool_text and "3년간 50% 할인합니다" in tool_text,
     )
 
-    # 14) v5.9.2 — 390 스와이프 힌트 실측
-    if notes_path.exists():
-        notes = json.loads(notes_path.read_text())
-        fade = notes.get("fade390") or {}
-        f0 = fade.get("start") or {}
-        fd = f0.get("fade") or {}
-        fend = fade.get("end") or {}
-        check(
-            "390 스와이프 힌트 — 오른쪽 24px 페이드 · pointer-events none",
-            fd.get("width") == "24px"
-            and fd.get("pointerEvents") == "none"
-            and "gradient" in (fd.get("backgroundImage") or "")
-            and float(fd.get("opacity") or 0) >= 0.99,
-            json.dumps(fd, ensure_ascii=False)[:220],
-        )
-        check(
-            "390 스와이프 힌트 — 스트립이 실제로 가로 스크롤됨",
-            f0.get("overflows") is True,
-            f"{f0.get('clientWidth')}/{f0.get('scrollWidth')}",
-        )
-        check(
-            "390 스와이프 힌트 — 끝까지 밀면 페이드 꺼짐(is-at-end · opacity 0)",
-            fend.get("atEndClass") is True and float(fend.get("fadeOpacity") or 1) == 0,
-            json.dumps({k: fend.get(k) for k in ("scrollLeft", "atEndClass", "fadeOpacity")}, ensure_ascii=False),
-        )
-        check(
-            "390 마지막 칩 메타가 페이드 없이 화면 안",
-            bool(fend.get("lastMeta")) and fend["lastMeta"].get("inViewport") is True,
-            json.dumps(fend.get("lastMeta"), ensure_ascii=False)[:200],
-        )
-        check("390 스와이프 힌트 캡처 03b 저장", (OUT / "03b-home-strip-hint-390.png").exists())
-        h390 = (notes.get("pages") or {}).get("home-390", {})
-        check(
-            "390 홈 계측 — 수동 확인 문구(기준 줄·준비 중)·'다음 확인' 없음",
-            h390.get("scheduleConnected") == "false"
-            and h390.get("hubBasis") == "2026. 11. 21. 14:00 수동 확인"
-            and h390.get("scheduleNote") == "정기 자동 갱신 연결 준비 중"
-            and h390.get("nextCheck") is None,
-            json.dumps({k: h390.get(k) for k in ("scheduleConnected", "hubBasis", "scheduleNote", "nextCheck")}, ensure_ascii=False)[:240],
-        )
-        h1280 = (notes.get("pages") or {}).get("home-1280", {})
-        check(
-            "1280에서는 스와이프 페이드 없음(모바일 전용)",
-            ((h1280.get("fade") or {}).get("width") != "24px"),
-            json.dumps((h1280.get("fade") or {}), ensure_ascii=False)[:160],
-        )
+    # 14) v6.0 — 390 2열×3행 · [3줄 복사] · 1280 6열 (v5.9.2 스와이프 페이드는 격자 전환으로 폐기)
+    notes = json.loads(notes_path.read_text()) if notes_path.exists() else {}
+    v60 = notes.get("v60") or {}
+    grid390 = v60.get("grid390") or {}
+    grid1280 = v60.get("grid1280") or {}
+    copy = v60.get("copy") or {}
+    check(
+        "390 홈 계측 — 수동 확인 문구(기준 줄·준비 중)·'다음 확인' 없음",
+        (notes.get("pages", {}).get("home-390", {}).get("scheduleConnected") == "false")
+        and (notes.get("pages", {}).get("home-390", {}).get("hubBasis") == "2026. 11. 21. 14:00 수동 확인")
+        and (notes.get("pages", {}).get("home-390", {}).get("scheduleNote") == "정기 자동 갱신 연결 준비 중")
+        and (notes.get("pages", {}).get("home-390", {}).get("nextCheck") is None),
+    )
+    check(
+        "1280 지표 스트립 6열 1줄 유지 · 가로 스크롤 0",
+        grid1280.get("cols") == 6 and grid1280.get("rows") == 1 and grid1280.get("scrolls") is False,
+        f"rows={grid1280.get('rows')} cols={grid1280.get('cols')} scroll={grid1280.get('scrolls')}",
+    )
+    check(
+        "1280에서는 스와이프 페이드 없음(모바일 전용)",
+        (grid1280.get("fadeWidth") or "auto") != "24px",
+        f"fade={grid1280.get('fadeWidth')}",
+    )
+    check(
+        "[3줄 복사] 버튼 — 누르면 클립보드에 정확히 3줄",
+        copy.get("labelBefore") == "3줄 복사"
+        and copy.get("labelAfter") == "복사했습니다"
+        and copy.get("lines") == 3
+        and isinstance(copy.get("clipboard"), str)
+        and copy["clipboard"].startswith("1. "),
+        json.dumps({k: copy.get(k) for k in ("labelBefore", "labelAfter", "lines")}, ensure_ascii=False),
+    )
+    check("3줄 복사 캡처 21 저장", (OUT / "21-home-brief-copy-390.png").exists())
+    check("390 지표 격자 캡처 20·1280 캡처 22 저장", (OUT / "20-home-grid-390.png").exists() and (OUT / "22-home-grid-1280.png").exists())
 
     # 15) v5.9.2 — 원/달러 네이버 금융 원문 근거
-    ev = OUT / "usd-krw-evidence.txt"
+    ev = LEGACY / "usd-krw-evidence.txt"
     ev_text = ev.read_text(encoding="utf-8", errors="ignore") if ev.exists() else ""
     check(
         "원/달러 근거 스냅샷 동봉(1,346.50 · 06:28 · 네이버 원문 URL)",
@@ -640,9 +637,9 @@ console.log(JSON.stringify(out));
         f"flagged_fail={plan_flagged_fail['scheduleConnected']}",
     )
     pkg = json.loads((APP / "package.json").read_text(encoding="utf-8"))
-    check("package.json 버전 5.9.3 일치", pkg.get("version") == "5.9.3", str(pkg.get("version")))
+    check("package.json 버전 6.0.0 일치", pkg.get("version") == "6.0.0", str(pkg.get("version")))
 
-    report = (REPORT_DIR / "00-v593-report.md")
+    report = (LEGACY / "00-v593-report.md")
     report_text = report.read_text(encoding="utf-8", errors="ignore") if report.exists() else ""
     check(
         "리포트에 범위 명시 — Pages 정보허브 패치 / 도메인 컷오버는 3단계 범위",
@@ -654,7 +651,7 @@ console.log(JSON.stringify(out));
         "리포트에 원/달러 기준일(11. 20.)·고시시각(11. 21. 06:28) 구분",
         "기준일 11. 20." in report_text and "06:28" in report_text and "localTradedAt \"2026-11-20\"" in report_text,
     )
-    flip = OUT / "auto-mode-flip.json"
+    flip = LEGACY / "auto-mode-flip.json"
     flip_json = json.loads(flip.read_text(encoding="utf-8")) if flip.exists() else {}
     flip_auto = (flip_json.get("auto") or {}).get("1280") or {}
     check(
@@ -667,9 +664,139 @@ console.log(JSON.stringify(out));
         json.dumps(flip_json.get("restored"), ensure_ascii=False),
     )
 
+    # 17) v6.0 — 연금 인출·세금 시뮬레이터 통합 (설계서 §6.2 삽입 지점 8곳)
+    import hashlib as _hash
+
+    src_engine = APP / "src" / "lib" / "pension-engine.mjs"
+    rep_engine = REPO / "reports" / "buffetkimz-web" / "v60-pension-sim" / "pension_engine.mjs"
+    check(
+        "엔진 사본이 보고서 원본과 해시 동일(복사 후 수정 금지)",
+        src_engine.exists()
+        and rep_engine.exists()
+        and _hash.sha256(src_engine.read_bytes()).hexdigest() == _hash.sha256(rep_engine.read_bytes()).hexdigest(),
+        _hash.sha256(src_engine.read_bytes()).hexdigest()[:16] if src_engine.exists() else "missing",
+    )
+    check("① ToolRunner에 pension-draw 연결", '"pension-draw": PensionDraw' in (SRC / "components/tools/ToolRunner.tsx").read_text(encoding="utf-8"))
+    tools_src = (SRC / "data/tools.ts").read_text(encoding="utf-8")
+    check("② tools.ts 메인 도구에 pension-draw", 'key: "pension-draw"' in tools_src and 'group: "main"' in tools_src)
+    check("④ apps.ts 항목 + art 유니온", 'slug: "pension-draw"' in (SRC / "data/apps.ts").read_text(encoding="utf-8"))
+    check("⑤ AppArt 분기", 'art === "pension-draw"' in (SRC / "components/AppArt.astro").read_text(encoding="utf-8"))
+    check("⑧ 홈 shortToolLabel", '"pension-draw": "인출 세금 계산 열기"' in (SRC / "pages/index.astro").read_text(encoding="utf-8"))
+    cal_src = (SRC / "data/calendar.ts").read_text(encoding="utf-8")
+    check(
+        "⑥ 12월 31일 납입 마감 카드 → 시뮬레이터 연결",
+        'dueDate: "2026-12-31"' in cal_src and 'toolHref: "/apps/pension-draw/run"' in cal_src,
+    )
+
+    pdraw_detail = html("apps/pension-draw/index.html")
+    pdraw_run = html("apps/pension-draw/run/index.html")
+    check("연금 인출 소개·실행 페이지 존재(HTTP 200 상당)", bool(pdraw_detail) and bool(pdraw_run))
+    check(
+        "상호 링크 — 인출→세액공제 / 세액공제→인출 (각 1개)",
+        "세액공제 계산기로 이어가기" in pdraw_run
+        and "인출·세금 시뮬레이터" in html("apps/pension-tax/run/index.html")
+        and html("apps/pension-tax/run/index.html").count("pension-draw/run") == 1
+        and pdraw_run.count("pension-tax/run") == 1,
+    )
+    pd = (v60.get("pensionDraw") or {})
+    pd390 = pd.get("390") or {}
+    pd1280 = pd.get("1280") or {}
+    check(
+        "390 결과 — 최소 글자 14px · 탭 대상 44px · 페이지 가로 넘침 0",
+        pd390.get("minFont") == 14
+        and (pd390.get("minTap") or 0) >= 44
+        and (pd390.get("checklistMin") or 0) >= 44
+        and pd390.get("docScrollWidth") == pd390.get("innerWidth") == 390,
+        f"font={pd390.get('minFont')} tap={pd390.get('minTap')} checklist={pd390.get('checklistMin')}",
+    )
+    check(
+        "슬라이더를 움직이면 계산 버튼 없이 결과가 즉시 바뀜",
+        pd390.get("liveUpdate", {}).get("changed") is True and pd390.get("calcButton") is False,
+        json.dumps({"changed": pd390.get("liveUpdate", {}).get("changed"), "calcButton": pd390.get("calcButton")}, ensure_ascii=False),
+    )
+    check(
+        "입력값 저장·전송 0 (localStorage·sessionStorage·쿠키)",
+        (pd390.get("storage") or {}).get("local") == 0
+        and (pd390.get("storage") or {}).get("session") == 0
+        and (pd390.get("storage") or {}).get("cookies") == 0,
+        json.dumps(pd390.get("storage"), ensure_ascii=False),
+    )
+    check(
+        "내 결과 5줄 메모 — 버튼 한 번에 5줄",
+        (pd390.get("memo") or {}).get("lines") == 5 and "참고용 추정이며 세무 상담이 아닙니다" in ((pd390.get("memo") or {}).get("text") or ""),
+        f"lines={(pd390.get('memo') or {}).get('lines')}",
+    )
+    check(
+        "하단 sticky 요약 바 — 390 표시 / 1280 숨김",
+        pd390.get("stickyVisible") is True and pd1280.get("stickyVisible") is False,
+        f"390={pd390.get('stickyVisible')} 1280={pd1280.get('stickyVisible')}",
+    )
+    check("연금 인출 콘솔 오류 0 (390·1280)", not (pd390.get("consoleErrors") or []) and not (pd1280.get("consoleErrors") or []))
+    check("연금 인출 캡처 저장(390·1280)", (OUT / "pension-draw-390.png").exists() and (OUT / "pension-draw-1280.png").exists())
+    main_block = home[home.find("data-main-tools") : home.find("data-risk-tools")]
+    check(
+        "홈 대표 도구 4칸 유지(연금 인출은 도구자료실에서) · 도구자료실 메인 5칸",
+        main_block.count("<li") == 4
+        and "연금 인출·세금 시뮬레이터" not in main_block
+        and html("apps/index.html").count("data-main-tool=") == 5,
+        f"home={main_block.count('<li')} apps={html('apps/index.html').count('data-main-tool=')}",
+    )
+
+    # 18) v6.0 — 본문 표 읽기 (헤더 한 줄·수치 셀·넘칠 때만 스크롤)
+    table_posts = [p for p in pages if "/posts/" in str(p) and p.parent.parent.name == "posts"]
+    table_bad = []
+    for page in table_posts:
+        t = page.read_text(encoding="utf-8", errors="ignore")
+        if t.count("<table") != t.count('class="table-wrap"'):
+            table_bad.append(str(page.relative_to(DIST)))
+    check("모든 본문 표가 .table-wrap 안에 있음", not table_bad, ", ".join(table_bad[:3]))
+    t390 = {k: v for k, v in (v60.get("tables") or {}).items() if k.endswith("-390")}
+    worst = max((max(h["lines"] for h in tbl["headers"]) for v in t390.values() for tbl in v["tables"]), default=0)
+    check(
+        "390 표 헤더가 3줄로 꺾이지 않음(최대 1줄)",
+        worst <= 1,
+        json.dumps({k: [max(h["lines"] for h in tbl["headers"]) for tbl in v["tables"]] for k, v in t390.items()}, ensure_ascii=False)[:300],
+    )
+    check(
+        "390 표 — 페이지 가로 넘침 0 · 정말 넓은 표만 래퍼 안에서 스크롤",
+        all(v["docScrollWidth"] == 390 for v in t390.values())
+        and all(tbl["scrolls"] is False or tbl["cols"] >= 4 for v in t390.values() for tbl in v["tables"]),
+        json.dumps({k: [(tbl["cols"], tbl["scrolls"]) for tbl in v["tables"]] for k, v in t390.items()}, ensure_ascii=False)[:300],
+    )
+    check(
+        "수치 셀(.is-num) tabular-nums + 줄바꿈 금지",
+        "is-num" in html("posts/isa-pension-300/index.html")
+        and re.search(r"\.prose-article td\.is-num[^{]*\{[^}]*white-space:\s*nowrap", (SRC / "styles/global.css").read_text(encoding="utf-8")) is not None,
+    )
+    check(
+        "표 캡처 저장 — ISA 글 390/1280 · 대표 표 7장",
+        (OUT / "table-isa-pension-300-390-0.png").exists()
+        and (OUT / "post-isa-390.png").exists()
+        and (OUT / "post-isa-1280.png").exists(),
+    )
+
+    # 19) v6.0 — 발행 게이트 (Answer-First · Information-Gain · 100점 리뷰)
+    rules = json.loads((APP / "scripts/publish_rules.json").read_text(encoding="utf-8"))
+    check(
+        "publish_rules.json gates·rubric·information_gain",
+        all(k in rules.get("gates", {}) for k in ("answer_first", "information_gain", "review", "visual", "links"))
+        and rules.get("rubric", {}).get("block_below") == 90
+        and rules.get("information_gain", {}).get("min_len") == 30,
+        f"version={rules.get('version')}",
+    )
+    pipeline_src = (APP / "scripts/publish_pipeline.py").read_text(encoding="utf-8")
+    check(
+        "파이프라인에 게이트 함수·점검표 13줄 연결",
+        all(fn in pipeline_src for fn in ("def check_answer_first", "def check_information_gain", "def check_review", "def check_visual_gate"))
+        and "13줄" in pipeline_src
+        and "review-stale" in pipeline_src,
+    )
+    check("게이트 단위 테스트 파일 존재", (APP / "scripts/test_publish_gates.py").exists())
+    check("게이트 진단 리포트(그림자 모드 실행 흔적)", (REPO / "reports/buffetkimz-web/pipeline-v2/checklist.json").exists())
+
     failed = [r for r in results if not r["ok"]]
     summary = {
-        "version": "5.9.3",
+        "version": "6.0.0",
         "checks": len(results),
         "passed": len(results) - len(failed),
         "failed": len(failed),

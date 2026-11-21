@@ -2,11 +2,13 @@ import CoverageCheck from "./CoverageCheck";
 import DisclosureCheck from "./DisclosureCheck";
 import SilsonCompare from "./SilsonCompare";
 import PensionTax from "./PensionTax";
+import PensionDraw from "./PensionDraw";
 import RetirementFlow from "./RetirementFlow";
 import CompoundReturn from "./CompoundReturn";
 
 const MAP: Record<string, (props: { compact?: boolean }) => React.ReactElement> = {
   "pension-tax": PensionTax,
+  "pension-draw": PensionDraw,
   "retirement-flow": RetirementFlow,
   "compound-return": CompoundReturn,
   "coverage-check": CoverageCheck,

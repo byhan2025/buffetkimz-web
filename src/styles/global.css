@@ -1638,33 +1638,6 @@
     margin: 0;
   }
 
-  .prose-article table {
-    /* 표는 내용 폭만큼만 차지한다 — display:block + width:100%면 흰 카드가 오른쪽으로 비어 보인다 */
-    width: fit-content;
-    max-width: 100%;
-    margin-block: 1.9em;
-    border-collapse: collapse;
-    font-size: 14px;
-    line-height: 1.62;
-    display: block;
-    overflow-x: auto;
-  }
-
-  .prose-article th,
-  .prose-article td {
-    border-bottom: var(--rule);
-    padding: 9px 12px;
-    text-align: left;
-    vertical-align: top;
-  }
-
-  .prose-article th {
-    border-top: 1px solid #c3ced6;
-    background-color: transparent;
-    font-weight: 650;
-    white-space: nowrap;
-  }
-
   .prose-article code {
     font-size: 0.9em;
     background-color: var(--color-paper-deep);
@@ -3162,25 +3135,37 @@
     line-height: 1.72;
   }
 
-  .prose-article table {
-    max-width: 100%;
-    font-size: 13.5px;
-    line-height: 1.6;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior-x: contain;
-  }
-
   .prose-article th,
   .prose-article td {
-    padding: 8px 10px;
+    padding: 9px 11px;
     /* 한글 단어 안에서 끊지 않고, 마지막 줄에 한 단어만 남는 것도 피한다('제외' 고아 줄) */
     word-break: keep-all;
     text-wrap: pretty;
   }
 
-  .prose-article td:first-child,
-  .prose-article th:first-child {
-    width: 30%;
+  /* 좁은 화면에서도 표가 찌그러지지 않게 — 헤더는 한 줄로 두고, 필요하면 표만 옆으로 민다 */
+  .table-wrap {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+  }
+
+  .prose-article thead th {
+    white-space: nowrap;
+    text-wrap: nowrap;
+  }
+
+  .prose-article th,
+  .prose-article td {
+    padding: 9px 10px;
+  }
+
+  .prose-article table {
+    font-size: 14px;
+  }
+
+  .prose-article th:first-child,
+  .prose-article td:first-child {
+    min-width: 6.5em;
   }
 
   .prose-article blockquote {
@@ -3536,18 +3521,66 @@
     scroll-margin-top: calc(var(--header-h) + 20px);
   }
 
-  /* 4) 비교표 — 이미지가 아니라 HTML 표. 좁은 화면에서는 표 안에서만 스크롤 */
-  .prose-article table {
+  /* 4) 표 — 본문 어디서나 같은 규칙 (v6.0)
+     · 바깥은 .table-wrap(둥근 테두리·스크롤), 표는 원래의 표 레이아웃 그대로
+     · 헤더는 단어 단위로만 꺾고(keep-all), 수치 셀(.is-num)은 tabular-nums + 줄바꿈 금지
+     · 행간과 패딩을 올려 390에서도 읽히게, 헤더는 옅은 바탕으로 대비를 준다 */
+  .table-wrap {
+    margin-block: 1.9em;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
     border: 1px solid var(--color-line);
-    border-collapse: separate;
+    border-radius: 12px;
+    background-color: #fff;
+    /* 넘치는 방향을 알리는 그림자 — 끝까지 밀면 흰 페이드가 덮어 사라진다(순수 CSS) */
+    background-image:
+      linear-gradient(to right, #fff, rgb(255 255 255 / 0)),
+      linear-gradient(to left, #fff, rgb(255 255 255 / 0)),
+      radial-gradient(farthest-side at 0 50%, rgb(21 32 29 / 0.14), rgb(21 32 29 / 0)),
+      radial-gradient(farthest-side at 100% 50%, rgb(21 32 29 / 0.14), rgb(21 32 29 / 0));
+    background-position: 0 0, 100% 0, 0 0, 100% 0;
+    background-repeat: no-repeat;
+    background-size: 32px 100%, 32px 100%, 14px 100%, 14px 100%;
+    background-attachment: local, local, scroll, scroll;
+  }
+
+  .table-wrap::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  .table-wrap::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background-color: #d7dee3;
+  }
+
+  .prose-article table {
+    width: 100%;
+    margin: 0;
+    border: 0;
+    border-collapse: collapse;
     border-spacing: 0;
-    border-radius: 10px;
-    background: #fff;
+    background: transparent;
+    font-size: 14.5px;
+    line-height: 1.6;
+    display: table;
+    overflow: visible;
+  }
+
+  .prose-article th,
+  .prose-article td {
+    padding: 10px 14px;
+    text-align: left;
+    vertical-align: top;
+    word-break: keep-all;
   }
 
   .prose-article thead th {
-    background: color-mix(in srgb, var(--color-paper-deep) 70%, #fff);
+    background-color: color-mix(in srgb, var(--color-paper-deep) 80%, #fff);
     border-bottom: 1px solid #c3ced6;
+    font-weight: 700;
+    color: var(--color-ink);
+    white-space: normal;
   }
 
   .prose-article tbody tr + tr td,
@@ -3561,6 +3594,16 @@
     font-weight: 600;
   }
 
+  /* 금액·퍼센트만 든 셀 — 자리수가 흔들리지 않고, 값이 두 줄로 갈라지지 않는다 */
+  .prose-article th.is-num,
+  .prose-article td.is-num {
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    overflow-wrap: normal;
+    text-wrap: nowrap;
+  }
+
   .prose-article caption {
     caption-side: top;
     padding-bottom: 8px;
@@ -3568,6 +3611,12 @@
     font-size: 12.5px;
     line-height: 1.6;
     color: var(--color-ink-faint);
+  }
+
+  /* 실행 화면(도구) 안의 표 — 한글 라벨이 단어 중간에서 꺾이지 않게 */
+  [data-runner] th,
+  [data-runner] td {
+    word-break: keep-all;
   }
 
   /* 5) 말미 3단 — 이어서 보면 · ※ 1줄 · 작성자/기준 카드 */
@@ -3820,71 +3869,50 @@
     color: var(--color-ink-muted);
   }
 
-  /* ---------- 지표 스트립 ---------- */
+  /* ---------- 지표 스트립 ----------
+     v6.0 — 390px에서 여섯 지표가 스와이프 없이 **한 화면에 2열×3행**으로 전부 보인다.
+     768~1023은 3열×2행, 1024부터는 기존과 같은 6열 1줄(한 줄). 가로 스크롤·스냅·페이드 힌트는 없다. */
   .ind-strip {
-    display: flex;
-    flex-wrap: nowrap;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 8px;
-    overflow-x: auto;
-    padding-bottom: 4px;
-    scroll-snap-type: x proximity;
-    scroll-padding-inline: 12px;
-    -webkit-overflow-scrolling: touch;
+  }
+
+  @media (min-width: 768px) {
+    .ind-strip {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .ind-strip {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
   }
 
   .ind-strip > li {
-    flex: 0 0 auto;
-    scroll-snap-align: start;
+    display: flex;
+    min-width: 0;
   }
 
-  /*
-   * 키보드 포커스가 스트립 안에 있으면 스냅을 끈다(v5.9.1).
-   * 스냅이 켜져 있으면 scrollIntoView가 가장 가까운 스냅 지점으로 되돌아가, 칩 폭이 다를 때
-   * 포커스된 칩의 오른쪽이 잘린다(2026-11-21 390px 실측: S&P500). 터치·마우스 사용에는 영향이 없다.
-   */
-  .ind-strip:focus-within {
-    scroll-snap-type: none;
-  }
-
-  /*
-   * 가로 스와이프 힌트 (v5.9.2) — 모바일에서 오른쪽 24px가 흰색으로 옅어지며 '옆에 더 있다'를 알린다.
-   * pointer-events: none 이라 탭·스와이프를 가로막지 않는다. 끝까지 밀면 JS가 is-at-end를 붙여 끈다.
-   */
   .ind-strip-wrap {
     position: relative;
   }
 
-  @media (max-width: 767px) {
-    .ind-strip-wrap::after {
-      content: "";
-      position: absolute;
-      top: 0;
-      right: 0;
-      width: 24px;
-      height: calc(100% - 4px); /* .ind-strip padding-bottom 4px 제외 */
-      border-radius: 0 12px 12px 0;
-      background-image: linear-gradient(to right, rgb(255 255 255 / 0) 0%, #ffffff 78%);
-      pointer-events: none;
-      opacity: 1;
-      transition: opacity 160ms var(--ease-out-soft);
-    }
-
-    .ind-strip-wrap.is-at-end::after {
-      opacity: 0;
-    }
-  }
-
   .ind-chip {
     display: grid;
+    align-content: start;
     gap: 2px;
-    min-width: 136px;
+    width: 100%;
+    min-width: 0;
+    height: 100%;
     min-height: 68px;
     padding: 8px 11px;
     border: 1px solid var(--color-line);
     border-radius: 12px;
     background-color: #fff;
-    /* 가로 스크롤 안쪽 칩에 Tab으로 들어올 때 칩이 화면 가장자리에 붙지 않게 */
-    scroll-margin-inline: 12px;
+    /* Tab으로 칩에 들어올 때 sticky 헤더 밑에 가리지 않게 위 여백을 비운다 */
+    scroll-margin-block: 76px 24px;
     transition: border-color 160ms var(--ease-out-soft);
   }
 
@@ -3892,17 +3920,12 @@
     border-color: #b9c9d4;
   }
 
-  /* 키보드 포커스 — 가로 스크롤 스트립 안에서도 어느 칩에 있는지 보이게 */
+  /* 키보드 포커스 — 격자 안에서도 어느 칩에 있는지 보이게 */
   .ind-chip:focus-visible {
     border-color: #8aa7ba;
     border-radius: 12px;
     outline: 2px solid var(--color-brand);
     outline-offset: 2px;
-  }
-
-  /* Tab으로 들어올 때 sticky 헤더 밑에 가리지 않게 위 여백을 비운다(v5.9.1 실측) */
-  .ind-chip {
-    scroll-margin-block: 76px 24px;
   }
 
   .ind-name {
@@ -3913,8 +3936,9 @@
 
   .ind-row {
     display: flex;
+    flex-wrap: wrap;
     align-items: baseline;
-    gap: 6px;
+    gap: 2px 6px;
   }
 
   .ind-value {
@@ -3922,6 +3946,7 @@
     font-weight: 700;
     font-variant-numeric: tabular-nums;
     letter-spacing: -0.02em;
+    white-space: nowrap;
     color: var(--color-ink);
   }
 
@@ -3929,6 +3954,7 @@
     font-size: 12px;
     font-weight: 600;
     font-variant-numeric: tabular-nums;
+    white-space: nowrap;
     color: var(--color-ink-muted);
   }
 
@@ -3969,6 +3995,36 @@
     border-radius: 14px;
     background-color: var(--color-surface);
     padding: 12px 14px;
+  }
+
+  /* v6.0 — 제목줄 오른쪽 [3줄 복사] */
+  .hub-brief-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .hub-copy {
+    min-height: 40px;
+    padding: 0 12px;
+    border: 1px solid var(--color-line);
+    border-radius: 999px;
+    background-color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0;
+    color: var(--color-brand-deep);
+    transition: border-color 160ms var(--ease-out-soft), color 160ms var(--ease-out-soft);
+  }
+
+  .hub-copy:hover {
+    border-color: #b9c9d4;
+  }
+
+  .hub-copy:focus-visible {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 2px;
   }
 
   .hub-brief-list {
@@ -4419,9 +4475,8 @@
     }
 
     .ind-chip {
-      min-width: 124px;
-      min-height: 64px;
-      padding: 7px 10px;
+      min-height: 76px;
+      padding: 8px 10px;
       /* 390에서는 sticky 헤더가 두 줄이라 더 비운다 */
       scroll-margin-block: 132px 24px;
     }

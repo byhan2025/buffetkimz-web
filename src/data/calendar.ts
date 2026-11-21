@@ -17,6 +17,9 @@ export type CalendarItem = {
    */
   dueDate?: string;
   key?: boolean;
+  /** 이 일정을 계산·확인하는 도구 (있을 때만 카드 아래에 링크 1개) */
+  toolHref?: string;
+  toolLabel?: string;
 };
 
 export const calendarNote =
@@ -554,6 +557,8 @@ export const calendar: CalendarItem[] = [
     source: "소득세법 제59조의3",
     dueDate: "2026-12-31",
     key: true,
+    toolHref: "/apps/pension-draw/run",
+    toolLabel: "받을 때 세금 계산하기",
   },
   {
     month: 12,

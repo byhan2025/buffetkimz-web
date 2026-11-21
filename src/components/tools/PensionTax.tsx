@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { withBase } from "@/config/site";
 import { Bar, MoneySlider, Note, ResultStat, RunnerShell, Segmented, StickySummary, formatKrw, formatMan } from "./ui";
 
 type Bracket = "low" | "high";
@@ -166,6 +167,15 @@ export default function PensionTax({ compact = false }: { compact?: boolean }) {
           { label: "남은 한도", value: formatMan(calc.remainingTotal) },
         ]}
       />
+
+      <p className="mt-4">
+        <a
+          href={withBase("/apps/pension-draw/run")}
+          className="inline-flex min-h-[44px] items-center text-[13px] font-semibold text-brand-deep underline decoration-brand/30 underline-offset-4"
+        >
+          받을 때 세금이 궁금하면 — 인출·세금 시뮬레이터 →
+        </a>
+      </p>
 
       <Note>
         소득세법 제59조의3 기준(기준일 2026. 11. 21.). 실제 환급액은 산출세액과 다른 공제에 따라 달라지며,

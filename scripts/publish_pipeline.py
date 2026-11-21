@@ -761,6 +761,211 @@ def check_body_hash(post: Post, archive: list[Post]) -> list[Finding]:
     return []
 
 
+# ───────────────────────── v6.0 게이트 ─────────────────────────
+#  스펙: reports/buffetkimz-web/v60-pension-sim/01-publish-gate-spec.md
+#   · Answer-First — 요약·본문 첫 300자에 "직접 답하는 1문장 + 숫자 1개"
+#   · Information-Gain — frontmatter `gain` 한 문장(이 글만 더하는 것). 못 쓰면 그 글은 쓰지 않는다
+#   · 100점 리뷰 — 5범주 합 90점 미만 또는 P0 있으면 차단, 초안 해시에 결속(nonce 대응)
+#   · 화면(visual) 게이트는 실행 단위 1회(`check_visual_gate`)·링크 게이트는 build의 verify_dist가 맡는다
+#  아카이브(이미 발행된 14편)는 소급 차단하지 않는다 — `archive_level`(기본 warn) 그림자 모드로만 보고한다(스펙 §9.1).
+
+ANSWER_END = ("입니다", "습니다", "됩니다", "입니다만", "예요", "이에요")
+ANSWER_NUM = re.compile(r"\d[\d,. ]*\s*(?:%|만원|억원|원|년|개월|세|배|포인트|bp)")
+GAIN_CLICHE = ("자세히 정리", "총정리", "알아보자", "완벽 가이드", "모든 것", "핵심 정리")
+REVIEW_DIR = ROOT / ".publish-reviews"
+
+
+def gate_cfg(cfg, name: str) -> dict:
+    return (cfg.get("gates") or {}).get(name) or {}
+
+
+def gate_level(cfg, name: str, mode: str) -> str | None:
+    """게이트 판정 수준 — 꺼져 있으면 None, 아카이브는 `archive_level`(기본 warn)."""
+    g = gate_cfg(cfg, name)
+    if not g.get("enabled"):
+        return None
+    if mode == "archive":
+        return g.get("archive_level", "warn")
+    return g.get("level", "error")
+
+
+def check_answer_first(post: Post, cfg, mode: str = "archive") -> list[Finding]:
+    """Answer-First — 질문 → 답(숫자 포함) → 설명 순서인지 본다."""
+    level = gate_level(cfg, "answer_first", mode)
+    if not level:
+        return []
+    g = gate_cfg(cfg, "answer_first")
+    window = int(g.get("body_window", 300))
+    out: list[Finding] = []
+
+    desc = post.description
+    if g.get("description_requires_number", True) and desc and not ANSWER_NUM.search(desc):
+        out.append(
+            Finding(
+                level,
+                "answer-first-desc",
+                "요약에 결론을 받쳐 주는 숫자가 없습니다 — '무엇이 얼마인지'를 한 문장으로 넣으세요.",
+            )
+        )
+
+    flat = re.sub(r"\s+", " ", strip_code(post.body)).strip()
+    first = flat[:window]
+    sentences = re.split(r"(?<=[.!?])\s+", first)
+    # 문장 끝이 '…입니다.'처럼 마침표를 포함하므로 마침표·따옴표를 떼고 어미를 본다(스펙 스니펫 보정).
+    direct = [
+        s
+        for s in sentences
+        if s.strip().rstrip(".!?\"'”’").endswith(ANSWER_END) and ANSWER_NUM.search(s)
+    ]
+    if flat and not direct:
+        out.append(
+            Finding(
+                level,
+                "answer-first-body",
+                "본문 첫 300자에 숫자를 포함한 직답 문장이 없습니다 — 질문 → 답 → 설명 순서로 고치세요.",
+            )
+        )
+
+    h2 = re.search(r"^##\s.*$", strip_code(post.body), re.M)
+    if h2 and direct:
+        before = re.sub(r"\s+", " ", strip_code(post.body)[: h2.start()]).strip()
+        before_sents = re.split(r"(?<=[.!?])\s+", before) if before else []
+        answered_before = any(
+            s.strip().rstrip(".!?\"'”’").endswith(ANSWER_END) and ANSWER_NUM.search(s) for s in before_sents
+        )
+        if not answered_before:
+            out.append(Finding("warn", "answer-first-order", "첫 소제목이 직답보다 앞에 있습니다 — 질문 → 답 → 설명 순서로 고치세요."))
+    return out
+
+
+def check_information_gain(post: Post, cfg, mode: str = "archive") -> list[Finding]:
+    """Information-Gain — '이 글만 더하는 것' 한 문장(`gain`)을 강제한다."""
+    level = gate_level(cfg, "information_gain", mode)
+    if not level:
+        return []
+    extra = cfg.get("information_gain") or {}
+    min_len = int(extra.get("min_len", 30))
+    types = extra.get("types") or []
+    gain = str(post.fm.get("gain", "") or "").strip()
+    if not gain:
+        return [
+            Finding(
+                level,
+                "information-gain",
+                "`gain`이 없습니다 — '이 글만 더하는 것'을 한 문장으로 쓰세요. 못 쓰면 그 글은 쓰지 않습니다.",
+            )
+        ]
+    out: list[Finding] = []
+    if len(gain) < min_len:
+        out.append(Finding(level, "information-gain-short", f"`gain`이 {len(gain)}자 — {min_len}자 이상 한 문장으로 구체화하세요."))
+    hit = [c for c in GAIN_CLICHE if c in gain]
+    if hit:
+        out.append(Finding(level, "information-gain-cliche", f"`gain`이 상투적입니다({', '.join(hit)}): {gain[:60]}"))
+    gtype = str(post.fm.get("gainType", "") or "").strip()
+    if not gtype:
+        out.append(Finding("warn", "information-gain-type", "`gainType`(original-data·real-example·tool·clearer-answer·stronger-opinion)이 없습니다."))
+    elif types and gtype not in types:
+        out.append(Finding("warn", "information-gain-type", f"`gainType` `{gtype}`은 허용 목록에 없습니다: {', '.join(types)}"))
+    elif gtype == "tool" and not str(post.fm.get("toolHref", "") or "").strip():
+        out.append(Finding(level, "information-gain-tool", "`gainType: tool`이면 `toolHref`가 필요합니다."))
+    return out
+
+
+def draft_digest(post: Post) -> str:
+    """리뷰 결속용 초안 해시 — 파일 원문(없으면 재구성한 frontmatter+본문)의 sha256."""
+    if post.path and post.path.exists():
+        raw = post.path.read_text(encoding="utf-8")
+    else:
+        raw = emit_frontmatter(post.fm) + "\n\n" + post.body
+    return "sha256:" + hashlib.sha256(norm(raw).replace("\r\n", "\n").encode("utf-8")).hexdigest()
+
+
+def check_review(post: Post, cfg, mode: str = "archive") -> list[Finding]:
+    """100점 루브릭 리뷰 — 파일이 없거나 초안 해시가 달라졌으면 무효(손으로 PASS를 못 쓴다)."""
+    level = gate_level(cfg, "review", mode)
+    if not level:
+        return []
+    g = gate_cfg(cfg, "review")
+    min_total = int(g.get("min_total", 90))
+    path = REVIEW_DIR / f"{post.slug}.review.json"
+    if not path.exists():
+        return [
+            Finding(
+                level,
+                "review-missing",
+                f"100점 리뷰 리포트가 없습니다: .publish-reviews/{post.slug}.review.json (5범주 합 {min_total}점 이상 + P0 0).",
+            )
+        ]
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        return [Finding(level, "review-invalid", f"리뷰 리포트를 읽지 못했습니다({exc}).")]
+    if not isinstance(data, dict):
+        return [Finding(level, "review-invalid", "리뷰 리포트 형식이 객체(JSON object)가 아닙니다.")]
+
+    out: list[Finding] = []
+    scores = data.get("scores") if isinstance(data.get("scores"), dict) else {}
+    total = data.get("total")
+    if scores and isinstance(total, (int, float)) and int(total) != int(sum(scores.values())):
+        out.append(Finding(level, "review-total-mismatch", f"`total` {total} ≠ 5범주 합 {int(sum(scores.values()))}."))
+    effective_total = int(total) if isinstance(total, (int, float)) else int(sum(scores.values()))
+    p0 = data.get("p0") or []
+    if effective_total < min_total:
+        out.append(Finding(level, "review-blocking", f"100점 리뷰 {effective_total}점 — {min_total}점 미만이라 발행하지 않습니다."))
+    if p0:
+        out.append(Finding(level, "review-blocking", f"P0 {len(p0)}건이 남아 있습니다: {', '.join(str(x) for x in p0[:3])}"))
+    if data.get("blocking"):
+        out.append(Finding(level, "review-blocking", "리뷰 리포트가 `blocking: true`로 표시되어 있습니다."))
+    if g.get("require_hash_binding", True):
+        want = draft_digest(post)
+        if str(data.get("reviewedDraftHash", "")) != want:
+            out.append(
+                Finding(
+                    level,
+                    "review-stale",
+                    "초안이 바뀌어 리뷰가 무효입니다 — `reviewedDraftHash`가 현재 초안 해시와 다릅니다. 다시 리뷰하세요.",
+                )
+            )
+    return out
+
+
+def check_visual_gate(cfg, mode: str = "draft") -> list[Finding]:
+    """화면 게이트 — 390/768/1280 캡처 계측이 없거나 실패면 초안을 적재하지 않는다(스펙 §3 게이트 3)."""
+    level = gate_level(cfg, "visual", mode)
+    if not level:
+        return []
+    g = gate_cfg(cfg, "visual")
+    capture = REPORT_DIR / "mobile-390.json"
+    if not capture.exists() and g.get("require_capture", True):
+        return [
+            Finding(
+                level,
+                "gate-visual-missing",
+                f"390px 캡처 계측 파일이 없습니다: {capture} — verify_pipeline_v2.py를 ingest 전에 실행하세요.",
+            )
+        ]
+    if not capture.exists():
+        return []
+    try:
+        data = json.loads(capture.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return [Finding(level, "gate-visual-invalid", "390px 캡처 계측 파일을 읽지 못했습니다.")]
+    failures = data.get("failures") or []
+    if failures:
+        return [
+            Finding(
+                level,
+                "gate-visual-fail",
+                f"390px 캡처 계측 실패 {len(failures)}건 — 첫 항목: {str(failures[0])[:120]}",
+            )
+        ]
+    age_days = (datetime.now(KST) - datetime.fromtimestamp(capture.stat().st_mtime, KST)).days
+    limit = int(g.get("max_age_days", 7))
+    if age_days > limit:
+        return [Finding("warn", "gate-visual-stale", f"390px 캡처가 {age_days}일 전 것입니다({limit}일 이내로 다시 재세요).")]
+    return []
+
+
 def validate_post(post: Post, cfg, archive: list[Post], mode: str = "archive") -> list[Finding]:
     findings: list[Finding] = []
     findings += check_required(post, cfg, mode)
@@ -773,6 +978,10 @@ def validate_post(post: Post, cfg, archive: list[Post], mode: str = "archive") -
     findings += check_body_hash(post, archive)
     findings += check_topic_policy(post, cfg)
     findings += check_concentration(post, archive, cfg)
+    # v6.0 게이트 — Answer-First · Information-Gain · 100점 리뷰(해시 결속)
+    findings += check_answer_first(post, cfg, mode)
+    findings += check_information_gain(post, cfg, mode)
+    findings += check_review(post, cfg, mode)
     findings.sort(key=lambda f: LEVELS[f.level], reverse=True)
     return findings
 
@@ -1088,6 +1297,32 @@ def prepare_draft(path: Path, args, cfg) -> tuple[Post | None, list[Finding]]:
     return post, findings
 
 
+def write_gate_report(prepared, visual, cfg) -> Path:
+    """게이트 실패 진단을 남긴다 — 파일을 쓰지 않고, 무엇을 고쳐야 하는지만 돌려준다."""
+    REPORT_DIR.mkdir(parents=True, exist_ok=True)
+    lines = [
+        f"# 발행 게이트 진단 — {datetime.now(KST).isoformat(timespec='seconds')}",
+        "",
+        "파일을 쓰지 않았습니다. 아래 오류를 고친 뒤 다시 실행하세요(3회까지).",
+        "",
+    ]
+    for post, findings in prepared:
+        errs = [f for f in findings if f.level == "error"]
+        warns = [f for f in findings if f.level == "warn"]
+        lines.append(f"## {post.slug} — 오류 {len(errs)} · 경고 {len(warns)}")
+        for f in errs + warns:
+            lines.append(f"- **{f.level}** `{f.code}` {f.message}")
+        lines.append("")
+    if visual:
+        lines.append("## 화면 게이트(390 계측)")
+        for f in visual:
+            lines.append(f"- **{f.level}** `{f.code}` {f.message}")
+        lines.append("")
+    path = REPORT_DIR / "gate-report.md"
+    path.write_text("\n".join(lines), encoding="utf-8")
+    return path
+
+
 def cmd_ingest(args) -> int:
     cfg = load_rules()
     archive = load_posts()
@@ -1121,10 +1356,19 @@ def cmd_ingest(args) -> int:
         print_findings(post.slug, findings)
         if has_error(findings):
             any_error = True
+
+    # 화면 게이트(스펙 §3 게이트 3) — 글 단위가 아니라 실행 단위로 한 번 본다.
+    visual = check_visual_gate(cfg, "draft")
+    if visual:
+        print_findings("화면 게이트(390 계측)", visual)
+        if has_error(visual):
+            any_error = True
     print("─" * 62)
 
     if any_error:
+        diag = write_gate_report(prepared, visual, cfg)
         print("결과: 게이트 실패 — 위 오류를 고친 뒤 다시 실행하세요. (파일을 쓰지 않았습니다)")
+        print(f"진단: {diag} — 3회까지 고쳐도 통과하지 못하면 발행하지 않습니다(절반만 검수된 글을 내보내지 않는다).")
         return 1
 
     # 비율·주제 정책을 반영한 발행 판정 (억지 발행 대신 HOLD)
@@ -1283,12 +1527,24 @@ def verify_dist(slugs: list[str], project: Path = ROOT) -> dict:
 
         ld_blocks = re.findall(r'<script type="application/ld\+json">(.*?)</script>', html, re.S)
         ld_ok = False
+
+        def _article_in(data) -> bool:
+            """@graph 묶음(사이트 공통 그래프)이든 단독 객체든 Article을 찾는다."""
+            if isinstance(data, list):
+                return any(_article_in(x) for x in data)
+            if not isinstance(data, dict):
+                return False
+            if data.get("@type") == "Article" and data.get("headline") == title:
+                return True
+            graph = data.get("@graph")
+            return _article_in(graph) if graph else False
+
         for block in ld_blocks:
             try:
                 data = json.loads(block)
             except json.JSONDecodeError:
                 continue
-            if data.get("@type") == "Article" and data.get("headline") == title:
+            if _article_in(data):
                 ld_ok = True
         checks["jsonld"] = ld_ok
         if not ld_ok:
@@ -1616,6 +1872,35 @@ def cmd_checklist(args) -> int:
     else:
         rows.append(row("10 모바일 390 규격", [], ["측정 파일 없음"], "verify_pipeline_v2.py 실행 후 채워짐"))
 
+    # v6.0 — 11~13줄. 아카이브는 그림자 모드(warn)로만 보고하고, 신규 ingest에서만 차단한다.
+    af = pick(["answer-first"])
+    rows.append(
+        row(
+            "11 Answer-First",
+            [f for f in af if f.level == "error"],
+            [f for f in af if f.level == "warn"],
+            f"요약 숫자 + 본문 첫 300자 직답 · 위반 {len(af)}건(아카이브 그림자)",
+        )
+    )
+    ig = pick(["information-gain"])
+    rows.append(
+        row(
+            "12 Information-Gain",
+            [f for f in ig if f.level == "error"],
+            [f for f in ig if f.level == "warn"],
+            f"`gain` 한 문장(30자↑·상투어 금지) · 미비 {len(ig)}건(아카이브 그림자)",
+        )
+    )
+    rv = pick(["review"])
+    rows.append(
+        row(
+            "13 100점 리뷰(해시 결속)",
+            [f for f in rv if f.level == "error"],
+            [f for f in rv if f.level == "warn"],
+            f"5범주 합 90점↑ · P0 0 · 초안 해시 일치 · 미비 {len(rv)}건(아카이브 그림자)",
+        )
+    )
+
     fails = sum(1 for r in rows if r["status"] == "FAIL")
     warns = sum(1 for r in rows if r["status"] == "WARN")
     payload = {
@@ -1626,7 +1911,7 @@ def cmd_checklist(args) -> int:
         "verdict": "FAIL" if fails else ("WARN" if warns else "PASS"),
     }
 
-    print("\n■ 발행 점검표 (10줄)")
+    print("\n■ 발행 점검표 (13줄)")
     print("─" * 66)
     for r in rows:
         mark = {"PASS": "✓", "WARN": "!", "FAIL": "✗"}[r["status"]]

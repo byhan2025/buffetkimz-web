@@ -1,6 +1,6 @@
 {
   "_comment": "buffetkimz.com 발행 파이프라인 v2 규칙. 코드(scripts/publish_pipeline.py)를 고치지 않고 이 파일만 고쳐 게이트를 조정한다.",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "updatedAt": "2026-11-21",
   "categories": {
     "finance": {
@@ -658,5 +658,73 @@
     ],
     "promo_level": "error",
     "promo_why": "특정 보험사·상품 홍보 — 회사명과 판촉 표현이 함께 나오면 차단"
+  },
+  "gates": {
+    "_comment": "v6.0 발행 게이트 — claude-blog의 5게이트·100점 루브릭 구조와 marketingskills의 Information-Gain Gate를 옮겼다. 아카이브(이미 발행된 14편)는 소급 차단하지 않고 archive_level(warn) 그림자 모드로만 보고하며, 신규 초안(ingest)에서만 error로 막는다.",
+    "answer_first": {
+      "enabled": true,
+      "body_window": 300,
+      "description_requires_number": true,
+      "level": "error",
+      "archive_level": "warn"
+    },
+    "information_gain": {
+      "enabled": true,
+      "min_len": 30,
+      "level": "error",
+      "archive_level": "warn"
+    },
+    "review": {
+      "enabled": true,
+      "min_total": 90,
+      "max_reruns": 3,
+      "require_hash_binding": true,
+      "level": "error",
+      "archive_level": "warn"
+    },
+    "visual": {
+      "enabled": true,
+      "require_capture": true,
+      "viewports": [
+        390,
+        768,
+        1280
+      ],
+      "max_age_days": 7,
+      "level": "error",
+      "archive_level": "warn"
+    },
+    "links": {
+      "enabled": true,
+      "level": "error",
+      "archive_level": "warn",
+      "_comment": "내부 링크·이미지·검색 인덱스·읽기시간은 build 단계의 verify_dist가 맡는다(ingest에서는 돌리지 않는다)."
+    }
+  },
+  "rubric": {
+    "_comment": "100점 5범주 — 내용 30 · 근거·E-E-A-T 25 · 검색·구조 20 · AI 인용 15 · 기술·모바일 10. 90점 미만 또는 P0 1건 이상이면 발행하지 않는다.",
+    "content": 30,
+    "evidence": 25,
+    "search": 20,
+    "ai": 15,
+    "tech": 10,
+    "block_below": 90,
+    "p0": [
+      "unsourced-key-number",
+      "non-primary-only",
+      "wrong-law-or-date",
+      "duplicate-body",
+      "forbidden-claim"
+    ]
+  },
+  "information_gain": {
+    "min_len": 30,
+    "types": [
+      "original-data",
+      "real-example",
+      "tool",
+      "clearer-answer",
+      "stronger-opinion"
+    ]
   }
 }
