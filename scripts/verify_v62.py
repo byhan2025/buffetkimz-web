@@ -33,7 +33,9 @@ OUT = APP.parent.parent / "reports" / "buffetkimz-web" / "v62-about"
 OUT.mkdir(parents=True, exist_ok=True)
 CHROME = "/workspace/.cache/ms-playwright/chromium-1255/chrome-linux64/chrome"
 PORT = 8152
-BASE = f"http://127.0.0.1:{PORT}"
+LIVE = "https://byhan2025.github.io/buffetkimz-web"
+MODE = "live" if "--live" in __import__("sys").argv else "local"
+BASE = LIVE if MODE == "live" else f"http://127.0.0.1:{PORT}"
 
 # 서브패스 빌드(dist가 /buffetkimz-web/… 를 가리켜도) 그대로 서빙
 PREFIX = "/buffetkimz-web"
@@ -77,7 +79,7 @@ OVERFLOW_JS = """() => {
 
 
 def main() -> int:
-    httpd = serve()
+    httpd = None if MODE == "live" else serve()
     checks: dict[str, dict] = {}
     errors: list[str] = []
 
@@ -197,12 +199,13 @@ def main() -> int:
             # 캡처
             page.evaluate("() => window.scrollTo(0,0)")
             page.wait_for_timeout(300)
-            page.screenshot(path=str(OUT / f"verify-about-{label}.png"))
-            page.screenshot(path=str(OUT / f"verify-about-{label}-full.png"), full_page=True)
+            page.screenshot(path=str(OUT / f"verify-{MODE}-about-{label}.png"))
+            page.screenshot(path=str(OUT / f"verify-{MODE}-about-{label}-full.png"), full_page=True)
             page.close()
 
         browser.close()
-    httpd.shutdown()
+    if httpd:
+        httpd.shutdown()
 
     result = {
         "ok": not errors,
@@ -211,8 +214,8 @@ def main() -> int:
         "failed": {k: v for k, v in checks.items() if not v["ok"]},
         "checks": checks,
     }
-    (OUT / "verify-v62.json").write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(f"{result['passed']}/{result['total']} checks passed")
+    (OUT / f"verify-v62-{MODE}.json").write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
+    print(f"[{MODE}] {result['passed']}/{result['total']} checks passed")
     for k, v in result["failed"].items():
         print(f"FAIL  {k} — {v['detail']}")
     return 0 if result["ok"] else 1
