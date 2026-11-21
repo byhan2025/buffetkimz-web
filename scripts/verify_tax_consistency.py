@@ -18,7 +18,10 @@ import json
 import pathlib
 import re
 import sys
+import urllib.request
 
+LIVE = "--live" in sys.argv
+LIVE_BASE = "https://byhan2025.github.io/buffetkimz-web"
 APP = pathlib.Path(__file__).resolve().parent.parent
 SRC = APP / "src"
 DIST = APP / "dist"
@@ -174,8 +177,27 @@ check(
 # ---------------------------------------------------------------------------
 # D. dist 문구 일관성
 # ---------------------------------------------------------------------------
-pages = {p: read(p) for p in DIST.rglob("*.html")}
-check("D0 dist HTML 존재", bool(pages), f"{len(pages)}개")
+if LIVE:
+    live_paths = [
+        "/", "/apps/", "/about/", "/posts/", "/posts/pension/",
+        "/apps/pension-tax/", "/apps/pension-tax/run/", "/apps/account-tax-compare/run/",
+        "/apps/health-insurance-compare/", "/apps/health-insurance-compare/run/",
+        "/apps/salary-net/", "/apps/salary-net/run/", "/apps/loan-repay/run/",
+        "/apps/pension-draw/run/",
+        "/search/", "/calendar/",
+    ] + [f"/posts/pension-master-0{i}-{slug}/" for i, slug in enumerate(
+        ["four-accounts", "tax-compare", "yearend-900", "asset-etf", "draw-1500", "healthcheck"], start=1)]
+    pages = {}
+    for path in live_paths:
+        try:
+            with urllib.request.urlopen(LIVE_BASE + path, timeout=30) as r:
+                pages[path] = r.read().decode("utf-8", "replace")
+        except Exception as exc:  # 라이브가 아직 아니면 그 페이지만 빠진다
+            print(f"  (live fetch 실패 {path}: {exc})")
+    check("D0 라이브 HTML 수집", bool(pages), f"{len(pages)}/{len(live_paths)}p")
+else:
+    pages = {str(p.relative_to(DIST)): read(p) for p in DIST.rglob("*.html")}
+    check("D0 dist HTML 존재", bool(pages), f"{len(pages)}개")
 
 
 def variants(pattern: str) -> dict[str, list[str]]:
@@ -183,7 +205,7 @@ def variants(pattern: str) -> dict[str, list[str]]:
     for p, html in pages.items():
         for m in re.finditer(pattern, html):
             key = m.group(1).replace(",", "")
-            out.setdefault(key, []).append(str(p.relative_to(DIST)))
+            out.setdefault(key, []).append(p)
     return out
 
 
@@ -203,7 +225,7 @@ for p, html in pages.items():
         # '종합과세와 16.5% 분리과세 중 선택'은 올바른 문장 — 분리과세가 뒤따르면 통과
         # 카드에서 잘린 문장(…으로 끝남)은 판단하지 않는다
         if "분리" not in tail and not tail.rstrip().endswith("…"):
-            bad.append(f"{p.relative_to(DIST)}: {tail[:44]}")
+            bad.append(f"{p}: {tail[:44]}")
 check("D2 '16.5%'를 종합과세 세율로 쓰지 않음", not bad, "; ".join(bad[:4]))
 
 # D3 연금저축 단독 한도 — 600만원 (큰 금액은 계산 결과라 제외)
@@ -247,15 +269,15 @@ stale = []
 for p, html in pages.items():
     for pat in ("16.0%", "13.0%", "14.0%", "7.09%", "9.0% 분리과세"):
         if pat in html:
-            stale.append(f"{p.relative_to(DIST)}:{pat}")
+            stale.append(f"{p}:{pat}")
 check("D12 폐기 표기(16.0%·13.0% 등) 0건", not stale, "; ".join(stale[:5]))
 
 # ---------------------------------------------------------------------------
 # E. 대표 숫자 — 같은 곱에서 나왔는가
 # ---------------------------------------------------------------------------
-home = read(DIST / "index.html")
-about = read(DIST / "about" / "index.html")
-pension_detail = read(DIST / "apps" / "pension-tax" / "index.html")
+home = pages.get("/") or read(DIST / "index.html")
+about = pages.get("/about/") or read(DIST / "about" / "index.html")
+pension_detail = pages.get("/apps/pension-tax/") or read(DIST / "apps" / "pension-tax" / "index.html")
 credit_man = EXPECTED["combinedLimit"] * EXPECTED["creditRateLowPct"] / 100  # 148.5
 credit_won = int(EXPECTED["combinedLimit"] * 10000 * EXPECTED["creditRateLowPct"] / 100)  # 1485000
 won_label = f"{credit_won // 10000}만 {credit_won % 10000:,}원"
@@ -278,6 +300,6 @@ result = {
     "failed": len(failed),
     "checks": CHECKS,
 }
-(OUT / "verify-tax-consistency.json").write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
-print(f"\n{result['passed']}/{result['total']} 통과 → {OUT / 'verify-tax-consistency.json'}")
+(OUT / f"verify-tax-consistency{'-live' if LIVE else ''}.json").write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
+print(f"\n{result['passed']}/{result['total']} 통과 → {OUT / ('verify-tax-consistency-live.json' if LIVE else 'verify-tax-consistency.json')}")
 sys.exit(0 if not failed else 1)
