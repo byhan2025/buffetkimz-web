@@ -411,7 +411,7 @@ shots = sorted(p.name for p in OUT.glob("*.png"))
 check("I1 캡처 4장 이상(390·1280)", len(shots) >= 4 and any("390" in s for s in shots) and any("1280" in s for s in shots), f"{len(shots)}장")
 
 failed = [c for c in CHECKS if not c["ok"]]
-result = {"version": "7.7.0", "mode": MODE, "total": len(CHECKS), "passed": len(CHECKS) - len(failed), "failed": len(failed), "checks": CHECKS}
+result = {"version": json.loads((APP / "package.json").read_text(encoding="utf-8"))["version"], "mode": MODE, "total": len(CHECKS), "passed": len(CHECKS) - len(failed), "failed": len(failed), "checks": CHECKS}
 (OUT / f"verify-v77-{MODE}.json").write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
 print(f"\n{result['passed']}/{result['total']} 통과 → {OUT / f'verify-v77-{MODE}.json'}")
 sys.exit(0 if not failed else 1)

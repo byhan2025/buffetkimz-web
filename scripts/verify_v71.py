@@ -531,7 +531,7 @@ def main() -> int:
         act = page.evaluate("() => document.querySelector('[data-gallery-tab].is-active')?.dataset.galleryTab")
         add("?cat=carousel 탭 열림", act == "carousel" and len(vis) >= 1 and "pension-accounts" in vis, {"tab": act, "vis": vis})
         page.close()
-        add("package.json 버전 7.7.0", pkg.get("version") == "7.7.0", str(pkg.get("version")))
+        add("package.json 버전 7.7.x", str(pkg.get("version", "")).startswith("7.7."), str(pkg.get("version")))
 
         # v7.2 — dist 전체 <del> 0건 (물결표 2개가 취소선으로 먹히면 글자가 사라진다)
         if MODE == "local":

@@ -183,7 +183,9 @@ const { mode, journey } = Astro.props;
 
     if (mode === "home") {
       /* ① 첫 방문 — 오늘 확인 허브 → 추천 시작 글 → 앱스토어, 3스텝 */
-      const steps: DriveStep[] = [
+      /* `satisfies`로 항목 모양을 먼저 검사한다 — 여기서 `side`·`align`이 문자열로 넓어져
+         DriveStep과 어긋나는 일(astro check TS2322)을 막고, 오타도 그 자리에서 잡는다. */
+      const steps = ([
         {
           element: '[data-guide="hub"]',
           popover: {
@@ -214,7 +216,9 @@ const { mode, journey } = Astro.props;
             align: "start",
           },
         },
-      ].filter((step) => typeof step.element === "string" && document.querySelector(step.element));
+      ] satisfies DriveStep[]).filter(
+        (step) => typeof step.element === "string" && document.querySelector(step.element)
+      );
 
       const tour = createTour(steps, () => write(KEY_TOUR, "done"));
 

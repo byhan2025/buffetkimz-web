@@ -321,7 +321,10 @@ export const featuredStore: StoreItem[] = [
 
 export const storeById = (id: string) => storeItems.find((i) => i.id === id);
 
-/** 카테고리별 개수 — `금융투자앱 5` 같은 표기를 데이터에서 센다. */
-export const categoryCount = (id: AppCategoryId) => storeItems.filter((i) => i.category === id).length;
+/** 카테고리별 개수 — `금융투자앱 5` 같은 표기를 데이터에서 센다.
+ *  메뉴 주소(`/apps/#cat-finance`)에서 잘라 낸 문자열을 그대로 넘길 수 있게 `string`을 받는다.
+ *  모르는 값이면 0으로 센다(빌드 중 화면 숫자가 틀어지지 않게). */
+export const categoryCount = (id: string) =>
+  storeItems.filter((i) => i.category === (id as AppCategoryId)).length;
 
 export const storePath = (item: StoreItem) => item.href;

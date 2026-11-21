@@ -330,4 +330,6 @@ export const galleryItems: GalleryItem[] = [
 
 export const galleryCount = galleryItems.length;
 export const gallerySlideCount = galleryItems.reduce((n, i) => n + i.slides.length, 0);
-export const categoryCount = (id: GalleryCategoryId) => galleryItems.filter((i) => i.category === id).length;
+/** 카테고리별 세트 수 — 메뉴 주소(`/gallery/?cat=cardnews`)에서 잘라 낸 문자열을 그대로 받는다. */
+export const categoryCount = (id: string) =>
+  galleryItems.filter((i) => i.category === (id as GalleryCategoryId)).length;

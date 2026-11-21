@@ -6346,11 +6346,6 @@
     color: #2c5c9c;
   }
 
-  .simtop-free {
-    font-size: 9.5px;
-    color: var(--color-ink-faint);
-  }
-
   .simtop-name {
     display: block;
     margin-top: 2px;
