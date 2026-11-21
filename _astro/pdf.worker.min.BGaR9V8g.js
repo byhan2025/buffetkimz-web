@@ -1,0 +1,1 @@
+var e=`/buffetkimz-web/_astro/pdf.worker.min.yatZIOMy.mjs`;export{e as default};

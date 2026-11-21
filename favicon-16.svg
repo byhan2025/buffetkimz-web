@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+  <style>
+    :root { color-scheme: light dark; }
+    .bk-ink { fill: #0b1b29; }
+    .bk-tab { fill: #146c58; }
+    @media (prefers-color-scheme: dark) {
+      .bk-ink { fill: #faf9f6; }
+      .bk-tab { fill: #7fe3c4; }
+    }
+  </style>
+  <path class="bk-ink" d="M3.9 2H13.9V22L8.9 16.2 3.9 22Z"/>
+  <rect class="bk-tab" x="13.9" y="4.5" width="7.1" height="4.5"/>
+</svg>
