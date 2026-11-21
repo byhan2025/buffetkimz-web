@@ -3,8 +3,10 @@ import { unified } from '@astrojs/markdown-remark';
 import react from '@astrojs/react';
 import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
+import remarkGfm from 'remark-gfm';
 import { rehypeAdBreak } from './src/lib/rehype-ad-break.mjs';
 import { rehypeTableWrap } from './src/lib/rehype-table-wrap.mjs';
+import { rehypeNoStrikethrough } from './src/lib/rehype-no-strikethrough.mjs';
 
 /**
  * 배포 주소 분기.
@@ -62,9 +64,18 @@ export default defineConfig({
      * v6.0 — 본문 표를 .table-wrap으로 감싸고(수치 셀 tabular-nums) 내부 링크에 배포 접두를 붙이는
      * rehype 플러그인을 쓰려면 unified 프로세서를 명시해야 한다. Astro 7 기본 프로세서(Sätteri)는
      * `markdown.rehypePlugins`를 읽지 않아, 그대로 두면 이 플러그인들이 조용히 무시된다.
+     *
+     * v7.2 — GFM 취소선 사고의 원천 차단.
+     * remark-gfm은 기본값이 `singleTilde: true`라서 `3.3~5.5%`처럼 한 줄에 물결표가 두 번 나오면
+     * 뒤 문장까지 한 덩어리로 취소선(`<del>`)이 되어 글자가 사라진다. 그래서 GFM은 여기서 옵션과 함께
+     * 직접 등록하고(`singleTilde: false` — `~~` 두 개만 취소선), Astro의 기본 등록은 끈다(`gfm: false`).
+     * 더해 `rehypeNoStrikethrough`가 본문에 취소선이 하나라도 생기면 빌드를 세워 배포 전에 알린다.
      */
+    gfm: false,
     processor: unified({
-      rehypePlugins: [rehypeTableWrap(), rehypeBase(BASE), rehypeAdBreak],
+      gfm: false,
+      remarkPlugins: [[remarkGfm, { singleTilde: false }]],
+      rehypePlugins: [rehypeTableWrap(), rehypeBase(BASE), rehypeAdBreak, rehypeNoStrikethrough()],
     }),
   },
   vite: {

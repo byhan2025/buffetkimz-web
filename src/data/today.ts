@@ -70,7 +70,7 @@ export type TodayItem = {
   /** 1차 출처 */
   sourceLabel: string;
   sourceUrl: string;
-  /** 기한이 있는 항목만 — 금융캘린더과 같은 D-Day 함수를 쓴다 */
+  /** 기한이 있는 항목만 — 골든타임과 같은 D-Day 함수를 쓴다 */
   dueDate?: string;
   /** 도구 1개까지 */
   toolHref?: string;
@@ -346,7 +346,7 @@ export const today: TodayData = {
       sourceUrl: "https://www.nts.go.kr/nts/cm/cntnts/cntntsView.do?cntntsId=7674&mi=2237",
       dueDate: "2026-11-30",
       toolHref: "/calendar#m11",
-      toolLabel: "금융캘린더 11월 보기",
+      toolLabel: "골든타임 11월 보기",
       basis: "납부기한이 평일이라 공휴일 연장이 없습니다",
     },
     {

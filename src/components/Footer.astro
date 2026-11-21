@@ -13,9 +13,9 @@ import BrandLockup from "@/components/BrandLockup.astro";
 const year = site.today.getFullYear();
 const internalApps = apps.filter((a) => a.internal);
 const mainLinks = [
-  { href: "/posts", label: "금융지식 전체" },
+  { href: "/posts", label: "자산리포트 전체" },
   { href: "/apps", label: "앱스토어" },
-  { href: "/calendar", label: "금융캘린더" },
+  { href: "/calendar", label: "골든타임" },
   { href: "/gallery", label: "자료앨범" },
   { href: "/about", label: "소개" },
 ];
@@ -36,7 +36,7 @@ const policyLinks = [
         </a>
         <p class="mt-1.5 text-[12.5px] leading-[1.7] text-ink-muted">
           금융·투자·연금·재무를 하나의 기준으로 읽는 곳. 시장 지표와 오늘의 브리핑, 직접 계산하는
-          앱스토어, 매일 쌓는 금융지식을 한자리에 모았습니다.
+          앱스토어, 매일 쌓는 자산리포트를 한자리에 모았습니다.
         </p>
       </div>
 
@@ -66,7 +66,7 @@ const policyLinks = [
     </div>
 
     <p class="mt-1 border-t border-line/70 pt-2 text-[12.5px] leading-[1.9] text-ink-muted md:mt-2">
-      <span class="mr-1 font-semibold text-ink">금융지식</span>
+      <span class="mr-1 font-semibold text-ink">자산리포트</span>
       {
         categories.map((c, i) => (
           <>
@@ -86,7 +86,7 @@ const policyLinks = [
         ))
       }
       <span class="text-line" aria-hidden="true"> · </span>
-      <a href={withBase("/calendar")} class="inline-flex min-h-[44px] md:min-h-[24px] items-center hover:text-brand-deep">금융캘린더 {calendar.length}건</a>
+      <a href={withBase("/calendar")} class="inline-flex min-h-[44px] md:min-h-[24px] items-center hover:text-brand-deep">골든타임 {calendar.length}건</a>
     </p>
 
     <p class="mt-2 max-w-[96ch] text-[12px] leading-[1.8] text-ink-soft">

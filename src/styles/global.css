@@ -161,6 +161,235 @@
   }
 
   /* ==================================================================
+     v7.2 메뉴 드롭다운 — 데스크톱 가로바 + 모바일 퀵 탭
+     메뉴 글자 = 해당 페이지로 이동, ▾(또는 첫 탭) = 하위 카테고리 세로 펼침.
+     하위 목록은 config/site.ts의 children 하나에서 나온다(준비중 항목 포함).
+     ================================================================== */
+  .nav-group {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    transition: background-color 140ms var(--ease-out-soft);
+  }
+
+  .nav-group:hover,
+  .nav-group[data-open="true"] {
+    background-color: rgb(20 40 40 / 0.045);
+  }
+
+  .nav-group[data-active="true"] {
+    background-color: var(--color-brand-soft);
+  }
+
+  .nav-link {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    padding: 0 16px;
+    font-size: 14.5px;
+    font-weight: 650;
+    letter-spacing: -0.015em;
+    color: var(--color-ink-muted);
+    white-space: nowrap;
+  }
+
+  .nav-group[data-children="true"] .nav-link {
+    padding-right: 4px;
+  }
+
+  .nav-group:hover .nav-link,
+  .nav-group[data-open="true"] .nav-link {
+    color: var(--color-ink);
+  }
+
+  .nav-group[data-active="true"] .nav-link {
+    color: var(--color-brand-deep);
+  }
+
+  .nav-caret {
+    display: grid;
+    width: 22px;
+    min-height: 44px;
+    margin-right: 6px;
+    place-items: center;
+    color: var(--color-ink-faint);
+  }
+
+  .nav-caret svg {
+    width: 13px;
+    height: 13px;
+    transition: transform 160ms var(--ease-out-soft);
+  }
+
+  .nav-group[data-open="true"] .nav-caret,
+  .nav-group:hover .nav-caret {
+    color: var(--color-brand-deep);
+  }
+
+  .nav-group[data-open="true"] .nav-caret svg {
+    transform: rotate(180deg);
+  }
+
+  /* 데스크톱 드롭다운 패널 */
+  .nav-drop {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    z-index: 60;
+    width: 300px;
+    max-width: calc(100vw - 24px);
+    padding: 12px;
+    border: 1px solid var(--color-line);
+    border-radius: 18px;
+    background-color: #ffffff;
+    box-shadow:
+      0 22px 48px -24px rgb(9 30 27 / 0.34),
+      0 2px 8px -4px rgb(9 30 27 / 0.12);
+  }
+
+  .nav-drop-head-wrap {
+    padding: 2px 8px 9px;
+  }
+
+  .nav-drop-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 0;
+    font-size: 11.5px;
+    font-weight: 750;
+    letter-spacing: 0.04em;
+    color: var(--color-brand-deep);
+  }
+
+  .nav-drop-head-note {
+    font-size: 10.5px;
+    font-weight: 650;
+    letter-spacing: 0.02em;
+    color: var(--color-ink-faint);
+  }
+
+  .nav-drop-desc,
+  .quick-panel-desc {
+    margin-top: 2px;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    color: var(--color-ink-muted);
+  }
+
+  .nav-drop-list {
+    display: grid;
+    gap: 1px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .nav-drop-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: 8px;
+    align-items: center;
+    min-height: 44px;
+    padding: 7px 8px;
+    border-radius: 10px;
+  }
+
+  a.nav-drop-row:hover {
+    background-color: var(--color-brand-soft);
+  }
+
+  .nav-drop-label {
+    grid-column: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13.5px;
+    font-weight: 650;
+    letter-spacing: -0.02em;
+    color: var(--color-ink);
+  }
+
+  .nav-drop-chip,
+  .quick-panel-chip {
+    grid-column: 2;
+    justify-self: end;
+    padding: 1px 7px;
+    border-radius: 999px;
+    background-color: var(--color-brand-soft);
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    font-weight: 650;
+    letter-spacing: 0;
+    color: var(--color-brand-deep);
+    white-space: nowrap;
+  }
+
+  .nav-drop-note {
+    grid-column: 1 / -1;
+    margin-top: 1px;
+    font-size: 11.5px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    color: var(--color-ink-faint);
+  }
+
+  /* 구분선 아래 — 아직 열리지 않은 분류 */
+  .nav-drop-soon,
+  .quick-panel-soon {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--color-line-soft);
+  }
+
+  .nav-drop-soon-head,
+  .quick-panel-soon-head {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 8px 6px;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: var(--color-ink-faint);
+  }
+
+  .soon-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 999px;
+    background-color: var(--color-line);
+  }
+
+  /* 준비중 — 아직 열지 않은 카테고리(누를 수 없다). 링크 대신 span으로 그린다. */
+  .nav-drop-row.is-soon,
+  .quick-panel-row.is-soon {
+    cursor: default;
+  }
+
+  .is-soon .nav-drop-label,
+  .is-soon .quick-panel-label {
+    font-weight: 600;
+    color: var(--color-ink-faint);
+  }
+
+  .soon-pill {
+    flex: none;
+    padding: 1px 6px;
+    border: 1px solid var(--color-line);
+    border-radius: 999px;
+    background-color: rgb(20 40 40 / 0.03);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    line-height: 1.5;
+    color: var(--color-ink-faint);
+  }
+
+  /* ==================================================================
      v5.5 브랜드 록업 — 시안 A '서표 · 인덱스 탭' (2026-11-21 확정)
      워드마크 글자 크기를 --lockup-size로 받고 심볼·간격이 거기에 비례한다.
      심볼 = 0.909 × 글자 크기 → 헤더 28px : 30.8px (시안 A 1:0.55 균형 비율).
@@ -244,9 +473,10 @@
 
   .site-quick-list {
     display: grid;
-    grid-template-columns: var(--quick-cols, 1fr 1.1fr 1.35fr 1.75fr 1.1fr);
+    grid-template-columns: var(--quick-cols, 1fr 1.5fr 1.5fr 1.7fr 1.5fr);
     gap: 2px;
-    margin: 0;
+    max-width: 680px;
+    margin-inline: auto;
     padding: 2px 8px;
     list-style: none;
   }
@@ -259,6 +489,7 @@
   .site-quick-link {
     display: flex;
     width: 100%;
+    gap: 2px;
     min-height: 44px;
     align-items: center;
     justify-content: center;
@@ -273,6 +504,117 @@
     transition: background-color 140ms var(--ease-out-soft), color 140ms var(--ease-out-soft);
   }
 
+  .site-quick-text {
+    display: inline-block;
+    flex: none;
+    white-space: nowrap;
+  }
+
+  .site-quick-caret {
+    width: 9px;
+    height: 9px;
+    flex: none;
+    opacity: 0.6;
+    transition: transform 160ms var(--ease-out-soft);
+  }
+
+  .site-quick-link[aria-expanded="true"] .site-quick-caret {
+    transform: rotate(180deg);
+  }
+
+  /* 모바일 하위 메뉴 패널 — 헤더 아래, 화면 폭 안에서만 */
+  .quick-panels {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 0 8px;
+  }
+
+  .quick-panel {
+    width: 100%;
+    max-width: 480px;
+    max-height: 66vh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    margin-top: 6px;
+    padding: 10px;
+    border: 1px solid var(--color-line);
+    border-radius: 16px;
+    background-color: #ffffff;
+    box-shadow:
+      0 20px 44px -22px rgb(9 30 27 / 0.32),
+      0 2px 8px -4px rgb(9 30 27 / 0.12);
+  }
+
+  .quick-panel-head-wrap {
+    padding: 2px 8px 8px;
+  }
+
+  .quick-panel-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 0;
+    font-size: 11px;
+    font-weight: 750;
+    letter-spacing: 0.08em;
+    color: var(--color-brand-deep);
+  }
+
+  .quick-panel-all {
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0;
+    color: var(--color-brand-deep);
+  }
+
+  .quick-panel-list {
+    display: grid;
+    gap: 1px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .quick-panel-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: 8px;
+    align-items: center;
+    min-height: 44px;
+    padding: 6px 8px;
+    border-radius: 10px;
+  }
+
+  a.quick-panel-row:hover {
+    background-color: var(--color-brand-soft);
+  }
+
+  .quick-panel-label {
+    grid-column: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 650;
+    letter-spacing: -0.02em;
+    color: var(--color-ink);
+  }
+
+  .quick-panel-note {
+    grid-column: 1 / -1;
+    margin-top: 1px;
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1.35;
+    letter-spacing: -0.01em;
+    color: var(--color-ink-faint);
+  }
+
   .site-quick-link:hover {
     background-color: rgb(20 40 40 / 0.045);
     color: var(--color-ink);
@@ -282,6 +624,21 @@
     background-color: var(--color-brand-soft);
     color: var(--color-brand-deep);
     font-weight: 750;
+  }
+
+  /*
+   * v7.2 — 퀵 탭은 다섯 칸(홈·금융지식·앱스토어·금융캘린더·자료앨범).
+   * 340px보다 좁은 화면만 글자를 12px로 한 단계 줄여 '금융캘린더'가 넘치지 않게 한다.
+   */
+  @media (max-width: 340px) {
+    .site-quick-list {
+      padding-inline: 6px;
+    }
+
+    .site-quick-link {
+      font-size: 12px;
+      letter-spacing: -0.04em;
+    }
   }
 
   /* ---------- 하위 페이지 '홈으로' 알약 (높이 44px 이상) ---------- */
@@ -2951,6 +3308,10 @@
     border-bottom: 1px solid var(--color-line);
   }
 
+  /*
+   * v7.2 — 크레딧 5칸(기록·도구·일정·자료·채널).
+   * 768px 이상은 다섯 칸을 한 줄로, 모바일 2칸에서는 마지막 '연결 채널'이 한 줄을 다 쓴다.
+   */
   .film-credits-inner {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2958,9 +3319,28 @@
     margin-inline: auto;
   }
 
+  .film-credits-inner > li:last-child {
+    grid-column: 1 / -1;
+  }
+
   @media (min-width: 768px) {
     .film-credits-inner {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+
+    .film-credits-inner > li:last-child {
+      grid-column: auto;
+    }
+  }
+
+  /* 768~1023px(태블릿)에서는 다섯 칸이 좁아 좌우 여백과 설명 글자를 한 단계 줄인다 */
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .film-credit {
+      padding: 10px 12px;
+    }
+
+    .film-credit-note {
+      font-size: 11.5px;
     }
   }
 
@@ -3806,6 +4186,84 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 4px;
+  }
+
+  /* v7.2 — 홈 허브 상단의 자료앨범 바로가기 (44px 터치 폭, 한 줄 설명 + 화살표) */
+  .hub-gallery {
+    display: flex;
+    width: 100%;
+    min-height: 48px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 4px;
+    padding: 8px 14px;
+    border: 1px solid color-mix(in srgb, var(--color-brand) 26%, transparent);
+    border-radius: 14px;
+    background:
+      linear-gradient(135deg, color-mix(in srgb, var(--color-brand-soft) 90%, #fff) 0%, #ffffff 80%);
+    transition: border-color 150ms var(--ease-out-soft), background-color 150ms var(--ease-out-soft);
+  }
+
+  .hub-gallery:hover {
+    border-color: var(--color-brand);
+  }
+
+  .hub-gallery-body {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .hub-gallery-kicker {
+    font-size: 13px;
+    font-weight: 750;
+    letter-spacing: -0.02em;
+    color: var(--color-brand-deep);
+  }
+
+  .hub-gallery-note {
+    font-size: 11.5px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    color: var(--color-ink-muted);
+  }
+
+  .hub-gallery-go {
+    flex: none;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--color-brand-deep);
+  }
+
+  /* 홈 허브 상단 — 대메뉴 바로가기 3칸(자료앨범 카드 옆) */
+  .hub-quicknav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .hub-quicknav a {
+    display: inline-flex;
+    min-height: 34px;
+    align-items: center;
+    padding: 0 12px;
+    border: 1px solid var(--color-line);
+    border-radius: 999px;
+    background-color: rgb(255 255 255 / 0.86);
+    font-size: 12px;
+    font-weight: 650;
+    letter-spacing: -0.02em;
+    color: var(--color-ink-soft);
+  }
+
+  .hub-quicknav a:hover {
+    border-color: var(--color-brand);
+    color: var(--color-brand-deep);
   }
 
   .hub-basis {

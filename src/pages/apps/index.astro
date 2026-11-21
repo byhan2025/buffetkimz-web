@@ -5,7 +5,7 @@
  * 회의실 요구: `앱스토어` → **앱스토어**, 내부를 `금융투자앱 · 보험앱 · 유용한앱` 카테고리로.
  *   · 카테고리는 `data/apps.ts`의 APP_CATEGORIES 하나에서 온다. 배열에 한 줄만 더하면
  *     히어로 요약 · 탭 · 섹션 · 개수가 자동으로 따라온다(페이지 코드를 고치지 않는다).
- *   · 앱 항목도 `data/store.ts`가 apps.ts와 금융캘린더를 합쳐 만든다.
+ *   · 앱 항목도 `data/store.ts`가 apps.ts와 골든타임을 합쳐 만든다.
  *   · 사이트 안에서 실행되는 계산 도구와 사이트 밖에서 열리는 앱은 배지로 구분한다.
  *   · 실무자용 앱은 카드에 '실무자용' 표시를 달아 일반 독자용과 섞이지 않게 한다.
  * URL은 링크 보존을 위해 `/apps/` 그대로 둔다.
@@ -64,7 +64,7 @@ const jsonLd = graph([
 
 <Base
   title={`${menuLabel.apps} — 금융투자앱 · 보험앱 · 유용한앱`}
-  description={`연금저축·IRP 세액공제, 은퇴 월 현금흐름, 연금 인출 세금, 투자 복리·세후 수익률, 한국형 타임머신, 5대 담보·실손·고지 확인, 금융캘린더까지 ${storeCount}종. 금융투자앱·보험앱·유용한앱으로 나눠 필요할 때 바로 엽니다.`}
+  description={`연금저축·IRP 세액공제, 은퇴 월 현금흐름, 연금 인출 세금, 투자 복리·세후 수익률, 한국형 타임머신, 5대 담보·실손·고지 확인, 골든타임까지 ${storeCount}종. 금융투자앱·보험앱·유용한앱으로 나눠 필요할 때 바로 엽니다.`}
   path="/apps"
   jsonLd={jsonLd}
 >
@@ -320,7 +320,7 @@ const jsonLd = graph([
 
       <div class="store-guide-links">
         <a href={withBase("/posts")} class="btn btn-secondary btn-sm">{menuLabel.posts}에서 기준 읽기</a>
-        <a href={withBase("/calendar")} class="btn btn-tertiary btn-sm">금융캘린더 열기</a>
+        <a href={withBase("/calendar")} class="btn btn-tertiary btn-sm">골든타임 열기</a>
         <a href={withBase("/principles")} class="btn btn-tertiary-quiet btn-sm">편집 원칙</a>
       </div>
 

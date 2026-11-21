@@ -299,7 +299,7 @@ export function RunnerShell({
         </span>
       </div>
       <p className="border-b border-line-soft py-2.5 text-[12px] leading-relaxed text-ink-muted">
-        <strong className="font-semibold text-ink">예시 입력값(가상)</strong>으로 시작합니다.{" "}
+        <strong className="font-semibold text-ink">예시 입력값</strong>으로 시작합니다.{" "}
         {example ?? "숫자를 바꾸면 결과가 즉시 달라지고, 새로 고치면 예시로 돌아갑니다."}
       </p>
       <div className="mt-2">{children}</div>

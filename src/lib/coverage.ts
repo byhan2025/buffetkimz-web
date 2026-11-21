@@ -43,7 +43,7 @@ export const BAND_LABEL: Record<CoverageBand, string> = {
   "60": "60대 이상",
 };
 
-/** 실행 화면이 처음 열릴 때 채워 두는 예시 입력값 (가상) */
+/** 실행 화면이 처음 열릴 때 채워 두는 예시 입력값 */
 export const COVERAGE_EXAMPLE = {
   band: "40" as CoverageBand,
   cancer: 5000,

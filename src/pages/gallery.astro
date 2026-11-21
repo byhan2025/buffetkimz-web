@@ -424,6 +424,25 @@ const jsonLd = graph([
         applyFilter();
       })
     );
+
+    /*
+     * v7.2 — 메뉴 드롭다운이 `/gallery/?cat=carousel`처럼 들어온다.
+     * 주소의 분류가 실제 탭에 있으면 그 탭을 연 상태로 시작하고, 탭을 누를 때 주소도 함께 바뀐다.
+     */
+    const catFromUrl = new URLSearchParams(window.location.search).get("cat");
+    if (catFromUrl && tabs.some((t) => t.dataset.galleryTab === catFromUrl)) {
+      activeCat = catFromUrl;
+      applyFilter();
+    }
+    tabs.forEach((t) =>
+      t.addEventListener("click", () => {
+        const next = t.dataset.galleryTab || "all";
+        const url = new URL(window.location.href);
+        if (next === "all") url.searchParams.delete("cat");
+        else url.searchParams.set("cat", next);
+        history.replaceState(null, "", url);
+      })
+    );
     search?.addEventListener("input", applyFilter);
     tagButtons.forEach((t) =>
       t.addEventListener("click", () => {

@@ -91,44 +91,142 @@ export const site = {
   ],
 } as const;
 
-export type NavItem = { href: string; label: string; match: string };
+export type NavChild = {
+  label: string;
+  /** 실제 이동 주소 — `soon`(준비중) 항목은 없다(링크를 만들지 않는다) */
+  href?: string;
+  note?: string;
+  /** 아직 열지 않은 카테고리 — 누를 수 없는 <span aria-disabled>로 그리고 '준비중' 배지를 붙인다 */
+  soon?: boolean;
+  /** 사이트 밖 주소(예: 1:1 상담문의) — 새 창으로 연다 */
+  external?: boolean;
+};
+export type NavItem = {
+  href: string;
+  label: string;
+  /** 메뉴판 머리에 붙는 한 줄 — 이 메뉴가 무엇을 담는지 */
+  desc: string;
+  match: string;
+  children?: NavChild[];
+};
 
 /**
- * 메뉴 이름 — v7.0 전면 개편.
- *   /posts    금융지식 → **금융지식**(금융·투자·보험·절세를 모두 포괄. 라우트는 링크 보존을 위해 /posts 유지)
+ * 메뉴 이름 — v7.0 전면 개편, v7.2 자료앨범 + 하위 메뉴(드롭다운).
+ *   /posts    자산리포트 → **자산리포트**(금융·투자·보험·절세를 모두 포괄. 라우트는 링크 보존을 위해 /posts 유지)
  *   /apps     앱스토어 → **앱스토어**(주제별 카테고리 구조)
- *   /calendar 금융캘린더 → **금융캘린더**(한눈에 와닿는 이름)
- * 데스크톱 주 메뉴와 모바일 퀵 탭이 이 두 배열을 함께 읽으므로, 이름을 바꿀 때는 여기만 고친다.
+ *   /calendar 골든타임 → **골든타임**(한눈에 와닿는 이름)
+ *   /gallery  자료앨범 → **자료앨범**(카드뉴스·체크리스트 내려받기) — 골든타임 다음, 소개 앞
+ *
+ * v7.2 — 메뉴를 누르면(또는 ▾) 하위 카테고리가 세로로 펼쳐진다. 하위 메뉴는 이 배열 하나에서 나오므로
+ * 데스크톱 드롭다운·모바일 퀵 탭 패널이 같은 목록을 쓴다.
+ *
+ * v7.2.1 — 앞으로 열 카테고리도 자리를 미리 잡아 둔다(`soon: true`).
+ * 링크를 만들지 않으므로 404가 생기지 않고, 방문자에게는 '여기 곧 열린다'는 지도가 된다.
  */
 export const nav: NavItem[] = [
-  { href: "/posts", label: "금융지식", match: "/posts" },
-  { href: "/apps", label: "앱스토어", match: "/apps" },
-  { href: "/calendar", label: "금융캘린더", match: "/calendar" },
-  { href: "/about", label: "소개", match: "/about" },
+  {
+    href: "/posts",
+    label: "자산리포트",
+    desc: "돈이 되는 기록 · 연금·투자·보험",
+    match: "/posts",
+    children: [
+      { href: "/posts", label: "전체 리포트", note: "기준일·출처를 붙인 글 전체" },
+      { href: "/posts/pension/", label: "연금·퇴직 마스터", note: "연금 지도 6편" },
+      { href: "/posts/finance/", label: "금융", note: "금리·환율·제도" },
+      { href: "/posts/invest/", label: "투자", note: "배분·복리·규칙" },
+      { href: "/posts/economy/", label: "경제", note: "물가·소비·지표" },
+      { href: "/posts/insurance/", label: "보험", note: "약관·청구·실손" },
+      { href: "/posts/ai/", label: "AI", note: "도구로 옮긴 기록" },
+      { label: "부동산·대출", note: "주담대·전세·청약", soon: true },
+      { label: "사업자 절세", note: "경비·부가세·종소세", soon: true },
+    ],
+  },
+  {
+    href: "/apps",
+    label: "앱스토어",
+    desc: "직접 계산하는 머니랩",
+    match: "/apps",
+    children: [
+      { href: "/apps", label: "전체 앱", note: "가입 없이 쓰는 도구 전체" },
+      { href: "/apps/#cat-finance", label: "금융투자앱", note: "금리·세금·연금·수익률" },
+      { href: "/apps/#cat-insurance", label: "보험앱", note: "담보·고지·실손" },
+      { href: "/apps/#cat-utility", label: "유용한앱", note: "날짜·절차" },
+      { label: "ETF·배당 스크리너", note: "조건으로 종목 걸러 보기", soon: true },
+      { label: "건보료·종소세 판정", note: "내 소득으로 바로 계산", soon: true },
+    ],
+  },
+  {
+    href: "/calendar",
+    label: "골든타임",
+    desc: "놓치면 손해인 금융·세제 캘린더",
+    match: "/calendar",
+    children: [
+      { href: "/calendar", label: "연간 금융·세제 캘린더", note: "1–12월 기한과 절차" },
+      { href: "/calendar/#calendar", label: "이번 달 주요 일정", note: "이 달에 확인할 것만" },
+      { label: "공모주·국채 청약", note: "청약 일정과 마감", soon: true },
+      { label: "ETF 배당락 일정", note: "분배금 받는 날짜", soon: true },
+    ],
+  },
+  {
+    href: "/gallery",
+    label: "자료앨범",
+    desc: "한장브리프 · 카드뉴스·도표",
+    match: "/gallery",
+    children: [
+      { href: "/gallery", label: "전체 자료", note: "미리보기·다운로드 전용" },
+      { href: "/gallery/?cat=cardnews", label: "카드뉴스", note: "3–5장으로 끊어 읽기" },
+      { href: "/gallery/?cat=carousel", label: "캐러셀", note: "넘기며 보는 연속 카드" },
+      { href: "/gallery/?cat=infographic", label: "인포그래픽", note: "한 장에 담은 구조" },
+      { href: "/gallery/?cat=checklist", label: "체크리스트", note: "확인할 항목 순서" },
+      { label: "월간 시장 지표 팩", note: "한 달 지표를 한 장에", soon: true },
+    ],
+  },
+  {
+    href: "/about",
+    label: "버핏킴즈",
+    desc: "왜 버핏킴즈인가 · 1:1 문의",
+    match: "/about",
+    children: [
+      { href: "/about", label: "왜 버핏킴즈인가", note: "어떤 기준으로 쓰는 사람인지" },
+      { href: "/principles", label: "편집 원칙", note: "1차 자료·사람 검수·비저장" },
+      { href: site.kakaoChannelUrl, label: "1:1 문의", note: "카카오톡 채널로 묻기", external: true },
+      { label: "주간 버핏킴즈 레터", note: "확인한 것만 골라 한 통", soon: true },
+    ],
+  },
 ];
 
 /** 메뉴 이름을 한 곳에서 읽는다 — 페이지 제목·브레드크럼·본문이 같은 이름을 쓰게. */
 export const menuLabel = {
-  posts: "금융지식",
-  postsSub: "투자백서 · 금융지식 아카이브",
+  posts: "자산리포트",
+  postsSub: "투자백서 · 자산리포트 아카이브",
   apps: "앱스토어",
-  calendar: "금융캘린더",
-  about: "소개",
+  calendar: "골든타임",
+  gallery: "자료앨범",
+  about: "버핏킴즈",
 } as const;
 
 /**
- * 모바일 2행 퀵 탭 — 홈·소개·금융지식·앱스토어·금융캘린더 다섯 칸.
- * `weight`는 360px 폭에서도 '금융캘린더' 다섯 글자가 줄바꿈·가로 넘침 없이 들어가도록
+ * 모바일 2행 퀵 탭 — 홈·자산리포트·앱스토어·골든타임·자료앨범 다섯 칸.
+ * v7.2에서 메뉴가 여섯 개가 되면서 좁은 폰에서 억지로 모든 메뉴를 가로에 구기지 않는다.
+ * 가로 탭은 가장 자주 누르는 다섯 개만 두고, 전체 메뉴(소개 포함)는 ≡ 세로 드로어가 모두 받는다
+ * — 메뉴가 7개·10개로 늘어도 드로어는 세로로만 길어지면 된다.
+ *
+ * `weight`는 360px 폭에서도 '골든타임' 다섯 글자가 줄바꿈·가로 넘침 없이 들어가도록
  * 글자 수에 비례해 나눈 그리드 비율이다(Header.astro의 모바일 그리드가 이 값을 쓴다).
  */
-export type QuickTab = { href: string; label: string; match: string; weight: number };
+export type QuickTab = { href: string; label: string; match: string; weight: number; children?: NavChild[] };
+
+/** 하위 메뉴는 `nav` 배열 하나에서 가져온다 — 같은 메뉴가 두 곳에서 다르게 보이지 않게. */
+export const childrenOf = (match: string): NavChild[] | undefined =>
+  nav.find((item) => item.match === match)?.children;
 
 export const quickTabs: QuickTab[] = [
-  { href: "/", label: "홈", match: "/", weight: 0.95 },
-  { href: "/about", label: "소개", match: "/about", weight: 1.05 },
-  { href: "/posts", label: "금융지식", match: "/posts", weight: 1.5 },
-  { href: "/apps", label: "앱스토어", match: "/apps", weight: 1.5 },
-  { href: "/calendar", label: "금융캘린더", match: "/calendar", weight: 1.7 },
+  { href: "/", label: "홈", match: "/", weight: 1 },
+  { href: "/posts", label: "자산리포트", match: "/posts", weight: 5, children: childrenOf("/posts") },
+  { href: "/apps", label: "앱스토어", match: "/apps", weight: 4, children: childrenOf("/apps") },
+  { href: "/calendar", label: "골든타임", match: "/calendar", weight: 4, children: childrenOf("/calendar") },
+  { href: "/gallery", label: "자료앨범", match: "/gallery", weight: 4, children: childrenOf("/gallery") },
+  { href: "/about", label: "버핏킴즈", match: "/about", weight: 4, children: childrenOf("/about") },
 ];
 
 /** 모바일 퀵 탭 그리드 비율 문자열 (`1fr 1.1fr …`) */

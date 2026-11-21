@@ -2,7 +2,7 @@
 /**
  * 포털 픽 — v7.0 홈.
  *
- * 왼쪽: 금융지식(/posts) 최신 3편 — 카테고리·제목·기준일·읽는 시간.
+ * 왼쪽: 자산리포트(/posts) 최신 3편 — 카테고리·제목·기준일·읽는 시간.
  * 오른쪽: 앱스토어(/apps) 추천 4종 — 아이콘·이름·한 줄·바로 열기.
  *
  * 글은 컬렉션에서, 앱은 store.ts에서 읽는다. 손으로 적은 제목·숫자를 두지 않는다.
@@ -21,7 +21,7 @@ const picks = featuredStore.slice(0, 4);
     <div class="picks-head">
       <div>
         <p class="eyebrow">읽고 · 열어 보기</p>
-        <h2 class="sec-title">오늘의 금융지식과<br />앱스토어 추천</h2>
+        <h2 class="sec-title">오늘의 자산리포트과<br />앱스토어 추천</h2>
       </div>
       <p class="sec-desc">
         글에서 기준을 읽고, 도구에서 내 숫자로 확인합니다.<br />
@@ -30,7 +30,7 @@ const picks = featuredStore.slice(0, 4);
     </div>
 
     <div class="picks-grid">
-      <!-- 금융지식 -->
+      <!-- 자산리포트 -->
       <div class="picks-panel">
         <div class="picks-panel-head">
           <p class="picks-panel-label">

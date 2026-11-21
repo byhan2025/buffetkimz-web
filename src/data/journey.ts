@@ -96,7 +96,7 @@ const readingTracks: ReadingTrack[] = [
     ],
     end: {
       href: "/calendar",
-      name: "금융캘린더",
+      name: "골든타임",
       why: "지표를 읽었으니, 놓치면 손해가 생기는 기한과 절차를 날짜로 확인합니다",
     },
     why: {
@@ -202,7 +202,7 @@ const toolTrack: Record<string, ToolNext> = {
   },
   "compound-return": {
     href: "/calendar",
-    name: "금융캘린더",
+    name: "골든타임",
     why: "수익률 다음은 놓치면 손해인 기한 — 연말정산·납입 마감을 날짜로 봅니다",
   },
   "silson-compare": {

@@ -12,7 +12,7 @@ series:
 app: "coverage-check"
 tags: ["AI", "보장분석", "업무 자동화"]
 sources:
-  - label: "작성자 작업 기록(2026년 8월~11월, 보장 점검 도구 개발·운영)"
+  - label: "작성자 작업 기록(2026년 8월–11월, 보장 점검 도구 개발·운영)"
   - label: "개인정보보호법 — 민감정보 처리 원칙"
     url: "https://www.law.go.kr"
 ---

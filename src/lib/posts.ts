@@ -106,10 +106,10 @@ const categoryTool: Record<string, PostTool> = {
     kind: "tool",
   },
   economy: {
-    name: "금융캘린더",
+    name: "골든타임",
     href: "/calendar",
     what: "올해 남은 마감·변경 일정을 날짜와 출처로 확인합니다.",
-    cta: "금융캘린더 열어 보기",
+    cta: "골든타임 열어 보기",
     kind: "tool",
   },
   insurance: {

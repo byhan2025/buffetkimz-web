@@ -294,7 +294,7 @@ export function compoundProjection(input: CompoundInput): CompoundResult {
 }
 
 /* ------------------------------------------------------------------
-   홈 히어로 카드·스트립이 쓰는 예시 입력값(가상).
+   홈 히어로 카드·스트립이 쓰는 예시 입력값.
    실행 화면의 기본값과 같은 값을 쓴다 — 두 화면의 숫자가 어긋나지 않게.
    ------------------------------------------------------------------ */
 export const RETIREMENT_EXAMPLE: RetirementInput = {
