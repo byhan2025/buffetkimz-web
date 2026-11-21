@@ -150,12 +150,12 @@ html.bk-off-tool .journey-bar[data-store="bk_tool_guide_v1"] {
 .journey-skip {
   flex: none;
   min-height: 44px;
-  padding: 0 8px;
+  padding: 0 6px;
   border: 0;
   border-radius: 10px;
   background: transparent;
   color: var(--color-ink-faint);
-  font-size: 11.5px;
+  font-size: 11px;
   font-weight: 600;
   letter-spacing: -0.01em;
   white-space: nowrap;
@@ -232,6 +232,23 @@ html.bk-off-tool .journey-bar[data-store="bk_tool_guide_v1"] {
 
   .journey-title {
     font-size: 13px;
+  }
+}
+
+/* 390 — 제목을 두 줄까지만 보여 준다(어떤 글·도구인지 잘리지 않게) */
+@media (max-width: 479px) {
+  .journey-title {
+    display: -webkit-box;
+    overflow: hidden;
+    white-space: normal;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    line-height: 1.32;
+  }
+
+  .journey-main {
+    min-height: 40px;
   }
 }
 
