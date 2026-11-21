@@ -67,9 +67,9 @@ def main() -> None:
     # A. 자산 -----------------------------------------------------------------
     originals = ["logo-en-light.png", "logo-en-dark.png", "logo-ko-dark.png"]
     for f in originals:
-        p = PUBLIC / "brand" / f
+        p = APP / "brand-source" / f
         size = img_size(p)
-        check(f"A 원본 보존 {f}", p.exists() and size == (7680, 4320), f"{size}")
+        check(f"A 원본 보존 brand-source/{f}", p.exists() and size == (7680, 4320), f"{size}")
 
     crops = {
         "logo-en-light-tr.png": (3342, 883),

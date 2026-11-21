@@ -2,7 +2,8 @@
 """
 v7.9.0 — 확정 공식 로고 3종(8K 원본)에서 사이트용 자산을 만든다.
 
-  1) 원본 그대로 복사  : public/brand/logo-en-light.png / logo-en-dark.png / logo-ko-dark.png
+  1) 원본 그대로 복사  : brand-source/logo-en-light.png / logo-en-dark.png / logo-ko-dark.png
+     (8K 원본 30MB는 gh-pages 푸시 한도를 넘겨 배포에서 제외한다 — 저장소에는 그대로 보존)
   2) 투명 배경 크롭 PNG: public/brand/logo-*-tr.png (+ -480 / -960 / -1920 webp)
   3) 동심원 심볼 벡터  : public/favicon.svg, public/favicon-16.svg
 
@@ -29,6 +30,7 @@ ROOT = Path(__file__).resolve().parents[1]
 WORKSPACE = ROOT.parents[1]
 SRC_DIR = WORKSPACE / "attachments/2026-11-22"
 OUT = ROOT / "public" / "brand"
+ORIG = ROOT / "brand-source"  # 8K 원본 — 저장소에 보존하고 배포(dist)에서는 뺀다
 TMP = ROOT / "tmp/brand-assets"
 
 SOURCES = {
@@ -226,13 +228,14 @@ def favicon_svg(navy_path: str, blue_path: str, navy: str, blue: str, navy_dark:
 
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
+    ORIG.mkdir(parents=True, exist_ok=True)
     TMP.mkdir(parents=True, exist_ok=True)
     report: dict = {}
 
     for name, src in SOURCES.items():
         if not src.exists():
             raise SystemExit(f"원본 없음: {src}")
-        shutil.copy2(src, OUT / f"{name}.png")  # 원본 절대 보존
+        shutil.copy2(src, ORIG / f"{name}.png")  # 원본 절대 보존(배포 제외 폴더)
         work = load_work(src)
         cropped, info = to_cropped_rgba(work, BG[name], PALETTE[name])
         cropped.save(OUT / f"{name}-tr.png", optimize=True)

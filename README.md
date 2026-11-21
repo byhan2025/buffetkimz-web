@@ -16,8 +16,8 @@ v3: 20개 대표 사이트 벤치마킹(보고서 `reports/buffetkimz-web/benchm
 
 사용자가 2026-11-22 확정한 **공식 로고 3종**(밝은 바탕 영문 · 다크 영문 · 다크 국문)을 사이트 전체에 반영한 판.
 
-- **자산** — 8K 원본 3종을 `public/brand/logo-en-light.png`·`logo-en-dark.png`·`logo-ko-dark.png`로
-  그대로 보존하고, 배경색을 되돌리는 방식(unpremultiply)으로 **여백 타이트 크롭·투명 PNG**
+- **자산** — 8K 원본 3종을 `brand-source/logo-en-light.png`·`logo-en-dark.png`·`logo-ko-dark.png`로
+  그대로 보존하고(30MB라 `public/`이 아닌 배포 제외 폴더 — gh-pages 푸시 한도 회피), 배경색을 되돌리는 방식(unpremultiply)으로 **여백 타이트 크롭·투명 PNG**
   (`*-tr.png`)와 480/960/1920 webp 3폭을 만들었다. 가장자리 불투명 0px·흰 테두리 0px(라이트본) 검수.
   생성기는 `scripts/make_brand_assets.py`.
 - **심벌 벡터화** — 왼쪽 동심원 세 고리만 윤곽 추적으로 뽑아 `public/favicon.svg`(1000 viewBox,
