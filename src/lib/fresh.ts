@@ -24,6 +24,8 @@ export type FreshInput = {
   status?: "ok" | "failed";
   /** 마지막으로 성공한 회차의 확인 시각 (status가 failed일 때 쓴다) */
   lastGoodAsOf?: string | Date;
+  /** '지난 정보'로 넘기는 기준(일). 카드·데이터가 정하지 않으면 3일 */
+  staleAfterDays?: number;
 };
 
 export type Fresh = {
@@ -90,8 +92,9 @@ export function freshnessOf(input: FreshInput, now: Date = new Date()): Fresh {
     };
   }
 
+  const staleAfter = input.staleAfterDays ?? STALE_AFTER_DAYS;
   const ageDays = (now.getTime() - asOf.getTime()) / DAY_MS;
-  if (ageDays > STALE_AFTER_DAYS) {
+  if (ageDays > staleAfter) {
     return {
       state: "stale",
       label: "지난 정보",

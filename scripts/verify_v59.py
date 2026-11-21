@@ -135,6 +135,11 @@ def main() -> int:
         "AI 요약 고지 문구",
         "AI가 정리한 요약이며 원문과 다를 수 있습니다" in hub,
     )
+    check(
+        "카드마다 발행일·수집 시각 메타(title) 부착",
+        hub.count("수집 2026. 11. 21. 14:00") >= 2 and "발행 2026-11-19" in hub,
+        f"title={hub.count('수집 2026. 11. 21. 14:00')}",
+    )
 
     # 비영업 선 — 허브 안에 상담·가입 CTA 없음
     forbidden_in_hub = ["pf.kakao.com", "상담", "가입하기", "신청하기", "구매"]
@@ -222,6 +227,7 @@ const out = {
   d0: ddayOf('2026-11-21', now),
   dpast: ddayOf('2026-11-20', now),
   soon: ddayOf('2026-11-26', now).tone,
+  customStale: freshnessOf({ asOf: '2026-11-20T06:00:00+09:00', nextCheckAt: '2026-11-20T19:00:00+09:00', staleAfterDays: 1 }, now).state,
 };
 console.log(JSON.stringify(out));
 """,
@@ -240,7 +246,8 @@ console.log(JSON.stringify(out));
         and u.get("delayed") == "delayed"
         and u.get("stale") == "stale"
         and u.get("failed") == "failed"
-        and "갱신에 실패해" in (u.get("failedDetail") or ""),
+        and "갱신에 실패해" in (u.get("failedDetail") or "")
+        and u.get("customStale") == "stale",
         json.dumps({k: u.get(k) for k in ("ok", "delayed", "stale", "failed")}, ensure_ascii=False),
     )
     check(

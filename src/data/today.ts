@@ -36,6 +36,13 @@ export type Indicator = {
 
 export type TodayKind = "확인" | "일정" | "지식";
 
+/**
+ * 신뢰 메타데이터 — 허브의 모든 카드가 이 네 시각을 가진다.
+ *   publishedAt  원문(1차 출처)이 나온 날
+ *   fetchedAt    파이프라인이 실제로 수집한 시각 (= 화면의 '기준')
+ *   updatedAt    데이터 파일을 마지막으로 갱신한 시각 (허브 전체)
+ *   staleAfter   며칠이 지나면 '지난 정보'로 볼지
+ */
 export type TodayItem = {
   id: string;
   kind: TodayKind;
@@ -45,8 +52,12 @@ export type TodayItem = {
   why: string;
   /** 무엇이 / 언제까지 / 누구에게 — 각 1줄, 최대 3개 */
   points: string[];
-  /** 이 내용을 확인한 시각 (파이프라인이 실제 실행 시각을 적는다) */
+  /** 원문(1차 출처) 발행일 — YYYY-MM-DD. 상시 안내 페이지처럼 발행일이 없는 자료는 비운다 */
+  publishedAt?: string;
+  /** 이 내용을 수집·확인한 시각 (파이프라인이 실제 실행 시각을 적는다) = data_as_of */
   asOf: string;
+  /** asOf와 같은 값 — 이름을 풀어 쓴 필드 (수집 시각) */
+  fetchedAt: string;
   /** 다음 자동 확인 예정 시각 */
   nextCheckAt: string;
   /** 파이프라인 기록 — 실패한 회차면 failed + lastGoodAsOf */
@@ -84,7 +95,11 @@ export type AiSummary = {
 export type TodayData = {
   /** 허브 전체를 확인한 시각 */
   asOf: string;
+  /** 데이터 파일을 마지막으로 갱신한 시각 (= asOf) */
+  updatedAt: string;
   nextCheckAt: string;
+  /** 이 일수를 넘기면 '지난 정보' 라벨 (3일) */
+  staleAfterDays: number;
   /** 갱신 주기 — 화면에 그대로 쓴다 */
   cadence: string;
   highlights: Highlight[];
@@ -107,7 +122,9 @@ const CHANGE_BASIS = "전일 종가 대비";
 
 export const today: TodayData = {
   asOf: AS_OF,
+  updatedAt: AS_OF,
   nextCheckAt: NEXT_CHECK,
+  staleAfterDays: 3,
   cadence: "하루 3회(06:00·08:20·19:00) 갱신",
   stripNote: `등락률은 ${CHANGE_BASIS}입니다. 지표마다 마지막 기준 시각이 다르고, 지표는 참고용이며 투자 권유가 아닙니다.`,
 
@@ -203,7 +220,9 @@ export const today: TodayData = {
         "언제까지 — 신청은 2027년 5월 22일까지, 전환 후 6개월 안에는 철회할 수 있습니다",
         "누구에게 — 2013년 3월 이전 가입·재가입 조건이 없는 실손 계약",
       ],
+      publishedAt: "2026-11-19",
       asOf: AS_OF,
+      fetchedAt: AS_OF,
       nextCheckAt: NEXT_CHECK,
       status: "ok",
       sourceLabel: "금융위원회 보도자료 (2026. 11. 19.)",
@@ -224,6 +243,7 @@ export const today: TodayData = {
         "확인 — 홈택스·손택스에서 고지 여부와 금액을 조회하고, 1천만원이 넘으면 분납을 고릅니다",
       ],
       asOf: AS_OF,
+      fetchedAt: AS_OF,
       nextCheckAt: NEXT_CHECK,
       status: "ok",
       sourceLabel: "국세청 — 중간예납 안내 (납부기한 2026. 11. 30.)",
@@ -243,7 +263,9 @@ export const today: TodayData = {
         "누구에게 — 총급여에 따라 공제율이 16.5%와 13.2%로 갈립니다",
         "확인 — 금융사 마감 시각을 피해 12월 29~30일에 이체를 마칩니다",
       ],
+      publishedAt: "2026-07-01",
       asOf: AS_OF,
+      fetchedAt: AS_OF,
       nextCheckAt: NEXT_CHECK,
       status: "ok",
       sourceLabel: "소득세법 제59조의3 (연금계좌세액공제)",

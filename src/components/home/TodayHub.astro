@@ -17,14 +17,17 @@ import { ddayOf, isUpcoming } from "@/lib/dday";
 
 /** 배지는 빌드 시각으로 정한다 — 배포 뒤 시간이 지나면 '확인 지연'으로 바뀐다. */
 const buildNow = new Date();
-const fresh = freshnessOf({ asOf: hub.asOf, nextCheckAt: hub.nextCheckAt }, buildNow);
+const fresh = freshnessOf(
+  { asOf: hub.asOf, nextCheckAt: hub.nextCheckAt, staleAfterDays: hub.staleAfterDays },
+  buildNow
+);
 
 /** AI 요약은 라벨 · 기준 시각 · 원문 링크가 모두 있을 때만 그린다. */
 const ai = hub.ai && hub.ai.label && hub.ai.asOfLabel && hub.ai.sourceUrl ? hub.ai : null;
 
 const items = hub.items.slice(0, 3).map((item) => ({
   ...item,
-  fresh: freshnessOf(item, buildNow),
+  fresh: freshnessOf({ ...item, staleAfterDays: hub.staleAfterDays }, buildNow),
   dday: item.dueDate ? ddayOf(item.dueDate, site.today) : undefined,
 }));
 
@@ -182,6 +185,7 @@ const ddayClass: Record<string, string> = {
                 target="_blank"
                 rel="noopener noreferrer"
                 data-hub-source
+                title={`${item.publishedAt ? `발행 ${item.publishedAt} · ` : ""}수집 ${asOfLabel(item.fetchedAt)}`}
               >
                 근거: {item.sourceLabel}
               </a>
