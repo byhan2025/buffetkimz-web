@@ -102,7 +102,10 @@ const jsonLd = graph([
         </ul>
 
         <p class="store-hero-meta mono">
-          기준일 <time datetime={site.baseDate}>{site.baseDateLabel}</time> · 입력값 브라우저 내 계산
+          기준일 <time datetime={site.baseDate}>{site.baseDateLabel}</time> · 입력값은 브라우저에서 계산
+          <span class="block text-[11.5px] font-normal tracking-normal text-ink-faint">
+            예외 — 짧은 주소를 만들 때만 입력한 주소가 외부 단축 서비스(spoo.me)로 전송됩니다.
+          </span>
         </p>
       </div>
 
@@ -355,7 +358,8 @@ const jsonLd = graph([
           <p class="store-guide-no mono">03</p>
           <h3>계산은 브라우저 안에서</h3>
           <p>
-            입력한 금액은 그 탭의 메모리에서만 계산됩니다. 결과는 판정이 아니라, 약관·증권·원문에서 더
+            입력한 금액은 그 탭의 메모리에서만 계산됩니다. 예외는 하나, 주소 단축기에서 짧은 주소를
+            만들 때뿐입니다(외부 단축 서비스로 전송·저장). 결과는 판정이 아니라, 약관·증권·원문에서 더
             확인할 항목입니다.
           </p>
         </li>

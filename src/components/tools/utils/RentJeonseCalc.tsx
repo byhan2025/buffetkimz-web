@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { site } from "@/config/site";
-import { Bar, Note, ResultStat, RunnerShell, Segmented, StickySummary, formatKrw, formatMan } from "../ui";
+import { Bar, Note, ResultStat, RunnerShell, Segmented, StickySummary, formatMan } from "../ui";
 import { AmountField, CaveatBox, Line, TableScroll } from "./fields-c";
 
 /**
@@ -183,8 +183,12 @@ export default function RentJeonseCalc({ compact = false }: { compact?: boolean 
         <div data-testid="annual-diff">
           <ResultStat
             label="연간 주거비 차이"
-            value={formatKrw(Math.abs(calc.diff))}
-            sub={`${calc.cheaper}가 연 ${formatKrw(Math.abs(calc.diff))} 적게 듭니다`}
+            value={formatMan(Math.abs(calc.diff))}
+            sub={
+              Math.abs(calc.diff) < 1
+                ? "두 조건의 연간 주거비가 같습니다"
+                : `${calc.cheaper}가 연 ${formatMan(Math.abs(calc.diff))} 적게 듭니다`
+            }
           />
         </div>
         <div data-testid="equivalent-jeonse">

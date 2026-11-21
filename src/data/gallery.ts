@@ -1,5 +1,5 @@
 /**
- * 자료앨범(/gallery) 데이터 — v7.1.
+ * 자료앨범(/gallery) 데이터 — v7.5.
  *
  * ── 운영 방식(관리자 전용) ────────────────────────────────────────────────
  * 이 사이트는 정적 빌드(GitHub Pages)입니다. 그래서 **웹에 업로드 폼이나 API를 두지 않습니다.**
@@ -122,6 +122,131 @@ const yearendSlides: GallerySlide[] = [
 ];
 
 export const galleryItems: GalleryItem[] = [
+  /**
+   * v7.5.0 — 3D 클레이 스토리 캐러셀(세트당 6장).
+   * 일러스트에는 글자를 넣지 않고(NO text), 하단 38% 그라데이션 패널에 한글 타이포를 합성했다.
+   * 렌더: `python3 scripts/render_gallery_3d.py`
+   */
+  {
+    id: "yearend-order-3d",
+    title: "연말정산 148만 원, 연금 순서",
+    tagline: "3D 스토리 카드 6장 · 연금저축 600 → IRP 300",
+    summary:
+      "같은 월급인데 환급액이 달라지는 이유를 6장의 3D 스토리로 따라갑니다. 연금저축 600만 원 → IRP 300만 원 → 16.5% 환급 → 해지 주의 → 12월 31일 마감 순서입니다.",
+    category: "carousel",
+    createdAt: "2026-11-21",
+    tags: ["연말정산", "연금저축", "IRP", "세액공제", "3D 카드"],
+    slides: [
+      {
+        src: "/gallery/3d-yearend-order-01.png",
+        width: W,
+        height: H,
+        alt: "표지 — 서류 두 장을 든 안경 쓴 너구리 캐릭터와 '똑같은 월급인데 연말정산이 다른 이유'",
+        caption: "표지 — 같은 월급, 다른 연말정산",
+      },
+      {
+        src: "/gallery/3d-yearend-order-02.png",
+        width: W,
+        height: H,
+        alt: "연금저축 600만 원 — 유리병에 동전을 넣는 캐릭터와 '연금저축 먼저 600만 원'",
+        caption: "1단계 — 연금저축 600만 원",
+      },
+      {
+        src: "/gallery/3d-yearend-order-03.png",
+        width: W,
+        height: H,
+        alt: "IRP 300만 원 — 금고에 동전을 채우는 캐릭터와 'IRP로 300만 원 더 채우기'",
+        caption: "2단계 — IRP로 300만 원",
+      },
+      {
+        src: "/gallery/3d-yearend-order-04.png",
+        width: W,
+        height: H,
+        alt: "환급 — 봉투를 안고 웃는 캐릭터와 '총급여 5,500만 이하 환급률 16.5%'",
+        caption: "3단계 — 16.5%, 최대 148만 5천 원",
+      },
+      {
+        src: "/gallery/3d-yearend-order-05.png",
+        width: W,
+        height: H,
+        alt: "주의 — 유리 돔과 자물쇠에 갇힌 저금통, '55세 전 해지하면 16.5% 추징'",
+        caption: "주의 — 55세 전 해지 16.5%",
+      },
+      {
+        src: "/gallery/3d-yearend-order-06.png",
+        width: W,
+        height: H,
+        alt: "마감 — 달력에 동그라미를 치는 캐릭터와 '올해 12월 31일 입금분까지 적용'",
+        caption: "클로징 — 12월 31일 입금분까지",
+      },
+    ],
+    basis:
+      "소득세법 제59조의3·제21조, 국세청 연말정산·연금계좌 세액공제 안내 · 기준 2026. 11. 21. · 총급여 5,500만 원 이하 16.5%(지방소득세 포함) 가정",
+    related: [
+      { label: "3편 — 연말 연금저축 600·IRP 900·ISA 전환 300", href: "/posts/pension-master-03-yearend-900" },
+      { label: "연금저축·IRP 세액공제 계산기", href: "/apps/pension-tax/run" },
+    ],
+  },
+  {
+    id: "isa-basics-3d",
+    title: "ISA 5분 정리, 핵심 네 가지",
+    tagline: "3D 스토리 카드 6장 · 비과세·손익통산·한도·전환",
+    summary:
+      "이자·배당에 붙는 15.4%를 그냥 내지 않으려면 ISA부터 봅니다. 비과세 한도 → 손익통산 → 납입한도 → 연금계좌 전환까지 6장으로 정리했습니다.",
+    category: "carousel",
+    createdAt: "2026-11-21",
+    tags: ["ISA", "비과세", "손익통산", "납입한도", "연금전환", "3D 카드"],
+    slides: [
+      {
+        src: "/gallery/3d-isa-basics-01.png",
+        width: W,
+        height: H,
+        alt: "표지 — 한 입 베인 동전 더미를 보는 캐릭터와 '예금 이자 15.4% 세금, 그냥 다 내시나요?'",
+        caption: "표지 — 이자 15.4%, 그냥 내시나요",
+      },
+      {
+        src: "/gallery/3d-isa-basics-02.png",
+        width: W,
+        height: H,
+        alt: "비과세 — 크고 작은 두 유리병과 '서민형 400만·일반형 200만 비과세'",
+        caption: "핵심 1 — 비과세 400만·200만",
+      },
+      {
+        src: "/gallery/3d-isa-basics-03.png",
+        width: W,
+        height: H,
+        alt: "손익통산 — 저울 양팔에 수익과 손실 동전, '수익과 손실을 합쳐서 계산합니다'",
+        caption: "핵심 2 — 손익통산",
+      },
+      {
+        src: "/gallery/3d-isa-basics-04.png",
+        width: W,
+        height: H,
+        alt: "납입한도 — 사다리 위에서 거대한 저금통에 동전을 붓는 캐릭터",
+        caption: "핵심 3 — 연 2,000만·최대 1억",
+      },
+      {
+        src: "/gallery/3d-isa-basics-05.png",
+        width: W,
+        height: H,
+        alt: "연금 전환 — 동전 바구니를 든 캐릭터와 모래시계, '3년 채우고 연금계좌로 넘기면'",
+        caption: "핵심 4 — 3년 후 연금 전환",
+      },
+      {
+        src: "/gallery/3d-isa-basics-06.png",
+        width: W,
+        height: H,
+        alt: "클로징 — 초록 문 앞에 선 캐릭터와 '일반 계좌 쓰기 전에 ISA부터'",
+        caption: "클로징 — 일반 계좌 전에 ISA",
+      },
+    ],
+    basis:
+      "조세특례제한법 제91조의18, 소득세법 제129조·제59조의3 · 기준 2026. 11. 21. · 일반형·서민형 비과세 한도와 9.9% 분리과세 기준",
+    related: [
+      { label: "ISA 만기 자금, 60일 안에 옮길 때", href: "/posts/isa-pension-300" },
+      { label: "4대 계좌 세후 비교 시뮬레이터", href: "/apps/account-tax-compare/run" },
+    ],
+  },
   {
     id: "pension-accounts",
     title: "4대 계좌, 같은 돈의 네 가지 결말",
