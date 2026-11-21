@@ -112,6 +112,15 @@ const jsonLd = graph([
             <span class="font-semibold text-clay">{app.kind}</span>
             <span class="text-ink-faint">{app.madeIn} · {app.status === "live" ? "운영 중" : "미리보기"}</span>
           </div>
+          {
+            app.externalUrl && (
+              <p class="mt-2">
+                <span class="chip !text-[11px]" data-external-badge="외부 웹앱 · 새 창 열기">
+                  외부 웹앱 · 새 창 열기
+                </span>
+              </p>
+            )
+          }
           <h1 class="mt-2.5 text-[30px] font-bold leading-[1.28] tracking-[-0.045em] text-ink md:text-[40px]">
             {app.name}
           </h1>
@@ -143,6 +152,15 @@ const jsonLd = graph([
             app.notice && (
               <p class="mt-4 max-w-[46ch] text-[12.5px] leading-[1.7] text-ink-faint" data-app-notice>
                 {app.notice}
+              </p>
+            )
+          }
+
+          {
+            app.scope === "practitioner" && (
+              <p class="mt-2 max-w-[48ch] text-[12px] leading-[1.7] text-ink-faint" data-scope-note>
+                실무자용 앱입니다 — 일반 독자용 도구자료실 목록에는 싣지 않고, 도구자료실 맨 아래
+                ‘실무자용’ 칸과 이 소개에만 둡니다.
               </p>
             )
           }
@@ -240,7 +258,7 @@ const jsonLd = graph([
             </div>
             <div class="flex justify-between gap-4">
               <dt class="text-ink-faint">실행</dt>
-              <dd class="text-ink-soft">{app.externalUrl ? "외부 앱" : "사이트 안"}</dd>
+              <dd class="text-ink-soft">{app.externalUrl ? "외부 웹앱" : "사이트 안"}</dd>
             </div>
             <div class="flex justify-between gap-4">
               <dt class="text-ink-faint">상태</dt>

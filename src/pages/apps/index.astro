@@ -9,7 +9,12 @@ import { apps } from "@/data/apps";
 import { hubTools, mainTools, riskTools } from "@/data/tools";
 import { breadcrumbList, graph, pageUrl, partOfWebsite } from "@/lib/schema";
 
+/** 사이트 밖 앱 — 일반 독자용(reader)과 실무자용(practitioner)을 처음부터 나눠 둔다 */
 const external = apps.filter((a) => !a.internal);
+const readerApps = external.filter((a) => a.scope !== "practitioner");
+const practitionerApps = external.filter((a) => a.scope === "practitioner");
+/** 외부 앱 배지 — 내부 계산 도구와 헷갈리지 않게 모든 외부 앱 카드에 같은 문구를 쓴다 */
+const EXTERNAL_BADGE = "외부 웹앱 · 새 창 열기";
 /** 홈과 같은 기준의 도구 수 — 금융·연금 계산 3 + 제도 일정 달력 1 + 리스크 관리 3 */
 const mainCalcCount = mainTools.filter((t) => t.runHref).length;
 const calendarCount = mainTools.length - mainCalcCount;
@@ -47,7 +52,7 @@ const jsonLd = graph([
 
 <Base
   title="도구자료실 — 금융·투자·연금 계산과 리스크 관리"
-  description="연금저축·IRP 세액공제, 은퇴 월 현금흐름, 투자 복리·세후 수익률, 연금 인출·세금, 1~12월 제도 일정 달력. 보험은 리스크 관리 참고 도구로 따로 모았고, 직접 만든 앱 두 종(5대 담보 기준 가이드·한국형 타임머신)도 이 자리에서 소개합니다. 가입 없이 브라우저에서 실행하고 입력값은 서버로 보내지 않습니다."
+  description="연금저축·IRP 세액공제, 은퇴 월 현금흐름, 투자 복리·세후 수익률, 연금 인출·세금, 1~12월 제도 일정 달력. 보험은 리스크 관리 참고 도구로 따로 모았습니다. 사이트 밖에서 돌아가는 직접 만든 앱은 일반 독자용(한국형 타임머신)과 실무자용(5대 담보 기준 가이드)을 나눠 소개합니다. 가입 없이 브라우저에서 실행하고 입력값은 서버로 보내지 않습니다."
   path="/apps"
   jsonLd={jsonLd}
 >
@@ -58,8 +63,8 @@ const jsonLd = graph([
       <h1 class="h-display mt-3 max-w-[18ch] text-ink">가진 숫자를 넣으면,<br />확인할 것이 남습니다.</h1>
       <p class="lede mt-5 max-w-[54ch]">
         금융·투자·연금 계산 네 가지와 제도 일정 달력을 앞에 두고, 보험은 리스크 관리 참고 도구로 뒤에
-        모았습니다. 맨 아래에는 사이트 밖에서 돌아가는 직접 만든 앱 두 종을 두었습니다. 모두 가입 없이 열리고,
-        입력한 값은 그 탭 안에서만 계산됩니다.
+        모았습니다. 맨 아래에는 사이트 밖에서 돌아가는 직접 만든 앱을 두었습니다 — 일반 독자가 쓰는
+        앱과 실무자용 앱을 나눠 놓았습니다. 모두 가입 없이 열리고, 입력한 값은 그 탭 안에서만 계산됩니다.
       </p>
 
       <div class="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-[12.5px] text-ink-muted">
@@ -70,7 +75,10 @@ const jsonLd = graph([
           </span>
         </span>
         <span data-app-count={external.length}>
-          직접 만든 앱 <strong class="font-semibold text-ink">{external.length}종</strong>
+          직접 만든 앱 <strong class="font-semibold text-ink">{external.length}종</strong>{" "}
+          <span class="text-ink-faint">
+            (독자용 {readerApps.length} + 실무자용 {practitionerApps.length})
+          </span>
         </span>
         <span>입력값 서버 미전송</span>
         <span class="mono">기준일 <time datetime={site.baseDate}>{site.baseDateLabel}</time></span>
@@ -191,50 +199,112 @@ const jsonLd = graph([
                 <p class="kicker">앱 쇼케이스</p>
                 <h2 class="h-sub mt-1">직접 만든 앱</h2>
               </div>
-              <p class="text-[12.5px] text-ink-muted">설치 없이 브라우저에서 열립니다</p>
+              <p class="text-[12.5px] text-ink-muted">사이트 밖에서 열리는 앱 · 설치 없이 실행</p>
             </div>
-            <ul class={`mt-4 grid gap-3 ${external.length > 1 ? "md:grid-cols-2" : ""}`}>
-              {external.map((a) => (
-                <li class="card card-lift flex flex-col overflow-hidden" data-app-card={a.slug}>
-                  <a
-                    href={a.externalUrl ?? withBase(`/apps/${a.slug}`)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class={`group flex h-full flex-col ${external.length === 1 ? "md:flex-row" : ""}`}
-                  >
-                    <div class={`border-b border-line ${external.length === 1 ? "md:w-[52%] md:shrink-0 md:border-b-0 md:border-r" : ""}`}>
-                      <AppArt art={a.art} compact />
-                    </div>
-                    <div class={`flex flex-1 flex-col p-4 ${external.length === 1 ? "md:justify-center md:p-6" : ""}`}>
-                      <div class="flex items-baseline justify-between gap-2">
-                        <span class="text-[12px] font-semibold text-brand">{a.kind}</span>
-                        <span class="text-[12px] text-ink-faint">{a.madeIn}</span>
+
+            {
+              readerApps.length > 0 && (
+                <ul class={`mt-4 grid gap-3 ${readerApps.length > 1 ? "md:grid-cols-2" : ""}`} data-reader-apps>
+                  {readerApps.map((a) => (
+                    <li class="card card-lift flex flex-col overflow-hidden" data-app-card={a.slug}>
+                      <div class={`flex h-full flex-col ${readerApps.length === 1 ? "md:flex-row" : ""}`}>
+                        <div class={`border-b border-line ${readerApps.length === 1 ? "md:w-[48%] md:shrink-0 md:border-b-0 md:border-r" : ""}`}>
+                          <AppArt art={a.art} compact />
+                        </div>
+                        <div class={`flex flex-1 flex-col p-4 ${readerApps.length === 1 ? "md:justify-center md:p-6" : ""}`}>
+                          <div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
+                            <span class="text-[12px] font-semibold text-brand">{a.kind}</span>
+                            {a.externalUrl && (
+                              <span class="chip !text-[11px]" data-external-badge={EXTERNAL_BADGE}>
+                                {EXTERNAL_BADGE}
+                              </span>
+                            )}
+                          </div>
+                          <h3 class="mt-1.5 text-[16px] font-bold leading-snug tracking-[-0.03em] text-ink">
+                            {a.name}
+                          </h3>
+                          <p class="mt-1 text-[12.5px] leading-[1.7] text-ink-muted">{a.subtitle}</p>
+                          <p class="mt-2 text-[13px] leading-[1.72] text-ink-muted">{a.oneLine}</p>
+                          {a.notice && (
+                            <p class="mt-2 text-[12px] leading-[1.6] text-ink-faint" data-app-notice>
+                              {a.notice}
+                            </p>
+                          )}
+                          <div class="mt-auto flex flex-wrap items-center gap-2 pt-4">
+                            <a
+                              href={a.externalUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              class="btn btn-primary btn-sm"
+                            >
+                              새 창에서 열기
+                            </a>
+                            <a href={withBase(`/apps/${a.slug}`)} class="btn btn-secondary btn-sm">
+                              소개·근거 보기
+                            </a>
+                          </div>
+                        </div>
                       </div>
-                      <h3 class="mt-1.5 text-[16px] font-bold leading-snug tracking-[-0.03em] text-ink group-hover:text-brand-deep">
-                        {a.name}
-                      </h3>
-                      <p class="mt-1 text-[12.5px] leading-[1.7] text-ink-muted">{a.subtitle}</p>
-                      {a.notice && (
-                        <p class="mt-1.5 text-[12px] leading-[1.6] text-ink-faint">{a.notice}</p>
-                      )}
-                      {external.length === 1 && (
-                        <ul class="mt-4 space-y-1.5 border-t border-line-soft pt-3">
-                          {a.features.slice(0, 3).map((f) => (
-                            <li class="flex gap-2 text-[12.5px] leading-[1.6] text-ink-muted">
-                              <span class="mt-[7px] h-[3px] w-[3px] shrink-0 rounded-full bg-brand/60" aria-hidden="true" />
-                              {f.title}
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                      <span class="mt-4 text-[12.5px] font-semibold text-brand-deep">{a.externalUrl ? "새 창에서 열기" : "소개 보기"}</span>
-                    </div>
-                  </a>
-                </li>
-              ))}
-            </ul>
+                    </li>
+                  ))}
+                </ul>
+              )
+            }
+
+            {
+              practitionerApps.length > 0 && (
+                <div class="mt-5 card p-4 md:p-5" data-practitioner-apps>
+                  <div class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+                    <p class="kicker text-clay">실무자용</p>
+                    <span class="text-[12px] text-ink-faint">일반 독자용 목록과 섞지 않습니다</span>
+                  </div>
+                  <h3 class="mt-1 text-[15.5px] font-bold leading-snug tracking-[-0.03em] text-ink">
+                    설계사 현장 상담 도구
+                  </h3>
+                  <p class="mt-2 max-w-[64ch] text-[12.5px] leading-[1.7] text-ink-muted">
+                    아래 도구는 보험설계사가 상담 자리에서 쓰는 실무 도구입니다. 일반 독자가 바로 쓰는 계산
+                    도구가 아니므로 위 목록에는 올리지 않고, 무엇을 하는 도구인지만 여기 따로 적습니다.
+                  </p>
+                  <ul class="mt-3 divide-y divide-line-soft border-t border-line-soft">
+                    {practitionerApps.map((a) => (
+                      <li
+                        class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 py-3"
+                        data-practitioner-card={a.slug}
+                      >
+                        <div class="min-w-0">
+                          <p class="flex flex-wrap items-center gap-2 text-[14px] font-semibold leading-snug text-ink">
+                            {a.name}
+                            {a.externalUrl && (
+                              <span class="chip !text-[11px]" data-external-badge={EXTERNAL_BADGE}>
+                                {EXTERNAL_BADGE}
+                              </span>
+                            )}
+                          </p>
+                          <p class="mt-1 text-[12.5px] leading-[1.65] text-ink-muted">
+                            {a.subtitle} · {a.kind}
+                          </p>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-2">
+                          <a href={withBase(`/apps/${a.slug}`)} class="btn btn-secondary btn-xs">소개 보기</a>
+                          <a
+                            href={a.externalUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="btn btn-tertiary-quiet btn-xs"
+                          >
+                            앱 열기
+                          </a>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )
+            }
+
             <p class="mt-2 text-[12px] leading-[1.7] text-ink-faint">
-              새 앱이 준비되면 이 자리에 함께 놓습니다. 계산 도구는 위에 그대로 남깁니다.
+              위의 계산 도구는 사이트 안에서 바로 실행되고, 이 앱들은 사이트 밖에서 열립니다. 새 앱이 준비되면
+              이 자리에 함께 놓습니다.
             </p>
           </div>
         )

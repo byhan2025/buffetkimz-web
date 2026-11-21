@@ -41,7 +41,8 @@ export const GET: APIRoute = async () => {
       ...(a.basis ?? []),
     ].join(" "),
     url: `/apps/${a.slug}`,
-    group: a.kind,
+    // v6.3 — 실무자용 앱은 검색 결과에서도 '실무자용'으로 구분해 일반 도구와 섞이지 않게 한다
+    group: a.scope === "practitioner" ? "실무자용" : a.kind,
     tags: a.tags,
     date: "2026-11-01",
     // 앱은 날짜를 표시하지 않는다(정렬용 값만 둔다)

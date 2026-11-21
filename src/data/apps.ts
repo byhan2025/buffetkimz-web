@@ -42,6 +42,13 @@ export type App = {
   assumptions?: string[];
   /** 외부 앱 주소 */
   externalUrl?: string;
+  /**
+   * 독자 범위.
+   *  - reader(기본): 일반 독자용 도구자료실에 그대로 소개한다.
+   *  - practitioner: 설계사현장 상담용처럼 실무자 도구라 일반 목록과 섞지 않고
+   *    도구자료실 맨 아래 '실무자용' 칸에서만 소개한다.
+   */
+  scope?: "reader" | "practitioner";
   /** 내부 실행 앱 여부 (실행 화면이 있는 앱) */
   internal?: boolean;
   /** 카드·상세에서 함께 읽는 고지 (필요한 앱만) */
@@ -103,6 +110,7 @@ export const apps: App[] = [
       "2026년 11월 기준 v7.2까지 배포되었고, 이후에도 계속 고칩니다. 화면에 표시되는 기준일이 그 시점의 기준입니다.",
     ],
     externalUrl: "https://byhan2025.github.io/bojang-counsel-guide/",
+    scope: "practitioner",
     art: "guide",
     tags: ["보장분석", "5대 담보", "PDF", "PWA", "고지의무"],
   },

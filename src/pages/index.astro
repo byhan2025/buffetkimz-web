@@ -12,6 +12,7 @@ import Guide from "@/components/guide/Guide.astro";
 import { withBase, site } from "@/config/site";
 import { channels } from "@/data/channels";
 import { hubTools, homeMainTools, mainTools, riskTools } from "@/data/tools";
+import { apps } from "@/data/apps";
 import { calendar } from "@/data/calendar";
 import { allPosts, koreanDate } from "@/lib/posts";
 import { graph, organizationNode, personNode, websiteNode } from "@/lib/schema";
@@ -26,7 +27,7 @@ import { graph, organizationNode, personNode, websiteNode } from "@/lib/schema";
  *  ② 2페이지 순수 소개 — 버핏킴즈가 어떤 사람인지, 다섯 분야를 어떤 철학으로 보는지.
  *     도구·계산기 이야기는 한 줄도 넣지 않는다(도구는 4번째 섹션 이하).
  *  ③ 아카이브 — 7대 주제·6개 시리즈·처음 읽을 글·자주 찾는 계산
- *  ④ 도구 쇼케이스 — 금융·투자·연금 메인 4 + 리스크 관리 3
+ *  ④ 도구 쇼케이스 — 금융·투자·연금 메인 5 + 리스크 관리 3 (숫자는 데이터에서 계산)
  *  ⑤ 신뢰 2단 스플릿 — 딥그린 강조 카드 + 공식 출처·기준일 데이터 카드 + 이번 달 일정
  *  ⑥ 채널 7곳 + 딥그린 1:1 상담문의 배너
  *
@@ -35,8 +36,25 @@ import { graph, organizationNode, personNode, websiteNode } from "@/lib/schema";
 const posts = await allPosts();
 
 const sourcedCalendar = calendar.filter((c) => Boolean(c.source));
-const calcToolCount = mainTools.filter((t) => t.runHref).length;
-const riskCalcCount = riskTools.filter((t) => t.runHref).length;
+/**
+ * 도구 크레딧 숫자는 손으로 적지 않는다 — 앱 데이터(apps.ts)의 분류와 도구 허브에서 센다.
+ * v6.3: '금융·연금 4 + 리스크 관리 3'인데 옆에 '8종'이라 적혀 4+3=7과 어긋나던 표기를 바로냈다.
+ * 금융·연금 계산 + 리스크 관리 계산 + 재도 일정 달력의 합이 허브 총합과 같아야 하며,
+ * 다르면 빌드를 세워 숫자 표기가 또 어긋나는 일을 막는다.
+ */
+const FINANCE_TOOL_KINDS = ["금융·연금", "투자·절세", "연금·절세", "연금·세제"];
+const RISK_TOOL_KINDS = ["보험"];
+const internalApps = apps.filter((a) => a.internal);
+const financeToolCount = internalApps.filter((a) => FINANCE_TOOL_KINDS.includes(a.kind)).length;
+const riskCalcCount = internalApps.filter((a) => RISK_TOOL_KINDS.includes(a.kind)).length;
+const calendarToolCount = mainTools.filter((t) => !t.runHref).length;
+const hubToolTotal = hubTools.length;
+if (financeToolCount + riskCalcCount + calendarToolCount !== hubToolTotal) {
+  throw new Error(
+    `홈 도구 크레딧 숫자 불일치 — 금융·연금 ${financeToolCount} + 리스크 관리 ${riskCalcCount} + 달력 ${calendarToolCount} ≠ 허브 ${hubToolTotal}종. ` +
+      "apps.ts의 kind 또는 tools.ts의 도구 목록을 맞춰 주세요.",
+  );
+}
 const channelCount = channels.length;
 
 const shortToolLabel: Record<string, string> = {
@@ -62,8 +80,8 @@ const credits = [
   {
     href: "/apps",
     label: "도구",
-    note: `금융·연금 ${calcToolCount} + 리스크 관리 ${riskCalcCount}`,
-    count: `${hubTools.length}종`,
+    note: `금융·연금 ${financeToolCount} + 리스크 관리 ${riskCalcCount} + 달력 ${calendarToolCount}`,
+    count: `${hubToolTotal}종`,
   },
   { href: "/calendar", label: "제도 일정", note: "1~12월 기한과 절차", count: `${sourcedCalendar.length}건` },
   { href: "/#channels", label: "연결 채널", note: "채널 7곳 + 코드 보관소", count: `${channelCount}곳` },

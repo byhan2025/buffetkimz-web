@@ -22,7 +22,7 @@
  12) v5.9.2 — 실손 옛 문구('6개월간 시행'·'연장 여부') 0건 + 공식 기준 문장 반영,
      '수동 확인' 모드(자동 갱신 약속 없음) · 390 스와이프 힌트 24px 페이드 · 원/달러 근거 스냅샷 동봉
  13) v5.9.3 — scheduleConnected 엄격 분리(수동·실패 false / 성공 + --schedule-connected 만 true),
-     package.json 버전 5.9.3 일치, 리포트·번들 존재
+     package.json 버전 6.0.0 이상(6.x 라인), 리포트·번들 존재
 """
 from __future__ import annotations
 
@@ -637,7 +637,21 @@ console.log(JSON.stringify(out));
         f"flagged_fail={plan_flagged_fail['scheduleConnected']}",
     )
     pkg = json.loads((APP / "package.json").read_text(encoding="utf-8"))
-    check("package.json 버전 6.0.0 일치", pkg.get("version") == "6.0.0", str(pkg.get("version")))
+    pkg_version = str(pkg.get("version", "0"))
+
+    def _ver(v: str) -> tuple[int, ...]:
+        """'6.3.0' → (6, 3, 0). 숫자가 아니면 (0,)로 두어 실패시킨다."""
+        try:
+            return tuple(int(x) for x in v.split(".")[:3])
+        except ValueError:
+            return (0,)
+
+    # v6.3 — 버전을 6.0.0으로 고정하지 않고 6.x 라인 이상인지만 본다(마이너 업마다 검증기를 고치지 않게)
+    check(
+        "package.json 버전 6.0.0 이상(6.x 라인)",
+        _ver(pkg_version) >= (6, 0, 0),
+        pkg_version,
+    )
 
     report = (LEGACY / "00-v593-report.md")
     report_text = report.read_text(encoding="utf-8", errors="ignore") if report.exists() else ""
@@ -796,7 +810,7 @@ console.log(JSON.stringify(out));
 
     failed = [r for r in results if not r["ok"]]
     summary = {
-        "version": "6.0.0",
+        "version": pkg_version,
         "checks": len(results),
         "passed": len(results) - len(failed),
         "failed": len(failed),
