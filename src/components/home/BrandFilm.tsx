@@ -148,6 +148,8 @@ export default function BrandFilm({ appsHref = "/apps" }: { appsHref?: string })
     const stage = stageRef.current;
     const canvas = canvasRef.current;
     if (!root || !stage || !canvas) return;
+    /* 중첩 함수(setState 등) 안에서는 좁힘이 풀린다 — 좁힌 값을 새 상수에 담아 쓴다. */
+    const rootEl = root;
 
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       root.dataset.filmState = "static";
@@ -198,7 +200,7 @@ export default function BrandFilm({ appsHref = "/apps" }: { appsHref?: string })
     }
 
     function setState(s: "playing" | "paused") {
-      root.dataset.filmState = s;
+      rootEl.dataset.filmState = s;
       if (playBtn) {
         playBtn.setAttribute("aria-pressed", s === "playing" ? "false" : "true");
         playBtn.setAttribute("aria-label", s === "playing" ? "브랜드 필름 일시정지" : "브랜드 필름 재생");

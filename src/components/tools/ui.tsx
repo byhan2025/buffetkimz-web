@@ -245,7 +245,7 @@ export function StickySummary({
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const root: HTMLElement | Document = el.closest("[data-runner]") ?? document;
+    const root: HTMLElement | Document = (el.closest("[data-runner]") as HTMLElement | null) ?? document;
     const onInput = () => setTouched(true);
     const onClick = (event: Event) => {
       const target = event.target as HTMLElement | null;

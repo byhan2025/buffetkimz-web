@@ -148,8 +148,9 @@ const { mode, journey } = Astro.props;
      * 닫기(×)·배경 클릭·Esc도 같은 곳으로 끝나고, 끝나면 onExit가 한 번 불린다.
      */
     const createTour = (steps: DriveStep[], onExit?: () => void): Driver => {
-      let tour: Driver;
-      tour = driver({
+      /* onPopoverRender가 만들어지는 도중에도 안전하게 닫을 수 있도록 참조를 미리 둔다. */
+      let current: Driver | null = null;
+      const tour: Driver = driver({
         steps,
         showProgress: true,
         progressText: "{{current}} / {{total}}",
@@ -171,11 +172,12 @@ const { mode, journey } = Astro.props;
           skip.type = "button";
           skip.className = "bk-tour-skip";
           skip.textContent = "건너뛰기";
-          skip.addEventListener("click", () => tour.destroy());
+          skip.addEventListener("click", () => current?.destroy());
           popover.footer.insertBefore(skip, popover.footerButtons);
         },
         onDestroyed: () => onExit?.(),
       });
+      current = tour;
       return tour;
     };
 

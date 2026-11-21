@@ -16,7 +16,7 @@
  * 퀵 탭 그리드 비율은 config/site.ts의 `weight`(글자 수 비례)를 그대로 받아 쓴다.
  * 배경은 크림(paper) 98% + 약한 블러 — 스크롤해도 두 줄 바 뒤로 본문 글자가 비치지 않는다(v2.2).
  */
-import { withBase, site, nav, quickTabs, quickTabColumns, stripBase } from "@/config/site";
+import { withBase, site, nav, quickTabs, quickTabColumns, stripBase, type NavChild } from "@/config/site";
 import HeaderSearch from "@/components/HeaderSearch.tsx";
 import BrandLockup from "@/components/BrandLockup.astro";
 import { allPosts, categoryCounts } from "@/lib/posts";
@@ -52,7 +52,7 @@ function chipFor(href?: string): string {
 }
 
 /** 메뉴판 한 벌 — 열린 분류와 준비중 분류를 나눠 그린다(데스크톱·모바일 공통). */
-const splitMenu = (children: { label: string; href?: string; note?: string; soon?: boolean }[]) => ({
+const splitMenu = (children: NavChild[]) => ({
   live: children.filter((c) => !c.soon && c.href),
   soon: children.filter((c) => c.soon || !c.href),
 });
@@ -61,7 +61,7 @@ const splitMenu = (children: { label: string; href?: string; note?: string; soon
  * 하위 메뉴 머리의 개수 — '전체' 줄(부모와 같은 주소)은 분류가 아니므로 빼고 센다.
  * 자산리포트는 하위 메뉴가 곧 분류, 나머지는 항목이다.
  */
-const menuCountText = (item: (typeof nav)[number], menu: { live: { href?: string }[] }) => {
+const menuCountText = (item: (typeof nav)[number], menu: { live: NavChild[] }) => {
   const n = menu.live.filter((c) => c.href !== item.href).length;
   return item.match === "/posts" ? `${n}개 분류` : `${n}개 항목`;
 };

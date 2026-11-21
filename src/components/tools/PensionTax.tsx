@@ -1,13 +1,18 @@
 import { useMemo, useState } from "react";
 import { withBase } from "@/config/site";
+import { PENSION_ACCOUNT, TAX_TEXT } from "@/data/tax-rules";
 import { Bar, MoneySlider, Note, ResultStat, RunnerShell, Segmented, StickySummary, formatKrw, formatMan } from "./ui";
 
 type Bracket = "low" | "high";
 
-const RATE: Record<Bracket, number> = { low: 0.165, high: 0.132 };
-const PENSION_LIMIT = 600; // 만원
-const TOTAL_LIMIT = 900; // 만원
-const ISA_EXTRA_LIMIT = 300; // 만원
+/* 한도·공제율은 `data/tax-rules.ts` 한 곳에서 온다 — 화면 문구와 계산이 어긋나지 않게. */
+const RATE: Record<Bracket, number> = {
+  low: PENSION_ACCOUNT.creditRateLow,
+  high: PENSION_ACCOUNT.creditRateHigh,
+};
+const PENSION_LIMIT = PENSION_ACCOUNT.savingsLimit; // 만원
+const TOTAL_LIMIT = PENSION_ACCOUNT.combinedLimit; // 만원
+const ISA_EXTRA_LIMIT = PENSION_ACCOUNT.isaTransferMax; // 만원
 
 export default function PensionTax({ compact = false }: { compact?: boolean }) {
   const [bracket, setBracket] = useState<Bracket>("low");
@@ -21,7 +26,7 @@ export default function PensionTax({ compact = false }: { compact?: boolean }) {
     const pensionEligible = Math.min(pension, PENSION_LIMIT);
     const comboBeforeIsa = pension + irp;
     const baseEligible = Math.min(comboBeforeIsa, TOTAL_LIMIT);
-    const isaExtra = Math.min(Math.floor(isa * 0.1), ISA_EXTRA_LIMIT);
+    const isaExtra = Math.min(Math.floor(isa * PENSION_ACCOUNT.isaTransferRate), ISA_EXTRA_LIMIT);
     const eligible = Math.min(baseEligible + isaExtra, TOTAL_LIMIT + ISA_EXTRA_LIMIT);
 
     const credit = Math.round(eligible * 10000 * rate);
@@ -61,7 +66,7 @@ export default function PensionTax({ compact = false }: { compact?: boolean }) {
             { value: "low", label: "총급여 5,500만원 이하" },
             { value: "high", label: "5,500만원 초과" },
           ]}
-          hint="공제율 16.5% 또는 13.2% (지방소득세 포함)."
+          hint={`공제율 ${TAX_TEXT.creditLow} 또는 ${TAX_TEXT.creditHigh} (지방소득세 포함).`}
         />
         <MoneySlider label="연금저축 납입액" value={pension} onChange={setPension} min={0} max={1800} step={20} />
         <MoneySlider label="IRP 납입액" value={irp} onChange={setIrp} min={0} max={1800} step={20} />
@@ -72,7 +77,7 @@ export default function PensionTax({ compact = false }: { compact?: boolean }) {
           min={0}
           max={3000}
           step={100}
-          hint="10% · 최대 300만원 추가"
+          hint={`${PENSION_ACCOUNT.isaTransferRate * 100}% · 최대 ${PENSION_ACCOUNT.isaTransferMax}만원 추가`}
         />
       </div>
 
@@ -140,8 +145,12 @@ export default function PensionTax({ compact = false }: { compact?: boolean }) {
             <thead>
               <tr className="border-b border-line bg-paper-deep text-left">
                 <th scope="col" className="px-3 py-2.5 font-semibold text-ink-soft">연 납입액</th>
-                <th scope="col" className="px-3 py-2.5 text-right font-semibold text-ink-soft">16.5%</th>
-                <th scope="col" className="px-3 py-2.5 text-right font-semibold text-ink-soft">13.2%</th>
+                <th scope="col" className="px-3 py-2.5 text-right font-semibold text-ink-soft">
+                  {TAX_TEXT.creditLow}
+                </th>
+                <th scope="col" className="px-3 py-2.5 text-right font-semibold text-ink-soft">
+                  {TAX_TEXT.creditHigh}
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -152,8 +161,12 @@ export default function PensionTax({ compact = false }: { compact?: boolean }) {
                     {man === 900 && <span className="ml-1.5 text-[12px] font-normal text-ink-faint">표준 한도</span>}
                     {man === 1200 && <span className="ml-1.5 text-[12px] font-normal text-ink-faint">ISA 이전 포함</span>}
                   </td>
-                  <td className="px-3 py-2.5 text-right tabular-nums text-ink-muted">{formatKrw(man * 10000 * 0.165)}</td>
-                  <td className="px-3 py-2.5 text-right tabular-nums text-ink-muted">{formatKrw(man * 10000 * 0.132)}</td>
+                  <td className="px-3 py-2.5 text-right tabular-nums text-ink-muted">
+                    {formatKrw(man * 10000 * PENSION_ACCOUNT.creditRateLow)}
+                  </td>
+                  <td className="px-3 py-2.5 text-right tabular-nums text-ink-muted">
+                    {formatKrw(man * 10000 * PENSION_ACCOUNT.creditRateHigh)}
+                  </td>
                 </tr>
               ))}
             </tbody>

@@ -1,3 +1,4 @@
+import { HEALTH_INSURANCE, SOCIAL_INSURANCE } from "@/data/tax-rules";
 import { useMemo, useState } from "react";
 import { site } from "@/config/site";
 import { Bar, Note, ResultStat, RunnerShell, Segmented, StickySummary, formatKrw } from "../ui";
@@ -18,12 +19,13 @@ import { AmountField, CaveatBox, Line, num, TableScroll } from "./fields-c";
 
 const MAN = 10000;
 
-const PENSION_RATE = 0.0475;
+/* 2026년 4대보험 요율은 `data/tax-rules.ts`에서 온다. */
+const PENSION_RATE = SOCIAL_INSURANCE.nationalPension / 2;
 const PENSION_MIN = 410000;
 const PENSION_MAX = 6590000;
-const HEALTH_RATE = 0.03595;
-const CARE_RATIO = 0.1314; // 장기요양보험료율 ÷ 건강보험료율
-const EMPLOY_RATE = 0.009;
+const HEALTH_RATE = HEALTH_INSURANCE.employeeShare;
+const CARE_RATIO = HEALTH_INSURANCE.longTermCareRatio; // 장기요양보험료율 ÷ 건강보험료율
+const EMPLOY_RATE = SOCIAL_INSURANCE.employment / 2;
 
 const floor10 = (v: number) => Math.floor(v / 10) * 10;
 

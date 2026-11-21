@@ -39,7 +39,7 @@ const label = (d: YMD) => `${d.y}. ${d.m}. ${d.d}.`;
 
 export default function SeverancePayCalc({ compact = false }: { compact?: boolean }) {
   const [joinText, setJoinText] = useState("2021-01-01");
-  const [leaveText, setLeaveText] = useState(site.baseDate);
+  const [leaveText, setLeaveText] = useState<string>(site.baseDate);
   const [monthly, setMonthly] = useState(400); // 만원
   const [bonus, setBonus] = useState(800); // 연간 상여금(만원)
   const [annualLeave, setAnnualLeave] = useState(0); // 연간 연차수당(만원)

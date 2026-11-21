@@ -80,6 +80,8 @@ export type PostTool = {
 /** 앱별 실행 문구 — 앱 이름을 그대로 버튼에 쓰지 않고 '무엇을 하는지'를 쓴다 */
 const appCta: Record<string, string> = {
   "pension-tax": "올해 세액공제액 계산해 보기",
+  "account-tax-compare": "4대 계좌 세후 비교 열어 보기",
+  "pension-draw": "연금 인출·세금 계산 열어 보기",
   "retirement-flow": "은퇴 후 월 현금흐름 계산해 보기",
   "compound-return": "세후 수익률 계산해 보기",
   "coverage-check": "내 담보 공백 점검해 보기",
@@ -251,4 +253,39 @@ export function sourceOrgLine(sources: { label: string }[], max = 3): string {
     }
   }
   return names.join("·");
+}
+
+/* ------------------------------------------------------------------
+   시리즈 회차 — v7.7
+   · 카드·상세 머리에 `[3/6]`처럼 전체 편수와 함께 보여 준다.
+   · 전체 편수는 컬렉션에서 세므로 글을 더해도 숫자가 손으로 어긋나지 않는다.
+   ------------------------------------------------------------------ */
+
+/** 같은 시리즈 글을 회차 순으로 */
+export function seriesOf(posts: Post[], post: Post): Post[] {
+  const name = post.data.series?.name;
+  if (!name) return [];
+  return posts
+    .filter((p) => p.data.series?.name === name)
+    .sort((a, b) => (a.data.series?.no ?? 0) - (b.data.series?.no ?? 0));
+}
+
+/** 이 글의 시리즈 전체 편수 (시리즈가 없으면 0) */
+export function seriesTotalOf(posts: Post[], post: Post): number {
+  return seriesOf(posts, post).length;
+}
+
+/** `[3/6]` 표기 — 시리즈가 없으면 빈 문자열 */
+export function seriesBadge(post: Post, total?: number): string {
+  const no = post.data.series?.no;
+  if (!no) return "";
+  return total ? `[${no}/${total}]` : `[${no}]`;
+}
+
+/** 다음 회차 글 (마지막 편이면 undefined) */
+export function nextInSeries(posts: Post[], post: Post): Post | undefined {
+  const list = seriesOf(posts, post);
+  const no = post.data.series?.no;
+  if (!no) return undefined;
+  return list.find((p) => (p.data.series?.no ?? 0) > no);
 }

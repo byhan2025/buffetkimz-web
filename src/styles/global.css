@@ -45,7 +45,10 @@
     sans-serif;
   --font-serif: "Instrument Serif", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia,
     serif;
-  --font-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, "Cascadia Mono", monospace;
+  /* 숫자·코드용 고정폭 — 뒤에 한글 글꼴을 붙여, 고정폭 글꼴이 없는 한글 글자가
+     엉뚱한 대체 글꼴(자소가 어긋나 보이는 서브셋)로 떨어지지 않게 한다. */
+  --font-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, "Cascadia Mono", "Apple SD Gothic Neo",
+    "Noto Sans KR", "Malgun Gothic", monospace;
 
   --radius-card: 16px;
 
@@ -1211,6 +1214,14 @@
     border-radius: 12px;
     background-color: #fbfdff;
     padding: 10px;
+  }
+
+  /* v7.7 — 미리보기의 한글+숫자 줄. 고정폭 글꼴 대신 본문 글꼴을 쓰고
+     숫자만 tabular-nums로 맞춘다(한글 '공' 같은 글자가 깨져 보이던 원인 제거). */
+  .mini-out {
+    font-family: var(--font-sans);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
   }
 
   .mini-row {
@@ -5180,12 +5191,6 @@
     line-height: 1.25;
   }
 
-  .store-map-en {
-    font-size: 9.5px;
-    letter-spacing: 0.16em;
-    color: #7fa39b;
-  }
-
   .store-map-label {
     font-size: 13.5px;
     font-weight: 700;
@@ -5459,12 +5464,6 @@
     box-shadow: 0 10px 22px -14px rgb(9 32 46 / 0.9), inset 0 1px 0 rgb(255 255 255 / 0.25);
   }
 
-  .store-sec-en {
-    font-size: 10px;
-    letter-spacing: 0.18em;
-    color: var(--color-brand);
-  }
-
   .store-h2 {
     display: flex;
     align-items: baseline;
@@ -5580,11 +5579,6 @@
     font-weight: 700;
     letter-spacing: -0.01em;
     color: var(--color-ink-muted);
-  }
-
-  .store-badge--free {
-    background: var(--color-brand-soft);
-    color: var(--color-brand-deep);
   }
 
   .store-badge--ext {
@@ -5748,12 +5742,6 @@
     padding: 34px 0 40px;
   }
 
-  .store-kicker-ink {
-    font-size: 10.5px;
-    letter-spacing: 0.2em;
-    color: var(--color-brand);
-  }
-
   .store-h2--dark {
     margin-top: 4px;
   }
@@ -5776,11 +5764,6 @@
     padding: 16px;
     border-top: 2px solid var(--color-ink);
     background: var(--color-paper);
-  }
-
-  .store-guide-no {
-    font-size: 11px;
-    color: var(--color-brand);
   }
 
   .store-guide-grid h3 {
@@ -6679,6 +6662,19 @@
     color: var(--color-brand-deep);
   }
 
+  /* v7.7 — 최신 글 카드의 서브훅 한 줄(자기 숫자를 대입하는 질문) */
+  .picks-post-hook {
+    margin-top: 2px;
+    font-size: 11.5px;
+    line-height: 1.5;
+    color: var(--color-ink-muted);
+    word-break: keep-all;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+  }
+
   .picks-post-meta {
     font-size: 10.5px;
     color: var(--color-ink-faint);
@@ -7386,12 +7382,6 @@
     color: #ffffff;
   }
 
-  .ab-tab-en {
-    font-size: 9px;
-    letter-spacing: 0.16em;
-    color: #86a8a0;
-  }
-
   .ab-panel {
     display: grid;
     gap: 18px;
@@ -7557,25 +7547,6 @@
     padding: 16px;
     border-top: 2px solid var(--color-ink);
     background: #ffffff;
-  }
-
-  .ab-act-top {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 8px;
-  }
-
-  .ab-act-no {
-    font-family: var(--font-serif);
-    font-size: 19px;
-    color: var(--color-brand);
-  }
-
-  .ab-act-en {
-    font-size: 9px;
-    letter-spacing: 0.2em;
-    color: var(--color-ink-faint);
   }
 
   .ab-act-title {
@@ -8544,11 +8515,6 @@
     background: linear-gradient(160deg, #ffffff, #faf9f4);
   }
 
-  .hub-modgrid-no {
-    font-size: 9px;
-    color: var(--color-brand);
-  }
-
   .hub-modgrid-name {
     font-size: 13px;
     font-weight: 800;
@@ -8573,18 +8539,36 @@
 
 /* ---------- v7.0 앱스토어 검색 + 보호 고지 ---------- */
 @layer components {
-  .store-search {
-    display: inline-flex;
-    flex: 0 0 auto;
+  /* v7.7 — 검색창은 카테고리 칩 위 한 줄. 폭은 화면을 따르고 높이는 44px(터치 기준). */
+  .store-search-row {
+    display: flex;
     align-items: center;
-    gap: 6px;
-    height: 40px;
-    margin-left: auto;
-    padding: 0 10px;
+    padding: 10px 0 0;
+  }
+
+  .store-search {
+    display: flex;
+    flex: 1 1 auto;
+    align-items: center;
+    gap: 7px;
+    height: 44px;
+    padding: 0 13px;
     border: 1px solid var(--color-line);
     border-radius: 999px;
     background: #ffffff;
     color: var(--color-ink-faint);
+  }
+
+  @media (min-width: 720px) {
+    .store-search-row {
+      justify-content: flex-end;
+      padding-top: 11px;
+    }
+
+    .store-search {
+      flex: 0 1 300px;
+      height: 40px;
+    }
   }
 
   .store-search:focus-within {
@@ -8597,7 +8581,7 @@
   }
 
   .store-search-input {
-    width: 128px;
+    width: 100%;
     min-width: 0;
     border: 0;
     background: transparent;
@@ -8620,33 +8604,16 @@
     margin-left: 0;
   }
 
-  @media (max-width: 899px) {
-    .store-search-input {
-      width: 92px;
-    }
-  }
-
   @media (max-width: 599px) {
-    /* v7.4 — 인라인 검색창을 필터 칩 바로 위에 한 줄로 세운다(칩은 줄바꿈). */
+    /* v7.7 — 칩은 두 줄로 접고, 검색창은 위 한 줄(순서: 검색 → 칩 → 자주 쓰는 앱 → 전체). */
     .store-tabs {
       flex-wrap: wrap;
       overflow-x: visible;
       row-gap: 8px;
-      padding: 10px 0 12px;
-    }
-
-    .store-search {
-      order: -1;
-      width: 100%;
-      height: 44px;
-      margin-left: 0;
-      padding: 0 13px;
-      background: #ffffff;
-      box-shadow: 0 8px 20px -22px rgb(9 32 46 / 0.9);
+      padding: 8px 0 12px;
     }
 
     .store-search-input {
-      width: 100%;
       font-size: 13px;
     }
 
@@ -8726,6 +8693,7 @@
   .gallery-card {
     display: flex;
     flex-direction: column;
+    min-width: 0; /* v7.7 — 390에서 카드가 그리드 폭을 밀어내지 않게 */
     padding: 16px;
     border: 1px solid var(--color-line);
     border-radius: 18px;
@@ -8877,4 +8845,124 @@
   }
   .gallery-lb-thumb img { display: block; width: 100%; height: 100%; object-fit: cover; }
   .gallery-lb-thumb.is-active { border-color: #e6c98f; opacity: 1; }
+}
+
+/* ==================================================================
+   v7.7 — 4열 이상 표: 390px에서 카드로 펼친다
+   · 표 자체에 .table-stack을 단다(JS·빌드가 붙인다). 표를 지우지 않고 행을 카드로 바꾼다.
+   · 머리글은 각 셀의 data-label로 옮겨 붙는다(화면 낭독기는 표 구조를 그대로 읽는다).
+   · 레이어 밖에 두어 Tailwind 유틸리티(border·hidden)보다 우선하게 한다 — 이 블록 안에서만.
+   ================================================================== */
+@media (max-width: 639px) {
+  table.table-stack {
+    display: block;
+    width: 100%;
+    border: 0;
+    border-collapse: collapse;
+    background: none;
+    font-size: 13px;
+  }
+
+  table.table-stack caption {
+    display: block;
+    padding: 0 0 8px;
+    text-align: left;
+    font-size: 11.5px;
+    color: var(--color-ink-faint);
+  }
+
+  table.table-stack thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  table.table-stack tbody {
+    display: grid;
+    gap: 8px;
+  }
+
+  table.table-stack tbody tr {
+    display: grid;
+    gap: 3px;
+    padding: 11px 13px 12px;
+    border: 1px solid var(--color-line) !important;
+    border-radius: 12px;
+    background: #fff;
+  }
+
+  table.table-stack tbody td,
+  table.table-stack tbody th {
+    display: grid;
+    grid-template-columns: minmax(0, 6.8em) minmax(0, 1fr);
+    gap: 4px 10px;
+    align-items: baseline;
+    padding: 2px 0 !important;
+    border: 0 !important;
+    text-align: right;
+    font-size: 12.5px;
+    font-weight: 400;
+    line-height: 1.5;
+    word-break: keep-all;
+    white-space: normal !important;
+  }
+
+  table.table-stack tbody td::before,
+  table.table-stack tbody th::before {
+    content: attr(data-label);
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--color-ink-faint);
+    text-align: left;
+  }
+
+  /* 첫 칸은 카드의 제목 줄 — 라벨 없이 굵게 */
+  table.table-stack tbody tr > *:first-child {
+    display: block;
+    padding: 0 0 6px !important;
+    margin-bottom: 3px;
+    border-bottom: 1px solid var(--color-line-soft) !important;
+    text-align: left;
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--color-ink);
+  }
+
+  table.table-stack tbody tr > *:first-child::before {
+    content: none;
+  }
+
+  /* 첫 칸 안의 보조 설명(배당소득 15.4%·표준 한도 등)은 제목 아래 한 줄로 */
+  table.table-stack tbody tr > *:first-child span,
+  table.table-stack tbody tr > *:first-child p {
+    display: block;
+    margin: 2px 0 0;
+    font-size: 11.5px;
+    font-weight: 500;
+    line-height: 1.45;
+    letter-spacing: 0;
+    color: var(--color-ink-muted);
+  }
+
+  /* 카드를 담던 상자(테두리·배경)는 카드가 대신한다 */
+  div:has(> table.table-stack),
+  .table-wrap:has(> table.table-stack) {
+    border: 0;
+    background: none;
+    overflow: visible;
+  }
+
+  div:has(> table.table-stack) > div:first-child {
+    padding: 0 0 8px;
+    border-bottom: 0;
+  }
+
+  .table-wrap:has(> table.table-stack) {
+    margin-block: 1.3em;
+    background-image: none;
+  }
 }

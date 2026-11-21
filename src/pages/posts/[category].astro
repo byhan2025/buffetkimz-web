@@ -6,7 +6,7 @@ import AdSlot from "@/components/AdSlot.astro";
 import { withBase, site } from "@/config/site";
 import { categories } from "@/data/categories";
 import { appBySlug } from "@/data/apps";
-import { postsByCategory, postPath, formatDate, sourceOrgLine, toolOf } from "@/lib/posts";
+import { allPosts, postsByCategory, postPath, formatDate, sourceOrgLine, toolOf, seriesTotalOf } from "@/lib/posts";
 import { thumbOf, thumbAltOf, topicThumbs } from "@/lib/thumbs";
 import { breadcrumbList, graph, pageUrl, partOfWebsite } from "@/lib/schema";
 
@@ -20,6 +20,8 @@ export async function getStaticPaths() {
 }
 
 const { category, posts } = Astro.props;
+/** 시리즈 전체 편수는 컬렉션 전체에서 센다 — 분야 목록만으로는 편수가 모자랄 수 있다 */
+const collection = await allPosts();
 const feature = posts[0];
 const rest = posts.slice(1);
 
@@ -37,6 +39,7 @@ const toCard = (p: (typeof posts)[number]) => {
     readingMinutes: p.data.readingMinutes,
     question: p.data.question ?? app?.question,
     series: p.data.series,
+    seriesTotal: seriesTotalOf(collection, p),
     toolName: tool.cta,
     toolUrl: tool.href,
     baseDate: formatDate(p.data.baseDate ?? p.data.publishedAt),
@@ -137,7 +140,7 @@ const jsonLd = graph([
               <section class="mb-8 rounded-2xl border border-line bg-paper-deep/60 p-5 md:p-6" data-master-series>
                 <div class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
                   <div>
-                    <p class="mono text-[11.5px] font-semibold tracking-[0.16em] text-brand">시리즈 07</p>
+                    <p class="mono text-[11.5px] font-semibold tracking-[0.16em] text-brand">연금 마스터 {masterPosts.length}편</p>
                     <h2 class="mt-1 text-[19px] font-bold tracking-[-0.03em] text-ink">연금·퇴직 마스터 가이드</h2>
                   </div>
                   <p class="text-[12px] text-ink-faint">
@@ -152,8 +155,11 @@ const jsonLd = graph([
                   {masterPosts.map((p) => (
                     <li>
                       <a href={withBase(postPath(p))} class="flex min-h-[44px] items-start gap-2.5 rounded-lg bg-white px-3 py-2.5 hover:bg-white/70">
-                        <span class="mono mt-0.5 shrink-0 text-[11.5px] font-semibold text-brand">
-                          {String(p.data.series?.no ?? 0).padStart(2, "0")}
+                        <span
+                          class="mono mt-0.5 shrink-0 text-[11.5px] font-semibold text-brand"
+                          data-series-no={`[${p.data.series?.no ?? 0}/${masterPosts.length}]`}
+                        >
+                          [{p.data.series?.no ?? 0}/{masterPosts.length}]
                         </span>
                         <span class="min-w-0">
                           <span class="block text-[13px] font-semibold leading-snug tracking-[-0.02em] text-ink">

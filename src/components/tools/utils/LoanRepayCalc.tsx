@@ -81,13 +81,16 @@ export default function LoanRepayCalc({ compact = false }: { compact?: boolean }
   /* 거치기간은 만기보다 짧아야 한다 — 기간을 줄이면 거치도 함께 줄인다 */
   const graceYears = Math.min(grace, Math.max(0, years - 1));
 
+  /* v7.7 — 거치기간은 '년' 입력이므로 월 단위로 환산해 넘긴다(2년 → 24개월).
+     이 환산이 빠지면 2년 거치가 2개월로 계산돼 월 상환액·총이자가 모두 틀어진다. */
+  const graceMonths = graceYears * 12;
   const results = useMemo(
     () => ({
-      equal: schedule(P, rate, months, graceYears, "equal"),
-      principal: schedule(P, rate, months, graceYears, "principal"),
-      bullet: schedule(P, rate, months, graceYears, "bullet"),
+      equal: schedule(P, rate, months, graceMonths, "equal"),
+      principal: schedule(P, rate, months, graceMonths, "principal"),
+      bullet: schedule(P, rate, months, graceMonths, "bullet"),
     }),
-    [P, rate, months, graceYears],
+    [P, rate, months, graceMonths],
   );
 
   const current = results[method];
@@ -107,6 +110,8 @@ export default function LoanRepayCalc({ compact = false }: { compact?: boolean }
   }, [current]);
 
   const interestShare = P > 0 ? current.totalInterest / P : 0;
+  /* 거치가 있으면 '거치 후 월 상환액'이 실제로 체감하는 숫자다 — 대표 값으로 보여 준다. */
+  const postGracePayment = graceMonths > 0 ? current.rows[graceMonths]?.payment ?? current.first : current.first;
 
   return (
     <RunnerShell
@@ -176,12 +181,12 @@ export default function LoanRepayCalc({ compact = false }: { compact?: boolean }
       <div className="mt-2 grid gap-3 sm:grid-cols-3">
         <div data-testid="monthly-payment">
           <ResultStat
-            label={`${METHOD_LABEL[method]} 월 상환액`}
-            value={formatKrw(current.first)}
+            label={`${METHOD_LABEL[method]} ${graceMonths > 0 ? "거치 후 월 상환액" : "월 상환액"}`}
+            value={formatKrw(postGracePayment)}
             tone="brand"
             sub={
-              graceYears > 0
-                ? `거치 ${graceYears}년은 이자만 · 거치 후 ${formatKrw(current.rows[graceYears * 12]?.payment ?? 0)}`
+              graceMonths > 0
+                ? `거치 ${graceYears}년(이자만 ${formatKrw(current.first)}/월) 후 ${graceMonths + 1}개월 차부터`
                 : method === "equal"
                   ? "매달 같은 금액"
                   : method === "principal"
@@ -331,7 +336,7 @@ export default function LoanRepayCalc({ compact = false }: { compact?: boolean }
 
       <StickySummary
         items={[
-          { label: "월 상환", value: formatKrw(current.first) },
+          { label: graceMonths > 0 ? "거치 후 월 상환" : "월 상환", value: formatKrw(postGracePayment) },
           { label: "총 이자", value: formatKrw(current.totalInterest) },
         ]}
         note={`${METHOD_LABEL[method]} · 확인 기준일 ${site.baseDateLabel}`}

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""v7.3.0 앱스토어 35종 실측 — 전수 실행 화면 · 앱스토어 UI · 메뉴판 터치 높이.
+"""v7.3.0 앱스토어 실측(기준 현행화 — 앱 51종 · 6·4·41) — 전수 실행 화면 · 앱스토어 UI · 메뉴판 터치 높이.
 
 브리프(handoffs/🧩-buffetkimz-v7-3-0-앱스토어-35종-통합-ui업그레이드)의 판정을 그대로 잰다.
 
@@ -144,8 +144,8 @@ def main() -> int:
     app_dirs = sorted(p.name for p in (ROOT / "apps").iterdir() if p.is_dir())
     detail_paths = [f"/apps/{slug}/" for slug in app_dirs]
     run_paths = [f"/apps/{slug}/run/" for slug in app_dirs if (ROOT / "apps" / slug / "run" / "index.html").exists()]
-    check("앱 상세 페이지 37", len(detail_paths) == 37, len(detail_paths))
-    check("실행 페이지 35", len(run_paths) == 35, len(run_paths))
+    check("앱 상세 페이지 49", len(detail_paths) == 49, len(detail_paths))
+    check("실행 페이지 47", len(run_paths) == 47, len(run_paths))
 
     httpd = None
     if MODE == "local":
@@ -189,9 +189,9 @@ def main() -> int:
                 st = page.evaluate(STORE_JS)
                 first_height = page.evaluate("() => document.documentElement.scrollHeight")
                 check(f"{label} 앱스토어 첫 화면 세로 길이", first_height < (9000 if label == "390" else 12000), first_height)
-                check(f"{label} 앱스토어 카드 39", len(st["cards"]) == 39, len(st["cards"]))
-                check(f"{label} 앱스토어 개수 6·4·29", st["counts"] == ["6", "4", "29"], st["counts"])
-                check(f"{label} 요약 칩 39·6·4·29", st["summary"] == ["39", "6", "4", "29"], st["summary"])
+                check(f"{label} 앱스토어 카드 51", len(st["cards"]) == 51, len(st["cards"]))
+                check(f"{label} 앱스토어 개수 6·4·41", st["counts"] == ["6", "4", "41"], st["counts"])
+                check(f"{label} 요약 칩 51·6·4·41", st["summary"] == ["51", "6", "4", "41"], st["summary"])
                 check(f"{label} 카테고리 탭 4", st["tabs"] == ["all", "finance", "insurance", "utility"], st["tabs"])
                 check(f"{label} 자주 쓰는 앱 4칸", len(st["quick"]) == 4 and all("/run" in q["href"] or q["href"].startswith("http") or q["id"] == "finance-calendar" for q in st["quick"]), st["quick"])
                 check(f"{label} 가로 넘침 0", st["overflow"] <= 1, st["overflow"])
@@ -200,7 +200,7 @@ def main() -> int:
                 page.fill("[data-store-search]", "퇴직")
                 page.wait_for_timeout(220)
                 s2 = page.evaluate(STORE_JS)
-                check(f"{label} 검색 '퇴직' 1~4장", 0 < len(s2["visibleCards"]) <= 4, s2["visibleCards"])
+                check(f"{label} 검색 '퇴직' 1~6장", 0 < len(s2["visibleCards"]) <= 6, s2["visibleCards"])
                 check(f"{label} 검색 결과 개수 표시", "개" in s2["searchShown"], s2["searchShown"])
                 page.fill("[data-store-search]", "")
                 page.wait_for_timeout(200)
@@ -211,13 +211,13 @@ def main() -> int:
                 s3 = page.evaluate(STORE_JS)
                 check(f"{label} 유용한앱 탭 섹션 1", s3["sections"] == ["utility"], s3["sections"])
                 if label == "390":
-                    check("390 유용한앱 접힘 8 + 나머지 보기", len(s3["visibleCards"]) == 8 and any("21" in t for t in s3["more"]), {"vis": len(s3["visibleCards"]), "more": s3["more"]})
+                    check("390 유용한앱 접힘 8 + 나머지 보기", len(s3["visibleCards"]) == 8 and any("33" in t for t in s3["more"]), {"vis": len(s3["visibleCards"]), "more": s3["more"]})
                     page.click('[data-store-cat="utility"] [data-store-more]')
                     page.wait_for_timeout(200)
                     s3 = page.evaluate(STORE_JS)
-                    check("390 나머지 보기 펼침 29", len(s3["visibleCards"]) == 29, len(s3["visibleCards"]))
+                    check("390 나머지 보기 펼침 41", len(s3["visibleCards"]) == 41, len(s3["visibleCards"]))
                 else:
-                    check("1280 유용한앱 카드 29", len(s3["visibleCards"]) == 29, len(s3["visibleCards"]))
+                    check("1280 유용한앱 카드 41", len(s3["visibleCards"]) == 41, len(s3["visibleCards"]))
                 page.click('[data-store-tab="all"]')
                 page.wait_for_timeout(150)
 

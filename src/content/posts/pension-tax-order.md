@@ -6,6 +6,7 @@ summary: "900만원은 목표가 아니라 한도이고, 절감액은 내 공제
 thumb: "/thumbs/pension-tax-order.webp"
 thumbAlt: "스탠드 조명 아래 네 단으로 쌓인 서류 트레이 — 12월 31일 전에 확인할 네 단계"
 question: "연말정산 전에 뭘 먼저 넣어야 할까"
+hook: "연 900만원을 채우기 전에 결정세액부터 — 환급이 0이 되는 지점과 남은 한도를 함께 계산."
 publishedAt: 2026-11-11
 baseDate: 2026-11-21
 readingMinutes: 8

@@ -1,7 +1,7 @@
 {
   "name": "buffetkimz-web",
   "type": "module",
-  "version": "7.6.0",
+  "version": "7.7.0",
   "private": true,
   "scripts": {
     "dev": "astro dev",
@@ -11,7 +11,9 @@
     "deploy:pages": "SITE_URL=https://byhan2025.github.io BASE_PATH=/buffetkimz-web bash scripts/deploy_pages.sh",
     "build:domain": "SITE_URL=https://buffetkimz.com BASE_PATH=/ npm run build",
     "build:pages": "SITE_URL=https://byhan2025.github.io BASE_PATH=/buffetkimz-web npm run build",
-    "deploy:domain": "bash scripts/deploy_domain.sh"
+    "deploy:domain": "bash scripts/deploy_domain.sh",
+    "verify:tax": "python3 scripts/verify_tax_consistency.py",
+    "verify:v77": "python3 scripts/verify_v77.py"
   },
   "dependencies": {
     "@astrojs/markdown-remark": "^7.3.10",
@@ -31,8 +33,10 @@
     "three": "^0.187.0"
   },
   "devDependencies": {
+    "@astrojs/check": "^0.9.12",
     "@tailwindcss/vite": "^4.3.5",
     "@types/qrcode": "^1.5.6",
+    "@types/three": "^0.187.0",
     "tailwindcss": "^4.3.5",
     "typescript": "^5.9.0"
   }

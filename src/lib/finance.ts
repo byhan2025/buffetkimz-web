@@ -7,24 +7,36 @@
  * 계산은 단순화한 가정 위에서만 한다. 결과는 확정액이 아니라 '확인할 항목'을 만들기 위한 값이다.
  */
 
-/** 연금저축·IRP — 소득세법 제59조의3 (2026년 기준) */
+import {
+  INCOME_TAX,
+  ISA,
+  PENSION_ACCOUNT,
+  PENSION_MAX_CREDIT_WON,
+  PRIVATE_PENSION_TAX as PRIVATE_PENSION_TAX_SOURCE,
+  PUBLIC_PENSION_HEALTH_LIMIT,
+} from "@/data/tax-rules";
+
+export { PUBLIC_PENSION_HEALTH_LIMIT };
+
+/**
+ * 연금저축·IRP 한도와 공제율 — 값은 `data/tax-rules.ts` 한 곳에만 있다.
+ * 이 객체는 기존 화면·계산기가 쓰던 이름(totalLimit·rateLow)을 그대로 유지하기 위한 얇은 별칭이다.
+ */
 export const PENSION_RULE = {
   /** 연금저축 단독 한도 */
-  selfLimit: 600,
+  selfLimit: PENSION_ACCOUNT.savingsLimit,
   /** 연금저축 + IRP 합산 한도 */
-  totalLimit: 900,
+  totalLimit: PENSION_ACCOUNT.combinedLimit,
   /** ISA 만기 이전 시 추가 한도(이전액의 10%, 최대 300만원) */
-  isaLimit: 300,
+  isaLimit: PENSION_ACCOUNT.isaTransferMax,
   /** 총급여 5,500만원 이하 공제율 (지방소득세 포함) */
-  rateLow: 0.165,
+  rateLow: PENSION_ACCOUNT.creditRateLow,
   /** 총급여 5,500만원 초과 공제율 (지방소득세 포함) */
-  rateHigh: 0.132,
+  rateHigh: PENSION_ACCOUNT.creditRateHigh,
 } as const;
 
-/** 세액공제 최대액(합산 900만 × 16.5%) */
-export const PENSION_MAX_CREDIT = Math.round(
-  PENSION_RULE.totalLimit * 10000 * PENSION_RULE.rateLow
-);
+/** 세액공제 최대액(합산 900만 × 16.5%) — 원 단위 */
+export const PENSION_MAX_CREDIT = PENSION_MAX_CREDIT_WON;
 
 /** 은퇴 시뮬레이터·복리 계산기의 기본 가정 */
 export const FINANCE_DEFAULTS = {
@@ -167,23 +179,23 @@ export const TAX_MODE: Record<
   { label: string; short: string; rate: number; exempt: number; note: string }
 > = {
   general: {
-    label: "일반과세 15.4%",
+    label: `일반과세 ${(INCOME_TAX.dividendWithLocal * 100).toFixed(1)}%`,
     short: "일반계좌",
-    rate: 0.154,
+    rate: INCOME_TAX.dividendWithLocal,
     exempt: 0,
-    note: "이자·배당소득세 15.4%(소득세 14% + 지방소득세 1.4%). 금융소득 연 2,000만원 초과 시 종합과세",
+    note: `이자·배당소득세 ${(INCOME_TAX.dividendWithLocal * 100).toFixed(1)}%(소득세 14% + 지방소득세 1.4%). 금융소득 연 ${INCOME_TAX.financialIncomeThreshold.toLocaleString("ko-KR")}만원 초과 시 종합과세`,
   },
   isa: {
-    label: "ISA 9.9%",
+    label: `ISA ${(ISA.taxRate * 100).toFixed(1)}%`,
     short: "ISA",
-    rate: 0.099,
-    exempt: 200,
-    note: "일반형: 이익 200만원까지 비과세, 초과분 9.9% 분리과세(서민형·농어민형은 400만원). 의무 가입 3년",
+    rate: ISA.taxRate,
+    exempt: ISA.exemptGeneral,
+    note: `일반형: 이익 ${ISA.exemptGeneral}만원까지 비과세, 초과분 ${(ISA.taxRate * 100).toFixed(1)}% 분리과세(서민형·농어민형은 ${ISA.exemptSeomin}만원). 의무 가입 ${ISA.minYears}년`,
   },
   pension: {
     label: "연금저축 과세이연",
     short: "연금저축",
-    rate: 0.055,
+    rate: PRIVATE_PENSION_TAX_SOURCE.rateUnder70,
     exempt: 0,
     note: "운용 중 과세이연, 인출 시 연금소득세 3.3~5.5% 가정. 55세·5년 이상 납입 요건",
   },
@@ -195,20 +207,18 @@ export const TAX_MODE: Record<
  * 국세청 안내(연금소득 과세표준 확정신고): 사적연금 합계액이 연 1,500만원을 넘으면
  * ① 다른 소득과 합산해 종합소득세로 신고하거나 ② 15% 분리과세(지방소득세 포함 16.5%) 중
  * 하나를 고를 수 있다. 16.5%는 '종합과세 세율'이 아니라 이때 고를 수 있는 분리과세율이다.
+ * 값은 `data/tax-rules.ts`에서 온다.
  */
 export const PRIVATE_PENSION_TAX = {
-  annualThreshold: 1500,
-  monthlyThreshold: 125,
-  lowRate: 0.033,
-  highRate: 0.055,
+  annualThreshold: PRIVATE_PENSION_TAX_SOURCE.annualThreshold,
+  monthlyThreshold: PRIVATE_PENSION_TAX_SOURCE.monthlyThreshold,
+  lowRate: PRIVATE_PENSION_TAX_SOURCE.rate80,
+  highRate: PRIVATE_PENSION_TAX_SOURCE.rateUnder70,
   /** 초과 시 선택 가능한 분리과세율 15%(소득세법 제64조의4) */
-  overThresholdSeparateRate: 0.15,
+  overThresholdSeparateRate: PRIVATE_PENSION_TAX_SOURCE.separateRate,
   /** 위 15%에 지방소득세 10%를 더한 16.5% */
-  overThresholdSeparateRateWithLocal: 0.165,
+  overThresholdSeparateRateWithLocal: PRIVATE_PENSION_TAX_SOURCE.separateRateWithLocal,
 } as const;
-
-/** 공적연금 소득이 연 2,000만원을 넘으면 건강보험 피부양자 자격을 잃을 수 있다 */
-export const PUBLIC_PENSION_HEALTH_LIMIT = 2000;
 
 export type CompoundInput = {
   /** 초기 투자금(만원) */
@@ -333,7 +343,7 @@ export function manLabel(value: number, digits = 0): string {
   return `${v.toLocaleString("ko-KR")}만원`;
 }
 
-/** 예: 0.165 → "16.5%" */
+/** 예: 0.123 → "12.3%" */
 export function pctLabel(value: number, digits = 1): string {
   return `${(value * 100).toFixed(digits).replace(/\.0$/, "")}%`;
 }

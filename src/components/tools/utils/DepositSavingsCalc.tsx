@@ -1,3 +1,4 @@
+import { INCOME_TAX, ISA } from "@/data/tax-rules";
 import { useMemo, useState } from "react";
 import { UtilShell } from "./UtilShell";
 import { AmountField, CaveatBox, Line, QuickChoices, TableScroll, num } from "./fields-c";
@@ -13,7 +14,12 @@ import { AmountField, CaveatBox, Line, QuickChoices, TableScroll, num } from "./
 type Kind = "deposit" | "savings";
 type TaxType = "general" | "preferred" | "exempt";
 
-const TAX_RATE: Record<TaxType, number> = { general: 0.154, preferred: 0.099, exempt: 0 };
+/* 이자·배당 원천징수(15.4%)와 세금우대(9.9%) — 값은 `data/tax-rules.ts`에서 온다. */
+const TAX_RATE: Record<TaxType, number> = {
+  general: INCOME_TAX.dividendWithLocal,
+  preferred: ISA.taxRate,
+  exempt: 0,
+};
 const TAX_LABEL: Record<TaxType, string> = {
   general: "일반과세 15.4%",
   preferred: "세금우대 9.9%",

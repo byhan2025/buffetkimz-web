@@ -33,6 +33,38 @@ function addClass(node, name) {
   if (!list.includes(name)) props.className = [...list, name];
 }
 
+/** 머리글 글자 목록 — 첫 행의 th에서 읽는다(없으면 빈 배열) */
+function headLabels(table) {
+  const thead = (table.children ?? []).find((c) => c.type === "element" && c.tagName === "thead");
+  const row = thead?.children?.find((c) => c.type === "element" && c.tagName === "tr");
+  const cells = (row?.children ?? []).filter((c) => c.type === "element" && (c.tagName === "th" || c.tagName === "td"));
+  return cells.map((c) => textOf(c).replace(/\s+/g, " ").trim());
+}
+
+/**
+ * v7.7 — 4열 이상 표는 390px에서 카드로 펼친다.
+ *  · 각 td에 머리글을 data-label로 붙인다(첫 열은 카드 제목이라 붙이지 않는다).
+ *  · 감싸는 상자에 클래스 이름을 넘겨 CSS가 좁은 화면에서만 모양을 바꾼다.
+ */
+function markWide(table) {
+  const heads = headLabels(table);
+  if (heads.length < 4) return false;
+  const body = (table.children ?? []).find((c) => c.type === "element" && c.tagName === "tbody");
+  (body?.children ?? [])
+    .filter((tr) => tr.type === "element" && tr.tagName === "tr")
+    .forEach((tr) => {
+      (tr.children ?? [])
+        .filter((c) => c.type === "element" && (c.tagName === "td" || c.tagName === "th"))
+        .forEach((cell, i) => {
+          if (i > 0 && heads[i]) {
+            cell.properties = cell.properties ?? {};
+            cell.properties["data-label"] = heads[i];
+          }
+        });
+    });
+  return true;
+}
+
 function markCells(table) {
   const walk = (node) => {
     if (!node || node.type !== "element") return;
@@ -54,6 +86,7 @@ export function rehypeTableWrap() {
       node.children = node.children.map((child) => {
         if (child?.type === "element" && child.tagName === "table") {
           markCells(child);
+          if (markWide(child)) addClass(child, "table-stack");
           return {
             type: "element",
             tagName: "div",

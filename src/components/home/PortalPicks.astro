@@ -46,6 +46,7 @@ const picks = featuredStore.slice(0, 4);
                 <a href={withBase(postPath(p))} class="picks-post">
                   <span class="picks-post-cat">{categoryLabel(p)}</span>
                   <span class="picks-post-title">{p.data.title}</span>
+                  <span class="picks-post-hook">{p.data.hook ?? p.data.question ?? p.data.description}</span>
                   <span class="picks-post-meta mono">
                     {formatDate(p.data.baseDate ?? p.data.publishedAt)} · {p.data.readingMinutes}분
                   </span>

@@ -58,6 +58,11 @@ const posts = defineCollection({
     thumbAlt: z.string().optional(),
     /** 카드에 먼저 보여 주는 질문 한 줄 — 이 글이 답하는 것 */
     question: z.string().optional(),
+    /**
+     * v7.7 — '많이 찾는 핵심 글' 카드의 서브훅 한 줄.
+     * 독자가 자기 숫자를 대입해 볼 수 있는 구체적 손익·질문으로 쓴다(제목 반복 금지).
+     */
+    hook: z.string().optional(),
     publishedAt: z.coerce.date(),
     /** 이 글을 확인한 기준일 — 없으면 발행일을 쓴다(발행 파이프라인이 검증) */
     baseDate: z.coerce.date().optional(),

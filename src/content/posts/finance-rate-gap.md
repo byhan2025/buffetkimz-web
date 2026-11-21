@@ -6,6 +6,7 @@ summary: "기준금리는 내 대출금리가 아니라 대출금리를 만드�
 thumb: "/thumbs/finance-rate-gap.webp"
 thumbAlt: "계단을 한 칸씩 내려가는 금속 구슬 다섯 개 — 기준금리에서 내 상품금리까지의 단계"
 question: "금리 인하 뉴스, 내 통장엔 언제 오나"
+hook: "대출 3억·금리 0.25%p 인하라면 월 6만 2,500원 — 내 계약서에 언제 반영되는지 확인하는 순서."
 publishedAt: 2026-11-16
 baseDate: 2026-11-21
 readingMinutes: 7

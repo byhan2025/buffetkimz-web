@@ -11,7 +11,7 @@ import Guide from "@/components/guide/Guide.astro";
 import { nextReading } from "@/data/journey";
 import { withBase, absolute } from "@/config/site";
 import { categoryBySlug, categoryName } from "@/data/categories";
-import { allPosts, postPath, formatDate, summaryOf, toolOf } from "@/lib/posts";
+import { allPosts, postPath, formatDate, summaryOf, toolOf, seriesOf, nextInSeries, seriesTotalOf } from "@/lib/posts";
 import { thumbOf, thumbAltOf, thumbSize } from "@/lib/thumbs";
 import { AUTHOR_ID, ORG_ID, breadcrumbList, graph, pageUrl, partOfWebsite } from "@/lib/schema";
 
@@ -66,6 +66,11 @@ const balanceLine: Record<string, string> = {
 };
 
 const all = await allPosts();
+/** v7.7 — 시리즈 회차: 전체 편수·다음 편·첫 편 */
+const seriesTotal = seriesTotalOf(all, post);
+const seriesNext = nextInSeries(all, post);
+const seriesList = seriesOf(all, post);
+const seriesFirst = seriesList[0];
 const sameCategory = all.filter((p) => p.data.category === post.data.category && p.id !== post.id);
 const tagSet = new Set(post.data.tags);
 const byTag = all.filter(
@@ -168,7 +173,11 @@ const jsonLd = graph([
             {post.data.series && (
               <span class="series-chip" data-series={post.data.series.name}>
                 시리즈 {post.data.series.name}
-                <span class="series-no">{String(post.data.series.no).padStart(2, "0")}</span>
+                <span class="series-no">
+                  {seriesTotal > 1
+                    ? `[${post.data.series.no}/${seriesTotal}]`
+                    : String(post.data.series.no).padStart(2, "0")}
+                </span>
               </span>
             )}
             <time class="dateline text-[12.5px]" datetime={published}>{formatDate(post.data.publishedAt)}</time>
@@ -341,6 +350,46 @@ const jsonLd = graph([
           <div data-ad-region="article-bottom">
             <AdSlot id={`post-${post.id}-bottom`} size="leaderboard" region="article-bottom" />
           </div>
+
+          {post.data.series && seriesTotal > 1 && (
+            <section
+              class="mt-10 rounded-2xl border border-line bg-paper-deep/55 p-5 md:p-6"
+              aria-labelledby="series-next-title"
+              data-series-next
+              data-series-name={post.data.series.name}
+            >
+              <p class="text-[11px] font-bold tracking-[0.16em] text-brand-deep" id="series-next-title">
+                {post.data.series.name} [{post.data.series.no}/{seriesTotal}]
+              </p>
+              {seriesNext ? (
+                <a
+                  href={withBase(postPath(seriesNext))}
+                  class="mt-2 block text-[16px] font-bold leading-[1.45] tracking-[-0.03em] text-ink underline decoration-brand/30 underline-offset-4 hover:text-brand-deep"
+                  data-series-next-link
+                >
+                  다음 편 이어 읽기 — {seriesNext.data.title}
+                </a>
+              ) : (
+                <a
+                  href={withBase(postPath(seriesFirst))}
+                  class="mt-2 block text-[16px] font-bold leading-[1.45] tracking-[-0.03em] text-ink underline decoration-brand/30 underline-offset-4 hover:text-brand-deep"
+                  data-series-next-link
+                >
+                  마지막 편입니다 — 1편부터 다시 읽기
+                </a>
+              )}
+              <p class="mt-2 text-[12.5px] leading-[1.65] text-ink-muted">
+                읽은 기준을 그대로 내 숫자에 넣어 보세요. 이 글의 짝꿍 계산기는 앱스토어에 있습니다.
+              </p>
+              <a
+                href={withBase(tool.href)}
+                class="btn btn-secondary btn-sm mt-3"
+                data-series-tool={tool.name}
+              >
+                짝꿍 계산기 — {tool.cta}
+              </a>
+            </section>
+          )}
 
           <nav class="mt-10 grid gap-6 border-t border-ink pt-5 sm:grid-cols-2" aria-label="이전·다음 글">
             {

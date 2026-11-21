@@ -6,6 +6,7 @@ summary: "5세대 실손은 보험료를 4세대의 약 70%로 낮춘 대신 비
 thumb: "/thumbs/insurance-silson-5th.webp"
 thumbAlt: "보장을 뜻하는 방패와 서류를 저울에 나란히 올린 장면 — 낮아진 보험료와 올라간 자기부담"
 question: "보험료는 싸졌는데 병원비는 왜 더 나올까"
+hook: "보험료 30% 인하의 값은 자기부담금 — 내 통원 횟수를 넣어 4세대·5세대를 나란히 계산."
 publishedAt: 2026-11-14
 baseDate: 2026-11-21
 readingMinutes: 10

@@ -48,9 +48,10 @@ const pensionCredit = (PENSION_RULE.totalLimit * PENSION_RULE.rateLow * 1).toFix
           <span class="text-[12px] text-ink-muted">IRP</span>
           <span class="mini-track"><i style="width:33%" /></span>
         </div>
-        <p class="mono pt-0.5 text-[12px] text-ink">
-          예상 공제액 <strong class="font-semibold text-brand-deep">{pensionCredit}만원</strong>
-          <span class="text-ink-faint"> · 한도 {PENSION_RULE.totalLimit}만</span>
+        <p class="mini-out pt-0.5 text-[12px] text-ink">
+          {"예상 공제액 "}
+          <strong class="font-semibold text-brand-deep">{pensionCredit}만원</strong>
+          <span class="text-ink-faint">{` · 한도 ${PENSION_RULE.totalLimit}만`}</span>
         </p>
       </div>
     )
@@ -66,9 +67,9 @@ const pensionCredit = (PENSION_RULE.totalLimit * PENSION_RULE.rateLow * 1).toFix
           <i style="height:78%" />
           <i style="height:100%" />
         </div>
-        <p class="mono mt-1.5 text-[12px] text-ink">
-          월 {manLabel(ret.nominal.total)}
-          <span class="text-ink-faint"> · 오늘 가치 {manLabel(ret.real.total)}</span>
+        <p class="mini-out mt-1.5 text-[12px] text-ink">
+          {`월 ${manLabel(ret.nominal.total)}`}
+          <span class="text-ink-faint">{` · 오늘 가치 ${manLabel(ret.real.total)}`}</span>
         </p>
       </div>
     )
@@ -85,9 +86,9 @@ const pensionCredit = (PENSION_RULE.totalLimit * PENSION_RULE.rateLow * 1).toFix
           <i style="height:96%" />
           <i style="height:100%" />
         </div>
-        <p class="mono mt-1.5 text-[12px] text-ink">
-          세후 {manLabel(comp.net)}
-          <span class="text-ink-faint"> · 원금 {manLabel(comp.principal)}</span>
+        <p class="mini-out mt-1.5 text-[12px] text-ink">
+          {`세후 ${manLabel(comp.net)}`}
+          <span class="text-ink-faint">{` · 원금 ${manLabel(comp.principal)}`}</span>
         </p>
       </div>
     )
@@ -101,8 +102,9 @@ const pensionCredit = (PENSION_RULE.totalLimit * PENSION_RULE.rateLow * 1).toFix
             <i data-on={[3, 11, 19, 26].includes(i + 1) ? "1" : "0"} />
           ))}
         </div>
-        <p class="mono mt-1.5 text-[12px] text-ink">
-          {month}월 <strong class="font-semibold text-brand-deep">{monthItems.length}건</strong>
+        <p class="mini-out mt-1.5 text-[12px] text-ink">
+          {`${month}월 `}
+          <strong class="font-semibold text-brand-deep">{monthItems.length}건</strong>
           <span class="text-ink-faint"> · 1~12월 기한과 절차</span>
         </p>
       </div>

@@ -12,24 +12,39 @@ export type PayoutMode = "pension" | "lump";
 export type IsaType = "general" | "seomin";
 export type AgeBand = "55" | "70" | "80" | "lifetime";
 
+import {
+  INCOME_TAX,
+  ISA,
+  PENSION_ACCOUNT,
+  PRIVATE_PENSION_TAX,
+} from "@/data/tax-rules";
+
+/* 아래 값은 모두 `data/tax-rules.ts`에서 온다 — 화면·계산·설명이 같은 숫자를 말하게. */
+
 /** 배당소득세(지방소득세 포함) */
-export const DIVIDEND_TAX = 0.154;
+export const DIVIDEND_TAX = INCOME_TAX.dividendWithLocal;
 /** ISA 비과세 초과분 분리과세(지방소득세 포함) */
-export const ISA_TAX = 0.099;
+export const ISA_TAX = ISA.taxRate;
 /** 연금계좌 연금 외 수령 기타소득세(지방소득세 포함) */
-export const PENSION_LUMP_TAX = 0.165;
+export const PENSION_LUMP_TAX = INCOME_TAX.otherIncomeWithLocal;
 /** 사적연금 연 1,500만원 기준 */
-export const PENSION_ANNUAL_LIMIT = 1500;
+export const PENSION_ANNUAL_LIMIT = PRIVATE_PENSION_TAX.annualThreshold;
 /** ISA 비과세 한도(만원) */
-export const ISA_EXEMPT: Record<IsaType, number> = { general: 200, seomin: 400 };
+export const ISA_EXEMPT: Record<IsaType, number> = {
+  general: ISA.exemptGeneral,
+  seomin: ISA.exemptSeomin,
+};
 /** 세액공제: 연금저축 600만원, IRP 포함 900만원 */
-export const CREDIT_LIMIT = { pension: 600, irp: 900 } as const;
+export const CREDIT_LIMIT = {
+  pension: PENSION_ACCOUNT.savingsLimit,
+  irp: PENSION_ACCOUNT.combinedLimit,
+} as const;
 
 export const AGE_RATE: Record<AgeBand, { rate: number; label: string }> = {
-  "55": { rate: 0.055, label: "55~69세 5.5%" },
-  "70": { rate: 0.044, label: "70~79세 4.4%" },
-  "80": { rate: 0.033, label: "80세 이상 3.3%" },
-  lifetime: { rate: 0.033, label: "종신형 3.3%" },
+  "55": { rate: PRIVATE_PENSION_TAX.rateUnder70, label: "55~69세 5.5%" },
+  "70": { rate: PRIVATE_PENSION_TAX.rate70, label: "70~79세 4.4%" },
+  "80": { rate: PRIVATE_PENSION_TAX.rate80, label: "80세 이상 3.3%" },
+  lifetime: { rate: PRIVATE_PENSION_TAX.rate80, label: "종신형 3.3%" },
 };
 
 export const ASSET_LABEL: Record<AssetType, string> = {
@@ -119,7 +134,7 @@ export function compareAccounts(input: AccountInput): AccountCompareResult {
   /* 세액공제 — 계좌별 연 한도 × 납입 연수(원금을 연수로 나눠 낸 것으로 본다) */
   const creditOf = (key: "pension" | "irp") => {
     if (!input.creditOn) return 0;
-    const perYear = Math.min(input.creditRatePct / 100, 0.165);
+    const perYear = Math.min(input.creditRatePct / 100, PENSION_ACCOUNT.creditRateLow);
     const cap = CREDIT_LIMIT[key] * years;
     return Math.min(principal, cap) * perYear;
   };

@@ -338,7 +338,7 @@ def main() -> int:
                 if key == "pension-hub":
                     s = page.evaluate(SERIES_JS)
                     add(f"{label} 연금 허브 시리즈 블록", s["flag"] and s["items"] == 6, s)
-                    add(f"{label} 연금 허브 6편 번호", s["nums"] == ["01", "02", "03", "04", "05", "06"], s["nums"])
+                    add(f"{label} 연금 허브 6편 번호", s["nums"] == [f"[{i}/6]" for i in range(1, 7)], s["nums"])
 
                 if key in ("post-1", "post-5"):
                     pj = page.evaluate(POST_JS)
@@ -352,9 +352,9 @@ def main() -> int:
 
                 if key == "apps":
                     a = page.evaluate(APP_JS)
-                    add(f"{label} 앱스토어 카드 39", len(a["cards"]) == 39, len(a["cards"]))
-                    add(f"{label} 앱스토어 개수 6·4·29", a["counts"] == ["6", "4", "29"], a["counts"])
-                    add(f"{label} 앱스토어 요약 칩 39·6·4·29", a["summary"] == ["39", "6", "4", "29"], a["summary"])
+                    add(f"{label} 앱스토어 카드 51", len(a["cards"]) == 51, len(a["cards"]))
+                    add(f"{label} 앱스토어 개수 6·4·41", a["counts"] == ["6", "4", "41"], a["counts"])
+                    add(f"{label} 앱스토어 요약 칩 51·6·4·41", a["summary"] == ["51", "6", "4", "41"], a["summary"])
                     add(f"{label} 자료앨범 카드", "gallery" in a["cards"], a["cards"])
                     add(f"{label} 4대 계좌 앱 카드", "account-tax-compare" in a["cards"], a["cards"])
 
@@ -400,13 +400,13 @@ def main() -> int:
                     page.evaluate("() => window.scrollTo(0, 0)")
                     page.wait_for_timeout(200)
                     g = page.evaluate(GALLERY_JS)
-                    add(f"{label} 앨범 카드 4", g["items"] == 4, g["items"])
+                    add(f"{label} 앨범 카드 6", g["items"] == 6, g["items"])
                     add(f"{label} 앨범 탭 5", len(g["tabs"]) == 5 and [t["id"] for t in g["tabs"]] == ["all", "cardnews", "carousel", "infographic", "checklist"], g["tabs"])
                     add(f"{label} 앨범 카드 이미지 로드", all(s["w"] > 0 for s in g["slides"]), g["slides"])
                     add(f"{label} 앨범 4:5 이미지", all(s["w"] == 1080 and s["h"] == 1350 for s in g["slides"]), g["slides"][:2])
-                    add(f"{label} 앨범 썸네일 7(세트 2개)", g["thumbs"] == 7, g["thumbs"])
-                    add(f"{label} 현재 장 다운로드 4", len(g["downloads"]) == 4 and all(d["download"] for d in g["downloads"]), g["downloads"][:2])
-                    add(f"{label} 세트 전체 다운로드 2", g["setDownloads"] == 2, g["setDownloads"])
+                    add(f"{label} 앨범 썸네일 19(6세트)", g["thumbs"] == 19, g["thumbs"])
+                    add(f"{label} 현재 장 다운로드 6", len(g["downloads"]) == 6 and all(d["download"] for d in g["downloads"]), g["downloads"][:2])
+                    add(f"{label} 세트 묶음 다운로드 버튼 4", g["setDownloads"] == 4, g["setDownloads"])
                     add(f"{label} 라이트박스 존재", g["lb"] is True, g["lb"])
                     add(f"{label} 업로드 입력 0", g["fileInputs"] == 0 and g["forms"] == 0, {"files": g["fileInputs"], "forms": g["forms"]})
                     add(f"{label} 앨범 방문자 안내 1줄", "관리자" in g["policy"] and "내려받" in g["policy"], g["policy"][:120])
@@ -428,7 +428,7 @@ def main() -> int:
                         page.fill("[data-gallery-search]", "ISA")
                         page.wait_for_timeout(300)
                         visible = page.evaluate("() => [...document.querySelectorAll('[data-gallery-item]')].filter(c => !c.hidden).map(c => c.dataset.galleryItem)")
-                        add("1280 앨범 검색 ISA", visible and all("pension" in v for v in visible) and len(visible) <= 2, visible)
+                        add("1280 앨범 검색 ISA", bool(visible) and len(visible) <= 3 and any("isa" in v or "pension" in v for v in visible), visible)
                         page.fill("[data-gallery-search]", "")
                         page.wait_for_timeout(200)
 
@@ -489,7 +489,7 @@ def main() -> int:
         m = page.evaluate(MENU_JS)
         add("1280 메뉴판 열림(금융지식)", bool(m["desk"]), m["desk"])
         if m["desk"]:
-            add("1280 메뉴판 글 7 + 준비중 2", len(m["desk"]["links"]) == 7 and len(m["desk"]["soon"]) == 2, {"links": len(m["desk"]["links"]), "soon": m["desk"]["soon"]})
+            add("1280 메뉴판 글 9 + 준비중 2", len(m["desk"]["links"]) == 9 and len(m["desk"]["soon"]) == 2, {"links": len(m["desk"]["links"]), "soon": m["desk"]["soon"]})
             add("1280 메뉴판 항목 수 칩", len(m["desk"]["chips"]) >= 7, m["desk"]["chips"])
             add("1280 메뉴판 화면 안", m["desk"]["rect"]["right"] <= m["vw"] - 8 and m["desk"]["rect"]["left"] >= 8, m["desk"]["rect"])
         page.screenshot(path=str(OUT / "menu-drop-posts-1280.png"))
@@ -529,9 +529,9 @@ def main() -> int:
         page.wait_for_timeout(600)
         vis = page.evaluate("() => [...document.querySelectorAll('[data-gallery-item]')].filter(c => !c.hidden).map(c => c.dataset.galleryItem)")
         act = page.evaluate("() => document.querySelector('[data-gallery-tab].is-active')?.dataset.galleryTab")
-        add("?cat=carousel 탭 열림", act == "carousel" and vis == ["pension-accounts"], {"tab": act, "vis": vis})
+        add("?cat=carousel 탭 열림", act == "carousel" and len(vis) >= 1 and "pension-accounts" in vis, {"tab": act, "vis": vis})
         page.close()
-        add("package.json 버전 7.3.0", pkg.get("version") == "7.3.0", str(pkg.get("version")))
+        add("package.json 버전 7.7.0", pkg.get("version") == "7.7.0", str(pkg.get("version")))
 
         # v7.2 — dist 전체 <del> 0건 (물결표 2개가 취소선으로 먹히면 글자가 사라진다)
         if MODE == "local":

@@ -1,3 +1,4 @@
+import { INCOME_TAX } from "@/data/tax-rules";
 import { useMemo, useState } from "react";
 import { site } from "@/config/site";
 import { Bar, Note, ResultStat, RunnerShell, Segmented, StickySummary, formatKrw } from "../ui";
@@ -13,7 +14,7 @@ import { AmountField, CaveatBox, Line, TableScroll } from "./fields-c";
  */
 const MAN = 10000;
 const THRESHOLD = 2000; // 만원
-const RATE = 0.154;
+const RATE = INCOME_TAX.dividendWithLocal;
 
 export default function DividendTaxCalc({ compact = false }: { compact?: boolean }) {
   const [interest, setInterest] = useState(500); // 만원

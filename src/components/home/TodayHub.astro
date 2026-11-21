@@ -126,14 +126,12 @@ const ddayClass: Record<string, string> = {
     <ul class="hub-modgrid" aria-label="오늘의 포털 모듈">
       <li>
         <a href="#mod-market" data-mod="market">
-          <span class="hub-modgrid-no mono">01</span>
           <span class="hub-modgrid-name">시장 지표</span>
           <span class="hub-modgrid-note">코스피 · 환율 · 금리</span>
         </a>
       </li>
       <li>
         <a href="#mod-money" data-mod="money">
-          <span class="hub-modgrid-no mono">02</span>
           <span class="hub-modgrid-name">돈의 일정</span>
           <span class="hub-modgrid-note">
             {items.filter((i) => i.dday).map((i) => (i.dday as NonNullable<typeof i.dday>).label).join(" · ") || "기한 3건"}
@@ -142,14 +140,12 @@ const ddayClass: Record<string, string> = {
       </li>
       <li>
         <a href="#mod-sim" data-mod="sim">
-          <span class="hub-modgrid-no mono">03</span>
           <span class="hub-modgrid-name">시뮬레이터</span>
           <span class="hub-modgrid-note">세액 · 은퇴 · 계획</span>
         </a>
       </li>
       <li>
         <a href="#mod-brief" data-mod="brief">
-          <span class="hub-modgrid-no mono">04</span>
           <span class="hub-modgrid-name">브리핑</span>
           <span class="hub-modgrid-note">투자 · 절세 · 보험</span>
         </a>

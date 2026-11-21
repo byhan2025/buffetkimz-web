@@ -1,3 +1,4 @@
+import { HEALTH_INSURANCE } from "@/data/tax-rules";
 import { useMemo, useState } from "react";
 import { UtilShell } from "./UtilShell";
 import { AmountField, CaveatBox, Line, TableScroll, num } from "./fields-c";
@@ -24,9 +25,10 @@ const PROPERTY_GRADES: [number, number][] = [
   [531468, 1991], [584615, 2061], [643077, 2131], [707385, 2201], [778124, 2271], [Infinity, 2341],
 ];
 
-const RATE = 0.0719;
-const LTC_RATIO = 0.9448 / 7.19; // 13.14%
-const POINT_WON = 211.5;
+/* 2026년 요율은 `data/tax-rules.ts` 한 곳에서 온다. */
+const RATE = HEALTH_INSURANCE.rate;
+const LTC_RATIO = HEALTH_INSURANCE.longTermCareRatio; // 13.14%
+const POINT_WON = HEALTH_INSURANCE.propertyPointWon;
 
 const won = (n: number) => `${Math.round(n).toLocaleString("ko-KR")}원`;
 
