@@ -263,7 +263,7 @@ body{{font-family:'BK','Noto Sans CJK KR',sans-serif;-webkit-font-smoothing:anti
   font-size:19px;font-weight:600;letter-spacing:.02em;backdrop-filter:blur(4px)}}
 .chip i{{width:9px;height:9px;border-radius:50%;background:{t['accent']};display:block}}
 .text{{position:absolute;left:72px;right:72px;bottom:88px;display:flex;flex-direction:column}}
-.kicker{{text-shadow:0 2px 18px rgba(0,0,0,.25);font-size:21px;font-weight:600;letter-spacing:.16em;color:{t['kicker']}}}
+.kicker{{text-shadow:0 1px 3px rgba(6,20,16,.55),0 6px 20px rgba(6,20,16,.40);font-size:21px;font-weight:600;letter-spacing:.16em;color:{t['kicker']}}}
 h1{{margin-top:16px;text-shadow:0 2px 24px rgba(0,0,0,.22);font-weight:800;font-size:78px;line-height:1.15;letter-spacing:-0.038em;color:{t['ink']}}}
 h1 .ln{{display:block;white-space:nowrap}}
 h1 em{{font-style:normal;color:{t['accent']}}}
