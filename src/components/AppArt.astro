@@ -5,6 +5,7 @@
 import { RETIREMENT_EXAMPLE, COMPOUND_EXAMPLE, compoundProjection, retirementProjection } from "@/lib/finance";
 import { UTILS_B_ART_ROWS } from "@/data/utils-b.ts";
 import { UTILS_C_ART_ROWS } from "@/data/utils-c.ts";
+import { UTILS_E_ART_ROWS } from "@/data/utils-e.ts";
 
 interface Props {
   art:
@@ -46,7 +47,20 @@ interface Props {
     | "u-upscale"
     | "u-shorten"
     | "u-pdf-split"
-    | "u-clock";
+    | "u-clock"
+    /* v7.4 유용한앱 5탄 12종 */
+    | "svg-logo"
+    | "brokerage-fee"
+    | "acquisition-tax"
+    | "subscription-score"
+    | "moving-dday"
+    | "health-premium"
+    | "annual-leave"
+    | "unemployment"
+    | "freelancer-tax"
+    | "overseas-tax"
+    | "deposit-compare"
+    | "stock-average";
   compact?: boolean;
 }
 const { art, compact = false } = Astro.props;
@@ -77,7 +91,7 @@ const tmOutcomes = [
 /** QR 도해용 모듈 — 장식이지만 실제 QR처럼 보이도록 규칙적으로 채운다 */
 const qrCells = Array.from({ length: 81 }, (_, i) => (i * 7 + Math.floor(i / 9) * 3) % 5 < 2);
 /** v7.3 — 2·3탄 16종은 앱마다 다른 도해를 그리는 대신 '입력 → 처리 → 결과' 세 줄을 쓴다. */
-const utilArtRows: Record<string, [string, string, string]> = { ...UTILS_B_ART_ROWS, ...UTILS_C_ART_ROWS };
+const utilArtRows: Record<string, [string, string, string]> = { ...UTILS_B_ART_ROWS, ...UTILS_C_ART_ROWS, ...UTILS_E_ART_ROWS };
 const utilSteps = utilArtRows[art];
 ---
 

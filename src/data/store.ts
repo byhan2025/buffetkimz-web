@@ -53,7 +53,20 @@ export type StoreIcon =
   | "u-upscale"
   | "u-shorten"
   | "u-pdf-split"
-  | "u-clock";
+  | "u-clock"
+  /* v7.4 유용한앱 5탄 */
+  | "svg-logo"
+  | "brokerage-fee"
+  | "acquisition-tax"
+  | "subscription-score"
+  | "moving-dday"
+  | "health-premium"
+  | "annual-leave"
+  | "unemployment"
+  | "freelancer-tax"
+  | "overseas-tax"
+  | "deposit-compare"
+  | "stock-average";
 
 export type StoreItem = {
   id: string;
@@ -122,6 +135,19 @@ const artToIcon: Record<App["art"], StoreIcon> = {
   "u-shorten": "u-shorten",
   "u-pdf-split": "u-pdf-split",
   "u-clock": "u-clock",
+  /* v7.4 — 5탄은 art 키 = 아이콘 이름 */
+  "svg-logo": "svg-logo",
+  "brokerage-fee": "brokerage-fee",
+  "acquisition-tax": "acquisition-tax",
+  "subscription-score": "subscription-score",
+  "moving-dday": "moving-dday",
+  "health-premium": "health-premium",
+  "annual-leave": "annual-leave",
+  unemployment: "unemployment",
+  "freelancer-tax": "freelancer-tax",
+  "overseas-tax": "overseas-tax",
+  "deposit-compare": "deposit-compare",
+  "stock-average": "stock-average",
 };
 
 /** 카드 아래 메타 한 줄 — 앱마다 다른 값을 쓰는 새 앱만 여기에 적는다. */
@@ -146,6 +172,19 @@ const metaBySlug: Record<string, string> = {
   "url-shortener": "URL · 단축은 외부 전송",
   "pdf-merge-split": "PDF · 서버 미전송",
   "market-world-clock": "시각 · 서버 미전송",
+  /* v7.4 — 유용한앱 5탄 */
+  "svg-logo-maker": "디자인 · 서버 미전송",
+  "brokerage-fee": "중개보수 · 서버 미전송",
+  "acquisition-tax": "2026 세율 · 서버 미전송",
+  "subscription-score": "84점 만점 · 서버 미전송",
+  "moving-dday": "전입 14일 · 서버 미전송",
+  "health-insurance-compare": "7.19% · 서버 미전송",
+  "annual-leave": "근로기준법 제60조",
+  "unemployment-benefit": "상한 68,100원 · 서버 미전송",
+  "freelancer-tax": "3.3% 양방향 · 서버 미전송",
+  "overseas-stock-tax": "250만원 공제 · 서버 미전송",
+  "deposit-savings": "15.4% · 서버 미전송",
+  "stock-averaging": "평단가 · 서버 미전송",
 };
 
 /** 홈 진열 순서 — 금융·연금 계산이 먼저, 앱이 뒤, 보험이 마지막. */
@@ -190,6 +229,19 @@ const orderBySlug: Record<string, number> = {
   "url-shortener": 270,
   "pdf-merge-split": 280,
   "market-world-clock": 290,
+  /* v7.4 — 유용한앱 5탄(부동산·노동·세금·금융 계산) */
+  "svg-logo-maker": 300,
+  "brokerage-fee": 310,
+  "acquisition-tax": 320,
+  "subscription-score": 330,
+  "moving-dday": 340,
+  "health-insurance-compare": 350,
+  "annual-leave": 360,
+  "unemployment-benefit": 370,
+  "freelancer-tax": 380,
+  "overseas-stock-tax": 390,
+  "deposit-savings": 400,
+  "stock-averaging": 410,
 };
 
 const fromApps: StoreItem[] = apps.map((a) => ({

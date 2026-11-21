@@ -37,6 +37,19 @@ import ImageUpscale from "./utils/ImageUpscale";
 import UrlShortener from "./utils/UrlShortener";
 import PdfMergeSplit from "./utils/PdfMergeSplit";
 import MarketWorldClock from "./utils/MarketWorldClock";
+/* v7.4 — 유용한앱 5탄 12종(로고·부동산·노동·세금·금융 계산). 모두 브라우저 로컬 처리. */
+import SvgLogoMaker from "./utils/SvgLogoMaker";
+import BrokerageFeeCalc from "./utils/BrokerageFeeCalc";
+import AcquisitionTaxCalc from "./utils/AcquisitionTaxCalc";
+import SubscriptionScoreCalc from "./utils/SubscriptionScoreCalc";
+import MovingDday from "./utils/MovingDday";
+import HealthPremiumCompare from "./utils/HealthPremiumCompare";
+import AnnualLeaveCalc from "./utils/AnnualLeaveCalc";
+import UnemploymentCalc from "./utils/UnemploymentCalc";
+import FreelancerTaxCalc from "./utils/FreelancerTaxCalc";
+import OverseasStockTaxCalc from "./utils/OverseasStockTaxCalc";
+import DepositSavingsCalc from "./utils/DepositSavingsCalc";
+import StockAveragingCalc from "./utils/StockAveragingCalc";
 
 const MAP: Record<string, (props: { compact?: boolean }) => React.ReactElement> = {
   "pension-tax": PensionTax,
@@ -74,6 +87,18 @@ const MAP: Record<string, (props: { compact?: boolean }) => React.ReactElement> 
   "url-shortener": UrlShortener,
   "pdf-merge-split": PdfMergeSplit,
   "market-world-clock": MarketWorldClock,
+  "svg-logo-maker": SvgLogoMaker,
+  "brokerage-fee": BrokerageFeeCalc,
+  "acquisition-tax": AcquisitionTaxCalc,
+  "subscription-score": SubscriptionScoreCalc,
+  "moving-dday": MovingDday,
+  "health-insurance-compare": HealthPremiumCompare,
+  "annual-leave": AnnualLeaveCalc,
+  "unemployment-benefit": UnemploymentCalc,
+  "freelancer-tax": FreelancerTaxCalc,
+  "overseas-stock-tax": OverseasStockTaxCalc,
+  "deposit-savings": DepositSavingsCalc,
+  "stock-averaging": StockAveragingCalc,
 };
 
 export default function ToolRunner({ slug, compact = false }: { slug: string; compact?: boolean }) {

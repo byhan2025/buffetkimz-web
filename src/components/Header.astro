@@ -275,6 +275,29 @@ const splitMenu = (children: { label: string; href?: string; note?: string; soon
 
 <script>
   /**
+   * v7.4 — 모바일 드롭다운 메뉴판이 열린 동안 `? 가이드` 플로팅 버튼이 카드의 '준비중' 칩을
+   * 가리지 않게 잠시 숨긴다. 열림/닫힘을 각 핸들러에서 직접 부르고, 혹시 빠진 경로가 있어도
+   * 잡히도록 패널·드롭다운의 hidden/class 변화를 MutationObserver로 함께 살핀다.
+   */
+  const syncGuide = () => {
+    const panels = [...document.querySelectorAll<HTMLElement>("[data-quick-panel], [data-nav-drop]")];
+    const menu = document.querySelector<HTMLElement>("[data-menu-panel]");
+    const open =
+      panels.some((p) => !p.hidden) || (menu ? !menu.classList.contains("hidden") : false);
+    document.documentElement.dataset.navOpen = open ? "true" : "false";
+  };
+
+  const observeGuide = () => {
+    const targets = document.querySelectorAll<HTMLElement>(
+      "[data-quick-panel], [data-nav-drop], [data-menu-panel]",
+    );
+    const mo = new MutationObserver(syncGuide);
+    targets.forEach((t) => mo.observe(t, { attributes: true, attributeFilter: ["hidden", "class", "style"] }));
+    syncGuide();
+  };
+  observeGuide();
+
+  /**
    * v7.2 — 메뉴 하위 드롭다운.
    *  · 데스크톱: 호버(마우스가 있는 기기에서만) + ▾ 클릭. 패널이 화면 오른쪽 밖으로 나가면 안쪽으로 당긴다.
    *  · 모바일: 가로 탭 한 번 = 열기, 다시 탭·바깥 탭·Esc = 닫기. 이동은 '전체 보기'와 하위 항목으로 한다.

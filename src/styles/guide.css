@@ -9,8 +9,7 @@
 
 .guide-dock {
   position: fixed;
-  z-index: 60;
-  left: 0;
+  z-index: 60;  left: 0;
   right: 0;
   bottom: calc(12px + env(safe-area-inset-bottom));
   display: flex;
@@ -23,6 +22,18 @@
 
 .guide-dock > * {
   pointer-events: auto;
+}
+
+/*
+ * v7.4 — 모바일 드롭다운 메뉴판(빠른 메뉴·하위 드롭다운·전체메뉴)이 열린 동안에는
+ * `? 가이드` 플로팅 버튼을 잠시 숨긴다. 패널 아래 카드의 '준비중' 칩을 가리지 않게 하기 위해서다.
+ * Header.astro가 html[data-nav-open]을 토글하고, 메뉴가 닫히면 그대로 돌아온다.
+ */
+html[data-nav-open="true"] .guide-dock {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 120ms var(--ease-out-soft);
 }
 
 @media (min-width: 768px) {

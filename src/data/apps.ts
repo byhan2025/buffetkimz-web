@@ -7,6 +7,7 @@
 import { utilsBApps } from "./utils-b.ts";
 import { utilsCApps } from "./utils-c.ts";
 import { utilsDApps } from "./utils-d.ts";
+import { utilsEApps } from "./utils-e.ts";
 
 export type AppStatus = "live" | "preview";
 
@@ -164,7 +165,20 @@ export type App = {
     | "u-upscale"
     | "u-shorten"
     | "u-pdf-split"
-    | "u-clock";
+    | "u-clock"
+    /* v7.4 유용한앱 5탄 — 로고·부동산·노동·세금·금융 12종 */
+    | "svg-logo"
+    | "brokerage-fee"
+    | "acquisition-tax"
+    | "subscription-score"
+    | "moving-dday"
+    | "health-premium"
+    | "annual-leave"
+    | "unemployment"
+    | "freelancer-tax"
+    | "overseas-tax"
+    | "deposit-compare"
+    | "stock-average";
   /** 관련 글 태그 (검색 보조) */
   tags: string[];
 };
@@ -1145,6 +1159,8 @@ export const apps: App[] = [
   ...utilsCApps.map(({ store: _store, ...app }) => app as App),
   /* v7.3 유용한앱 4탄 4종 */
   ...(utilsDApps as App[]),
+  /* v7.4 유용한앱 5탄 12종 — 로고·중개보수·취득세·청약가점·이사·건보료·연차·실업급여·3.3%·해외주식세·예적금·물타기 */
+  ...(utilsEApps as App[]),
 ];
 
 export const appBySlug = (slug: string) => apps.find((a) => a.slug === slug);
