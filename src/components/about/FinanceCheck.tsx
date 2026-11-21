@@ -2,7 +2,7 @@
  * 고민 선택 진단 — v7.0 소개(/about). (회의실 부이 대리 A+C 혼합 포맷)
  *
  * 네 개의 고민 칩(연금 · 투자 · 절세 · 보험) 가운데 하나를 누르면,
- *  ① 그 고민에 맞춘 컨설팅 설명  ② 지금 확인할 앱 2종  ③ 함께 읽을 글 1편을 그 자리에서 보여 준다.
+ *  ① 그 고민에 맞춘 안내 문장  ② 지금 확인할 앱 2종  ③ 함께 읽을 글 1편을 그 자리에서 보여 준다.
  * 아래의 기간 칩(1년 / 3~5년 / 10년 이상)은 설명의 결을 한 번 더 좁힌다(선택).
  *
  * 판정하지 않는다 — 무엇부터 확인할지 순서만 제안한다.
@@ -28,7 +28,7 @@ const HORIZONS: { value: Horizon; label: string }[] = [
 ];
 
 type Rec = {
-  /** 고민에 맞춘 컨설팅 설명 — 두 문장 */
+  /** 고민에 맞춘 안내 문장 — 두 문장 */
   consult: string[];
   apps: { name: string; href: string; note: string }[];
   post: { title: string; href: string };
@@ -136,7 +136,7 @@ export default function FinanceCheck() {
 
       {rec && (
         <div className="fcheck-result" role="status">
-          <p className="fcheck-result-eyebrow mono">맞춤 컨설팅 · {INTERESTS.find((i) => i.value === interest)?.label}</p>
+          <p className="fcheck-result-eyebrow mono">맞춤 안내 · {INTERESTS.find((i) => i.value === interest)?.label}</p>
           {rec.consult.map((line) => (
             <p className="fcheck-consult" key={line}>
               {line}

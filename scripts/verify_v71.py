@@ -243,6 +243,12 @@ def main() -> int:
                     page.wait_for_timeout(200)
                     shots.append(str(OUT / name))
 
+                if key == "about":
+                    about_txt = page.evaluate("() => document.body.innerText")
+                    add(f"{label} 소개 보증 표현 낮신 문구", "1인 금융·연금 아카이브" in about_txt and "1:1 문의로" in about_txt, about_txt[:80])
+                    low = [w for w in ["1인 금융 컨설팅", "1:1 자문", "맞춤 컨설팅"] if w in about_txt]
+                    add(f"{label} 소개 자문·컨설팅 단정 0", not low, ",".join(low))
+
                 if key == "about" and label == "1280":
                     preload()
                     full_shot("about-1280.png", 1280)
@@ -293,6 +299,7 @@ def main() -> int:
                     add(f"{label} {key} 시리즈 라벨", "연금·퇴직 마스터 가이드" in pj["series"], pj["series"])
                     add(f"{label} {key} 썸네일 로드", pj["thumbOk"] is True, pj["thumbOk"])
                     if key == "post-5":
+                        add(f"{label} {key} 퇴직소득세 납부율", "퇴직소득세의 70%" in pj["body"] and "30~50%만 냅니다" not in pj["body"], "70% 납부(30~50% 감면)")
                         add(f"{label} {key} 비교 카드", pj["compare"] is True, pj["compare"])
 
                 if key == "apps":
@@ -308,6 +315,8 @@ def main() -> int:
 
                 if key == "account-run":
                     html = page.content()
+                    run_txt = page.evaluate("() => document.body.innerText")
+                    add(f"{label} 원금 기준 명시", "초기 원금 기준" in run_txt and "수익 5,000만 원" in run_txt, run_txt[:80])
                     add(f"{label} 시뮬레이터 배지 문구", "예시 입력값 기준" in html and "예시 입력값 · 가상" not in html, "예시 입력값 기준")
                     flat = page.evaluate("() => document.body.innerText").replace(" ", "")
                     stale = [w for w in ["가상브라우저", "2026년11월19일", "2026.11.19"] if w in flat]

@@ -73,7 +73,7 @@ export default function AccountTaxCompare({ compact = false }: { compact?: boole
     <RunnerShell
       title="4대 계좌 세후 비교"
       subtitle="같은 원금·수익률·기간으로 일반계좌·ISA·연금저축·IRP의 세금과 실수령액을 나란히 봅니다."
-      example={`원금 ${formatMan(principal)} · ${years}년 · 연 ${pct(rate)} · ${ASSET_LABEL[asset]} · ${payoutLabel}로 시작합니다.`}
+      example={`원금 ${formatMan(principal)} · ${years}년 · 연 ${pct(rate)} · ${ASSET_LABEL[asset]} · ${payoutLabel}로 시작합니다. 여기 숫자는 초기 원금 기준이며, 연금 가이드 2편의 '수익 5,000만 원' 예시와는 출발 기준이 다릅니다.`}
     >
       <div className="rounded-xl border border-line bg-white p-4">
         <p className="text-[12px] font-semibold tracking-[0.02em] text-ink-faint">결론 한 줄 (가정 기반 추정)</p>
