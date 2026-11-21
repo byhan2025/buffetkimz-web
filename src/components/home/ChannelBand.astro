@@ -3,7 +3,8 @@
  * 홈 6영역 — 7개 채널 연결 밴드 + 마무리 1:1 상담문의 배너(Handlus 스타일).
  *
  * 상담문의는 3순위(Tertiary) 위계다. 가입 권유·중개가 아닌 일반 안내 채널이라는 문구를 배너 안에 둔다.
- * 배너는 딥그린 한 면 — 페이지의 마지막 색 장면이다.
+ * v5.8에서 편집 원칙 배너로 바뀌었고, v5.8.2(2026-11-21)에서 사용자 선택으로 1:1 상담문의를 되살리며
+ * 편집 원칙 링크를 배너 안 보조 링크로 남겼다. 배너는 딥그린 한 면 — 페이지의 마지막 색 장면이다.
  */
 import { withBase, site } from "@/config/site";
 import { channels, confirmedLinks } from "@/data/channels";
@@ -59,7 +60,7 @@ import { channels, confirmedLinks } from "@/data/channels";
       </li>
     </ul>
 
-    <!-- 마무리 배너 — 딥그린 한 면 -->
+    <!-- 마무리 배너 — 1:1 상담문의(주) + 편집 원칙(보조), 딥그린 한 면 -->
     <div class="cta-band mt-5" data-contact-banner>
       <div class="grid gap-5 md:grid-cols-[1fr_auto] md:items-center md:gap-10">
         <div>
@@ -72,23 +73,32 @@ import { channels, confirmedLinks } from "@/data/channels";
             채널입니다.
           </p>
         </div>
-        <a
-          href={site.contact.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          class="btn cta-outline w-full md:w-auto"
-        >
-          <svg viewBox="0 0 24 24" class="h-4 w-4" fill="currentColor" aria-hidden="true">
-            <path d="M12 4c-4.4 0-8 2.6-8 5.8 0 2 1.3 3.8 3.4 4.9-.2.7-.7 2.3-.8 2.7 0 .3.2.4.4.3.4-.2 2.3-1.6 3-2.1.6.1 1.3.1 2 .1 4.4 0 8-2.6 8-5.9S16.4 4 12 4Z" />
-          </svg>
-          {site.contact.label}
-        </a>
+        <div class="w-full md:w-auto">
+          <a
+            href={site.contact.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="btn cta-outline w-full md:w-auto"
+          >
+            <svg viewBox="0 0 24 24" class="h-4 w-4" fill="currentColor" aria-hidden="true">
+              <path d="M12 4c-4.4 0-8 2.6-8 5.8 0 2 1.3 3.8 3.4 4.9-.2.7-.7 2.3-.8 2.7 0 .3.2.4.4.3.4-.2 2.3-1.6 3-2.1.6.1 1.3.1 2 .1 4.4 0 8-2.6 8-5.9S16.4 4 12 4Z" />
+            </svg>
+            {site.contact.label}
+          </a>
+          <a
+            href={withBase("/principles")}
+            class="mt-1 inline-flex min-h-[44px] w-full items-center justify-center gap-1.5 text-[12.5px] font-semibold text-[#cfe4dc] underline decoration-[#cfe4dc]/40 underline-offset-4 hover:text-white hover:decoration-white md:justify-end"
+          >
+            글과 도구를 만드는 기준 — 편집 원칙
+            <span aria-hidden="true">→</span>
+          </a>
+        </div>
       </div>
     </div>
 
     <p class="mt-2 text-[12px] text-ink-faint">
       <a href={withBase("/privacy")} class="link">개인정보처리방침</a> · 문의 채널은 카카오톡 1:1 대화로 열립니다.
-      기준일 {site.baseDate}.
+      기준일 {site.baseDateLabel}
     </p>
   </div>
 </section>

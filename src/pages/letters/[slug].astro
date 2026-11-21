@@ -9,6 +9,7 @@ import HomePill from "@/components/HomePill.astro";
 import { withBase, site, absolute } from "@/config/site";
 import { formatDate, koreanDate, allPosts } from "@/lib/posts";
 import { allLetters, letterPath, issueLabel } from "@/lib/letters";
+import { AUTHOR_ID, ORG_ID, breadcrumbList, graph, pageUrl, partOfWebsite } from "@/lib/schema";
 
 export async function getStaticPaths() {
   const list = await allLetters();
@@ -25,17 +26,25 @@ const titleOf = new Map(posts.map((p) => [p.id, p.data.title]));
 const path = letterPath(letter);
 const published = letter.data.date.toISOString().slice(0, 10);
 
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@type": "Article",
-  headline: `${issueLabel(letter.data.issue)} — ${koreanDate(letter.data.date)} 소식지`,
-  description: `확인한 기록 ${letter.data.posts.length}편을 묶은 소식지 ${issueLabel(letter.data.issue)}입니다.`,
-  datePublished: published,
-  inLanguage: "ko-KR",
-  author: { "@type": "Person", name: site.author.name, url: `${site.url}/about` },
-  publisher: { "@type": "Organization", name: site.brand, url: site.url },
-  mainEntityOfPage: { "@type": "WebPage", "@id": `${site.url}${path}` },
-};
+const jsonLd = graph([
+  {
+    "@type": "Article",
+    "@id": `${pageUrl(path)}#article`,
+    headline: `${issueLabel(letter.data.issue)} — ${koreanDate(letter.data.date)} 소식지`,
+    description: `확인한 기록 ${letter.data.posts.length}편을 묶은 소식지 ${issueLabel(letter.data.issue)}입니다.`,
+    datePublished: published,
+    inLanguage: "ko-KR",
+    author: { "@id": AUTHOR_ID },
+    publisher: { "@id": ORG_ID },
+    mainEntityOfPage: { "@type": "WebPage", "@id": pageUrl(path) },
+    isPartOf: partOfWebsite,
+  },
+  breadcrumbList([
+    { name: "홈", path: "/" },
+    { name: "소식지", path: "/letters" },
+    { name: issueLabel(letter.data.issue), path },
+  ]),
+]);
 ---
 
 <Base

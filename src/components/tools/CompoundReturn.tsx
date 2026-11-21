@@ -101,7 +101,7 @@ export default function CompoundReturn({ compact = false }: { compact?: boolean 
         </ol>
 
         <p className="mt-3 border-t border-line-soft pt-2 text-[12px] leading-relaxed text-ink-faint">
-          기준일 {site.baseDate} · 출처: 소득세법 제16조·제17조(이자·배당소득), 조세특례제한법(ISA),
+          기준일 {site.baseDateLabel} · 출처: 소득세법 제16조·제17조(이자·배당소득), 조세특례제한법(ISA),
           소득세법 제59조의3(연금계좌) · 한계: 월 복리·매년 같은 수익률·분배금 전액 재투자 가정, 물가상승 미반영
         </p>
       </div>
@@ -224,7 +224,7 @@ export default function CompoundReturn({ compact = false }: { compact?: boolean 
         data-compound-assumptions
       >
         적용 가정: 기대 수익률 {pctPoint(rate)} · 연 보수 {appliedFeePct} · {TAX_MODE[mode].short}{" "}
-        {pctLabel(result.taxRate)} · 분배금 전액 재투자 · 월 복리 · 물가상승 미반영 · 기준일 {site.baseDate}
+        {pctLabel(result.taxRate)} · 분배금 전액 재투자 · 월 복리 · 물가상승 미반영 · 기준일 {site.baseDateLabel}
       </p>
 
       <div className="mt-3 grid gap-3 md:grid-cols-[1.1fr_0.9fr]">
@@ -389,7 +389,7 @@ export default function CompoundReturn({ compact = false }: { compact?: boolean 
         참고용 단순 복리 계산(원금 손실 가능·실제 세법 요건 별도 확인). 수익률은 보장된 값이 아니며, 같은
         기간에 손실이 났다면 결과는 원금보다 작아집니다. 세율과 과세 방식은 이해를 돕기 위한 가정이고, 실제
         과세는 계좌 종류와 소득 구간, 금융소득 종합과세 여부에 따라 달라집니다. 배당·분배금은 전액 재투자한
-        것으로 보았고, 물가상승은 반영하지 않았습니다. 기준일 {site.baseDate}.
+        것으로 보았고, 물가상승은 반영하지 않았습니다. 기준일 {site.baseDateLabel}
       </Note>
     </RunnerShell>
   );

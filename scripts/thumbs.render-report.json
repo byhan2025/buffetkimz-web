@@ -1,0 +1,376 @@
+[
+  {
+    "slug": "silson-switch-2026",
+    "out": "public/thumbs/silson-switch-2026.webp",
+    "bytes": 61822,
+    "lines": [
+      {
+        "text": "1·2세대 실손",
+        "size": 64,
+        "overflow": false
+      },
+      {
+        "text": "11월 23일, 두 갈래",
+        "size": 64,
+        "overflow": false
+      }
+    ]
+  },
+  {
+    "slug": "isa-pension-300",
+    "out": "public/thumbs/isa-pension-300.webp",
+    "bytes": 60528,
+    "lines": [
+      {
+        "text": "ISA 만기 60일",
+        "size": 64,
+        "overflow": false
+      },
+      {
+        "text": "늘어나는 300만원",
+        "size": 64,
+        "overflow": false
+      }
+    ]
+  },
+  {
+    "slug": "insurance-silson-5th",
+    "out": "public/thumbs/insurance-silson-5th.webp",
+    "bytes": 43862,
+    "lines": [
+      {
+        "text": "실손 5세대",
+        "size": 64,
+        "overflow": false
+      },
+      {
+        "text": "30%의 앞뒤",
+        "size": 64,
+        "overflow": false
+      }
+    ]
+  },
+  {
+    "slug": "insurance-coverage-conditions",
+    "out": "public/thumbs/insurance-coverage-conditions.webp",
+    "bytes": 39918,
+    "lines": [
+      {
+        "text": "가입금액이 아니라",
+        "size": 64,
+        "overflow": false
+      },
+      {
+        "text": "지급 조건",
+        "size": 64,
+        "overflow": false
+      }
+    ]
+  },
+  {
+    "slug": "finance-rate-gap",
+    "out": "public/thumbs/finance-rate-gap.webp",
+    "bytes": 34554,
+    "lines": [
+      {
+        "text": "기준금리 인하",
+        "size": 64,
+        "overflow": false
+      },
+      {
+        "text": "내 이자는 그대로",
+        "size": 64,
+        "overflow": false
+      }
+    ]
+  },
+  {
+    "slug": "economy-fx-grocery",
+    "out": "public/thumbs/economy-fx-grocery.webp",
+    "bytes": 80538,
+    "lines": [
+      {
+        "text": "환율이 오르면",
+        "size": 64,
+        "overflow": false
+      },
+      {
+        "text": "장바구니가 먼저",
+        "size": 64,
+        "overflow": false
+      }
+    ]
+  },
+  {
+    "slug": "economy-service-prices",
+    "out": "public/thumbs/economy-service-prices.webp",
+    "bytes": 58254,
+    "lines": [
+      {
+        "text": "물가가 잡혀도",
+        "size": 64,
+        "overflow": false
+      },
+      {
+        "text": "체감이 남는 이유",
+        "size": 64,
+        "overflow": false
+      }
+    ]
+  },
+  {
+    "slug": "invest-dca-rule",
+    "out": "public/thumbs/invest-dca-rule.webp",
+    "bytes": 57020,
+    "lines": [
+      {
+        "text": "적립식이 유리한 건",
+        "size": 64,
+        "overflow": false
+      },
+      {
+        "text": "실수 횟수",
+        "size": 64,
+        "overflow": false
+      }
+    ]
+  },
+  {
+    "slug": "invest-dividend-total-return",
+    "out": "public/thumbs/invest-dividend-total-return.webp",
+    "bytes": 50452,
+    "lines": [
+      {
+        "text": "배당은 수익이 아니다",
+        "size": 64,
+        "overflow": false
+      },
+      {
+        "text": "총수익으로",
+        "size": 64,
+        "overflow": false
+      }
+    ]
+  },
+  {
+    "slug": "pension-tax-order",
+    "out": "public/thumbs/pension-tax-order.webp",
+    "bytes": 49138,
+    "lines": [
+      {
+        "text": "900만원보다",
+        "size": 64,
+        "overflow": false
+      },
+      {
+        "text": "먼저 계산할 것",
+        "size": 64,
+        "overflow": false
+      }
+    ]
+  },
+  {
+    "slug": "retire-fixed-cost",
+    "out": "public/thumbs/retire-fixed-cost.webp",
+    "bytes": 46666,
+    "lines": [
+      {
+        "text": "노후 파산은",
+        "size": 64,
+        "overflow": false
+      },
+      {
+        "text": "고정비에서 시작된다",
+        "size": 64,
+        "overflow": false
+      }
+    ]
+  },
+  {
+    "slug": "ai-work-order",
+    "out": "public/thumbs/ai-work-order.webp",
+    "bytes": 50790,
+    "lines": [
+      {
+        "text": "AI에게 맡기기 전",
+        "size": 64,
+        "overflow": false
+      },
+      {
+        "text": "정할 세 가지",
+        "size": 64,
+        "overflow": false
+      }
+    ]
+  },
+  {
+    "slug": "ai-coverage-tool",
+    "out": "public/thumbs/ai-coverage-tool.webp",
+    "bytes": 59412,
+    "lines": [
+      {
+        "text": "보장분석 도구를",
+        "size": 64,
+        "overflow": false
+      },
+      {
+        "text": "직접 만들었습니다",
+        "size": 64,
+        "overflow": false
+      }
+    ]
+  },
+  {
+    "slug": "philosophy-numbers-are-questions",
+    "out": "public/thumbs/philosophy-numbers-are-questions.webp",
+    "bytes": 37258,
+    "lines": [
+      {
+        "text": "숫자는 결론이 아니라",
+        "size": 64,
+        "overflow": false
+      },
+      {
+        "text": "질문이다",
+        "size": 64,
+        "overflow": false
+      }
+    ]
+  },
+  {
+    "slug": "topic-finance",
+    "out": "public/thumbs/topic-finance.webp",
+    "bytes": 66680,
+    "lines": [
+      {
+        "text": "금리와 통장 사이",
+        "size": 64,
+        "overflow": false
+      },
+      {
+        "text": "몇 단계",
+        "size": 64,
+        "overflow": false
+      }
+    ]
+  },
+  {
+    "slug": "topic-invest",
+    "out": "public/thumbs/topic-invest.webp",
+    "bytes": 66294,
+    "lines": [
+      {
+        "text": "얼마를 잃고도",
+        "size": 64,
+        "overflow": false
+      },
+      {
+        "text": "버틸 수 있나",
+        "size": 64,
+        "overflow": false
+      }
+    ]
+  },
+  {
+    "slug": "topic-economy",
+    "out": "public/thumbs/topic-economy.webp",
+    "bytes": 61224,
+    "lines": [
+      {
+        "text": "지표 하나가",
+        "size": 64,
+        "overflow": false
+      },
+      {
+        "text": "살림에 닿기까지",
+        "size": 64,
+        "overflow": false
+      }
+    ]
+  },
+  {
+    "slug": "topic-insurance",
+    "out": "public/thumbs/topic-insurance.webp",
+    "bytes": 39522,
+    "lines": [
+      {
+        "text": "가입이 아니라",
+        "size": 64,
+        "overflow": false
+      },
+      {
+        "text": "지급 조건",
+        "size": 64,
+        "overflow": false
+      }
+    ]
+  },
+  {
+    "slug": "topic-retire",
+    "out": "public/thumbs/topic-retire.webp",
+    "bytes": 46590,
+    "lines": [
+      {
+        "text": "은퇴 후 30년",
+        "size": 64,
+        "overflow": false
+      },
+      {
+        "text": "매달 나가는 돈",
+        "size": 64,
+        "overflow": false
+      }
+    ]
+  },
+  {
+    "slug": "topic-pension",
+    "out": "public/thumbs/topic-pension.webp",
+    "bytes": 40432,
+    "lines": [
+      {
+        "text": "연금은 상품이 아니라",
+        "size": 64,
+        "overflow": false
+      },
+      {
+        "text": "시간표",
+        "size": 64,
+        "overflow": false
+      }
+    ]
+  },
+  {
+    "slug": "topic-ai",
+    "out": "public/thumbs/topic-ai.webp",
+    "bytes": 43764,
+    "lines": [
+      {
+        "text": "써 보고 남은",
+        "size": 64,
+        "overflow": false
+      },
+      {
+        "text": "기록만 올립니다",
+        "size": 64,
+        "overflow": false
+      }
+    ]
+  },
+  {
+    "slug": "topic-philosophy",
+    "out": "public/thumbs/topic-philosophy.webp",
+    "bytes": 39678,
+    "lines": [
+      {
+        "text": "계산이 끝난 뒤에",
+        "size": 64,
+        "overflow": false
+      },
+      {
+        "text": "남는 질문",
+        "size": 64,
+        "overflow": false
+      }
+    ]
+  }
+]

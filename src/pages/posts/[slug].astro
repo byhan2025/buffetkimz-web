@@ -2,11 +2,15 @@
 import { render } from "astro:content";
 import Base from "@/layouts/Base.astro";
 import AdSlot from "@/components/AdSlot.astro";
+import ArticleToc from "@/components/ArticleToc.astro";
+import BrandLockup from "@/components/BrandLockup.astro";
+import { affiliateDisclosure } from "@/config/monetization";
 import HomePill from "@/components/HomePill.astro";
-import { withBase, site, absolute } from "@/config/site";
-import { categoryBySlug } from "@/data/categories";
-import { allPosts, postPath, formatDate, koreanDate, relatedApp } from "@/lib/posts";
+import { withBase, absolute } from "@/config/site";
+import { categoryBySlug, categoryName } from "@/data/categories";
+import { allPosts, postPath, formatDate, summaryOf, toolOf } from "@/lib/posts";
 import { thumbOf, thumbAltOf, thumbSize } from "@/lib/thumbs";
+import { AUTHOR_ID, ORG_ID, breadcrumbList, graph, pageUrl, partOfWebsite } from "@/lib/schema";
 
 export async function getStaticPaths() {
   const list = await allPosts();
@@ -17,49 +21,88 @@ export async function getStaticPaths() {
 }
 
 const { post, prev, next } = Astro.props;
-const { Content } = await render(post);
+const { Content, headings } = await render(post);
 const category = categoryBySlug(post.data.category)!;
-const app = relatedApp(post);
+const tool = toolOf(post);
 
 const published = post.data.publishedAt.toISOString().slice(0, 10);
 const basis = post.data.baseDate ?? post.data.publishedAt;
 const basisIso = basis.toISOString().slice(0, 10);
-const basisLabel = koreanDate(basis);
-/** 기준일 표기 — 사이트 전체와 같은 `YYYY. MM. DD.` 한 형식 */
+/** 기준일 표기 — 사이트 전체와 같은 `YYYY. MM. DD.` 한 형식 (상단 기준일·면책·'기준과 출처' 모두 동일) */
 const basisDots = formatDate(basis);
 /** 제목 아래 고정 자리 — 기준일 + 1차 출처(공식 기관 URL) 2줄 */
 const primary = post.data.sources.find((s) => s.url) ?? post.data.sources[0];
 const primaryLabel = primary ? primary.label.split(/[—–(]/)[0].trim() : "작성자 기록";
-const primaryHost = primary?.url ? (() => {
-  try {
-    return new URL(primary.url!).host.replace(/^www\./, "");
-  } catch {
-    return null;
-  }
-})() : null;
+const primaryHost = primary?.url
+  ? (() => {
+      try {
+        return new URL(primary.url!).host.replace(/^www\./, "");
+      } catch {
+        return null;
+      }
+    })()
+  : null;
 const path = postPath(post);
 const thumb = thumbOf(post);
 const thumbAlt = thumbAltOf(post);
 const thumbDim = thumbSize(thumb);
-const sameCategory = (await allPosts())
-  .filter((p) => p.data.category === post.data.category && p.id !== post.id)
-  .slice(0, 3);
 
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@type": "Article",
-  headline: post.data.title,
-  description: post.data.description,
-  datePublished: published,
-  dateModified: (post.data.updatedAt ?? post.data.publishedAt).toISOString().slice(0, 10),
-  inLanguage: "ko-KR",
-  author: { "@type": "Person", name: site.author.name, url: `${site.url}/about` },
-  publisher: { "@type": "Organization", name: site.brand, url: site.url },
-  mainEntityOfPage: { "@type": "WebPage", "@id": `${site.url}${path}` },
-  articleSection: category.name,
-  keywords: post.data.tags.join(", "),
-  image: absolute(thumb),
+/**
+ * 결론 앵커의 둘째 문장 — 이 글을 읽은 사람이 자기 계약·재무에서 대조할 지점.
+ * 특정 상품의 가입·전환을 단정하지 않고, 확인할 항목만 가리킨다.
+ */
+const balanceLine: Record<string, string> = {
+  finance: "내 대출·예금 계약서에서 금리 기준과 인하가 반영되는 시점을 확인해 보세요.",
+  invest: "내 계좌의 수익률을 가격·배당·세금을 함께 넣은 총수익으로 다시 계산해 보세요.",
+  economy: "내 고정비와 장바구니에서 같은 항목의 가격이 어떻게 움직였는지 확인해 보세요.",
+  insurance: "내 증권에서 같은 담보의 이름·가입금액·지급 조건을 나란히 놓고 확인해 보세요.",
+  retire: "내 고정비 항목과 은퇴 후 수입이 시작되는 시점을 적어 대조해 보세요.",
+  pension: "내 연금계좌의 납입액·한도·수령 시점을 확인해 보세요.",
+  ai: "내 업무에서 같은 단계가 어디에 있는지, 사람이 확인할 지점을 정해 보세요.",
+  philosophy: "내 판단 기준을 한 줄로 적고, 그 기준이 숫자와 맞는지 확인해 보세요.",
 };
+
+const all = await allPosts();
+const sameCategory = all.filter((p) => p.data.category === post.data.category && p.id !== post.id);
+const tagSet = new Set(post.data.tags);
+const byTag = all.filter(
+  (p) =>
+    p.id !== post.id &&
+    !sameCategory.some((s) => s.id === p.id) &&
+    p.data.tags.some((t) => tagSet.has(t))
+);
+const recent = all.filter((p) => p.id !== post.id && !sameCategory.some((s) => s.id === p.id));
+const related = [...sameCategory, ...byTag, ...recent].slice(0, 3);
+
+const jsonLd = graph([
+  {
+    "@type": "Article",
+    "@id": `${pageUrl(path)}#article`,
+    headline: post.data.title,
+    description: post.data.description,
+    datePublished: published,
+    dateModified: (post.data.updatedAt ?? post.data.publishedAt).toISOString().slice(0, 10),
+    inLanguage: "ko-KR",
+    author: { "@id": AUTHOR_ID },
+    publisher: { "@id": ORG_ID },
+    mainEntityOfPage: { "@type": "WebPage", "@id": pageUrl(path) },
+    isPartOf: partOfWebsite,
+    articleSection: category.name,
+    keywords: post.data.tags.join(", "),
+    image: {
+      "@type": "ImageObject",
+      url: absolute(thumb),
+      width: thumbDim.width,
+      height: thumbDim.height,
+    },
+  },
+  breadcrumbList([
+    { name: "홈", path: "/" },
+    { name: "기록", path: "/posts" },
+    { name: category.name, path: `/posts/${category.slug}` },
+    { name: post.data.title, path },
+  ]),
+]);
 ---
 
 <Base
@@ -71,22 +114,30 @@ const jsonLd = {
   jsonLd={jsonLd}
   image={thumb}
   imageAlt={`${thumbAlt} — ${post.data.title}`}
+  imageWidth={thumbDim.width}
+  imageHeight={thumbDim.height}
 >
   <article>
     <header class="border-b border-line">
       <div class="wrap py-8 md:py-12">
         <HomePill />
         <nav class="flex flex-wrap items-center gap-2 text-[12px] text-ink-faint" aria-label="위치">
-          <a href={withBase("/")} class="inline-flex min-h-[44px] md:min-h-[24px] items-center hover:text-ink">홈</a>
+          <a href={withBase("/")} class="inline-flex min-h-[44px] items-center hover:text-ink md:min-h-[24px]">홈</a>
           <span aria-hidden="true">/</span>
-          <a href={withBase("/posts")} class="inline-flex min-h-[44px] md:min-h-[24px] items-center hover:text-ink">블로그</a>
+          <a href={withBase("/posts")} class="inline-flex min-h-[44px] items-center hover:text-ink md:min-h-[24px]">블로그</a>
           <span aria-hidden="true">/</span>
-          <a href={withBase(`/posts/${category.slug}`)} class="inline-flex min-h-[44px] md:min-h-[24px] items-center hover:text-ink">{category.name}</a>
+          <a href={withBase(`/posts/${category.slug}`)} class="inline-flex min-h-[44px] items-center hover:text-ink md:min-h-[24px]">
+            {category.name}
+          </a>
         </nav>
 
         <div class="mt-6 max-w-[66ch]">
           <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-[12.5px]">
-            <a href={withBase(`/posts/${category.slug}`)} class="inline-flex min-h-[44px] items-center font-semibold md:min-h-[24px]" style={`color:${category.tone}`}>
+            <a
+              href={withBase(`/posts/${category.slug}`)}
+              class="inline-flex min-h-[44px] items-center font-semibold md:min-h-[24px]"
+              style={`color:${category.tone}`}
+            >
               {category.name}
             </a>
             <time class="dateline text-[12.5px]" datetime={published}>{formatDate(post.data.publishedAt)}</time>
@@ -97,6 +148,7 @@ const jsonLd = {
             {post.data.title}
           </h1>
 
+          {/* 제목 아래 고정 자리 — 기준일과 1차 출처를 본문과 분리해 둔다 */}
           <dl class="mt-4 space-y-1 border-l-2 border-brand/35 pl-3 text-[12.5px] leading-[1.65] text-ink-muted" data-post-basis>
             <div class="flex flex-wrap items-baseline gap-x-2">
               <dt class="sr-only">기준일</dt>
@@ -116,7 +168,34 @@ const jsonLd = {
             </div>
           </dl>
 
-          <p class="lede mt-4">{post.data.description}</p>
+          {/* 결론 앵커 — ① 핵심 팩트 두괄식 ② 내 계약·재무와 대조할 지점 */}
+          <section
+            class="mt-5 max-w-[66ch] rounded-r-xl border-l-2 border-brand bg-paper-deep/55 px-4 py-3.5"
+            aria-label="결론"
+            data-post-conclusion
+          >
+            <p class="text-[11px] font-bold tracking-[0.16em] text-brand-deep">결론</p>
+            <p class="mt-1.5 text-[15.5px] font-semibold leading-[1.68] tracking-[-0.012em] text-ink">
+              {summaryOf(post)}
+            </p>
+            <p class="mt-2 border-t border-line/70 pt-2 text-[13px] leading-[1.7] text-ink-muted">
+              <span class="font-semibold text-ink-soft">내 계약·재무와 대조</span>
+              {" — "}
+              {balanceLine[post.data.category]}
+            </p>
+          </section>
+
+          {/* 390px — 제목·결론 바로 아래 한 줄 접이식 목차 (데스크톱 목차는 본문 위에) */}
+          <div class="mt-4 max-w-[66ch] md:hidden" data-post-toc-mobile>
+            <ArticleToc items={headings} minutes={post.data.readingMinutes} />
+          </div>
+
+          {post.data.affiliate && (
+            <p class="mt-3 text-[12px] leading-[1.6] text-ink-muted" data-affiliate-disclosure>
+              <span class="mr-1.5 rounded-full bg-paper-deep px-2 py-0.5 text-[11px] font-semibold text-ink">광고·제휴</span>
+              {affiliateDisclosure}
+            </p>
+          )}
         </div>
 
         <figure class="mt-7 max-w-[66ch]">
@@ -141,18 +220,65 @@ const jsonLd = {
     <div class="wrap py-9 md:py-14">
       <div class="grid gap-12 lg:grid-cols-[minmax(0,1fr)_270px] lg:gap-16">
         <div class="min-w-0">
+          {/* 목차 — 소제목 2개 미만이면 스스로 사라진다. 모바일은 '목차 N개' 접이식 */}
+          <div class="mb-8 hidden max-w-[66ch] md:block" data-post-toc>
+            <ArticleToc items={headings} minutes={post.data.readingMinutes} />
+          </div>
+
           <div class="prose-article max-w-[66ch]">
             <Content />
           </div>
 
-          <p class="mt-8 max-w-[66ch] border-t border-line pt-4 text-[12.5px] leading-[1.7] text-ink-faint" data-post-disclaimer>
-            이 글은 확인한 내용을 정리한 기록이며, 특정 상품의 가입이나 투자를 권하지 않습니다. 기준일 이후
-            제도와 약관이 바뀔 수 있으니, 결정 전에 원문과 증권으로 다시 확인하세요.
+          {/* 말미 ①-1 관련 글 (최대 3) */}
+          {
+            related.length > 0 && (
+              <section class="mt-14 max-w-[66ch] border-t border-line pt-6" aria-labelledby="related-heading" data-post-related>
+                <h2 id="related-heading" class="text-[11px] font-bold tracking-[0.16em] text-ink-faint">
+                  함께 읽는 기록
+                </h2>
+                <ul class="mt-3 divide-y divide-line-soft">
+                  {related.map((p) => (
+                    <li>
+                      <a href={withBase(postPath(p))} class="group flex items-start justify-between gap-4 py-3">
+                        <span class="min-w-0">
+                          <span class="block text-[14.5px] font-semibold leading-snug text-ink group-hover:text-brand-deep">
+                            {p.data.title}
+                          </span>
+                          <span class="mono mt-1 block text-[11.5px] text-ink-faint">
+                            {categoryName(p.data.category)} · {formatDate(p.data.publishedAt)} · {p.data.readingMinutes}분
+                          </span>
+                        </span>
+                        <span aria-hidden="true" class="mt-1 text-ink-faint group-hover:text-brand-deep">→</span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )
+          }
+
+          {/* 말미 ①-2 도구 연결 — 관련 글과 자리를 나눈 별도 카드 (이 글에서 도구로 가는 한 곳) */}
+          <section class="mt-12 max-w-[66ch]" aria-labelledby="tool-heading" data-post-tool>
+            <div class="card border border-line bg-paper-deep/35 p-5">
+              <p class="text-[11px] font-bold tracking-[0.16em] text-brand-deep" id="tool-heading">이어지는 도구</p>
+              <p class="mt-2 text-[17px] font-bold tracking-[-0.03em] text-ink">{tool.name}</p>
+              {tool.what && <p class="mt-1.5 text-[13px] leading-[1.7] text-ink-muted">{tool.what}</p>}
+              <a href={withBase(tool.href)} class="btn btn-primary mt-4 inline-flex min-h-[44px] items-center">
+                {tool.cta}
+                <span aria-hidden="true" class="ml-1.5">→</span>
+              </a>
+            </div>
+          </section>
+
+          {/* 말미 ② 한 줄 면책 — 도구 카드와 충분한 여백을 두고 내려온다 */}
+          <p class="mt-10 max-w-[66ch] border-t border-line pt-4 text-[12.5px] leading-[1.7] text-ink-faint" data-post-disclaimer>
+            ※ 이 글은 {basisDots} 기준으로 확인한 기록이며, 특정 상품의 가입이나 전환·투자를 권하지 않습니다. 결정 전에 원문과 내 증권으로 다시 확인하세요.{" "}
+            <a href={withBase("/principles")} class="link font-semibold text-ink-soft">편집 원칙</a>
           </p>
 
           {
             post.data.tags.length > 0 && (
-              <ul class="mt-10 flex flex-wrap gap-x-3 gap-y-1 border-t border-line pt-4" data-post-tags>
+              <ul class="mt-6 flex flex-wrap gap-x-3 gap-y-1" data-post-tags>
                 {post.data.tags.map((tag) => (
                   <li>
                     <a href={withBase("/search")} data-search-query={tag} class="text-[12.5px] text-ink-muted link">
@@ -164,8 +290,8 @@ const jsonLd = {
             )
           }
 
-          <div class="mt-6">
-            <AdSlot id={`post-${post.id}-bottom`} size="leaderboard" />
+          <div data-ad-region="article-bottom">
+            <AdSlot id={`post-${post.id}-bottom`} size="leaderboard" region="article-bottom" />
           </div>
 
           <nav class="mt-10 grid gap-6 border-t border-ink pt-5 sm:grid-cols-2" aria-label="이전·다음 글">
@@ -194,13 +320,50 @@ const jsonLd = {
           </nav>
 
           <HomePill position="bottom" />
+
+          {/* 말미 ③ 390px — 데스크톱 사이드바의 '기준과 출처 · 브랜드 카드'를 본문 끝으로 흡수 (접이식 아님) */}
+          <section class="mt-14 border-t border-line pt-7 lg:hidden" aria-labelledby="mobile-basis-heading" data-post-sidebar-mobile>
+            <h2 id="mobile-basis-heading" class="text-[11px] font-bold tracking-[0.16em] text-ink-faint">기준과 출처</h2>
+            <p class="mt-2 text-[12.5px] leading-relaxed text-ink-muted">
+              이 글은 <time datetime={basisIso} class="mono">{basisDots}</time> 기준으로 확인했습니다. 제도와 약관은 바뀔 수 있으니,
+              결정 전에 원문을 다시 확인하세요.
+            </p>
+            {
+              post.data.sources.length > 0 && (
+                <ul class="mt-3 space-y-2 border-t border-line-soft pt-3">
+                  {post.data.sources.map((s) => (
+                    <li class="text-[12px] leading-[1.6] text-ink-muted">
+                      {s.url ? (
+                        <a href={s.url} target="_blank" rel="noopener noreferrer" class="link">
+                          {s.label}
+                        </a>
+                      ) : (
+                        s.label
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              )
+            }
+            <div class="mt-7 border-t border-line pt-4" data-post-brand-card>
+              <BrandLockup size="22px" />
+              <p class="mt-2 text-[12.5px] leading-[1.7] text-ink-muted">
+                금융과 돈에 관한 기록, 그리고 직접 만든 도구. 확인한 기준과 출처를 붙여 남깁니다.
+              </p>
+              <p class="mt-2 flex flex-wrap gap-x-3 text-[12.5px]">
+                <a href={withBase("/principles")} class="link font-semibold text-brand-deep">편집 원칙</a>
+                <a href={withBase("/about")} class="link text-ink-muted">소개</a>
+                <a href={withBase("/posts")} class="link text-ink-muted">기록 전체</a>
+              </p>
+            </div>
+          </section>
         </div>
 
-        <aside class="space-y-8 lg:border-l lg:border-line lg:pl-8">
+        <aside class="hidden space-y-8 lg:block lg:border-l lg:border-line lg:pl-8" data-post-sidebar>
           <div>
             <h2 class="text-[12px] font-semibold tracking-[0.01em] text-ink-faint">기준과 출처</h2>
             <p class="mt-2 text-[12.5px] leading-relaxed text-ink-muted">
-              이 글은 <time datetime={basisIso}>{basisLabel}</time> 기준으로 확인했습니다. 제도와
+              이 글은 <time datetime={basisIso} class="mono">{basisDots}</time> 기준으로 확인했습니다. 제도와
               약관은 바뀔 수 있으니, 결정 전에 원문을 다시 확인하세요.
             </p>
             {
@@ -222,36 +385,15 @@ const jsonLd = {
             }
           </div>
 
-          {
-            app && (
-              <div class="border-t border-ink pt-4">
-                <h2 class="text-[12px] font-semibold tracking-[0.01em] text-ink-faint">이어지는 도구</h2>
-                <a href={withBase(`/apps/${app.slug}`)} class="group mt-2 block">
-                  <p class="text-[15px] font-bold tracking-[-0.02em] text-ink group-hover:text-brand-deep">
-                    {app.name}
-                  </p>
-                  <p class="mt-1.5 text-[12.5px] leading-relaxed text-ink-muted">{app.question}</p>
-                  <p class="mt-2 text-[12px] font-semibold text-brand-deep">
-                    {app.externalUrl ? "앱 열기" : "실행해 보기"}
-                  </p>
-                </a>
-              </div>
-            )
-          }
-
-          <div class="border-t border-line pt-4">
-            <h2 class="text-[12px] font-semibold tracking-[0.01em] text-ink-faint">이 칸의 다른 글</h2>
-            <ul class="mt-2 space-y-2">
-              {
-                sameCategory.map((p) => (
-                    <li>
-                      <a href={withBase(postPath(p))} class="text-[12.5px] leading-snug text-ink-muted hover:text-ink link">
-                        {p.data.title}
-                      </a>
-                    </li>
-                  ))
-              }
-            </ul>
+          <div class="border-t border-line pt-4" data-post-brand-card>
+            <BrandLockup size="20px" />
+            <p class="mt-2 text-[12px] leading-[1.7] text-ink-muted">
+              확인한 기준과 출처를 붙여 기록하고, 설명이 막히는 지점은 도구로 옮깁니다.
+            </p>
+            <p class="mt-2 flex flex-wrap gap-x-3 text-[12px]">
+              <a href={withBase("/principles")} class="link font-semibold text-brand-deep">편집 원칙</a>
+              <a href={withBase("/about")} class="link text-ink-muted">소개</a>
+            </p>
           </div>
         </aside>
       </div>

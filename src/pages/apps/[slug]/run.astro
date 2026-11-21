@@ -16,7 +16,7 @@ const { app } = Astro.props;
 
 <Base
   title={`${app.name} 실행`}
-  description={`${app.name} 실행 화면. 입력값은 브라우저에서만 계산되고 서버로 전송되지 않습니다. 기준일 ${site.baseDateLabel}.`}
+  description={`${app.name} 실행 화면. 입력값은 브라우저에서만 계산되고 서버로 전송되지 않습니다. 기준일 ${site.baseDateLabel}`}
   path={`/apps/${app.slug}/run`}
   noindex={true}
 >
@@ -39,7 +39,7 @@ const { app } = Astro.props;
         <div class="flex flex-wrap gap-2">
           <span class="chip">예시 입력값 · 가상</span>
           <span class="chip">입력값 서버 미전송</span>
-          <span class="chip mono">기준일 {site.baseDate}</span>
+          <span class="chip mono">기준일 {site.baseDateLabel}</span>
         </div>
       </div>
     </div>

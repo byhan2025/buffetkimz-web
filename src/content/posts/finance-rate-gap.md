@@ -6,8 +6,6 @@ thumb: "/thumbs/finance-rate-gap.webp"
 question: "금리 인하 뉴스, 내 통장엔 언제 오나"
 publishedAt: 2026-11-16
 readingMinutes: 7
-toolHref: "/posts/retire-fixed-cost"
-toolTitle: "이어 읽기 · 고정비"
 tags: ["기준금리", "대출금리", "COFIX"]
 sources:
   - label: "한국은행 기준금리 운용 관련 통화정책방향 자료"
@@ -17,9 +15,11 @@ sources:
 featured: true
 ---
 
-"기준금리가 내렸는데 왜 제 이자는 그대로죠?"
+<p class="q">기준금리가 내렸는데 왜 제 이자는 그대로죠?</p>
 
 현장에서 가장 자주 듣는 질문입니다. 답은 간단합니다. **기준금리는 내 대출금리가 아니기 때문**입니다. 그 사이에 최소 두 단계가 더 있습니다.
+
+<p class="keyline">기준금리는 내 대출금리가 아니라, 대출금리를 만드는 첫 재료입니다.</p>
 
 ## 세 겹의 구조
 

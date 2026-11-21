@@ -5,19 +5,30 @@ import AdSlot from "@/components/AdSlot.astro";
 import HomePill from "@/components/HomePill.astro";
 import { calendar, calendarNote } from "@/data/calendar";
 import { site } from "@/config/site";
+import { breadcrumbList, graph, pageUrl, partOfWebsite } from "@/lib/schema";
 
 const initialMonth = site.today.getMonth() + 1;
 const keyItems = calendar.filter((c) => c.key);
 
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  mainEntity: keyItems.slice(0, 6).map((k) => ({
-    "@type": "Question",
-    name: `${k.month}월에 확인할 것은 무엇인가요?`,
-    acceptedAnswer: { "@type": "Answer", text: `${k.title} — ${k.action}` },
-  })),
-};
+const jsonLd = graph([
+  {
+    "@type": "FAQPage",
+    "@id": `${pageUrl("/calendar")}#faq`,
+    url: pageUrl("/calendar"),
+    name: "제도달력 — 1~12월 보험·연금·건보·절세 일정",
+    inLanguage: "ko-KR",
+    isPartOf: partOfWebsite,
+    mainEntity: keyItems.slice(0, 6).map((k) => ({
+      "@type": "Question",
+      name: `${k.month}월에 확인할 것은 무엇인가요?`,
+      acceptedAnswer: { "@type": "Answer", text: `${k.title} — ${k.action}` },
+    })),
+  },
+  breadcrumbList([
+    { name: "홈", path: "/" },
+    { name: "제도달력", path: "/calendar" },
+  ]),
+]);
 ---
 
 <Base
@@ -71,7 +82,7 @@ const jsonLd = {
     </div>
 
     <div class="mt-8">
-      <AdSlot id="calendar-bottom" size="leaderboard" />
+      <AdSlot id="calendar-bottom" size="leaderboard" region="tools-bottom" />
     </div>
 
     <HomePill position="bottom" />

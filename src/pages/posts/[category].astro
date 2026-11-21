@@ -6,8 +6,9 @@ import AdSlot from "@/components/AdSlot.astro";
 import { withBase, site } from "@/config/site";
 import { categories } from "@/data/categories";
 import { appBySlug } from "@/data/apps";
-import { postsByCategory, postPath, formatDate, sourceOrgLine } from "@/lib/posts";
+import { postsByCategory, postPath, formatDate, sourceOrgLine, toolOf } from "@/lib/posts";
 import { thumbOf, thumbAltOf, topicThumbs } from "@/lib/thumbs";
+import { breadcrumbList, graph, pageUrl, partOfWebsite } from "@/lib/schema";
 
 export async function getStaticPaths() {
   const out = [];
@@ -24,18 +25,19 @@ const rest = posts.slice(1);
 
 const toCard = (p: (typeof posts)[number]) => {
   const app = p.data.app ? appBySlug(p.data.app) : undefined;
+  const tool = toolOf(p);
   return {
     url: postPath(p),
     title: p.data.title,
     description: p.data.description,
     categoryName: category.name,
     tags: p.data.tags.slice(0, 2),
+    dateISO: p.data.publishedAt.toISOString().slice(0, 10),
     date: formatDate(p.data.publishedAt),
     readingMinutes: p.data.readingMinutes,
     question: p.data.question ?? app?.question,
-    toolName: p.data.toolTitle ?? (app ? `${app.name.replace(" 시뮬레이터", "").replace(" 계산기", "")} 열기` : undefined),
-    toolUrl:
-      p.data.toolHref ?? (app?.internal ? `/apps/${app.slug}/run` : app ? `/apps/${app.slug}` : undefined),
+    toolName: tool.cta,
+    toolUrl: tool.href,
     baseDate: formatDate(p.data.baseDate ?? p.data.publishedAt),
     sourceCount: p.data.sources.length,
     sourceOrgLine: sourceOrgLine(p.data.sources),
@@ -46,14 +48,31 @@ const toCard = (p: (typeof posts)[number]) => {
 
 const others = categories.filter((c) => c.slug !== category.slug);
 
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@type": "CollectionPage",
-  name: `${category.name} 기록`,
-  description: category.lead,
-  url: `${site.url}/posts/${category.slug}`,
-  inLanguage: "ko-KR",
-};
+const jsonLd = graph([
+  {
+    "@type": "CollectionPage",
+    "@id": `${pageUrl(`/posts/${category.slug}`)}#webpage`,
+    name: `${category.name} 기록`,
+    description: category.lead,
+    url: pageUrl(`/posts/${category.slug}`),
+    inLanguage: "ko-KR",
+    isPartOf: partOfWebsite,
+    mainEntity: {
+      "@type": "ItemList",
+      itemListElement: posts.slice(0, 20).map((p, i) => ({
+        "@type": "ListItem",
+        position: i + 1,
+        name: p.data.title,
+        url: pageUrl(postPath(p)),
+      })),
+    },
+  },
+  breadcrumbList([
+    { name: "홈", path: "/" },
+    { name: "기록", path: "/posts" },
+    { name: category.name, path: `/posts/${category.slug}` },
+  ]),
+]);
 ---
 
 <Base
@@ -136,7 +155,7 @@ const jsonLd = {
             )
           }
           <div class="mt-8">
-            <AdSlot id={`category-${category.slug}-bottom`} size="leaderboard" />
+            <AdSlot id={`category-${category.slug}-bottom`} size="leaderboard" region="article-bottom" />
           </div>
 
           <HomePill position="bottom" />

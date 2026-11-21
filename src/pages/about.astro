@@ -7,19 +7,25 @@ import { categories } from "@/data/categories";
 import { apps } from "@/data/apps";
 import { channels, confirmedLinks } from "@/data/channels";
 import { allPosts } from "@/lib/posts";
+import { AUTHOR_ID, graph, organizationNode, pageUrl, partOfWebsite, personNode, websiteNode } from "@/lib/schema";
 
 const posts = await allPosts();
 
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@type": "AboutPage",
-  mainEntity: {
-    "@type": "Person",
-    name: site.author.name,
-    description: site.author.bio,
-    url: `${site.url}/about`,
+const jsonLd = graph([
+  {
+    "@type": "AboutPage",
+    "@id": `${pageUrl("/about")}#webpage`,
+    url: pageUrl("/about"),
+    name: "소개 — 무엇을, 왜 기록하는가",
+    inLanguage: "ko-KR",
+    isPartOf: partOfWebsite,
+    about: { "@id": AUTHOR_ID },
+    mainEntity: { "@id": AUTHOR_ID },
   },
-};
+  organizationNode(),
+  websiteNode(),
+  personNode(),
+]);
 ---
 
 <Base
@@ -231,9 +237,10 @@ const jsonLd = {
         )}
       </ul>
       <p class="mt-4 max-w-[88ch] text-[12px] leading-[1.8] text-ink-muted">
-        {site.contact.disclaimer}
+        {site.contact.disclaimer} 글과 도구를 만드는 기준은 편집 원칙에 공개합니다.
       </p>
       <p class="mt-4 flex flex-wrap gap-4 text-[12px]">
+        <a href={withBase("/principles")} class="font-semibold text-brand-deep link">편집 원칙</a>
         <a href={withBase("/privacy")} class="text-ink-muted link">개인정보처리방침</a>
         <a href={withBase("/terms")} class="text-ink-muted link">이용약관</a>
       </p>

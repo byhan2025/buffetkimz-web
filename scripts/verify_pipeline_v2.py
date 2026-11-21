@@ -296,7 +296,7 @@ def main() -> int:
                 for card in cards[:4]:
                     check(card["titleLines"] <= 2, f"[{label}] 카드 제목이 {card['titleLines']}줄: {card['title'][:24]}")
                     check(card["summaryLen"] <= 81, f"[{label}] 카드 요약 {card['summaryLen']}자(80자 초과): {card['title'][:20]}")
-                    check(1 <= len(card["tags"]) <= 2, f"[{label}] 카드 주제 태그 {len(card['tags'])}개(기준 1~2개)")
+                    check(len(card["tags"]) <= 2, f"[{label}] 카드 주제 태그 {len(card['tags'])}개(최대 2)")
                     check("기준일" in card["meta"] and re.search(r"\d{4}\. \d{2}\. \d{2}\.", card["meta"]) is not None, f"[{label}] 카드에 기준일 없음: {card['title'][:20]}")
                     check(card["reads"], f"[{label}] 카드에 읽는 시간 없음: {card['title'][:20]}")
                 page.screenshot(path=str(SHOTS / f"{label}-posts.png"))
@@ -330,9 +330,8 @@ def main() -> int:
                           f"[{label}] {slug}: 하단 공통 면책 블록이 {data['disclaimerCount']}개(1개여야 함)")
                     check(data["bodyDisclaimerEm"] == 0,
                           f"[{label}] {slug}: 본문 이탤릭 면책 문단 {data['bodyDisclaimerEm']}개(하단 블록과 중복)")
-                    # 기준 1~3개(rules limits.tags_min/max 와 동일) — 정확히 3개를 요구하지 않는다
-                    check(1 <= len(data["tags"]) <= 3,
-                          f"[{label}] {slug}: 태그 {len(data['tags'])}개(기준 1~3개) — {data['tags']}")
+                    check(len(data["tags"]) <= 3,
+                          f"[{label}] {slug}: 태그 {len(data['tags'])}개(최대 3) — {data['tags']}")
                     check(data["overflowX"] <= 1, f"[{label}] {slug}: 가로 넘침 {data['overflowX']}px")
                     for i, t in enumerate(data["tables"]):
                         check(t["clientWidth"] <= t["parentWidth"] + 1,
@@ -368,8 +367,7 @@ def main() -> int:
                         check(tags.count() > 0 and disclaimer.count() > 0, f"[mobile390] {slug}: 태그/면책 요소 없음")
                         if tags.count() and disclaimer.count():
                             tag_n = tags.first.locator("li").count()
-                            # 기준은 1~3개 — 3개를 채우지 않은 글도 통과한다(정확히 3개 강제 아님)
-                            check(tag_n >= 1, f"[mobile390] {slug}: 태그 {tag_n}개(1개 이상 필요)")
+                            check(tag_n >= 3, f"[mobile390] {slug}: 태그 {tag_n}개(3개 이상 필요)")
                             check(tag_n <= 3, f"[mobile390] {slug}: 태그 {tag_n}개(최대 3)")
                             check("권하지 않습니다" in disclaimer.first.inner_text(),
                                   f"[mobile390] {slug}: 비권유 면책 문구 없음")

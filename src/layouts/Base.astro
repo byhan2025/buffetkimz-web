@@ -23,6 +23,20 @@ interface Props {
 
 const { title, description, path, noindex, type, publishedTime, image, imageAlt, imageWidth, imageHeight, jsonLd } =
   Astro.props;
+
+/*
+ * 검색엔진 소유 확인 메타 — 값은 저장소/빌드 환경변수로만 받는다(하드코딩 금지).
+ *  · Google Search Console: 도메인 속성(TXT) 또는 URL 접두어 속성(HTML 태그)
+ *  · 네이버 서치어드바이저: HTML 태그 방식
+ * 예) PUBLIC_GOOGLE_SITE_VERIFICATION=xxxx PUBLIC_NAVER_SITE_VERIFICATION=yyyy npm run build
+ */
+const envOf = (key: string): string => {
+  const viteEnv = import.meta.env as Record<string, string | undefined>;
+  const nodeEnv = (typeof process !== "undefined" ? process.env : {}) as Record<string, string | undefined>;
+  return (viteEnv[`PUBLIC_${key}`] ?? nodeEnv[key] ?? "").trim();
+};
+const googleVerification = envOf("GOOGLE_SITE_VERIFICATION");
+const naverVerification = envOf("NAVER_SITE_VERIFICATION");
 ---
 
 <!doctype html>
@@ -30,7 +44,6 @@ const { title, description, path, noindex, type, publishedTime, image, imageAlt,
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#ffffff" />
     <Seo
       title={title}
       description={description}
@@ -64,6 +77,8 @@ const { title, description, path, noindex, type, publishedTime, image, imageAlt,
     <link rel="alternate" hreflang="ko" href={absolute(path === "/" ? "/" : path.replace(/\/$/, "") + "/")} />
     <link rel="alternate" type="application/rss+xml" title={`${site.brand} 기록`} href={withBase("/rss.xml")} />
     {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+    {googleVerification && <meta name="google-site-verification" content={googleVerification} />}
+    {naverVerification && <meta name="naver-site-verification" content={naverVerification} />}
     <noscript>
       <style>
         .reveal,

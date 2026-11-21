@@ -22,6 +22,11 @@ const posts = defineCollection({
       "philosophy",
     ]),
     description: z.string(),
+    /**
+     * 상단 '결론' 앵커의 2문장 (선택). 없으면 description을 쓴다.
+     * ① 핵심 팩트를 두괄식으로 ② 독자가 자기 계약·재무와 대조할 지점.
+     */
+    summary: z.string().optional(),
     /** 카드·상세·OG에 함께 쓰는 대표이미지 (public 기준 경로, 예: "/thumbs/ai-work-order.webp") */
     thumb: z.string().optional(),
     /** 썸네일 대체 설명 — 비워 두면 카테고리 기반 문장을 쓴다 */
@@ -37,8 +42,10 @@ const posts = defineCollection({
     app: z.string().optional(),
     /** 카드에서 앱 대신 다른 도구로 이어 줄 때 (예: "/calendar") */
     toolHref: z.string().optional(),
-    /** 그 도구 버튼 문구 */
+    /** 그 도구 버튼 문구 — '무엇을 할 수 있는지'로 쓴다 */
     toolTitle: z.string().optional(),
+    /** 그 도구가 무엇을 확인·계산하는지 한 줄 (앱이 아닌 도구에 붙인다) */
+    toolWhat: z.string().optional(),
     tags: z.array(z.string()).default([]),
     sources: z
       .array(
@@ -49,6 +56,11 @@ const posts = defineCollection({
       )
       .default([]),
     featured: z.boolean().default(false),
+    /**
+     * 제휴·광고 링크가 포함된 글 — 글 상단에 '광고·제휴 링크 포함'을 먼저 밝힌다.
+     * 기본 false. 파이프라인은 이 값을 쓰지 않아도 되고, 해당 글만 true 로 적으면 된다.
+     */
+    affiliate: z.boolean().default(false),
   }),
 });
 

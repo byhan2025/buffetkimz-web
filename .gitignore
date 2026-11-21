@@ -19,3 +19,13 @@ npm-debug.log*
 # 배포 임시 폴더
 .deploy-gh-pages/
 .deploy-gh-pages-*/
+
+# 3단계 검증용 빌드 사본
+dist-domain-root/
+dist-adpreview/
+dist-subpath/
+
+# 파이프라인 초안·캐시
+drafts/
+__pycache__/
+scripts/__pycache__/

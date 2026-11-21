@@ -25,7 +25,7 @@ const unit = (key: string) => (key === "nursing" ? "만/일" : "만");
       <p class="mt-1 text-[15px] font-semibold text-ink">{BAND_LABEL[band]} 기준점과 예시 보유액</p>
     </div>
     <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-ink-muted" data-coverage-legend>
-      <span class="mono">예시 입력값(가상) · 기준일 {site.baseDate}</span>
+      <span class="mono">예시 입력값(가상) · 기준일 {site.baseDateLabel}</span>
       {
         verdicts.map((v) => (
           <span class="flex items-center gap-1" data-legend-state={v}><i class="h-2 w-2 rounded-full" style={`background:${COVERAGE_TONE[v].dot}`}></i>{COVERAGE_LABEL[v]}</span>

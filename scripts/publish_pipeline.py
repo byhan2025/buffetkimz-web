@@ -312,7 +312,7 @@ def check_required(post: Post, cfg, mode: str) -> list[Finding]:
     thumb = str(post.fm.get("thumb", "") or "").strip()
     if thumb:
         if not thumb.startswith("/thumbs/"):
-            out.append(Finding("warn", "thumb-path", f"대표이미지 경로 `{thumb}` — `/thumbs/` 아래 WebP(16:10)를 씁니다."))
+            out.append(Finding("warn", "thumb-path", f"대표이미지 경로 `{thumb}` — `/thumbs/` 아래 1200×630 WebP를 씁니다(render_thumbs.py)."))
         thumb_file = PUBLIC_DIR / thumb.lstrip("/")
         if not thumb_file.exists():
             out.append(Finding("error", "thumb-missing", f"대표이미지 파일이 없습니다: public{thumb}"))
@@ -363,6 +363,38 @@ def check_thumb_ratio(path: Path, public_path: str) -> list[Finding]:
 
 def topic_thumb(category: str) -> str:
     return f"/thumbs/topic-{category}.webp" if category else "/thumbs/topic-philosophy.webp"
+
+
+# ── 에디토리얼 썸네일 (v5.8) ─────────────────────────────────────────────
+# 새 글의 대표이미지는 `scripts/render_thumbs.py`가 만든다. 문안은 `scripts/thumbs.json`
+# 한 곳에서 관리하고, 파이프라인은 그 문안이 있는 글만 렌더를 호출한다.
+# (문안이 없으면 분야 기본 이미지로 되돌아간다 — 카드가 비지 않게.)
+THUMB_MANIFEST = ROOT / "scripts" / "thumbs.json"
+THUMB_RENDERER = ROOT / "scripts" / "render_thumbs.py"
+
+
+def editorial_thumb(slug: str, timeout: int = 180) -> Path | None:
+    """thumbs.json에 이 슬러그의 문안이 있으면 1200×630 WebP를 렌더해 경로를 돌려준다."""
+    try:
+        manifest = json.loads(THUMB_MANIFEST.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    item = next((i for i in manifest.get("items", []) if i.get("slug") == slug), None)
+    if not item or not THUMB_RENDERER.exists():
+        return None
+    out = ROOT / str(item.get("out") or f"public/thumbs/{slug}.webp")
+    if not out.exists():
+        try:
+            subprocess.run(
+                [sys.executable, str(THUMB_RENDERER), "--only", slug],
+                cwd=ROOT,
+                check=True,
+                capture_output=True,
+                timeout=timeout,
+            )
+        except (subprocess.SubprocessError, OSError):
+            return None
+    return out if out.exists() else None
 
 
 def check_sources(post: Post, cfg, mode: str) -> list[Finding]:
@@ -1026,8 +1058,25 @@ def prepare_draft(path: Path, args, cfg) -> tuple[Post | None, list[Finding]]:
     if args.thumb:
         fm["thumb"] = args.thumb if args.thumb.startswith("/") else f"/thumbs/{args.thumb}"
     if not str(fm.get("thumb", "")).strip():
-        fm["thumb"] = topic_thumb(str(fm.get("category", "")))
-        findings.append(Finding("info", "thumb-auto", f"대표이미지 미지정 — 분야 기본 이미지 `{fm['thumb']}`로 매핑했습니다."))
+        rendered = editorial_thumb(slug)
+        if rendered:
+            fm["thumb"] = f"/thumbs/{rendered.stem}.webp"
+            findings.append(
+                Finding(
+                    "info",
+                    "thumb-rendered",
+                    f"대표이미지 미지정 — thumbs.json 문안으로 에디토리얼 썸네일을 렌더했습니다: `{fm['thumb']}` (1200×630)",
+                )
+            )
+        else:
+            fm["thumb"] = topic_thumb(str(fm.get("category", "")))
+            findings.append(
+                Finding(
+                    "warn",
+                    "thumb-auto",
+                    f"대표이미지 미지정 — thumbs.json에 `{slug}` 문안이 없어 분야 기본 이미지 `{fm['thumb']}`로 매핑했습니다. render_thumbs.py 문안을 먼저 넣으세요.",
+                )
+            )
 
     fm["readingMinutes"] = reading_minutes(body, cfg)
     if "tags" in fm and isinstance(fm["tags"], str):
@@ -1805,7 +1854,7 @@ def main(argv: list[str] | None = None) -> int:
     p_ing.add_argument("files", nargs="+", help="초안 마크다운 경로")
     p_ing.add_argument("--dry-run", action="store_true", help="검증만 하고 파일을 쓰지 않음")
     p_ing.add_argument("--slug", help="글 주소(영문 소문자·하이픈)")
-    p_ing.add_argument("--thumb", help="대표이미지 경로(/thumbs/...) 또는 파일명")
+    p_ing.add_argument("--thumb", help="대표이미지 경로(/thumbs/...) 또는 파일명 (생략 시 thumbs.json 문안으로 render_thumbs.py가 렌더)")
     p_ing.add_argument("--published", help="발행일 YYYY-MM-DD (기본: 오늘)")
     p_ing.add_argument("--base-date", dest="base_date", help="기준일 YYYY-MM-DD (기본: 발행일)")
     p_ing.add_argument("--force", action="store_true", help="같은 슬러그 덮어쓰기(원본은 .publish-backups)")

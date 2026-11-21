@@ -1,9 +1,12 @@
 ---
 /**
- * 질문 → 글 → 도구로 이어지는 3열 카드.
- * 카드마다 '무엇을 확인하는 글인지'를 질문 한 줄로 먼저 보여 주고,
- * 그 아래에 같은 주제의 도구 실행 버튼을 둔다.
- * 질문이 제목과 거의 같은 문장이면 질문 줄을 숨긴다(같은 말을 두 번 읽지 않게).
+ * 질문 → 글 → 도구로 이어지는 카드 목록 + 목록 도구(정렬·보기).
+ *
+ * · 카드마다 '무엇을 확인하는 글인지'를 질문 한 줄로 먼저 보여 주고,
+ *   그 아래에 같은 주제의 도구 실행 버튼을 둔다.
+ * · 질문이 제목과 거의 같은 문장이면 질문 줄을 숨긴다(같은 말을 두 번 읽지 않게).
+ * · 상단 도구: 최신순 | 제목순, 카드형(기본) | 텍스트 리스트형.
+ *   선택 상태는 `aria-pressed`로 표시하고, 선택은 저장되어 분야를 옮겨도 유지된다.
  */
 import { shouldShowQuestion } from "@/lib/posts";
 import { thumbSize } from "@/lib/thumbs";
@@ -16,6 +19,8 @@ export type PostCard = {
   categoryName: string;
   /** 카드에 붙는 주제 태그 — 최대 2개(분류 1 + 주제 2 = 3개) */
   tags?: string[];
+  /** 정렬용 원본 날짜 (YYYY-MM-DD) */
+  dateISO?: string;
   date: string;
   readingMinutes: number;
   /** 대표이미지 (public 기준 경로) */
@@ -38,9 +43,13 @@ export type PostCard = {
 interface Props {
   items: PostCard[];
   columns?: 2 | 3;
+  /** 정렬·보기 도구를 목록 위에 둘지 (기본 true) */
+  showControls?: boolean;
+  /** 도구 묶음 이름 — 화면 낭독용 */
+  label?: string;
 }
 
-const { items, columns = 3 } = Astro.props;
+const { items, columns = 3, showControls = true, label = "글 목록" } = Astro.props;
 const grid = columns === 2 ? "sm:grid-cols-2" : "sm:grid-cols-2 lg:grid-cols-3";
 /** 카드 요약은 80자까지만 — 목록에서 같은 리듬으로 읽히게 */
 const brief = (text: string, limit = 80) => {
@@ -49,76 +58,187 @@ const brief = (text: string, limit = 80) => {
 };
 ---
 
-<ul class={`grid gap-4 ${grid}`} data-post-cards>
+<div data-post-list data-default-view="card">
   {
-    items.map((item) => {
-      const question = shouldShowQuestion(item.question, item.title) ? item.question : undefined;
-      const dim = item.thumbWidth && item.thumbHeight
-        ? { width: item.thumbWidth, height: item.thumbHeight }
-        : item.thumb
-          ? thumbSize(item.thumb)
-          : undefined;
-      return (
-        <li class="card card-lift flex flex-col p-5">
-          {item.thumb && (
-            <a href={withBase(item.url)} class="post-thumb mb-4" tabindex="-1" aria-hidden="true">
-              <img
-                src={withBase(item.thumb)}
-                alt={item.thumbAlt ?? ""}
-                width={dim?.width}
-                height={dim?.height}
-                loading="lazy"
-                decoding="async"
-              />
-            </a>
-          )}
-
-          <div class="flex items-baseline justify-between gap-2">
-            <span class="text-[12px] font-semibold tracking-[0.02em] text-brand">{item.categoryName}</span>
-            <span class="mono text-[12px] text-ink-faint">{item.date}</span>
+    showControls && (
+      <div class="mb-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b border-line pb-3" data-post-toolbar>
+        <p class="text-[12px] text-ink-faint" data-post-count>
+          {items.length}편 · 최신순
+        </p>
+        <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+          <div class="flex items-center gap-0.5" role="group" aria-label="정렬">
+            <span class="mr-1 text-[11.5px] font-semibold tracking-[0.06em] text-ink-faint">정렬</span>
+            <button type="button" class="tab px-3 text-[12.5px]" data-sort="latest" aria-pressed="true">
+              최신순
+            </button>
+            <button type="button" class="tab px-3 text-[12.5px]" data-sort="title" aria-pressed="false">
+              제목순
+            </button>
           </div>
+          <div class="flex items-center gap-0.5 border-l border-line pl-3" role="group" aria-label="보기 방식">
+            <span class="mr-1 text-[11.5px] font-semibold tracking-[0.06em] text-ink-faint">보기</span>
+            <button type="button" class="tab px-3 text-[12.5px]" data-view="card" aria-pressed="true">
+              카드
+            </button>
+            <button type="button" class="tab px-3 text-[12.5px]" data-view="text" aria-pressed="false">
+              리스트
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
-          {question && (
-            <p class="clamp-2 mt-3 text-[12.5px] font-semibold leading-snug text-ink-muted">
-              {question}
-            </p>
-          )}
-
-          <h3 class="clamp-2 mt-1.5 text-[17px] font-bold leading-[1.42] tracking-[-0.03em] text-ink" data-card-title>
-            <a href={withBase(item.url)} class="block min-h-[24px] hover:text-brand-deep">
-              {item.title}
-            </a>
-          </h3>
-
-          <p class="clamp-2 mt-2 text-[13.5px] leading-[1.7] text-ink-muted" data-card-summary>{brief(item.description)}</p>
-
-          {item.tags && item.tags.length > 0 && (
-            <ul class="mt-2.5 flex flex-wrap gap-1.5" data-card-tags>
-              {item.tags.slice(0, 2).map((tag) => (
-                <li class="rounded-full border border-line px-2 py-[3px] text-[12px] leading-none text-ink-muted">{tag}</li>
-              ))}
-            </ul>
-          )}
-
-          <p class="mono mt-3 text-[12px] leading-relaxed text-ink-faint" data-card-meta>
-            확인 기준일 {item.baseDate} ·{" "}
-            {item.sourceOrgLine ? `출처 ${item.sourceCount}곳(${item.sourceOrgLine})` : `출처 ${item.sourceCount}건`}
-          </p>
-
-          <div class="mt-auto flex items-center justify-between gap-2 pt-4">
-            {item.toolUrl ? (
-              <a href={withBase(item.toolUrl)} class="btn btn-secondary btn-xs">
-                {item.toolName ?? "도구로 확인"}
-              </a>
-            ) : (
-              <a href={withBase(item.url)} class="btn btn-tertiary-quiet btn-xs">
-                글 읽기
+  <ul class={`grid gap-4 ${grid}`} data-post-cards data-view-mode="card" aria-label={label}>
+    {
+      items.map((item) => {
+        const question = shouldShowQuestion(item.question, item.title) ? item.question : undefined;
+        const dim =
+          item.thumbWidth && item.thumbHeight
+            ? { width: item.thumbWidth, height: item.thumbHeight }
+            : item.thumb
+              ? thumbSize(item.thumb)
+              : undefined;
+        return (
+          <li
+            class="card post-card card-lift flex flex-col p-5"
+            data-post-item
+            data-date={item.dateISO ?? item.date}
+            data-title={item.title}
+          >
+            {item.thumb && (
+              <a href={withBase(item.url)} class="post-thumb mb-4" tabindex="-1" aria-hidden="true">
+                <img
+                  src={withBase(item.thumb)}
+                  alt={item.thumbAlt ?? ""}
+                  width={dim?.width}
+                  height={dim?.height}
+                  loading="lazy"
+                  decoding="async"
+                />
               </a>
             )}
-            <span class="text-[12px] text-ink-faint">{item.readingMinutes}분</span>
-          </div>
-        </li>
-      );
-    })
-  }
-</ul>
+
+            <div class="flex items-baseline justify-between gap-2">
+              <span class="text-[12px] font-semibold tracking-[0.02em] text-brand">{item.categoryName}</span>
+              <span class="mono text-[12px] text-ink-faint">{item.date}</span>
+            </div>
+
+            {question && (
+              <p class="clamp-2 mt-3 text-[12.5px] font-semibold leading-snug text-ink-muted" data-card-question>
+                {question}
+              </p>
+            )}
+
+            <h3 class="clamp-2 mt-1.5 text-[17px] font-bold leading-[1.42] tracking-[-0.03em] text-ink" data-card-title>
+              <a href={withBase(item.url)} class="block min-h-[24px] hover:text-brand-deep">
+                {item.title}
+              </a>
+            </h3>
+
+            <p class="clamp-2 mt-2 text-[13.5px] leading-[1.7] text-ink-muted" data-card-summary>
+              {brief(item.description)}
+            </p>
+
+            {item.tags && item.tags.length > 0 && (
+              <ul class="mt-2.5 flex flex-wrap gap-1.5" data-card-tags>
+                {item.tags.slice(0, 2).map((tag) => (
+                  <li class="rounded-full border border-line px-2 py-[3px] text-[12px] leading-none text-ink-muted">{tag}</li>
+                ))}
+              </ul>
+            )}
+
+            <p class="mono mt-3 text-[12px] leading-relaxed text-ink-faint" data-card-meta>
+              확인 기준일 {item.baseDate} ·{" "}
+              {item.sourceOrgLine
+                ? `출처 ${item.sourceCount}곳(${item.sourceOrgLine})`
+                : `출처 ${item.sourceCount}건`}
+            </p>
+
+            <div class="mt-auto flex items-center justify-between gap-2 pt-4" data-card-foot>
+              {item.toolUrl ? (
+                <a href={withBase(item.toolUrl)} class="btn btn-secondary btn-xs">
+                  {item.toolName ?? "도구로 확인"}
+                </a>
+              ) : (
+                <a href={withBase(item.url)} class="btn btn-tertiary-quiet btn-xs">
+                  글 읽기
+                </a>
+              )}
+              <span class="text-[12px] text-ink-faint">{item.readingMinutes}분</span>
+            </div>
+          </li>
+        );
+      })
+    }
+  </ul>
+</div>
+
+<script is:inline>
+  (() => {
+    const KEY = "bkz-post-list";
+    const saved = (() => {
+      try {
+        return JSON.parse(localStorage.getItem(KEY) || "{}");
+      } catch {
+        return {};
+      }
+    })();
+
+    document.querySelectorAll("[data-post-list]").forEach((root) => {
+      const list = root.querySelector("[data-post-cards]");
+      if (!list) return;
+      const items = Array.from(list.children);
+      const sortButtons = Array.from(root.querySelectorAll("[data-sort]"));
+      const viewButtons = Array.from(root.querySelectorAll("button[data-view]"));
+      const count = root.querySelector("[data-post-count]");
+      let sortMode = saved.sort === "title" ? "title" : "latest";
+      let viewMode = saved.view === "text" ? "text" : "card";
+
+      const total = items.length;
+
+      const applySort = (mode, remember = true) => {
+        sortMode = mode === "title" ? "title" : "latest";
+        const ordered = items.slice().sort((a, b) => {
+          if (sortMode === "title") {
+            return (a.dataset.title || "").localeCompare(b.dataset.title || "", "ko");
+          }
+          const da = a.dataset.date || "";
+          const db = b.dataset.date || "";
+          return db.localeCompare(da);
+        });
+        ordered.forEach((el) => list.appendChild(el));
+        sortButtons.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.sort === sortMode)));
+        if (count) count.textContent = `${total}편 · ${sortMode === "title" ? "제목순" : "최신순"}`;
+        if (remember) {
+          saved.sort = sortMode;
+          try {
+            localStorage.setItem(KEY, JSON.stringify(saved));
+          } catch {
+            /* 저장이 막힌 브라우저는 이번 화면에서만 적용 */
+          }
+        }
+      };
+
+      const applyView = (mode, remember = true) => {
+        viewMode = mode === "text" ? "text" : "card";
+        list.dataset.viewMode = viewMode;
+        viewButtons.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.view === viewMode)));
+        if (remember) {
+          saved.view = viewMode;
+          try {
+            localStorage.setItem(KEY, JSON.stringify(saved));
+          } catch {
+            /* 저장이 막힌 브라우저는 이번 화면에서만 적용 */
+          }
+        }
+      };
+
+      sortButtons.forEach((b) => b.addEventListener("click", () => applySort(b.dataset.sort)));
+      viewButtons.forEach((b) => b.addEventListener("click", () => applyView(b.dataset.view)));
+
+      applySort(sortMode, false);
+      applyView(viewMode, false);
+    });
+  })();
+</script>

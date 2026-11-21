@@ -2,6 +2,7 @@ import { defineConfig } from 'astro/config';
 import react from '@astrojs/react';
 import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
+import { rehypeAdBreak } from './src/lib/rehype-ad-break.mjs';
 
 /**
  * 배포 주소 분기.
@@ -51,11 +52,11 @@ export default defineConfig({
         !page.includes('/tools') &&
         !page.includes('/topics'),
       changefreq: 'weekly',
-      lastmod: new Date('2026-11-19'),
+      lastmod: new Date('2026-11-21'),
     }),
   ],
   markdown: {
-    rehypePlugins: [rehypeBase(BASE)],
+    rehypePlugins: [rehypeBase(BASE), rehypeAdBreak()],
   },
   vite: {
     plugins: [tailwindcss()],

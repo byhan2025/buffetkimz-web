@@ -266,8 +266,8 @@ export function StickySummary({
         <p className="mt-1 truncate text-[12px] leading-[1.4] text-ink-faint" data-sticky-note>
           {note ??
             (touched
-              ? `현재 입력 기준 · 확인 기준일 ${site.baseDate}`
-              : `예시 가정 · 확인 기준일 ${site.baseDate}`)}
+              ? `현재 입력 기준 · 확인 기준일 ${site.baseDateLabel}`
+              : `예시 가정 · 확인 기준일 ${site.baseDateLabel}`)}
         </p>
       </div>
     </div>

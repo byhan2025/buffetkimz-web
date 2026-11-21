@@ -6,8 +6,9 @@ import AdSlot from "@/components/AdSlot.astro";
 import { withBase, site } from "@/config/site";
 import { categories, categoryName } from "@/data/categories";
 import { appBySlug } from "@/data/apps";
-import { allPosts, postPath, formatDate, shouldShowQuestion, sourceOrgLine } from "@/lib/posts";
+import { allPosts, postPath, formatDate, sourceOrgLine, toolOf } from "@/lib/posts";
 import { thumbOf, thumbAltOf, thumbSize } from "@/lib/thumbs";
+import { breadcrumbList, graph, pageUrl, partOfWebsite } from "@/lib/schema";
 
 const posts = await allPosts();
 const feature = posts[0];
@@ -19,18 +20,19 @@ const basisAgeDays = Math.max(0, Math.floor((Date.now() - latestBasis.getTime())
 
 const card = (p: (typeof posts)[number]) => {
   const app = p.data.app ? appBySlug(p.data.app) : undefined;
+  const tool = toolOf(p);
   return {
     url: postPath(p),
     title: p.data.title,
     description: p.data.description,
     categoryName: categoryName(p.data.category),
     tags: p.data.tags.slice(0, 2),
+    dateISO: p.data.publishedAt.toISOString().slice(0, 10),
     date: formatDate(p.data.publishedAt),
     readingMinutes: p.data.readingMinutes,
     question: p.data.question ?? app?.question,
-    toolName: p.data.toolTitle ?? (app ? `${app.name.replace(" 시뮬레이터", "").replace(" 계산기", "")} 열기` : undefined),
-    toolUrl:
-      p.data.toolHref ?? (app?.internal ? `/apps/${app.slug}/run` : app ? `/apps/${app.slug}` : undefined),
+    toolName: tool.cta,
+    toolUrl: tool.href,
     baseDate: formatDate(p.data.baseDate ?? p.data.publishedAt),
     sourceCount: p.data.sources.length,
     sourceOrgLine: sourceOrgLine(p.data.sources),
@@ -44,23 +46,34 @@ const counts = categories.map((c) => ({
   count: posts.filter((p) => p.data.category === c.slug).length,
 }));
 
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@type": "CollectionPage",
-  name: "buffetkimz 기록",
-  description: "금융·투자·경제·보험·노후준비·연금·AI·철학을 매일 기록하는 블로그.",
-  url: `${site.url}/posts`,
-  inLanguage: "ko-KR",
-  mainEntity: {
-    "@type": "ItemList",
-    itemListElement: posts.slice(0, 20).map((p, i) => ({
-      "@type": "ListItem",
-      position: i + 1,
-      name: p.data.title,
-      url: `${site.url}${postPath(p)}`,
-    })),
+/** 많이 찾는 핵심 글 3편 — 대표(Featured)를 먼저, 모자라면 최신 글로 채운다. */
+const featured = posts.filter((p) => p.data.featured);
+const picks = [...featured, ...posts.filter((p) => !p.data.featured)].slice(0, 3);
+
+const jsonLd = graph([
+  {
+    "@type": "CollectionPage",
+    "@id": `${pageUrl("/posts")}#webpage`,
+    name: "buffetkimz 기록",
+    description: "금융·투자·경제·보험·노후준비·연금·AI·철학을 매일 기록하는 블로그.",
+    url: pageUrl("/posts"),
+    inLanguage: "ko-KR",
+    isPartOf: partOfWebsite,
+    mainEntity: {
+      "@type": "ItemList",
+      itemListElement: posts.slice(0, 20).map((p, i) => ({
+        "@type": "ListItem",
+        position: i + 1,
+        name: p.data.title,
+        url: pageUrl(postPath(p)),
+      })),
+    },
   },
-};
+  breadcrumbList([
+    { name: "홈", path: "/" },
+    { name: "기록", path: "/posts" },
+  ]),
+]);
 ---
 
 <Base
@@ -134,6 +147,43 @@ const jsonLd = {
     </div>
   </section>
 
+  <!-- 많이 찾는 핵심 글 3편 -->
+  <section class="scene-white border-t border-line" aria-labelledby="picks-heading">
+    <div class="wrap py-8 md:py-10">
+      <div class="flex flex-wrap items-baseline justify-between gap-2">
+        <h2 id="picks-heading" class="text-[11px] font-bold tracking-[0.16em] text-ink-faint">많이 찾는 핵심 글</h2>
+        <span class="text-[12px] text-ink-faint">처음 온다면 이 셋부터</span>
+      </div>
+      <ol class="mt-3 grid gap-2 sm:grid-cols-3">
+        {
+          picks.map((p, i) => (
+            <li>
+              <a
+                href={withBase(postPath(p))}
+                class="group flex h-full items-start gap-3 rounded-xl border border-line bg-white/70 px-4 py-3 transition-colors hover:border-brand/50"
+              >
+                <span class="mono mt-0.5 text-[11.5px] font-semibold text-brand">{String(i + 1).padStart(2, "0")}</span>
+                <span class="min-w-0">
+                  <span class="block text-[14px] font-semibold leading-snug text-ink group-hover:text-brand-deep">
+                    {p.data.title}
+                  </span>
+                  <span class="mono mt-1 block text-[11.5px] text-ink-faint">
+                    {categoryName(p.data.category)} · {formatDate(p.data.publishedAt)}
+                  </span>
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <!-- 광고·협찬 자리(목록 중간) — monetization.ts 가 OFF 면 아무것도 그리지 않는다 -->
+  <div class="wrap py-6">
+    <AdSlot id="posts-index-inline" size="native-list" region="article-mid" />
+  </div>
+
   <section class="scene-white border-y border-line">
     <div class="wrap py-10 md:py-14">
       <!-- 분야 탭 (링크) -->
@@ -161,7 +211,7 @@ const jsonLd = {
       </div>
 
       <div class="mt-10">
-        <AdSlot id="posts-index-bottom" size="leaderboard" />
+        <AdSlot id="posts-index-bottom" size="leaderboard" region="article-bottom" />
       </div>
 
       <HomePill position="bottom" />

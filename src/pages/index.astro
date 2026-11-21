@@ -12,6 +12,7 @@ import { channels } from "@/data/channels";
 import { hubTools, mainTools, riskTools } from "@/data/tools";
 import { calendar } from "@/data/calendar";
 import { allPosts, koreanDate } from "@/lib/posts";
+import { graph, organizationNode, personNode, websiteNode } from "@/lib/schema";
 
 /**
  * buffetkimz v5.1 — 브랜드 필름(1P) → 순수 소개(2P) → 아카이브 → 도구 → 신뢰 → 채널.
@@ -63,26 +64,7 @@ const credits = [
   { href: "/#channels", label: "연결 채널", note: "채널 7곳 + 코드 보관소", count: `${channelCount}곳` },
 ];
 
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "WebSite",
-      "@id": `${site.url}/#website`,
-      url: site.url,
-      name: site.brand,
-      description: site.description,
-      inLanguage: "ko-KR",
-    },
-    {
-      "@type": "Person",
-      "@id": `${site.url}/#author`,
-      name: site.brand,
-      description: site.author.bio,
-      url: `${site.url}/about`,
-    },
-  ],
-};
+const jsonLd = graph([websiteNode(), organizationNode(), personNode()]);
 ---
 
 <Base

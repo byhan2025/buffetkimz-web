@@ -103,7 +103,7 @@ export default function RetirementFlow({ compact = false }: { compact?: boolean 
         </ol>
 
         <p className="mt-3 border-t border-line-soft pt-2 text-[12px] leading-relaxed text-ink-faint">
-          기준일 {site.baseDate} · 가정: 국민연금 물가연동(공단 확정액 아님) · 퇴직·개인연금은 은퇴 시점 적립금을{" "}
+          기준일 {site.baseDateLabel} · 가정: 국민연금 물가연동(공단 확정액 아님) · 퇴직·개인연금은 은퇴 시점 적립금을{" "}
           {result.payoutYears}년에 균등 분할 · 세금·건강보험료·수수료 미반영
         </p>
       </div>
@@ -169,7 +169,7 @@ export default function RetirementFlow({ compact = false }: { compact?: boolean 
       >
         적용 가정: 물가상승률 {pctPoint(inflation)} · 기대 수익률 {pctPoint(rate)} · 인출률 연{" "}
         {(result.withdrawalRate * 100).toFixed(1)}% · 수령 {result.payoutYears}년 · 국민연금 물가연동 · 확정 수령액 아닌
-        가정 · 기준일 {site.baseDate}
+        가정 · 기준일 {site.baseDateLabel}
       </p>
 
       <div className="mt-3 grid gap-3 md:grid-cols-[1.1fr_0.9fr]">
@@ -327,7 +327,7 @@ export default function RetirementFlow({ compact = false }: { compact?: boolean 
       <Note>
         참고용 단순 시뮬레이션(실제 수령액·세율과 다름). 세금, 건강보험료 피부양자 탈락, 연금 수수료, 중도
         인출은 반영하지 않았습니다. 국민연금 예상액은 공단 확정액이 아니라 입력값이며, 실제 수령액은 가입
-        이력과 수령 시점에 따라 달라집니다. 기준일 {site.baseDate}.
+        이력과 수령 시점에 따라 달라집니다. 기준일 {site.baseDateLabel}
       </Note>
     </RunnerShell>
   );

@@ -1,14 +1,17 @@
 {
   "name": "buffetkimz-web",
   "type": "module",
-  "version": "5.7.0",
+  "version": "5.8.2",
   "private": true,
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
     "check": "astro check",
-    "deploy:pages": "SITE_URL=https://byhan2025.github.io BASE_PATH=/buffetkimz-web bash scripts/deploy_pages.sh"
+    "deploy:pages": "SITE_URL=https://byhan2025.github.io BASE_PATH=/buffetkimz-web bash scripts/deploy_pages.sh",
+    "build:domain": "SITE_URL=https://buffetkimz.com BASE_PATH=/ npm run build",
+    "build:pages": "SITE_URL=https://byhan2025.github.io BASE_PATH=/buffetkimz-web npm run build",
+    "deploy:domain": "bash scripts/deploy_domain.sh"
   },
   "dependencies": {
     "@astrojs/markdown-remark": "^7.3.10",

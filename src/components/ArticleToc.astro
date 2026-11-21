@@ -1,0 +1,65 @@
+---
+/**
+ * 글 목차 — Astro가 렌더한 h2/h3에서 자동으로 만든다(`render()`의 headings).
+ *
+ * · 소제목이 2개 미만이면 아무것도 그리지 않는다(빈 상자 금지).
+ * · 768px 이상: 상자형 인덱스 / 390px: `목차 N개` 접이식 한 줄.
+ * · 링크는 `#slug` 앵커 — 제목의 scroll-margin-top이 고정 상단 바 높이를 비켜 간다.
+ */
+interface Props {
+  items: { depth: number; slug: string; text: string }[];
+  minutes: number;
+}
+
+const { items, minutes } = Astro.props;
+const list = items.filter((h) => h.depth === 2 || h.depth === 3);
+const h2Count = list.filter((h) => h.depth === 2).length;
+let n = 0;
+const numbered = list.map((h) => ({ ...h, num: h.depth === 2 ? String(++n) : "" }));
+---
+
+{
+  list.length >= 2 && (
+    <>
+      <nav class="toc hidden md:block" aria-label="이 글의 목차" data-toc>
+        <div class="toc-head">
+          <span>목차</span>
+          <span class="toc-time">
+            소제목 {h2Count}개 · 약 {minutes}분
+          </span>
+        </div>
+        <ul class="toc-list">
+          {numbered.map((h) => (
+            <li class={`depth-${h.depth}`}>
+              <a href={`#${h.slug}`} class="toc-link">
+                <span class="toc-num" aria-hidden="true">
+                  {h.num}
+                </span>
+                <span>{h.text}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+
+      <details class="toc toc-details md:hidden" data-toc>
+        <summary>
+          목차 {h2Count}개
+          <span class="toc-time text-[12px] font-medium text-ink-faint">약 {minutes}분</span>
+        </summary>
+        <ul class="toc-list">
+          {numbered.map((h) => (
+            <li class={`depth-${h.depth}`}>
+              <a href={`#${h.slug}`} class="toc-link">
+                <span class="toc-num" aria-hidden="true">
+                  {h.num}
+                </span>
+                <span>{h.text}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </details>
+    </>
+  )
+}

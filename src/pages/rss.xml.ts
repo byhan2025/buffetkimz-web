@@ -16,7 +16,7 @@ export const GET: APIRoute = async () => {
   const items = posts
     .slice(0, 30)
     .map((p) => {
-      const url = `${site.url}${postPath(p)}`;
+      const url = `${site.url}${postPath(p)}/`;
       return `    <item>
       <title>${escape(p.data.title)}</title>
       <link>${url}</link>

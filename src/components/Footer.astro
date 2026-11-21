@@ -16,10 +16,10 @@ const mainLinks = [
   { href: "/posts", label: "기록 전체" },
   { href: "/apps", label: "도구자료실" },
   { href: "/calendar", label: "제도 일정" },
-  { href: "/search", label: "검색" },
   { href: "/about", label: "소개" },
 ];
 const policyLinks = [
+  { href: "/principles", label: "편집 원칙" },
   { href: "/rss.xml", label: "RSS" },
   { href: "/privacy", label: "개인정보처리방침" },
   { href: "/terms", label: "이용약관" },
@@ -53,6 +53,12 @@ const policyLinks = [
           class="inline-flex min-h-[44px] items-center font-semibold text-brand-deep hover:text-brand"
         >
           {site.contact.label}
+        </a>
+        <a
+          href={withBase("/principles")}
+          class="inline-flex min-h-[44px] items-center font-semibold text-brand-deep hover:text-brand"
+        >
+          만든 기준
         </a>
       </nav>
     </div>
@@ -96,7 +102,7 @@ const policyLinks = [
             <a href={withBase(l.href)} class="inline-flex min-h-[44px] md:min-h-[24px] items-center hover:text-ink">{l.label}</a>
           ))
         }
-        <span class="mono">기준일 <time datetime={site.baseDate}>{site.baseDate}</time></span>
+        <span class="mono">기준일 <time datetime={site.baseDate}>{site.baseDateLabel}</time></span>
       </p>
     </div>
   </div>

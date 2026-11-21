@@ -12,6 +12,7 @@ import { withBase, site } from "@/config/site";
 import { koreanDate, formatDate, allPosts } from "@/lib/posts";
 import { categoryName } from "@/data/categories";
 import { allLetters, letterPath, issueLabel, groupByYear } from "@/lib/letters";
+import { breadcrumbList, graph, pageUrl, partOfWebsite } from "@/lib/schema";
 
 const letters = await allLetters();
 const years = groupByYear(letters);
@@ -21,23 +22,30 @@ const postTitle = new Map(posts.map((p) => [p.id, p.data.title]));
 const postCategory = new Map(posts.map((p) => [p.id, categoryName(p.data.category)]));
 
 const latest = letters[0];
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@type": "CollectionPage",
-  name: "buffetkimz 소식지",
-  description: "확인한 기록을 한 장에 담아 보내는 소식지 아카이브.",
-  url: `${site.url}/letters`,
-  inLanguage: "ko-KR",
-  mainEntity: {
-    "@type": "ItemList",
-    itemListElement: letters.map((letter, i) => ({
-      "@type": "ListItem",
-      position: i + 1,
-      name: `${issueLabel(letter.data.issue)} — ${koreanDate(letter.data.date)}`,
-      url: `${site.url}${letterPath(letter)}`,
-    })),
+const jsonLd = graph([
+  {
+    "@type": "CollectionPage",
+    "@id": `${pageUrl("/letters")}#webpage`,
+    name: "buffetkimz 소식지",
+    description: "확인한 기록을 한 장에 담아 보내는 소식지 아카이브.",
+    url: pageUrl("/letters"),
+    inLanguage: "ko-KR",
+    isPartOf: partOfWebsite,
+    mainEntity: {
+      "@type": "ItemList",
+      itemListElement: letters.map((letter, i) => ({
+        "@type": "ListItem",
+        position: i + 1,
+        name: `${issueLabel(letter.data.issue)} — ${koreanDate(letter.data.date)}`,
+        url: pageUrl(letterPath(letter)),
+      })),
+    },
   },
-};
+  breadcrumbList([
+    { name: "홈", path: "/" },
+    { name: "소식지", path: "/letters" },
+  ]),
+]);
 ---
 
 <Base

@@ -1,24 +1,66 @@
 ---
 /**
- * 광고·협찬 슬롯 자리 (Phase 1 비노출)
- * 추후 애드센스·협찬 배너를 꽂을 위치. 지금은 구조만 남기고 화면에는 표시하지 않는다.
- * 사용법: <AdSlot id="article-bottom" size="leaderboard" />
+ * 광고·협찬 슬롯 자리 (3단계 · 2026-11-21 · 회의실 기준안 반영)
+ *
+ * 기본값 OFF — `src/config/monetization.ts` 의 `adsEnabled` 가 false 면
+ * 이 컴포넌트는 화면에 아무것도 그리지 않는다(HTML 주석 한 줄만 남는다).
+ *   · OFF: DOM 0 · 여백 0 · CLS 영향 0
+ *   · ON : 슬롯 높이를 미리 예약(min-height)해 광고가 비어도 아래 내용이 밀리지 않는다
+ *
+ * 자리(region)
+ *   article-mid    본문 중반(2~3단락 또는 50% 이후) — 글당 최대 1곳
+ *   article-bottom 본문 하단(면책 블록과 24px 이상 간격) — 글당 1곳
+ *   tools-bottom   도구자료실 결과 확인 후 최하단
+ * 그 밖의 자리(1P 모션·헤더·입력폼·결과 수치 위·출처 블록·표)는 쓰지 않는다.
+ *
+ * 사용법: <AdSlot id="article-bottom" size="leaderboard" region="article-bottom" />
  */
+import { adDisclosure, adPreview, adSizes, adsEnabled, adSlotsVisible, sponsorNote, type AdSize } from "@/config/monetization";
+
+type AdRegion = "article-mid" | "article-bottom" | "tools-bottom";
+
 interface Props {
   id: string;
-  size?: "leaderboard" | "rectangle" | "in-article";
+  size?: AdSize;
+  region?: AdRegion;
   note?: string;
 }
-const { id, size = "leaderboard", note } = Astro.props;
+const { id, size = "leaderboard", region = "article-bottom", note } = Astro.props;
+const spec = adSizes[size];
+const preview = adPreview && !adsEnabled;
+const state = adsEnabled ? "enabled" : "preview";
 ---
 
-<!-- AD SLOT:start id={id} size={size} — Phase 2에서 광고 코드 삽입 -->
-<div
-  class="ad-slot hidden"
-  data-ad-slot={id}
-  data-ad-size={size}
-  data-ad-state="reserved"
-  data-ad-note={note}
-  aria-hidden="true"
-></div>
-<!-- AD SLOT:end id={id} -->
+{
+  adSlotsVisible ? (
+    <aside
+      class="ad-slot"
+      data-ad-slot={id}
+      data-ad-size={size}
+      data-ad-region={region}
+      data-ad-state={state}
+      data-ad-min-h-mobile={spec.mobile}
+      data-ad-min-h-desktop={spec.desktop}
+      aria-label={`${adDisclosure} 자리`}
+      style={`--ad-h-mobile:${spec.mobile}px;--ad-h-desktop:${spec.desktop}px;--ad-max-w:${spec.maxWidth}px`}
+    >
+      <p class="ad-slot-label">
+        <span>{adDisclosure}</span>
+        {preview && <span class="ad-slot-state">자리 미리보기 · {spec.label}</span>}
+      </p>
+      <div class="ad-slot-frame" data-ad-frame>
+        {preview && (
+          <p class="ad-slot-hint">
+            {spec.label} · {spec.mobile}px(모바일) / {spec.desktop}px(데스크톱) 예약
+          </p>
+        )}
+        {note && <p class="ad-slot-note">{note}</p>}
+      </div>
+      {!preview && <p class="ad-slot-note">{note ?? sponsorNote}</p>}
+    </aside>
+  ) : (
+    <Fragment>
+      {/* AD SLOT 예약 id={id} size={size} region={region} — monetization.ts 의 adsEnabled=false 라 화면에 그리지 않는다 */}
+    </Fragment>
+  )
+}

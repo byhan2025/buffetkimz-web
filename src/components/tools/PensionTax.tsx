@@ -168,7 +168,7 @@ export default function PensionTax({ compact = false }: { compact?: boolean }) {
       />
 
       <Note>
-        소득세법 제59조의3 기준(기준일 2026-11-19). 실제 환급액은 산출세액과 다른 공제에 따라 달라지며,
+        소득세법 제59조의3 기준(기준일 2026. 11. 21.). 실제 환급액은 산출세액과 다른 공제에 따라 달라지며,
         한도를 넘는 납입액은 다음 해 이월 공제를 신청할 수 있습니다.
       </Note>
     </RunnerShell>

@@ -7,6 +7,7 @@ import HomePill from "@/components/HomePill.astro";
 import { withBase, site } from "@/config/site";
 import { apps } from "@/data/apps";
 import { hubTools, mainTools, riskTools } from "@/data/tools";
+import { breadcrumbList, graph, pageUrl, partOfWebsite } from "@/lib/schema";
 
 const external = apps.filter((a) => !a.internal);
 /** 홈과 같은 기준의 도구 수 — 금융·연금 계산 3 + 제도 일정 달력 1 + 리스크 관리 3 */
@@ -15,24 +16,33 @@ const calendarCount = mainTools.length - mainCalcCount;
 const riskCalcCount = riskTools.filter((t) => t.runHref).length;
 const totalCount = hubTools.length;
 
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@type": "ItemList",
-  name: "buffetkimz 도구",
-  itemListElement: hubTools.map((t, i) => ({
-    "@type": "ListItem",
-    position: i + 1,
-    item: {
-      "@type": "SoftwareApplication",
-      name: t.name,
-      description: t.what,
-      applicationCategory: "FinanceApplication",
-      operatingSystem: "Web",
-      url: `${site.url}${t.href}`,
-      offers: { "@type": "Offer", price: "0", priceCurrency: "KRW" },
-    },
-  })),
-};
+const jsonLd = graph([
+  {
+    "@type": "ItemList",
+    "@id": `${pageUrl("/apps")}#toollist`,
+    name: "buffetkimz 도구",
+    url: pageUrl("/apps"),
+    inLanguage: "ko-KR",
+    isPartOf: partOfWebsite,
+    itemListElement: hubTools.map((t, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      item: {
+        "@type": "SoftwareApplication",
+        name: t.name,
+        description: t.what,
+        applicationCategory: "FinanceApplication",
+        operatingSystem: "Web",
+        url: pageUrl(t.href),
+        offers: { "@type": "Offer", price: "0", priceCurrency: "KRW" },
+      },
+    })),
+  },
+  breadcrumbList([
+    { name: "홈", path: "/" },
+    { name: "도구자료실", path: "/apps" },
+  ]),
+]);
 ---
 
 <Base
@@ -63,7 +73,7 @@ const jsonLd = {
           직접 만든 앱 <strong class="font-semibold text-ink">{external.length}종</strong>
         </span>
         <span>입력값 서버 미전송</span>
-        <span class="mono">기준일 <time datetime={site.baseDate}>{site.baseDate}</time></span>
+        <span class="mono">기준일 <time datetime={site.baseDate}>{site.baseDateLabel}</time></span>
       </div>
     </div>
   </section>
@@ -231,7 +241,7 @@ const jsonLd = {
       }
 
       <div class="mt-8">
-        <AdSlot id="apps-index-bottom" size="leaderboard" />
+        <AdSlot id="apps-index-bottom" size="leaderboard" region="tools-bottom" />
       </div>
 
       <HomePill position="bottom" />

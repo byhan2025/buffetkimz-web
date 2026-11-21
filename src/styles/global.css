@@ -336,7 +336,8 @@
     overflow: hidden;
     border-radius: 12px;
     background-color: var(--color-cream);
-    aspect-ratio: 16 / 10;
+    /* v5.8 에디토리얼 썸네일은 1200×630 — 16:10 상자에 넣으면 좌우 글자가 잘린다 */
+    aspect-ratio: 1200 / 630;
   }
 
   .post-thumb > img {
@@ -1435,6 +1436,67 @@
     box-shadow: 0 1px 2px rgb(11 27 41 / 0.06), 0 10px 24px -20px rgb(11 27 41 / 0.5);
   }
 
+  /* 목록 도구 — 정렬·보기 버튼의 선택 상태 (aria-pressed) */
+  button.tab[aria-pressed="true"] {
+    color: var(--color-ink);
+    background-color: #fff;
+    box-shadow: inset 0 0 0 1px var(--color-line), 0 1px 2px rgb(11 27 41 / 0.06);
+  }
+
+  button.tab[aria-pressed="true"]::before {
+    content: "";
+    width: 5px;
+    height: 5px;
+    margin-right: 6px;
+    border-radius: 999px;
+    background-color: var(--color-brand);
+  }
+
+  /* 목록 — 텍스트 리스트형 (한 줄에 한 글)
+     Tailwind utility(grid·p-5 등)가 utilities 레이어에 있어 컴포넌트 규칙보다 나중에 적용된다.
+     보기 전환은 화면 전체의 레이아웃을 바꾸는 상태이므로 이 블록만 !important로 확정한다. */
+  [data-post-cards][data-view-mode="text"] {
+    display: block !important;
+  }
+
+  [data-post-cards][data-view-mode="text"] > li {
+    display: block !important;
+    padding: 14px 2px !important;
+    border: 0 !important;
+    border-bottom: 1px solid var(--color-line) !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  [data-post-cards][data-view-mode="text"] > li:hover {
+    background: rgb(11 27 41 / 0.025) !important;
+    transform: none !important;
+  }
+
+  [data-post-cards][data-view-mode="text"] .post-thumb,
+  [data-post-cards][data-view-mode="text"] [data-card-summary],
+  [data-post-cards][data-view-mode="text"] [data-card-tags],
+  [data-post-cards][data-view-mode="text"] [data-card-question] {
+    display: none !important;
+  }
+
+  [data-post-cards][data-view-mode="text"] [data-card-title] {
+    margin-top: 4px !important;
+    font-size: 15.5px !important;
+    line-height: 1.5 !important;
+  }
+
+  [data-post-cards][data-view-mode="text"] [data-card-meta] {
+    margin-top: 6px !important;
+  }
+
+  [data-post-cards][data-view-mode="text"] [data-card-foot] {
+    margin-top: 8px !important;
+    padding-top: 0 !important;
+    justify-content: space-between !important;
+  }
+
   /* ---------- 검색 ---------- */
   .search-field {
     width: 100%;
@@ -1577,7 +1639,9 @@
   }
 
   .prose-article table {
-    width: 100%;
+    /* 표는 내용 폭만큼만 차지한다 — display:block + width:100%면 흰 카드가 오른쪽으로 비어 보인다 */
+    width: fit-content;
+    max-width: 100%;
     margin-block: 1.9em;
     border-collapse: collapse;
     font-size: 14px;
@@ -3257,5 +3321,426 @@
     line-height: 1.8;
     color: #9fb6c6;
     max-width: 74ch;
+  }
+}
+
+/* ==================================================================
+   v5.8 블로그 양식 — 결론 앵커 · 목차 · 본문 리듬 · 말미 3단
+   동네보험 벤치마크 §14.1 TOP1·TOP2·TOP3·TOP7을 우리 규격으로 옮긴 것.
+   ================================================================== */
+@layer components {
+  /* 1) 결론 앵커 — 라벨 + 1px 룰 + 2문장. 본문보다 먼저 판단 기준을 준다. */
+  .conclusion {
+    border: 1px solid var(--color-line);
+    border-left: 3px solid #c8a76a;
+    border-radius: 14px;
+    background: linear-gradient(180deg, #fdfcf7 0%, #fbfaf4 100%);
+    padding: 15px 18px 17px;
+  }
+
+  .conclusion-label {
+    display: block;
+    font-size: 11.5px;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    color: #8a6320;
+  }
+
+  .conclusion-rule {
+    display: block;
+    height: 1px;
+    margin: 9px 0 11px;
+    background: linear-gradient(90deg, #d8bc88 0%, rgb(216 188 136 / 0.15) 70%, rgb(216 188 136 / 0) 100%);
+  }
+
+  .conclusion-text {
+    font-size: 17px;
+    line-height: 1.72;
+    letter-spacing: -0.012em;
+    color: var(--color-ink-soft);
+    text-wrap: pretty;
+  }
+
+  .conclusion-text + .conclusion-text {
+    margin-top: 0.35em;
+  }
+
+  @media (max-width: 767px) {
+    .conclusion {
+      padding: 14px 15px 15px;
+    }
+
+    .conclusion-text {
+      font-size: 15.5px;
+      line-height: 1.7;
+    }
+  }
+
+  /* 2) 목차 — h2/h3 자동 생성. 소제목이 2개 미만이면 렌더하지 않는다. */
+  .toc {
+    border: 1px solid var(--color-line);
+    border-radius: 14px;
+    background: #fff;
+    padding: 14px 16px;
+  }
+
+  .toc-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.35rem 1rem;
+    padding-bottom: 9px;
+    border-bottom: var(--rule);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: var(--color-ink-faint);
+  }
+
+  .toc-head .toc-time {
+    font-weight: 500;
+    letter-spacing: 0.01em;
+  }
+
+  .toc-list {
+    margin-top: 8px;
+  }
+
+  .toc-list > li + li {
+    margin-top: 2px;
+  }
+
+  .toc-link {
+    display: flex;
+    align-items: baseline;
+    gap: 9px;
+    min-height: 30px;
+    padding: 3px 0;
+    font-size: 14px;
+    line-height: 1.45;
+    color: var(--color-ink-soft);
+    text-decoration: none;
+  }
+
+  .toc-link:hover {
+    color: var(--color-brand-deep);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .toc-link .toc-num {
+    flex: none;
+    width: 16px;
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    color: var(--color-brand);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .toc-list > li.depth-3 .toc-link {
+    padding-left: 25px;
+    font-size: 13px;
+    color: var(--color-ink-muted);
+  }
+
+  .toc-list > li.depth-3 .toc-num {
+    width: 0;
+  }
+
+  /* 모바일 — 접이식 한 줄. 펼치면 같은 목록이 나온다. */
+  details.toc-details > summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    min-height: 44px;
+    cursor: pointer;
+    list-style: none;
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--color-ink);
+  }
+
+  details.toc-details > summary::-webkit-details-marker {
+    display: none;
+  }
+
+  details.toc-details > summary::after {
+    content: "▾";
+    font-size: 11px;
+    color: var(--color-ink-faint);
+    transition: transform 160ms var(--ease-out-soft);
+  }
+
+  details.toc-details[open] > summary::after {
+    transform: rotate(180deg);
+  }
+
+  .toc-details .toc-list {
+    border-top: var(--rule);
+    padding-top: 6px;
+  }
+
+  /* 3) 본문 리듬 — 질문 인용 · 굵은 한 줄 기준 · 점검 체크리스트 + 비교표 */
+  .prose-article .q {
+    margin-block: 1.7em;
+    padding: 11px 16px 11px 18px;
+    border-left: 2px solid var(--color-brand);
+    background: color-mix(in srgb, var(--color-brand-soft) 55%, #fff);
+    border-radius: 0 10px 10px 0;
+    font-size: 16.5px;
+    line-height: 1.7;
+    font-weight: 500;
+    color: var(--color-ink);
+  }
+
+  .prose-article .q::before {
+    content: "\201C";
+    margin-right: 2px;
+    font-size: 1.15em;
+    line-height: 0;
+    color: var(--color-brand);
+  }
+
+  .prose-article .keyline {
+    margin-block: 2em 0.2em;
+    padding-top: 0.85em;
+    border-top: 1px solid var(--color-line);
+    font-size: 1.06em;
+    font-weight: 700;
+    line-height: 1.6;
+    letter-spacing: -0.022em;
+    color: var(--color-ink);
+  }
+
+  .prose-article ul.check {
+    padding-left: 1.45em;
+  }
+
+  .prose-article ul.check > li::before {
+    content: "✓";
+    left: -1.3em;
+    top: 0;
+    width: auto;
+    height: auto;
+    border-radius: 0;
+    background: none;
+    font-size: 0.92em;
+    font-weight: 800;
+    line-height: 1.85;
+    color: var(--color-brand);
+  }
+
+  .prose-article h3 {
+    scroll-margin-top: calc(var(--header-h) + 20px);
+  }
+
+  /* 4) 비교표 — 이미지가 아니라 HTML 표. 좁은 화면에서는 표 안에서만 스크롤 */
+  .prose-article table {
+    border: 1px solid var(--color-line);
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 10px;
+    background: #fff;
+  }
+
+  .prose-article thead th {
+    background: color-mix(in srgb, var(--color-paper-deep) 70%, #fff);
+    border-bottom: 1px solid #c3ced6;
+  }
+
+  .prose-article tbody tr + tr td,
+  .prose-article tbody tr + tr th {
+    border-top: 1px solid var(--color-line-soft);
+  }
+
+  .prose-article td:first-child,
+  .prose-article th:first-child {
+    color: var(--color-ink);
+    font-weight: 600;
+  }
+
+  .prose-article caption {
+    caption-side: top;
+    padding-bottom: 8px;
+    text-align: left;
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: var(--color-ink-faint);
+  }
+
+  /* 5) 말미 3단 — 이어서 보면 · ※ 1줄 · 작성자/기준 카드 */
+  .article-end {
+    margin-top: 40px;
+    padding-top: 22px;
+    border-top: 1px solid var(--color-ink);
+  }
+
+  .article-end-label {
+    font-size: 11.5px;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    color: var(--color-ink-faint);
+  }
+
+  .tool-card {
+    display: block;
+    margin-top: 12px;
+    border: 1px solid var(--color-line);
+    border-left: 3px solid var(--color-brand);
+    border-radius: 12px;
+    background: #fff;
+    padding: 14px 16px;
+  }
+
+  .tool-card-label {
+    font-size: 11.5px;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    color: var(--color-brand-deep);
+  }
+
+  .tool-card-title {
+    margin-top: 5px;
+    font-size: 15.5px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--color-ink);
+  }
+
+  .tool-card-what {
+    margin-top: 5px;
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--color-ink-muted);
+  }
+
+  .tool-card-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 10px;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--color-brand-deep);
+  }
+
+  a:hover > .tool-card,
+  a.tool-card-link:hover .tool-card-title {
+    color: var(--color-brand-deep);
+  }
+
+  .article-disclaimer {
+    margin-top: 26px;
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: var(--color-ink-faint);
+    padding-top: 14px;
+    border-top: var(--rule);
+  }
+
+  .author-card {
+    margin-top: 22px;
+    border: 1px solid var(--color-line);
+    border-radius: 14px;
+    background: #fff;
+    padding: 15px 17px;
+  }
+
+  .author-card-name {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    color: var(--color-ink);
+  }
+
+  .author-card-bio {
+    margin-top: 5px;
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: var(--color-ink-muted);
+  }
+
+  /* 데스크톱은 사이드바, 모바일(≤1023px)은 본문 말미로 흡수 */
+  .article-aside-inline {
+    display: none;
+  }
+
+  @media (max-width: 1023px) {
+    .article-aside-inline {
+      display: block;
+    }
+  }
+}
+
+/* ------------------------------------------------------------------
+   광고·협찬 슬롯 (3단계 · 기본 OFF)
+   `src/config/monetization.ts` 의 adsEnabled/AD_PREVIEW 가 켜졌을 때만 DOM 이 생긴다.
+   · 높이를 미리 잡아 둔다(min-height) → 광고가 비어도 아래 내용이 밀리지 않는다(CLS 0).
+   · 본문 중간 팝업·전면 배너는 쓰지 않는다. 글 흐름을 끊지 않는 자리만.
+   ------------------------------------------------------------------ */
+@layer components {
+  .ad-slot {
+    /* 위아래 24px 이상 — 앞뒤 문단·면책 블록과 붙지 않게 한다 */
+    margin: 24px auto;
+    max-width: var(--ad-max-w, 970px);
+    width: 100%;
+  }
+
+  .ad-slot-label {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.25rem 0.5rem;
+    padding-bottom: 0.35rem;
+    font-size: 11.5px;
+    letter-spacing: 0.01em;
+    color: var(--color-ink-faint);
+  }
+
+  .ad-slot-state {
+    color: var(--color-ink-muted);
+  }
+
+  .ad-slot-frame {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    min-height: var(--ad-h-mobile, 100px);
+    border-radius: 12px;
+    /* 광고가 늦게 붙어도 이 상자 크기가 바뀌지 않게 한다 */
+    contain: layout paint;
+    overflow: hidden;
+  }
+
+  .ad-slot[data-ad-state="preview"] .ad-slot-frame {
+    border: 1px dashed var(--color-line);
+    background: color-mix(in srgb, var(--color-paper-deep) 55%, transparent);
+  }
+
+  .ad-slot-hint {
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: var(--color-ink-muted);
+    text-align: center;
+    padding: 0 1rem;
+  }
+
+  .ad-slot-note {
+    margin-top: 0.4rem;
+    font-size: 11.5px;
+    line-height: 1.6;
+    color: var(--color-ink-faint);
+  }
+
+  @media (min-width: 768px) {
+    .ad-slot {
+      margin: 32px auto;
+    }
+
+    .ad-slot-frame {
+      min-height: var(--ad-h-desktop, 90px);
+    }
   }
 }
