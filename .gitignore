@@ -29,3 +29,6 @@ dist-subpath/
 drafts/
 __pycache__/
 scripts/__pycache__/
+
+# 배포 임시 폴더(v7.5 — 스크립트 타임스탬프 폴더)
+.deploy-gh-*/
