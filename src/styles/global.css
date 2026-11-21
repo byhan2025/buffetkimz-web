@@ -3744,3 +3744,688 @@
     }
   }
 }
+
+/* ------------------------------------------------------------------
+   v5.9 — 오늘 확인 허브 · D-Day · 시리즈 라벨 · A vs B 비교
+   규칙: ① '실시간'을 약속하지 않는다(기준 시각을 붙인다) ② 우열 판정 없음
+        ③ 390px 첫 화면에 기준 시각 → 3줄 → 도구 1개 ④ 자극색(빨강) 대신 무게로 급함을 표현
+   ------------------------------------------------------------------ */
+@layer components {
+  /* ---------- 허브 머리 ---------- */
+  .hub-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 10px 20px;
+  }
+
+  .hub-head-side {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .hub-basis {
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0;
+    color: var(--color-ink-muted);
+  }
+
+  .hub-next {
+    font-size: 11.5px;
+    color: var(--color-ink-faint);
+  }
+
+  /* 신선도 배지 — 정상은 조용하고, 지연·실패만 색을 쓴다 */
+  .hub-fresh {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 6px;
+    border: 1px solid var(--color-line);
+    border-radius: 8px;
+    padding: 3px 8px;
+    font-size: 11.5px;
+    line-height: 1.5;
+    background-color: var(--color-paper-deep);
+    color: var(--color-ink-muted);
+  }
+
+  .hub-fresh-label {
+    font-weight: 700;
+  }
+
+  .hub-fresh-detail {
+    font-weight: 400;
+  }
+
+  .hub-fresh--delayed {
+    border-color: #e6d3a6;
+    background-color: #fdf5e4;
+    color: #6f4f14;
+  }
+
+  .hub-fresh--failed {
+    border-color: #eccbb8;
+    background-color: #fdeee6;
+    color: #8a3d1c;
+  }
+
+  .hub-fresh--stale {
+    border-color: #d7dde2;
+    background-color: #f2f4f6;
+    color: var(--color-ink-muted);
+  }
+
+  /* ---------- 지표 스트립 ---------- */
+  .ind-strip {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .ind-strip > li {
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+  }
+
+  .ind-chip {
+    display: grid;
+    gap: 2px;
+    min-width: 136px;
+    min-height: 68px;
+    padding: 8px 11px;
+    border: 1px solid var(--color-line);
+    border-radius: 12px;
+    background-color: #fff;
+    transition: border-color 160ms var(--ease-out-soft);
+  }
+
+  .ind-chip:hover,
+  .ind-chip:focus-visible {
+    border-color: #b9c9d4;
+  }
+
+  .ind-name {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--color-ink-faint);
+  }
+
+  .ind-row {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+
+  .ind-value {
+    font-size: 16px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+    color: var(--color-ink);
+  }
+
+  .ind-change {
+    font-size: 12px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-ink-muted);
+  }
+
+  /* 하락은 파랑, 상승은 클레이 — 빨강으로 겁주지 않는다 */
+  .ind-change.is-down {
+    color: #1d4e77;
+  }
+
+  .ind-change.is-up {
+    color: var(--color-clay);
+  }
+
+  .ind-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px;
+    font-size: 10.5px;
+    letter-spacing: 0;
+    color: var(--color-ink-faint);
+  }
+
+  .ind-source {
+    color: var(--color-ink-faint);
+    opacity: 0.85;
+  }
+
+  /* ---------- 30초 요약 ---------- */
+  .hub-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    color: var(--color-brand-deep);
+  }
+
+  .hub-brief {
+    border: 1px solid var(--color-line);
+    border-radius: 14px;
+    background-color: var(--color-surface);
+    padding: 12px 14px;
+  }
+
+  .hub-brief-list {
+    margin-top: 8px;
+    display: grid;
+    gap: 6px;
+  }
+
+  .hub-brief-list > li {
+    display: grid;
+    grid-template-columns: 22px 1fr;
+    gap: 2px 8px;
+    align-items: baseline;
+  }
+
+  .hub-brief-no {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--color-brand);
+  }
+
+  .hub-brief-text {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.5;
+    letter-spacing: -0.02em;
+    color: var(--color-ink);
+  }
+
+  .hub-brief-meta {
+    grid-column: 2;
+    font-size: 11px;
+    color: var(--color-ink-faint);
+  }
+
+  /* ---------- AI 요약 ---------- */
+  .hub-ai {
+    border: 1px solid #d8e3ec;
+    border-radius: 14px;
+    background-color: var(--color-sky-soft);
+    padding: 11px 13px;
+  }
+
+  .hub-ai-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 8px;
+  }
+
+  .hub-ai-label {
+    border-radius: 6px;
+    background-color: #e2eefa;
+    padding: 2px 7px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: #1d4e77;
+  }
+
+  .hub-ai-source {
+    margin-left: auto;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--color-brand-deep);
+  }
+
+  .hub-ai-lines {
+    margin-top: 7px;
+    display: grid;
+    gap: 3px;
+  }
+
+  .hub-ai-lines > li {
+    position: relative;
+    padding-left: 11px;
+    font-size: 13px;
+    line-height: 1.65;
+    color: var(--color-ink-soft);
+  }
+
+  .hub-ai-lines > li::before {
+    content: "·";
+    position: absolute;
+    left: 2px;
+    color: var(--color-ink-faint);
+  }
+
+  .hub-ai-note {
+    margin-top: 8px;
+    border-top: 1px solid #d8e3ec;
+    padding-top: 6px;
+    font-size: 11px;
+    line-height: 1.6;
+    color: var(--color-ink-muted);
+  }
+
+  /* ---------- 오늘 확인할 것 ---------- */
+  .hub-items {
+    display: grid;
+    gap: 10px;
+  }
+
+  .hub-item {
+    position: relative;
+    border: 1px solid var(--color-line);
+    border-left: 3px solid var(--color-brand);
+    border-radius: 14px;
+    background-color: var(--color-surface);
+    padding: 13px 14px 12px;
+  }
+
+  .hub-item[data-fresh="stale"] {
+    border-left-color: #b4bdc4;
+    background-color: #fbfbfa;
+  }
+
+  .hub-item[data-fresh="failed"] {
+    border-left-color: #c0764f;
+  }
+
+  .hub-item-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .hub-kind {
+    border-radius: 6px;
+    background-color: var(--color-brand-soft);
+    padding: 2px 7px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: var(--color-brand-deep);
+  }
+
+  .hub-item-asof {
+    margin-left: auto;
+    font-size: 11px;
+    color: var(--color-ink-faint);
+  }
+
+  .hub-item-title {
+    margin-top: 7px;
+    font-size: 16px;
+    line-height: 1.42;
+    font-weight: 700;
+    letter-spacing: -0.028em;
+    color: var(--color-ink);
+    text-wrap: pretty;
+  }
+
+  .hub-item-why {
+    margin-top: 6px;
+    font-size: 13px;
+    line-height: 1.65;
+    color: var(--color-ink-soft);
+  }
+
+  .hub-item-points {
+    margin-top: 6px;
+    display: grid;
+    gap: 2px;
+  }
+
+  .hub-item-points > li {
+    position: relative;
+    padding-left: 10px;
+    font-size: 12.5px;
+    line-height: 1.65;
+    color: var(--color-ink-muted);
+  }
+
+  .hub-item-points > li::before {
+    content: "";
+    position: absolute;
+    left: 1px;
+    top: 0.66em;
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background-color: #a7b4be;
+  }
+
+  .hub-item-foot {
+    margin-top: 9px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+  }
+
+  .hub-item-source {
+    font-size: 11.5px;
+    line-height: 1.5;
+    color: var(--color-ink-faint);
+    text-decoration: underline;
+    text-decoration-color: var(--color-line);
+    text-underline-offset: 2px;
+  }
+
+  .hub-item-source:hover {
+    color: var(--color-brand-deep);
+  }
+
+  .hub-item-basis {
+    margin-top: 6px;
+    font-size: 11px;
+    line-height: 1.55;
+    color: var(--color-ink-faint);
+  }
+
+  /* ---------- 대표 도구 ---------- */
+  .hub-tool {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 16px;
+    border: 1px solid #cfe1da;
+    border-radius: 14px;
+    background-color: var(--color-brand-soft);
+    padding: 13px 14px;
+  }
+
+  .hub-tool-body {
+    min-width: 0;
+    flex: 1 1 220px;
+  }
+
+  .hub-tool-name {
+    margin-top: 3px;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.028em;
+    color: var(--color-ink);
+  }
+
+  .hub-tool-note {
+    margin-top: 3px;
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--color-ink-muted);
+  }
+
+  .hub-tool-cta {
+    min-height: 44px;
+    padding: 0 16px;
+    font-size: 13.5px;
+    gap: 6px;
+  }
+
+  .hub-notice {
+    margin-top: 10px;
+    font-size: 11.5px;
+    line-height: 1.65;
+    color: var(--color-ink-faint);
+  }
+
+  /* ---------- D-Day 뱃지 ---------- */
+  .dday {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 6px;
+    padding: 2px 4px;
+    min-height: 18px;
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .dday--later {
+    border: 1px solid var(--color-line);
+    background-color: var(--color-paper-deep);
+    color: var(--color-ink-soft);
+  }
+
+  .dday--soon {
+    border: 1px solid #ecd9b4;
+    background-color: #fbf0dc;
+    color: #74480f;
+  }
+
+  .dday--near {
+    background-color: var(--color-ink);
+    color: var(--color-paper);
+  }
+
+  /* ---------- 시리즈 라벨 ---------- */
+  .series-chip {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 4px;
+    border: 1px solid #cfe1da;
+    border-radius: 999px;
+    background-color: var(--color-brand-soft);
+    padding: 2px 8px;
+    font-size: 11.5px;
+    font-weight: 600;
+    line-height: 1.5;
+    color: var(--color-brand-deep);
+    white-space: nowrap;
+  }
+
+  .series-chip .series-no {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0;
+    color: var(--color-brand);
+  }
+
+  /* ---------- A vs B 비교 ---------- */
+  .cmp {
+    margin-top: 20px;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-card);
+    background-color: var(--color-surface);
+    padding: 15px 16px 14px;
+  }
+
+  .cmp-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 4px 12px;
+    border-bottom: 1px solid var(--color-line-soft);
+    padding-bottom: 9px;
+  }
+
+  .cmp-kicker {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    color: var(--color-clay);
+  }
+
+  .cmp-title {
+    margin-top: 3px;
+    font-size: 15.5px;
+    font-weight: 700;
+    letter-spacing: -0.028em;
+    color: var(--color-ink);
+  }
+
+  .cmp-basis {
+    font-size: 11px;
+    color: var(--color-ink-faint);
+  }
+
+  .cmp-grid {
+    display: grid;
+    grid-template-columns: 1fr 1px 1fr;
+    gap: 0;
+    margin-top: 10px;
+  }
+
+  .cmp-divider {
+    background-color: var(--color-line);
+  }
+
+  .cmp-col {
+    padding: 0 12px 0 0;
+  }
+
+  .cmp-col + .cmp-col,
+  .cmp-grid > .cmp-col:last-child {
+    padding: 0 0 0 12px;
+  }
+
+  .cmp-col-label {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--color-ink);
+  }
+
+  .cmp-col ul {
+    margin-top: 5px;
+    display: grid;
+    gap: 3px;
+  }
+
+  .cmp-col li {
+    position: relative;
+    padding-left: 10px;
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: var(--color-ink-muted);
+  }
+
+  .cmp-col li::before {
+    content: "";
+    position: absolute;
+    left: 1px;
+    top: 0.62em;
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background-color: #a7b4be;
+  }
+
+  .cmp-note {
+    margin-top: 10px;
+    border-top: 1px solid var(--color-line-soft);
+    padding-top: 8px;
+    font-size: 11.5px;
+    line-height: 1.65;
+    color: var(--color-ink-muted);
+  }
+
+  .cmp-foot {
+    margin-top: 9px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+  }
+
+  .cmp-source {
+    font-size: 11.5px;
+    color: var(--color-ink-faint);
+  }
+
+  @media (max-width: 640px) {
+    .cmp-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .cmp-divider {
+      height: 1px;
+      margin: 9px 0;
+    }
+
+    .cmp-col,
+    .cmp-grid > .cmp-col:last-child {
+      padding: 0;
+    }
+
+    .hub-item-title {
+      font-size: 15.5px;
+    }
+
+    .hub-brief-text {
+      font-size: 13.5px;
+    }
+
+    .ind-chip {
+      min-width: 124px;
+      min-height: 64px;
+      padding: 7px 10px;
+    }
+
+    .ind-value {
+      font-size: 15px;
+    }
+
+    .hub-tool-cta {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+}
+
+/* v5.9 — 허브 데스크톱 배치: 요약·AI는 2단, 확인 카드는 3단으로 펼친다 (390px는 위에서부터 차례로) */
+@layer components {
+  .hub-mid {
+    display: grid;
+    gap: 10px;
+  }
+
+  @media (min-width: 1024px) {
+    .hub-mid {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      align-items: stretch;
+    }
+
+    .hub-mid > :only-child {
+      grid-column: 1 / -1;
+    }
+
+    .hub-items {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      align-items: stretch;
+    }
+
+    .hub-items > .hub-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .hub-items .hub-item-title {
+      font-size: 15.5px;
+    }
+
+    .hub-items .hub-item-why,
+    .hub-items .hub-item-points > li {
+      font-size: 12.5px;
+    }
+
+    .hub-items .hub-item-foot {
+      margin-top: auto;
+      padding-top: 9px;
+    }
+
+    .hub-ai-lines > li {
+      font-size: 12.5px;
+    }
+  }
+}

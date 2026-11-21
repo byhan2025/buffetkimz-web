@@ -1,0 +1,79 @@
+---
+/**
+ * A vs B 2칸 비교 카드 — v5.9.
+ *
+ * 두 제도·두 조건을 **나란히** 놓기만 한다. 우열은 판정하지 않는다(판정은 사람의 조건에 달린다).
+ *  · 칸은 정확히 2개, 항목은 칸마다 3개까지 — 넘으면 카드를 나눈다
+ *  · 두 칸 사이는 1px 구분선뿐, 색·화살표로 우열을 암시하지 않는다
+ *  · 모바일은 세로 2단으로 접힌다
+ *  · 하단에 '어느 쪽이 유리한지는 무엇에 따라 갈리는지' 한 줄 + 도구 1개 + 근거
+ */
+import { withBase } from "@/config/site";
+
+export type CompareSide = { label: string; points: string[] };
+
+export type CompareData = {
+  title: string;
+  /** 이 비교의 기준 — '금융위 보도자료(2026. 11. 19.) · 시행 11. 23.' */
+  asOfLabel: string;
+  sides: [CompareSide, CompareSide];
+  /** 판정 대신 남기는 한 줄 */
+  note: string;
+  toolHref?: string;
+  toolLabel?: string;
+  sources?: { label: string; url?: string }[];
+};
+
+interface Props {
+  data: CompareData;
+}
+
+const { data } = Astro.props;
+const [left, right] = data.sides;
+const primary = data.sources?.find((s) => s.url);
+---
+
+<section class="cmp" aria-labelledby="cmp-title" data-compare>
+  <div class="cmp-head">
+    <div>
+      <p class="cmp-kicker">A vs B · 조건 비교</p>
+      <h2 id="cmp-title" class="cmp-title">{data.title}</h2>
+    </div>
+    <p class="cmp-basis mono">{data.asOfLabel}</p>
+  </div>
+
+  <div class="cmp-grid">
+    <div class="cmp-col" data-compare-side="a">
+      <p class="cmp-col-label">{left.label}</p>
+      <ul>
+        {left.points.slice(0, 3).map((point) => <li>{point}</li>)}
+      </ul>
+    </div>
+    <div class="cmp-divider" aria-hidden="true"></div>
+    <div class="cmp-col" data-compare-side="b">
+      <p class="cmp-col-label">{right.label}</p>
+      <ul>
+        {right.points.slice(0, 3).map((point) => <li>{point}</li>)}
+      </ul>
+    </div>
+  </div>
+
+  <p class="cmp-note">{data.note}</p>
+
+  <div class="cmp-foot">
+    {
+      data.toolHref && (
+        <a class="btn btn-secondary btn-xs" href={withBase(data.toolHref)}>
+          {data.toolLabel ?? "도구 열어 보기"}
+        </a>
+      )
+    }
+    {
+      primary && (
+        <a class="cmp-source link" href={primary.url} target="_blank" rel="noopener noreferrer">
+          근거: {primary.label.split(/[—–(]/)[0].trim()}
+        </a>
+      )
+    }
+  </div>
+</section>

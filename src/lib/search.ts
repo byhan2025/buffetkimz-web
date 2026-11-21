@@ -5,7 +5,7 @@
 
 export type SearchDoc = {
   id: string;
-  type: "post" | "app" | "calendar";
+  type: "post" | "app" | "calendar" | "today";
   title: string;
   description: string;
   body: string;
@@ -131,7 +131,7 @@ export function searchDocs(docs: SearchDoc[], query: string, options: SearchOpti
     hits.push({ doc, score, snippet: makeSnippet(doc, terms), terms });
   }
 
-  const rank: Record<SearchDoc["type"], number> = { post: 0, app: 1, calendar: 2 };
+  const rank: Record<SearchDoc["type"], number> = { post: 0, app: 1, calendar: 2, today: 1 };
   return hits.sort((a, b) => {
     if (b.score !== a.score) return b.score - a.score;
     // 점수가 같으면 글 → 앱 → 제도달력 순 (이 사이트의 본체는 글)
@@ -187,4 +187,5 @@ export const typeLabels: Record<SearchDoc["type"], string> = {
   post: "블로그",
   app: "앱",
   calendar: "제도달력",
+  today: "오늘 확인",
 };

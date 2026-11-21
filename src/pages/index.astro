@@ -1,6 +1,7 @@
 ---
 import Base from "@/layouts/Base.astro";
 import BrandFilm from "@/components/home/BrandFilm.tsx";
+import TodayHub from "@/components/home/TodayHub.astro";
 import IntroPortrait from "@/components/home/IntroPortrait.astro";
 import ArchiveLibrary from "@/components/home/ArchiveLibrary.astro";
 import TrustSplit from "@/components/home/TrustSplit.astro";
@@ -15,7 +16,9 @@ import { allPosts, koreanDate } from "@/lib/posts";
 import { graph, organizationNode, personNode, websiteNode } from "@/lib/schema";
 
 /**
- * buffetkimz v5.1 — 브랜드 필름(1P) → 순수 소개(2P) → 아카이브 → 도구 → 신뢰 → 채널.
+ * buffetkimz v5.9 — 브랜드 필름(1P) → 오늘 확인 허브 → 순수 소개(2P) → 아카이브 → 도구 → 신뢰 → 채널.
+ *   v5.9: 필름 아래에 '오늘 확인 허브'(기준 시각 → 지표 → 3줄 → 확인 3건 → 대표 도구)를 넣었다.
+ *   허브에는 상담·가입 CTA를 두지 않는다(비영업 원칙).
  *
  *  ① 1페이지 브랜드 필름 — 6컷 12초 모션그래픽. 도구 설명·시뮬레이터 창은 첫 화면에서 내렸다.
  *     아래 크레딧 줄(기록·도구·일정·채널)이 종이로 돌아오는 경계다.
@@ -103,7 +106,10 @@ const jsonLd = graph([websiteNode(), organizationNode(), personNode()]);
     </div>
   </section>
 
-  <!-- ② 2페이지 — 버핏킴즈는 어떤 사람인가 (순수 소개, 도구 언급 0) -->
+  <!-- ② 오늘 확인 허브 — 필름 아래 첫 화면. 기준 시각 → 지표 → 3줄 → 확인 3건 → 대표 도구 -->
+  <TodayHub />
+
+  <!-- ③ 2페이지 — 버핏킴즈는 어떤 사람인가 (순수 소개, 도구 언급 0) -->
   <IntroPortrait />
 
   <!-- ③ 아카이브 — 7대 주제·시리즈·처음 읽을 글 -->

@@ -31,6 +31,7 @@ const card = (p: (typeof posts)[number]) => {
     date: formatDate(p.data.publishedAt),
     readingMinutes: p.data.readingMinutes,
     question: p.data.question ?? app?.question,
+    series: p.data.series,
     toolName: tool.cta,
     toolUrl: tool.href,
     baseDate: formatDate(p.data.baseDate ?? p.data.publishedAt),
@@ -121,6 +122,12 @@ const jsonLd = graph([
           <div>
             <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
               <span class="text-[12px] font-semibold text-brand">{categoryName(feature.data.category)}</span>
+              {feature.data.series && (
+                <span class="series-chip" data-series={feature.data.series.name}>
+                  {feature.data.series.name}
+                  <span class="series-no">{String(feature.data.series.no).padStart(2, "0")}</span>
+                </span>
+              )}
               <span class="mono text-[12px] text-ink-faint">{formatDate(feature.data.publishedAt)}</span>
               <span class="text-[12px] text-ink-faint">{feature.data.readingMinutes}분</span>
             </div>
@@ -168,7 +175,9 @@ const jsonLd = graph([
                     {p.data.title}
                   </span>
                   <span class="mono mt-1 block text-[11.5px] text-ink-faint">
-                    {categoryName(p.data.category)} · {formatDate(p.data.publishedAt)}
+                    {categoryName(p.data.category)}
+                    {p.data.series && ` · ${p.data.series.name} ${String(p.data.series.no).padStart(2, "0")}`} ·{" "}
+                    {formatDate(p.data.publishedAt)}
                   </span>
                 </span>
               </a>

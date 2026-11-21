@@ -32,6 +32,8 @@ export type PostCard = {
   question?: string;
   toolName?: string;
   toolUrl?: string;
+  /** 시리즈 라벨 — '내 돈 체크 ③' (v5.9) */
+  series?: { name: string; no: number };
   /** 그 글을 확인한 시점 — 카드마다 표시한다 */
   baseDate?: string;
   /** 1차 출처 기관 줄임 표기 (예: 한국은행·통계청) */
@@ -120,8 +122,16 @@ const brief = (text: string, limit = 80) => {
             )}
 
             <div class="flex items-baseline justify-between gap-2">
-              <span class="text-[12px] font-semibold tracking-[0.02em] text-brand">{item.categoryName}</span>
-              <span class="mono text-[12px] text-ink-faint">{item.date}</span>
+              <span class="flex min-w-0 flex-wrap items-center gap-1.5">
+                <span class="text-[12px] font-semibold tracking-[0.02em] text-brand">{item.categoryName}</span>
+                {item.series && (
+                  <span class="series-chip" data-series={item.series.name}>
+                    {item.series.name}
+                    <span class="series-no">{String(item.series.no).padStart(2, "0")}</span>
+                  </span>
+                )}
+              </span>
+              <span class="mono shrink-0 text-[12px] text-ink-faint">{item.date}</span>
             </div>
 
             {question && (

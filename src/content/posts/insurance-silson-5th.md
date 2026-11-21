@@ -6,6 +6,9 @@ thumb: "/thumbs/insurance-silson-5th.webp"
 question: "보험료는 싸졌는데 병원비는 왜 더 나올까"
 publishedAt: 2026-11-14
 readingMinutes: 10
+series:
+  name: "약관 해독"
+  no: 2
 app: "silson-compare"
 tags: ["실손보험", "5세대 실손", "자기부담률"]
 sources:

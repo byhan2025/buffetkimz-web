@@ -6,6 +6,9 @@ thumb: "/thumbs/economy-fx-grocery.webp"
 question: "수입 과자·커피값은 왜 먼저 오를까"
 publishedAt: 2026-11-19
 readingMinutes: 8
+series:
+  name: "내 돈 체크"
+  no: 5
 tags: ["환율", "수입물가", "장바구니"]
 sources:
   - label: "한국은행 — 물가 및 환율 관련 통계·보도자료"

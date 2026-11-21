@@ -6,6 +6,9 @@ thumb: "/thumbs/ai-coverage-tool.webp"
 question: "매번 손으로 옮겨 적던 일, 줄일 수 있을까"
 publishedAt: 2026-11-17
 readingMinutes: 7
+series:
+  name: "도구 노트"
+  no: 1
 app: "coverage-check"
 tags: ["AI", "보장분석", "업무 자동화"]
 sources:

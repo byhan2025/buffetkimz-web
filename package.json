@@ -1,7 +1,7 @@
 {
   "name": "buffetkimz-web",
   "type": "module",
-  "version": "5.8.2",
+  "version": "5.9.0",
   "private": true,
   "scripts": {
     "dev": "astro dev",

@@ -6,6 +6,9 @@ thumb: "/thumbs/retire-fixed-cost.webp"
 question: "은퇴 후 매달 나가는 돈은 얼마일까"
 publishedAt: 2026-11-12
 readingMinutes: 9
+series:
+  name: "연금 지도"
+  no: 2
 app: "retirement-flow"
 toolTitle: "은퇴 계산 열기"
 toolHref: "/apps/retirement-flow/run"

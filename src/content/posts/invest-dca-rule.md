@@ -6,6 +6,9 @@ thumb: "/thumbs/invest-dca-rule.webp"
 question: "매달 사는 게 정말 유리할까"
 publishedAt: 2026-11-15
 readingMinutes: 8
+series:
+  name: "내 돈 체크"
+  no: 1
 app: "pension-tax"
 tags: ["적립식", "리밸런싱", "자산배분"]
 sources:

@@ -6,6 +6,9 @@ thumb: "/thumbs/invest-dividend-total-return.webp"
 question: "배당을 받으면 계좌엔 얼마나 남을까"
 publishedAt: 2026-11-17
 readingMinutes: 8
+series:
+  name: "내 돈 체크"
+  no: 3
 app: "pension-tax"
 tags: ["배당", "총수익", "배당소득세"]
 sources:

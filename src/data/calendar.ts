@@ -11,6 +11,11 @@ export type CalendarItem = {
   action: string;
   source: string;
   sourceUrl?: string;
+  /**
+   * 기한일 (YYYY-MM-DD) — 화면의 D-Day 뱃지는 이 값이 있을 때만 붙는다.
+   * '11월 30일'처럼 날짜가 분명한 항목에만 적고, '11월 중순'처럼 폭이 있는 항목은 비워 둔다.
+   */
+  dueDate?: string;
   key?: boolean;
 };
 
@@ -147,6 +152,7 @@ export const calendar: CalendarItem[] = [
     body: "사업소득·기타소득을 지급한 개인사업자는 전년도 지급명세서를 3월 10일까지 제출합니다. 원천징수한 세금도 함께 정산됩니다.",
     action: "홈택스에서 제출 여부와 원천징수 이행상황 신고서를 확인합니다.",
     source: "소득세법 제164조",
+    dueDate: "2026-03-10",
   },
   {
     month: 3,
@@ -212,6 +218,7 @@ export const calendar: CalendarItem[] = [
     body: "사업소득·근로 외 소득이 있는 경우 5월에 종합소득세를 신고합니다. 연금저축·IRP 세액공제도 이 신고에서 반영됩니다.",
     action: "신고 전에 연금계좌 납입증명서와 보장성보험료 납입증명서를 확인합니다.",
     source: "국세청 종합소득세 신고 안내",
+    dueDate: "2026-05-31",
     key: true,
   },
   {
@@ -224,6 +231,7 @@ export const calendar: CalendarItem[] = [
     action: "내 계약이 몇 세대인지, 갱신·전환 조건이 있는지 확인합니다.",
     source: "금융위원회 보도자료 (2026-05-06)",
     sourceUrl: "https://fsc.go.kr/no010101/86831",
+    dueDate: "2026-05-06",
   },
   {
     month: 5,
@@ -309,6 +317,7 @@ export const calendar: CalendarItem[] = [
     action: "7월 보험료가 달라졌다면 기준소득월액 변경 때문인지 확인합니다.",
     source: "보건복지부 고시 제2026-31호·국민연금공단",
     sourceUrl: "https://www.law.go.kr/admRulLsInfoR.do?admRulSeq=2100000274228",
+    dueDate: "2026-07-01",
     key: true,
   },
   {
@@ -341,6 +350,7 @@ export const calendar: CalendarItem[] = [
     body: "상반기 부가세를 신고·납부하는 기간입니다. 사업소득이 있으면 연금계좌 납입 여력과 함께 현금흐름을 봐야 합니다.",
     action: "신고 후 남는 현금으로 연금저축 하반기 납입 계획을 세웁니다.",
     source: "국세청 부가가치세 신고 안내",
+    dueDate: "2026-07-25",
   },
 
   // 8월
@@ -472,6 +482,7 @@ export const calendar: CalendarItem[] = [
     body: "직전 과세기간 납부세액이 일정 기준을 넘으면 예정신고 대상입니다. 고지서가 나온 경우 납부 기한을 지켜야 가산세가 없습니다.",
     action: "홈택스에서 예정신고 대상 여부와 고지 금액을 확인합니다.",
     source: "국세청 부가가치세 신고 안내",
+    dueDate: "2026-10-25",
   },
 
   // 11월
@@ -492,10 +503,11 @@ export const calendar: CalendarItem[] = [
     title: "초기 실손 계약 선택형 할인·전환 시행",
     tag: "보험",
     kind: "변경",
-    body: "선택형 할인 특약은 기한 없이, 계약전환 할인은 6개월간 시행된 뒤 연장 여부를 검토합니다. 전환 후 3개월 내 철회는 조건 없이 가능합니다.",
-    action: "전환 전에 자기부담률 변화와 할인 종료 후 보험료를 함께 계산합니다.",
-    source: "금융위원회 보도자료 (2026-05-06)",
-    sourceUrl: "https://fsc.go.kr/no010101/86831",
+    body: "선택형 할인 특약은 기한 없이, 계약전환 할인 신청은 2027년 5월 22일까지입니다. 전환하면 3년간 5세대 보험료의 50%를 할인하고, 6개월 안에는 철회할 수 있습니다.",
+    action: "전환 전에 자기부담률 변화와 할인 종료(3년 뒤) 후 보험료를 함께 계산합니다.",
+    source: "금융위원회 보도자료 (2026-11-19)",
+    sourceUrl: "https://www.fsc.go.kr/no010101/88173",
+    dueDate: "2026-11-23",
   },
   {
     month: 11,
@@ -516,6 +528,7 @@ export const calendar: CalendarItem[] = [
     body: "개인사업자는 상반기 실적을 기준으로 종합소득세 중간예납을 11월 30일까지 납부합니다. 고지서가 나온 경우 기한을 넘기면 가산세가 붙습니다.",
     action: "홈택스에서 고지 여부와 납부 금액을 확인하고, 연금계좌 납입과 현금흐름을 함께 봅니다.",
     source: "소득세법 제65조",
+    dueDate: "2026-11-30",
   },
   {
     month: 11,
@@ -538,6 +551,7 @@ export const calendar: CalendarItem[] = [
     body: "그해 12월 31일까지 입금된 금액만 그해 공제 대상입니다. 연금저축 600만원, IRP 합산 900만원이 한도입니다.",
     action: "12월 31일 이전에 이체를 완료하고, 다음 해 1월에 납입증명서를 확인합니다.",
     source: "소득세법 제59조의3",
+    dueDate: "2026-12-31",
     key: true,
   },
   {
@@ -549,6 +563,7 @@ export const calendar: CalendarItem[] = [
     body: "보장성보험료 100만원 한도도 12월 31일에 마감됩니다. 자동이체일이 1월 초라면 한 해가 밀릴 수 있습니다.",
     action: "12월 자동이체 출금일을 확인하고, 부족분은 직접 납입으로 채웁니다.",
     source: "소득세법 제59조의4",
+    dueDate: "2026-12-31",
   },
   {
     month: 12,

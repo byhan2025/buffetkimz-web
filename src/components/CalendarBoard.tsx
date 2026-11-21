@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { CalendarItem, CalendarTag } from "../data/calendar";
 import { tagStyle } from "../data/calendar";
+import { ddayOf, isUpcoming } from "../lib/dday";
 
 const TAGS: CalendarTag[] = ["보험", "연금", "건보", "절세"];
 
@@ -8,9 +9,36 @@ type Props = {
   items: CalendarItem[];
   initialMonth: number;
   note: string;
+  /** 사이트 기준일 (YYYY-MM-DD) — D-Day는 이 날짜로 계산한다 */
+  todayIso?: string;
 };
 
-export default function CalendarBoard({ items, initialMonth, note }: Props) {
+/** 뱃지 색 — D-3~D-6 주황, D-2 이하·오늘은 빨강 대신 진한 회색 */
+const ddayClass: Record<string, string> = {
+  later: "dday dday--later",
+  soon: "dday dday--soon",
+  near: "dday dday--near",
+  today: "dday dday--near",
+  past: "dday dday--later",
+};
+
+export default function CalendarBoard({ items, initialMonth, note, todayIso }: Props) {
+  const today = useMemo(() => (todayIso ? new Date(`${todayIso}T09:00:00+09:00`) : new Date()), [todayIso]);
+  /** 화면 표기 — 사이트 전체와 같은 점 표기 (2026. 11. 21.) */
+  const todayLabel = useMemo(
+    () => (todayIso ? todayIso.replace(/^(\d{4})-(\d{2})-(\d{2})$/, "$1. $2. $3.") : "오늘"),
+    [todayIso]
+  );
+  /** 다가오는 기한 — 기한일이 있는 항목만, 가까운 순서로 3건 */
+  const upcoming = useMemo(
+    () =>
+      items
+        .filter((i) => i.dueDate && isUpcoming(i.dueDate, today))
+        .map((i) => ({ item: i, dday: ddayOf(i.dueDate as string, today) }))
+        .sort((a, b) => a.dday.days - b.dday.days)
+        .slice(0, 3),
+    [items, today]
+  );
   const [month, setMonth] = useState(initialMonth);
   const [tag, setTag] = useState<CalendarTag | "전체">("전체");
   const stripRef = useRef<HTMLDivElement | null>(null);
@@ -44,6 +72,34 @@ export default function CalendarBoard({ items, initialMonth, note }: Props) {
 
   return (
     <div>
+      {/* 다가오는 기한 — 허브와 같은 D-Day 함수를 쓴다 */}
+      {upcoming.length > 0 && (
+        <div className="mb-5 rounded-xl border border-line bg-white/60 px-3 py-2.5" data-upcoming>
+          <div className="flex items-baseline justify-between gap-2">
+            <span className="text-[11px] font-bold tracking-[0.16em] text-ink-faint">다가오는 기한</span>
+            <span className="mono text-[11.5px] text-ink-faint">기준 {todayLabel}</span>
+          </div>
+          <ul className="mt-2 divide-y divide-line-soft">
+            {upcoming.map(({ item, dday }) => (
+              <li key={`up-${item.month}-${item.title}`}>
+                <button
+                  type="button"
+                  onClick={() => pick(item.month)}
+                  className="flex min-h-[44px] w-full items-center gap-2 py-1.5 text-left"
+                >
+                  <span className={ddayClass[dday.tone]} aria-label={dday.aria}>
+                    {dday.label}
+                  </span>
+                  <span className="mono shrink-0 text-[11.5px] text-ink-faint">{dday.dateLabel}</span>
+                  <span className="clamp-1 min-w-0 text-[13px] font-semibold text-ink">{item.title}</span>
+                  <span className="ml-auto shrink-0 text-[11.5px] text-ink-faint">{item.month}월 →</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       {/* 월 선택 */}
       <div className="relative border-y border-line">
         <div className="no-scrollbar overflow-x-auto">
@@ -121,6 +177,14 @@ export default function CalendarBoard({ items, initialMonth, note }: Props) {
                       {item.key && <span className="inline-block h-1.5 w-1.5 shrink-0 bg-clay" aria-hidden="true" />}
                       {item.when}
                     </p>
+                    {item.dueDate && isUpcoming(item.dueDate, today) && (
+                      <p className="mt-1.5 flex flex-wrap items-center gap-1.5" data-dday>
+                        <span className={ddayClass[ddayOf(item.dueDate, today).tone]} aria-label={ddayOf(item.dueDate, today).aria}>
+                          {ddayOf(item.dueDate, today).label}
+                        </span>
+                        <span className="mono text-[11px] text-ink-faint">{ddayOf(item.dueDate, today).dateLabel}</span>
+                      </p>
+                    )}
                     <p className="mt-1 flex items-center gap-1.5 text-[12px] text-ink-faint">
                       <span className={`inline-block h-1.5 w-1.5 rounded-full ${s.dot ?? "bg-ink-faint"}`} aria-hidden="true" />
                       {item.tag} · {item.kind}

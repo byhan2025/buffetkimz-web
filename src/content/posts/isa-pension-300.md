@@ -5,9 +5,33 @@ description: "ISA 만기 후 60일 안에 연금계좌로 옮기면 전환액의
 baseDate: 2026-11-21
 publishedAt: 2026-11-21
 readingMinutes: 6
+series:
+  name: "연금 지도"
+  no: 3
 app: "pension-tax"
 question: "ISA 돈, 연금계좌로 옮기면 뭐가 달라지나"
 tags: ["ISA", "연금저축", "세액공제"]
+compare:
+  title: "ISA 만기 자금 — 연금계좌로 옮길 때 vs 그냥 받을 때"
+  asOfLabel: "소득세법 제59조의3·시행령 제118조의2 · 기준 2026. 11. 21."
+  a:
+    label: "만기 후 60일 안에 연금계좌로 이전"
+    points:
+      - "옮긴 금액의 10%, 최대 300만원이 세액공제 한도에 더해집니다"
+      - "기본 한도를 채운 상태라면 공제 대상이 900만원에서 1,200만원이 됩니다(IRP로 옮길 때)"
+      - "한도가 늘어난 만큼 55세 전 인출의 대가도 커집니다"
+  b:
+    label: "만기 후 이전하지 않고 받기"
+    points:
+      - "추가 한도는 생기지 않습니다 — 60일이 지나면 일반 납입으로만 잡힙니다"
+      - "이미 채운 900만원을 넘는 납입은 세액공제 대상이 아닙니다"
+      - "ISA의 비과세·분리과세 혜택을 받고 자금이 일반계좌로 나옵니다"
+  note: "어느 쪽이 나은지는 올해 남은 공제 한도와 그 돈을 언제 쓸지에 따라 갈립니다. 연금계좌로 옮긴 돈은 55세와 5년 납입 요건 전에는 꺼내기 어렵습니다."
+  toolHref: "/apps/pension-tax/run"
+  toolLabel: "올해 세액공제액 계산하기"
+  sources:
+    - label: "소득세법 제59조의3 — 연금계좌세액공제"
+      url: "https://www.law.go.kr/LSW/lsLinkCommonInfo.do?lsJoLnkSeq=1032880515"
 sources:
   - label: "소득세법 제59조의3 — 연금계좌세액공제(제3·4항: 전환금액 포함, 10%·300만원)"
     url: "https://www.law.go.kr/LSW/lsLinkCommonInfo.do?lsJoLnkSeq=1032880515"

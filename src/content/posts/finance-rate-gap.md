@@ -6,6 +6,9 @@ thumb: "/thumbs/finance-rate-gap.webp"
 question: "금리 인하 뉴스, 내 통장엔 언제 오나"
 publishedAt: 2026-11-16
 readingMinutes: 7
+series:
+  name: "내 돈 체크"
+  no: 2
 tags: ["기준금리", "대출금리", "COFIX"]
 sources:
   - label: "한국은행 기준금리 운용 관련 통화정책방향 자료"

@@ -55,7 +55,7 @@ const jsonLd = graph([
   </section>
 
   <section class="wrap py-8 md:py-12" id="calendar">
-    <CalendarBoard items={calendar} initialMonth={initialMonth} note={calendarNote} client:load />
+    <CalendarBoard items={calendar} initialMonth={initialMonth} note={calendarNote} todayIso={site.baseDate} client:load />
 
     <div class="mt-10 grid gap-8 border-t border-line pt-6 md:grid-cols-3">
       {

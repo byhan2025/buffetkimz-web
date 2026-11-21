@@ -6,6 +6,9 @@ thumb: "/thumbs/insurance-coverage-conditions.webp"
 question: "같은 암보험인데 왜 한쪽만 나올까"
 publishedAt: 2026-11-13
 readingMinutes: 9
+series:
+  name: "약관 해독"
+  no: 1
 app: "coverage-check"
 tags: ["보장분석", "5대 담보", "감액기간"]
 sources:

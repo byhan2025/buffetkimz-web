@@ -3,6 +3,7 @@ import { allPosts, postPath, stripMarkdown } from "@/lib/posts";
 import { categoryName } from "@/data/categories";
 import { apps } from "@/data/apps";
 import { calendar } from "@/data/calendar";
+import { today as hub } from "@/data/today";
 import type { SearchDoc } from "@/lib/search";
 
 /**
@@ -58,7 +59,20 @@ export const GET: APIRoute = async () => {
     date: `2026-${String(c.month).padStart(2, "0")}-01`,
   }));
 
-  const docs = [...postDocs, ...appDocs, ...calendarDocs];
+  /** 오늘 확인 허브 — 제목 + 내 통장 영향 1줄만 (v5.9) */
+  const todayDocs: SearchDoc[] = hub.items.map((item) => ({
+    id: `today-${item.id}`,
+    type: "today",
+    title: item.title,
+    description: item.why,
+    body: [item.kind, ...item.points, item.sourceLabel].join(" "),
+    url: "/#today",
+    group: "오늘 확인",
+    tags: [item.kind],
+    date: hub.asOf.slice(0, 10),
+  }));
+
+  const docs = [...postDocs, ...appDocs, ...calendarDocs, ...todayDocs];
 
   return new Response(JSON.stringify({ generatedAt: new Date().toISOString(), count: docs.length, docs }), {
     headers: {

@@ -36,6 +36,7 @@ const toCard = (p: (typeof posts)[number]) => {
     date: formatDate(p.data.publishedAt),
     readingMinutes: p.data.readingMinutes,
     question: p.data.question ?? app?.question,
+    series: p.data.series,
     toolName: tool.cta,
     toolUrl: tool.href,
     baseDate: formatDate(p.data.baseDate ?? p.data.publishedAt),

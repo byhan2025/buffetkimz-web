@@ -3,6 +3,19 @@ import { glob } from "astro/loaders";
 import { z } from "astro/zod";
 
 /**
+ * 블로그 시리즈 4종 — v5.9.
+ *
+ * 글을 '분야(category)'로만 나누면 목록이 납짝해진다. 시리즈는 같은 질문으로 묶는 층이다.
+ * 메뉴를 늘리지 않고 깊이를 만드는 장치이므로, 새 시리즈는 이 네 이름 안에서 고른다.
+ *   내 돈 체크 — 금리·환율·제도가 내 통장에 닿는 지점
+ *   연금 지도   — 넣는 시점과 받는 시점의 시간표
+ *   약관 해독   — 약관·중권을 읽는 기준(보험은 리스크 관리로만)
+ *   도구 노트   — 직접 만든 도구·AI를 써 보고 남긴 기록
+ */
+export const SERIES_NAMES = ["내 돈 체크", "연금 지도", "약관 해독", "도구 노트"] as const;
+export type SeriesName = (typeof SERIES_NAMES)[number];
+
+/**
  * 블로그 글 컬렉션.
  * src/content/posts/ 에 .{md,mdx} 파일을 하나 추가하면
  * 피드·카테고리·검색 인덱스·RSS·사이트맵이 빌드할 때 자동으로 갱신된다.
@@ -60,6 +73,37 @@ const posts = defineCollection({
      * 제휴·광고 링크가 포함된 글 — 글 상단에 '광고·제휴 링크 포함'을 먼저 밝힌다.
      * 기본 false. 파이프라인은 이 값을 쓰지 않아도 되고, 해당 글만 true 로 적으면 된다.
      */
+    /**
+     * 시리즈 라벨 — {name, no}. 카드·상세 머리에 '내 돈 체크 ③'처럼 회차를 붙인다.
+     * 시리즈를 붙이지 않은 글은 라벨 없이 나온다(억지로 채우지 않는다).
+     */
+    series: z
+      .object({
+        name: z.enum(SERIES_NAMES),
+        /** 시리즈 안에서의 회차 (1부터) */
+        no: z.number().int().positive(),
+      })
+      .optional(),
+    /**
+     * A vs B 2칸 비교 카드 — 두 조건을 나란히만 놓는다(우열 판정 문구는 쓰지 않는다).
+     * 상세 페이지의 이미지 아래에 그려진다.
+     */
+    compare: z
+      .object({
+        title: z.string(),
+        /** 이 비교의 기준 — '금융위 보도자료(2026. 11. 19.) · 시행 11. 23.' */
+        asOfLabel: z.string(),
+        a: z.object({ label: z.string(), points: z.array(z.string()).max(3) }),
+        b: z.object({ label: z.string(), points: z.array(z.string()).max(3) }),
+        /** 어느 쪽이 유리한지는 무엇에 따라 갈리는지 — 판정 대신 조건 */
+        note: z.string(),
+        toolHref: z.string().optional(),
+        toolLabel: z.string().optional(),
+        sources: z
+          .array(z.object({ label: z.string(), url: z.string().url().optional() }))
+          .default([]),
+      })
+      .optional(),
     affiliate: z.boolean().default(false),
   }),
 });

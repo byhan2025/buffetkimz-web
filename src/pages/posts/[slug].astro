@@ -4,6 +4,7 @@ import Base from "@/layouts/Base.astro";
 import AdSlot from "@/components/AdSlot.astro";
 import ArticleToc from "@/components/ArticleToc.astro";
 import BrandLockup from "@/components/BrandLockup.astro";
+import CompareCard from "@/components/CompareCard.astro";
 import { affiliateDisclosure } from "@/config/monetization";
 import HomePill from "@/components/HomePill.astro";
 import { withBase, absolute } from "@/config/site";
@@ -140,6 +141,12 @@ const jsonLd = graph([
             >
               {category.name}
             </a>
+            {post.data.series && (
+              <span class="series-chip" data-series={post.data.series.name}>
+                시리즈 {post.data.series.name}
+                <span class="series-no">{String(post.data.series.no).padStart(2, "0")}</span>
+              </span>
+            )}
             <time class="dateline text-[12.5px]" datetime={published}>{formatDate(post.data.publishedAt)}</time>
             <span class="text-ink-faint">{post.data.readingMinutes}분 읽기</span>
           </div>
@@ -214,6 +221,23 @@ const jsonLd = graph([
             <span>{post.data.sources.length}곳에서 확인</span>
           </figcaption>
         </figure>
+
+        {/* A vs B 2칸 비교 — 우열 판정 없이 조건만 나란히 (frontmatter.compare) */}
+        {post.data.compare && (
+          <div class="mx-auto max-w-[66ch]">
+            <CompareCard
+              data={{
+                title: post.data.compare.title,
+                asOfLabel: post.data.compare.asOfLabel,
+                sides: [post.data.compare.a, post.data.compare.b],
+                note: post.data.compare.note,
+                toolHref: post.data.compare.toolHref,
+                toolLabel: post.data.compare.toolLabel,
+                sources: post.data.compare.sources,
+              }}
+            />
+          </div>
+        )}
       </div>
     </header>
 

@@ -6,6 +6,9 @@ thumb: "/thumbs/economy-service-prices.webp"
 question: "미용실·배달비는 왜 안 내려갈까"
 publishedAt: 2026-11-18
 readingMinutes: 7
+series:
+  name: "내 돈 체크"
+  no: 4
 toolTitle: "제도 일정 달력 열기"
 toolHref: "/calendar"
 tags: ["소비자물가", "서비스물가", "체감물가"]

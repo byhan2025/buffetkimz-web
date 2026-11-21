@@ -6,6 +6,9 @@ thumb: "/thumbs/pension-tax-order.webp"
 question: "연말정산 전에 뭘 먼저 넣어야 할까"
 publishedAt: 2026-11-11
 readingMinutes: 8
+series:
+  name: "연금 지도"
+  no: 1
 app: "pension-tax"
 tags: ["연금저축", "IRP", "세액공제"]
 sources:
