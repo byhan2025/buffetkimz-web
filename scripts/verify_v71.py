@@ -307,6 +307,11 @@ def main() -> int:
                     add(f"{label} 4대 계좌 앱 상세", "4대 계좌 세후 비교" in txt and "적용 세율" not in "", txt[:60])
 
                 if key == "account-run":
+                    html = page.content()
+                    add(f"{label} 시뮬레이터 배지 문구", "예시 입력값 기준" in html and "예시 입력값 · 가상" not in html, "예시 입력값 기준")
+                    flat = page.evaluate("() => document.body.innerText").replace(" ", "")
+                    stale = [w for w in ["가상브라우저", "2026년11월19일", "2026.11.19"] if w in flat]
+                    add(f"{label} 시뮬레이터 내부 표현·구날짜 0", not stale, ",".join(stale))
                     r = page.evaluate(ACC_JS)
                     add(f"{label} 4대 계좌 카드 4", r["cards"] == ["general", "isa", "pension", "irp"], r["cards"])
                     add(f"{label} 계좌별 세후 서로 다름", len(set(r["net"].values())) >= 3, r["net"])
@@ -346,7 +351,8 @@ def main() -> int:
                     add(f"{label} 세트 전체 다운로드 2", g["setDownloads"] == 2, g["setDownloads"])
                     add(f"{label} 라이트박스 존재", g["lb"] is True, g["lb"])
                     add(f"{label} 업로드 입력 0", g["fileInputs"] == 0 and g["forms"] == 0, {"files": g["fileInputs"], "forms": g["forms"]})
-                    add(f"{label} 관리자 등록 안내", "관리자" in g["policy"] and "업로드" in g["policy"], g["policy"][:120])
+                    add(f"{label} 앨범 방문자 안내 1줄", "관리자" in g["policy"] and "내려받" in g["policy"], g["policy"][:120])
+                    add(f"{label} 앨범 제작용 경로 0", not any(x in g["policy"] for x in ["public/gallery", "src/data/gallery", "ts"]), g["policy"][:120])
 
                     if label == "1280":
                         # 캐러셀 넘김 — 첫 카드의 2번째 장으로
@@ -403,7 +409,7 @@ def main() -> int:
 
         # 대표 캡처 — about / posts / apps 는 full_page 로 이미 저장, 390 갤러리도 위에서 저장
         pkg = json.loads((APP / "package.json").read_text(encoding="utf-8"))
-        add("package.json 버전 7.1.0", pkg.get("version") == "7.1.0", str(pkg.get("version")))
+        add("package.json 버전 7.1.1", pkg.get("version") == "7.1.1", str(pkg.get("version")))
 
         browser.close()
     if httpd:
