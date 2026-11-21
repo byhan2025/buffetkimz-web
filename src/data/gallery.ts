@@ -1,5 +1,5 @@
 /**
- * 자료앨범(/gallery) 데이터 — v7.5.
+ * 자료앨범(/gallery) 데이터 — v7.8.
  *
  * ── 운영 방식(관리자 전용) ────────────────────────────────────────────────
  * 이 사이트는 정적 빌드(GitHub Pages)입니다. 그래서 **웹에 업로드 폼이나 API를 두지 않습니다.**
@@ -122,6 +122,131 @@ const yearendSlides: GallerySlide[] = [
 ];
 
 export const galleryItems: GalleryItem[] = [
+  /**
+   * v7.8.0 — 3D 클레이 스토리 캐러셀 2세트 추가.
+   * 세트3: 1·2세대 실손 계약전환(2026. 11. 23. 시행) / 세트4: 연말 전 900만 원 채우는 순서.
+   * 렌더: `python3 scripts/render_gallery_3d.py --prefix s3,s4`
+   */
+  {
+    id: "silson-switch-3d",
+    title: "실손 50% 할인, 갈아타기 전 3가지",
+    tagline: "3D 스토리 카드 6장 · 11. 23. 시행 계약전환",
+    summary:
+      "11월 23일부터 1·2세대 실손을 5세대로 바꾸면 3년간 5세대 보험료의 50%를 깎아 줍니다. 대상 조건부터 비중증 비급여 자기부담률, 선택형 특약의 1회 제한, 기존 계약을 해지했을 때 할인이 끝나는 조건까지 6장으로 정리했습니다.",
+    category: "carousel",
+    createdAt: "2026-11-22",
+    tags: ["실손보험", "계약전환", "선택형 할인", "5세대 실손", "3D 카드"],
+    slides: [
+      {
+        src: "/gallery/3d-silson-switch-01.png",
+        width: W,
+        height: H,
+        alt: "표지 — 보험 증권 두 권을 양손에 들고 번갈아 보는 너구리 캐릭터와 '내일부터 시작되는 실손 50% 할인'",
+        caption: "표지 — 내일부터 시작되는 50% 할인",
+      },
+      {
+        src: "/gallery/3d-silson-switch-02.png",
+        width: W,
+        height: H,
+        alt: "대상 — 낡은 증권 한 권을 두 손으로 든 캐릭터와 '2013년 3월 이전 1·2세대 실손'",
+        caption: "대상 — 2013년 3월 이전 계약",
+      },
+      {
+        src: "/gallery/3d-silson-switch-03.png",
+        width: W,
+        height: H,
+        alt: "함정 1 — 병원 모형과 저금통을 저울에 올려 견주는 캐릭터와 '병원 자주 간다면 먼저 따져야 해요'",
+        caption: "함정 1 — 병원 이용이 많다면 자기부담률",
+      },
+      {
+        src: "/gallery/3d-silson-switch-04.png",
+        width: W,
+        height: H,
+        alt: "함정 2 — 잠긴 유리함 앞에서 황금 티켓 한 장을 든 캐릭터와 '선택형 할인은 철회·해지 1회'",
+        caption: "함정 2 — 철회·해지는 1회",
+      },
+      {
+        src: "/gallery/3d-silson-switch-05.png",
+        width: W,
+        height: H,
+        alt: "함정 3 — 가위를 든 캐릭터와 '전환 전 6개월 기존 계약 해지하면'",
+        caption: "함정 3 — 기존 계약을 해지하면 할인 종료",
+      },
+      {
+        src: "/gallery/3d-silson-switch-06.png",
+        width: W,
+        height: H,
+        alt: "클로징 — 증권을 돋보기로 들여다보는 캐릭터와 '숫자보다 증권을 먼저 펼쳐 보세요'",
+        caption: "클로징 — 가입일과 병원 이용 빈도부터",
+      },
+    ],
+    basis:
+      "금융위원회 보도자료(2026. 11. 19.), 시행 2026. 11. 23.~신청 2027. 5. 22. · 기준 2026. 11. 22. · 할인율·보장은 보험사와 선택 조건에 따라 다름",
+    related: [
+      { label: "1·2세대 실손, 11월 23일부터 달라지는 두 가지 선택", href: "/posts/silson-switch-2026" },
+      { label: "내 실손 세대 비교", href: "/apps/silson-compare/run" },
+    ],
+  },
+  {
+    id: "pension-900-3d",
+    title: "연말 전 900만 원, 채우는 순서",
+    tagline: "3D 스토리 카드 6장 · 연금저축 600 → IRP 300 → ISA 300",
+    summary:
+      "900만 원은 목표가 아니라 한도입니다. 연금저축 600만 원 → IRP 300만 원 → ISA 전환 300만 원 순서로 채우고, 내 공제율 16.5%·13.2%와 12월 31일 마감까지 6장으로 담았습니다.",
+    category: "carousel",
+    createdAt: "2026-11-22",
+    tags: ["연말정산", "연금저축", "IRP", "ISA 전환", "세액공제", "3D 카드"],
+    slides: [
+      {
+        src: "/gallery/3d-pension-tax-01.png",
+        width: W,
+        height: H,
+        alt: "표지 — 동전 자루를 유리병에 붓는 캐릭터와 '연말 전 900만 원 채우는 순서'",
+        caption: "표지 — 연금저축 600 → IRP 300 → ISA 300",
+      },
+      {
+        src: "/gallery/3d-pension-tax-02.png",
+        width: W,
+        height: H,
+        alt: "1단계 — 동전 자루를 큰 유리병에 붓는 캐릭터와 '먼저 연금저축 600만 원'",
+        caption: "1단계 — 연금저축 600만 원",
+      },
+      {
+        src: "/gallery/3d-pension-tax-03.png",
+        width: W,
+        height: H,
+        alt: "2단계 — 금고에 동전을 쏟아 넣는 캐릭터와 'IRP로 300만 원 더 채우기'",
+        caption: "2단계 — IRP로 300만 원, 합산 900만 원",
+      },
+      {
+        src: "/gallery/3d-pension-tax-04.png",
+        width: W,
+        height: H,
+        alt: "3단계 — 동전을 유리병에 넣는 캐릭터와 'ISA 만기 자금 300만 원 더'",
+        caption: "3단계 — ISA 전환 300만 원 추가 한도",
+      },
+      {
+        src: "/gallery/3d-pension-tax-05.png",
+        width: W,
+        height: H,
+        alt: "내 숫자 — 금고 문 앞에서 손을 내미는 캐릭터와 '총급여 5,500만 기준 16.5% 아니면 13.2%'",
+        caption: "내 공제율 — 16.5% 또는 13.2%",
+      },
+      {
+        src: "/gallery/3d-pension-tax-06.png",
+        width: W,
+        height: H,
+        alt: "마감 — 마지막 동전을 병에 넣는 캐릭터와 '12월 31일 입금분까지, 해지는 55세 이후에'",
+        caption: "마감 — 12월 31일 입금분까지",
+      },
+    ],
+    basis:
+      "소득세법 제59조의3·제21조, 국세청 연말정산·연금계좌 세액공제 안내 · 기준 2026. 11. 22. · 총급여 5,500만 원 이하 16.5%(지방소득세 포함) 가정",
+    related: [
+      { label: "연금저축 900만원보다 먼저 계산해야 할 것", href: "/posts/pension-tax-order" },
+      { label: "연금저축·IRP 세액공제 계산기", href: "/apps/pension-tax/run" },
+    ],
+  },
   /**
    * v7.5.0 — 3D 클레이 스토리 캐러셀(세트당 6장).
    * 일러스트에는 글자를 넣지 않고(NO text), 하단 38% 그라데이션 패널에 한글 타이포를 합성했다.

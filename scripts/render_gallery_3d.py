@@ -4,8 +4,9 @@
 1080×1350(4:5) 카드 = ①생성한 3D 클레이 일러스트(전면) + ②하단 그라데이션 패널의 한글 타이포.
 이미지 안에는 글자를 넣지 않고(NO text), 타이포는 Chromium이 실제 폰트로 그린다 → 깨짐 0.
 
-    python3 scripts/render_gallery_3d.py              # 12장 전체
+    python3 scripts/render_gallery_3d.py              # 카드 전체
     python3 scripts/render_gallery_3d.py --only s1-01
+    python3 scripts/render_gallery_3d.py --prefix s3,s4   # v7.8.0 새 세트만
 """
 from __future__ import annotations
 
@@ -16,7 +17,8 @@ import pathlib
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 OUT = ROOT / "public" / "gallery"
-RAW = pathlib.Path("/workspace/downloads/v75/raw")
+# 카드마다 생성 원본이 있는 폴더를 `raw` 키로 지정한다(기본 v75/raw). RAW_BASE 기준.
+RAW_BASE = pathlib.Path("/workspace/downloads")
 FONTS = pathlib.Path("/workspace/.fonts")
 CHROME = os.environ.get(
     "PK_CHROME",
@@ -236,6 +238,176 @@ CARDS = [
         source="기준 2026.11.21 · 조세특례제한법 제91조의18 · ISA 주요 제도 안내",
         out="3d-isa-basics-06.png",
     ),
+    # ── 세트 3 (v7.8.0) — 1·2세대 실손 계약전환 (딥그린 패널)
+    dict(
+        key="s3-01",
+        raw="v78/raw",
+        src="s1-01.png",
+        shift=4,
+        theme="dark",
+        chip="실손 · 계약전환",
+        kicker="표지 · 11. 23. 시행",
+        title="내일부터 시작되는<br>실손 <em>50% 할인</em>",
+        desc="바로 갈아타면 안 되는 이유",
+        page="1 / 6",
+        source="기준 2026.11.22 · 금융위원회 보도자료(2026.11.19.) · 2026.11.23. 시행",
+        out="3d-silson-switch-01.png",
+    ),
+    dict(
+        key="s3-02",
+        raw="v78/raw",
+        src="s1-02.png",
+        shift=2,
+        theme="dark",
+        chip="실손 · 계약전환",
+        kicker="대상 · 누가 바꿀 수 있나",
+        title="2013년 3월 이전<br>1·2세대 실손",
+        desc="5세대 전환 시 3년간 보험료 50% 할인",
+        page="2 / 6",
+        source="기준 2026.11.22 · 금융위원회 · 재가입 조건 없는 2013.3. 이전 계약 · 신청 2027.5.22.까지",
+        out="3d-silson-switch-02.png",
+    ),
+    dict(
+        key="s3-03",
+        raw="v78/raw",
+        src="s1-03.png",
+        shift=2,
+        theme="dark",
+        chip="실손 · 계약전환",
+        kicker="함정 01 · 병원 이용",
+        title="병원 자주 간다면<br>먼저 따져야 해요",
+        desc="전환 후 비중증 비급여 자기부담률은 50%",
+        page="3 / 6",
+        source="기준 2026.11.22 · 금융위원회 · 5세대 비중증 비급여 자기부담 50%·연간 1천만 원 한도",
+        out="3d-silson-switch-03.png",
+    ),
+    dict(
+        key="s3-04",
+        raw="v78/raw",
+        src="s1-04.png",
+        shift=3,
+        theme="dark",
+        chip="실손 · 계약전환",
+        kicker="함정 02 · 되돌릴 수 없음",
+        title="선택형 할인은<br>철회·해지 <em>1회</em>",
+        desc="한 번 해지하면 다시 가입할 수 없어요",
+        page="4 / 6",
+        source="기준 2026.11.22 · 금융위원회 · 선택형 할인특약 청약철회·해지 1회 제한, 재가입 불가",
+        out="3d-silson-switch-04.png",
+    ),
+    dict(
+        key="s3-05",
+        raw="v78/raw",
+        src="s1-05.png",
+        shift=2,
+        theme="dark",
+        chip="실손 · 계약전환",
+        kicker="함정 03 · 기존 계약 해지",
+        title="전환 전 6개월<br>기존 계약 해지하면",
+        desc="50% 할인 혜택이 그 자리에서 끝납니다",
+        page="5 / 6",
+        source="기준 2026.11.22 · 금융위원회 · 전환 신청일 이전 6개월 내 기존 계약 해지 시 할인 종료",
+        out="3d-silson-switch-05.png",
+    ),
+    dict(
+        key="s3-06",
+        raw="v78/raw",
+        src="s1-06.png",
+        shift=2,
+        theme="dark",
+        chip="실손 · 계약전환",
+        kicker="클로징 · 오늘 할 일",
+        title="숫자보다 증권을<br>먼저 펼쳐 보세요",
+        desc="가입일과 병원 이용 빈도부터 확인",
+        page="6 / 6",
+        source="기준 2026.11.22 · 금융위원회 보도자료 · 보장·할인율은 보험사·선택 조건에 따라 다름",
+        out="3d-silson-switch-06.png",
+    ),
+    # ── 세트 4 (v7.8.0) — 연말 전 900만 원 채우기 (크림 패널)
+    dict(
+        key="s4-01",
+        raw="v78/raw",
+        src="s2-01.png",
+        shift=3,
+        theme="light",
+        chip="연금저축 · IRP · 세액공제",
+        kicker="표지 · 연말 전 900만 원",
+        title="연말 전 <em>900만 원</em><br>채우는 순서",
+        desc="연금저축 600 → IRP 300 → ISA 300",
+        page="1 / 6",
+        source="기준 2026.11.22 · 소득세법 제59조의3 · 연금저축·IRP 합산 900만 원",
+        out="3d-pension-tax-01.png",
+    ),
+    dict(
+        key="s4-02",
+        raw="v78/raw",
+        src="s2-02.png",
+        shift=3,
+        theme="light",
+        chip="연금저축 · IRP · 세액공제",
+        kicker="STEP 01 · 연금저축",
+        title="먼저 연금저축<br><em>600만 원</em>",
+        desc="중도 인출이 자유롭고 ETF도 담을 수 있어요",
+        page="2 / 6",
+        source="기준 2026.11.22 · 소득세법 제59조의3 · 연금저축 세액공제 한도 600만 원",
+        out="3d-pension-tax-02.png",
+    ),
+    dict(
+        key="s4-03",
+        raw="v78/raw",
+        src="s2-03.png",
+        shift=2,
+        theme="light",
+        chip="연금저축 · IRP · 세액공제",
+        kicker="STEP 02 · IRP",
+        title="IRP로 <em>300만 원</em><br>더 채우기",
+        desc="합산 900만 원까지 공제 한도를 채웁니다",
+        page="3 / 6",
+        source="기준 2026.11.22 · 소득세법 제59조의3 · 연금저축+IRP 합산 900만 원",
+        out="3d-pension-tax-03.png",
+    ),
+    dict(
+        key="s4-04",
+        raw="v78/raw",
+        src="s2-04.png",
+        shift=2,
+        theme="light",
+        chip="연금저축 · IRP · 세액공제",
+        kicker="STEP 03 · ISA 전환",
+        title="ISA 만기 자금<br><em>300만 원</em> 더",
+        desc="전환액의 10%, 최대 300만 원 추가 한도",
+        page="4 / 6",
+        source="기준 2026.11.22 · 소득세법 제59조의3 · ISA 전환액의 10%·최대 300만 원 추가",
+        out="3d-pension-tax-04.png",
+    ),
+    dict(
+        key="s4-05",
+        raw="v78/raw",
+        src="s2-05.png",
+        shift=3,
+        theme="light",
+        chip="연금저축 · IRP · 세액공제",
+        kicker="내 숫자 · 공제율",
+        title="총급여 5,500만 기준<br><em>16.5%</em> 아니면 <em>13.2%</em>",
+        desc="900만 원 채우면 최대 148만 5천 원",
+        page="5 / 6",
+        source="기준 2026.11.22 · 소득세법 제59조의3 · 5,500만 원 초과 13.2%, 최대 148만 5천 원",
+        out="3d-pension-tax-05.png",
+    ),
+    dict(
+        key="s4-06",
+        raw="v78/raw",
+        src="s2-06.png",
+        shift=2,
+        theme="light",
+        chip="연금저축 · IRP · 세액공제",
+        kicker="마감 · 12월 31일",
+        title="12월 31일 입금분까지<br>해지는 <em>55세</em> 이후에",
+        desc="55세 전에 해지하면 16.5% 기타소득세",
+        page="6 / 6",
+        source="기준 2026.11.22 · 소득세법 제21조·제59조의3 · 12.31. 입금분까지, 중도해지 16.5%",
+        out="3d-pension-tax-06.png",
+    ),
 ]
 
 
@@ -243,7 +415,7 @@ def build_html(c: dict) -> str:
     t = DARK if c["theme"] == "dark" else LIGHT
     title_html = "".join(f'<span class="ln">{line}</span>' for line in c["title"].split("<br>"))
     leaf = LEAF.replace("{a}", t["accent"]).replace("{b}", t["kicker"] if c["theme"] == "dark" else "#8fb394")
-    shot = (RAW / c["src"]).read_bytes()
+    shot = (RAW_BASE / c.get("raw", "v75/raw") / c["src"]).read_bytes()
     src_uri = "data:image/png;base64," + base64.b64encode(shot).decode()
     return f"""<!doctype html><html lang="ko"><head><meta charset="utf-8"><style>
 {FONT_CSS}
@@ -308,12 +480,18 @@ document.fonts.ready.then(() => {{
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--only", default="")
+    ap.add_argument("--prefix", default="")
     args = ap.parse_args()
     OUT.mkdir(parents=True, exist_ok=True)
 
     from playwright.sync_api import sync_playwright
 
-    jobs = [c for c in CARDS if not args.only or c["key"] == args.only]
+    prefixes = tuple(p for p in args.prefix.split(",") if p)
+    jobs = [
+        c
+        for c in CARDS
+        if (not args.only or c["key"] == args.only) and (not prefixes or c["key"].startswith(prefixes))
+    ]
     with sync_playwright() as p:
         browser = p.chromium.launch(
             executable_path=CHROME,

@@ -380,7 +380,11 @@ with sync_playwright() as p:
     pg.wait_for_timeout(700)
     sets = pg.eval_on_selector_all(".gallery-card", "e => e.length")
     status = pg.inner_text("[data-gallery-status]")
-    check("J3 자료앨범 6세트", sets == 6 or status.startswith("6세트"), f"{sets} · {status.splitlines()[0][:40]}")
+    check(
+        "J3 자료앨범 8세트·33장",
+        (sets == 8 or status.startswith("8세트")) and "33장" in status,
+        f"{sets} · {status.splitlines()[0][:40]}",
+    )
 
     pg.goto(url("/search/"), wait_until="networkidle")
     pg.wait_for_timeout(600)

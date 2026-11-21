@@ -31,6 +31,10 @@ const tags = [...tagCounts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeC
 
 const catLabel = (id: string) => GALLERY_CATEGORIES.find((c) => c.id === id)?.label ?? id;
 
+/** 3D 스토리 세트 — 태그 `3D 카드`를 단 묶음. 세트가 늘면 칩 숫자도 따라온다. */
+const story3d = galleryItems.filter((i) => i.tags.includes("3D 카드"));
+const story3dSlides = story3d.reduce((n, i) => n + i.slides.length, 0);
+
 /** 라이트박스·캐러셀이 읽는 자료 (경로는 withBase 적용) */
 const payload = galleryItems.map((item) => ({
   id: item.id,
@@ -102,7 +106,7 @@ const jsonLd = graph([
 
           <ul class="mt-5 flex flex-wrap gap-2" data-gallery-summary>
             <li class="chip">{galleryCount}세트 · {gallerySlideCount}장</li>
-            <li class="chip">3D 스토리 2세트 · 12장</li>
+            <li class="chip">3D 스토리 {story3d.length}세트 · {story3dSlides}장</li>
             <li class="chip">1080 × 1350 (4:5)</li>
             <li class="chip">PNG · 워터마크 없음</li>
             <li class="chip">기준일 {site.baseDateLabel}</li>
