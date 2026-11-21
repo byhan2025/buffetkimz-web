@@ -353,6 +353,12 @@
 
   .post-thumb--wide {
     border-radius: 16px;
+    /* 상세·목록 첫 카드의 큰 그림은 원본 비율 그대로 — 1200×630 신규, 1280×800 레거시 모두 잘리지 않는다 */
+    aspect-ratio: auto;
+  }
+
+  .post-thumb--wide > img {
+    height: auto;
   }
 
   /* ---------- 장면(배경) ---------- */
@@ -3103,6 +3109,14 @@
   .prose-article th,
   .prose-article td {
     padding: 8px 10px;
+    /* 한글 단어 안에서 끊지 않고, 마지막 줄에 한 단어만 남는 것도 피한다('제외' 고아 줄) */
+    word-break: keep-all;
+    text-wrap: pretty;
+  }
+
+  .prose-article td:first-child,
+  .prose-article th:first-child {
+    width: 30%;
   }
 
   .prose-article blockquote {

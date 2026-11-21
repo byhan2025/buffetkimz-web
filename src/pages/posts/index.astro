@@ -7,11 +7,15 @@ import { withBase, site } from "@/config/site";
 import { categories, categoryName } from "@/data/categories";
 import { appBySlug } from "@/data/apps";
 import { allPosts, postPath, formatDate, shouldShowQuestion, sourceOrgLine } from "@/lib/posts";
-import { thumbOf, thumbAltOf } from "@/lib/thumbs";
+import { thumbOf, thumbAltOf, thumbSize } from "@/lib/thumbs";
 
 const posts = await allPosts();
 const feature = posts[0];
 const rest = posts.slice(1);
+/** 목록 머리의 기준일 — 가장 최근 글의 확인 기준일을 쓴다 */
+const latestBasis = feature ? feature.data.baseDate ?? feature.data.publishedAt : site.today;
+/** 기준일이 오래된 아카이브는 목록 머리에서 알린다 */
+const basisAgeDays = Math.max(0, Math.floor((Date.now() - latestBasis.getTime()) / 86400000));
 
 const card = (p: (typeof posts)[number]) => {
   const app = p.data.app ? appBySlug(p.data.app) : undefined;
@@ -20,13 +24,14 @@ const card = (p: (typeof posts)[number]) => {
     title: p.data.title,
     description: p.data.description,
     categoryName: categoryName(p.data.category),
+    tags: p.data.tags.slice(0, 2),
     date: formatDate(p.data.publishedAt),
     readingMinutes: p.data.readingMinutes,
     question: p.data.question ?? app?.question,
     toolName: p.data.toolTitle ?? (app ? `${app.name.replace(" 시뮬레이터", "").replace(" 계산기", "")} 열기` : undefined),
     toolUrl:
       p.data.toolHref ?? (app?.internal ? `/apps/${app.slug}/run` : app ? `/apps/${app.slug}` : undefined),
-    baseDate: site.baseDate,
+    baseDate: formatDate(p.data.baseDate ?? p.data.publishedAt),
     sourceCount: p.data.sources.length,
     sourceOrgLine: sourceOrgLine(p.data.sources),
     thumb: thumbOf(p),
@@ -77,7 +82,11 @@ const jsonLd = {
       <div class="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-[12.5px] text-ink-muted">
         <span>기록 <strong class="font-semibold text-ink">{posts.length}편</strong></span>
         <span>{categories.length}개 분야</span>
-        <span class="mono">기준일 <time datetime={site.baseDate}>{site.baseDate}</time></span>
+        <span class="mono">기준일 <time datetime={latestBasis.toISOString().slice(0, 10)}>{formatDate(latestBasis)}</time></span>
+        {basisAgeDays >= 2 && <span class="text-ink-faint">기준일이 {basisAgeDays}일 지났습니다</span>}
+        <a href={withBase("/letters")} class="inline-flex min-h-[44px] items-center font-semibold text-brand-deep md:min-h-[24px]">
+          소식지 제1호
+        </a>
       </div>
     </div>
   </section>
@@ -91,8 +100,8 @@ const jsonLd = {
             <img
               src={withBase(thumbOf(feature))}
               alt={`${thumbAltOf(feature)} — ${feature.data.title}`}
-              width="1280"
-              height="800"
+              width={thumbSize(thumbOf(feature)).width}
+              height={thumbSize(thumbOf(feature)).height}
               fetchpriority="high"
             />
           </div>
@@ -107,7 +116,8 @@ const jsonLd = {
             </h2>
             <p class="mt-3 max-w-[54ch] text-[14.5px] leading-[1.75] text-ink-muted">{feature.data.description}</p>
             <p class="mono mt-3 text-[12px] leading-relaxed text-ink-faint" data-card-meta>
-              확인 기준일 {site.baseDate} · {sourceOrgLine(feature.data.sources)}
+              확인 기준일 {formatDate(feature.data.baseDate ?? feature.data.publishedAt)} ·{" "}
+              출처 {feature.data.sources.length}곳({sourceOrgLine(feature.data.sources)})
             </p>
           </div>
           <div class="rounded-xl bg-paper-deep/70 p-4">
@@ -116,7 +126,7 @@ const jsonLd = {
             <p class="mt-2 text-[12.5px] leading-[1.65] text-ink-muted">
               {feature.data.sources.length > 0
                 ? `1차 출처 ${feature.data.sources.length}건 · ${feature.data.sources.map((s) => s.label).slice(0, 2).join(" · ")}`
-                : `기준일 ${site.baseDateLabel}`}
+                : `기준일 ${formatDate(feature.data.baseDate ?? feature.data.publishedAt)}`}
             </p>
           </div>
         </div>

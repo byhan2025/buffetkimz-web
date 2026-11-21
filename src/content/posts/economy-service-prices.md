@@ -8,7 +8,7 @@ publishedAt: 2026-11-18
 readingMinutes: 7
 toolTitle: "제도 일정 달력 열기"
 toolHref: "/calendar"
-tags: ["소비자물가", "서비스물가", "체감물가", "고정비", "임금", "물가상승률"]
+tags: ["소비자물가", "서비스물가", "체감물가"]
 sources:
   - label: "통계청 — 소비자물가조사(품목·가중치)"
     url: "https://kostat.go.kr"

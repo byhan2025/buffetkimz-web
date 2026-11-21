@@ -9,7 +9,7 @@ readingMinutes: 9
 app: "retirement-flow"
 toolTitle: "은퇴 계산 열기"
 toolHref: "/apps/retirement-flow/run"
-tags: ["노후준비", "건강보험료", "피부양자", "간병비", "은퇴설계", "고정비"]
+tags: ["노후준비", "건강보험료", "피부양자"]
 sources:
   - label: "국민건강보험공단 — 지역가입자 보험료 부과 안내"
     url: "https://www.nhis.or.kr"

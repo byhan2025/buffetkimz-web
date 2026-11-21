@@ -1,0 +1,151 @@
+---
+/**
+ * 소식지(/letters) — 파이프라인이 만든 호(letters/YYYY-MM-DD.md)를 웹 페이지로 보여 준다.
+ *
+ * · 블로그와 같은 카드 틀(분류 줄 · 제목 · 요약 · 메타)을 쓴다.
+ * · 카드마다 호수(제N호)와 발행일, 담긴 글 목록을 보여 준다.
+ * · 연도별로 접히는 아카이브(<details>)로 묶어, 호가 쌓여도 목록이 길어지지 않는다.
+ */
+import Base from "@/layouts/Base.astro";
+import HomePill from "@/components/HomePill.astro";
+import { withBase, site } from "@/config/site";
+import { koreanDate, formatDate, allPosts } from "@/lib/posts";
+import { categoryName } from "@/data/categories";
+import { allLetters, letterPath, issueLabel, groupByYear } from "@/lib/letters";
+
+const letters = await allLetters();
+const years = groupByYear(letters);
+const latestYear = years[0]?.year;
+const posts = await allPosts();
+const postTitle = new Map(posts.map((p) => [p.id, p.data.title]));
+const postCategory = new Map(posts.map((p) => [p.id, categoryName(p.data.category)]));
+
+const latest = letters[0];
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  name: "buffetkimz 소식지",
+  description: "확인한 기록을 한 장에 담아 보내는 소식지 아카이브.",
+  url: `${site.url}/letters`,
+  inLanguage: "ko-KR",
+  mainEntity: {
+    "@type": "ItemList",
+    itemListElement: letters.map((letter, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: `${issueLabel(letter.data.issue)} — ${koreanDate(letter.data.date)}`,
+      url: `${site.url}${letterPath(letter)}`,
+    })),
+  },
+};
+---
+
+<Base
+  title="소식지 — 확인한 기록을 한 장에"
+  description="매일 쌓인 기록 중 그날 확인한 것만 골라 호수와 발행일을 붙여 묶습니다. 지난 호는 연도별로 접혀 있고, 호마다 담긴 글과 출처를 함께 확인할 수 있습니다."
+  path="/letters"
+  jsonLd={jsonLd}
+>
+  <section class="scene-sky border-b border-line/70">
+    <div class="wrap py-8 md:py-12">
+      <HomePill />
+      <p class="kicker">소식지</p>
+      <h1 class="h-display mt-3 max-w-[17ch] text-ink">확인한 기록을<br />한 장에 담습니다.</h1>
+      <p class="lede mt-5 max-w-[54ch]">
+        그날 확인한 기록 중 숫자와 조건을 대조한 것만 골라 호수와 발행일을 붙입니다. 호마다 담긴 글과
+        1차 출처를 함께 두었으니, 원문으로 다시 확인하는 순서로 읽으면 됩니다.
+      </p>
+
+      <div class="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-[12.5px] text-ink-muted">
+        <span>발행 <strong class="font-semibold text-ink">{letters.length}호</strong></span>
+        {
+          latest && (
+            <span class="mono">
+              최근 {issueLabel(latest.data.issue)} · <time datetime={latest.data.date.toISOString().slice(0, 10)}>{formatDate(latest.data.date)}</time>
+            </span>
+          )
+        }
+        <a href={withBase("/posts")} class="inline-flex min-h-[44px] items-center font-semibold text-brand-deep md:min-h-[24px]">
+          블로그 기록 보기
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="scene-cream">
+    <div class="wrap py-10 md:py-14">
+      {
+        years.length === 0 && (
+          <p class="text-[14px] text-ink-muted">아직 발행한 소식지가 없습니다.</p>
+        )
+      }
+
+      {
+        years.map(({ year, items }) => (
+          <details class="letter-year group/year" open={year === latestYear} data-letter-year={year}>
+            <summary class="flex min-h-[52px] cursor-pointer items-center justify-between gap-3 border-b border-line py-3">
+              <span class="text-[17px] font-bold tracking-[-0.02em] text-ink">
+                {year}년
+                <span class="mono ml-2 text-[12.5px] font-normal text-ink-faint">{items.length}호</span>
+              </span>
+              <span class="text-[12px] text-ink-faint group-open/year:hidden">펼치기</span>
+              <span class="hidden text-[12px] text-ink-faint group-open/year:inline">접기</span>
+            </summary>
+
+            <ul class="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3" data-letter-cards>
+              {items.map((letter) => (
+                <li class="card card-lift flex flex-col p-5" data-letter-issue={letter.data.issue}>
+                  <div class="flex items-baseline justify-between gap-2">
+                    <span class="text-[12px] font-semibold tracking-[0.02em] text-brand">
+                      {issueLabel(letter.data.issue)}
+                    </span>
+                    <time class="mono text-[12px] text-ink-faint" datetime={letter.data.date.toISOString().slice(0, 10)}>
+                      {formatDate(letter.data.date)}
+                    </time>
+                  </div>
+
+                  <h3 class="mt-2.5 text-[17px] font-bold leading-[1.42] tracking-[-0.03em] text-ink">
+                    <a href={withBase(letterPath(letter))} class="block min-h-[24px] hover:text-brand-deep">
+                      {koreanDate(letter.data.date)} 소식지
+                    </a>
+                  </h3>
+
+                  <ul class="mt-2.5 space-y-1.5">
+                    {letter.data.posts.map((slug) => (
+                      <li class="text-[13px] leading-[1.6] text-ink-muted">
+                        <span class="text-ink-faint">·</span>{" "}
+                        <a href={withBase(`/posts/${slug}`)} class="link">
+                          {postTitle.get(slug) ?? slug}
+                        </a>
+                        {postCategory.get(slug) && (
+                          <span class="ml-1 text-[12px] text-ink-faint">{postCategory.get(slug)}</span>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+
+                  <p class="mono mt-3 text-[12px] leading-relaxed text-ink-faint" data-card-meta>
+                    기준일 {formatDate(letter.data.baseDate ?? letter.data.date)} · 글 {letter.data.posts.length}편 · 출처 {letter.data.sources.length}곳
+                  </p>
+
+                  <div class="mt-auto pt-4">
+                    <a href={withBase(letterPath(letter))} class="btn btn-tertiary-quiet btn-xs">호 열기</a>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </details>
+        ))
+      }
+
+      <div class="mt-10 border-t border-line pt-5">
+        <p class="text-[12.5px] leading-[1.7] text-ink-muted">
+          소식지는 사이트에 올린 글을 다시 묶은 것입니다. 새 호는 발행 파이프라인이 만들며, 호에 실린
+          숫자와 조건의 출처는 각 호 하단과 원문 글에서 확인할 수 있습니다.
+        </p>
+      </div>
+
+      <HomePill position="bottom" />
+    </div>
+  </section>
+</Base>

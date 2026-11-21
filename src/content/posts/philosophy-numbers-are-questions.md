@@ -7,7 +7,7 @@ question: "계산 결과를 어디까지 믿어야 할까"
 publishedAt: 2026-11-10
 readingMinutes: 5
 app: "disclosure-check"
-tags: ["돈", "판단", "결정", "설명", "확인"]
+tags: ["돈", "판단", "확인"]
 sources:
   - label: "작성자 에세이(2026년 11월)"
 ---

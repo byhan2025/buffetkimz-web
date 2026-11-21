@@ -1,3 +1,6 @@
+import fs from "node:fs";
+import path from "node:path";
+
 /**
  * 블로그 대표이미지(썸네일) 규칙.
  *
@@ -42,4 +45,63 @@ export function thumbAltOf(post: ThumbSource): string {
     topicThumbAlts[post.data.category] ??
     "buffetkimz 기록 대표 이미지"
   );
+}
+
+/**
+ * 대표이미지의 실제 픽셀 크기를 파일 헤더에서 읽는다.
+ * 목록 카드·상세의 `width`/`height` 속성이 실제 파일과 맞아야 레이아웃이 흔들리지 않는다.
+ * (v5.2 승인본은 1280×800 레거시, 파이프라인 v2 신규 글은 1200×630 규격)
+ */
+const sizeCache = new Map<string, { width: number; height: number }>();
+const FALLBACK = { width: 1280, height: 800 };
+
+function readSize(file: string): { width: number; height: number } {
+  try {
+    const buf = fs.readFileSync(file);
+    if (buf.length > 30 && buf.toString("ascii", 0, 4) === "RIFF" && buf.toString("ascii", 8, 12) === "WEBP") {
+      const chunk = buf.toString("ascii", 12, 16);
+      if (chunk === "VP8X") {
+        const width = 1 + (buf[24] | (buf[25] << 8) | (buf[26] << 16));
+        const height = 1 + (buf[27] | (buf[28] << 8) | (buf[29] << 16));
+        return { width, height };
+      }
+      if (chunk === "VP8 ") {
+        const width = buf.readUInt16LE(26) & 0x3fff;
+        const height = buf.readUInt16LE(28) & 0x3fff;
+        return { width, height };
+      }
+      if (chunk === "VP8L") {
+        const b = buf.readUInt32LE(21);
+        return { width: (b & 0x3fff) + 1, height: ((b >> 14) & 0x3fff) + 1 };
+      }
+    }
+    if (buf.length > 24 && buf.readUInt32BE(0) === 0x89504e47) {
+      return { width: buf.readUInt32BE(16), height: buf.readUInt32BE(20) };
+    }
+    if (buf.length > 10 && buf[0] === 0xff && buf[1] === 0xd8) {
+      let i = 2;
+      while (i < buf.length - 9) {
+        if (buf[i] !== 0xff) { i += 1; continue; }
+        const marker = buf[i + 1];
+        const len = buf.readUInt16BE(i + 2);
+        if (marker >= 0xc0 && marker <= 0xcf && marker !== 0xc4 && marker !== 0xc8 && marker !== 0xcc) {
+          return { height: buf.readUInt16BE(i + 5), width: buf.readUInt16BE(i + 7) };
+        }
+        i += 2 + len;
+      }
+    }
+  } catch {
+    /* 파일을 못 읽으면 기본값 */
+  }
+  return FALLBACK;
+}
+
+/** public 기준 경로("/thumbs/x.webp") → 실제 픽셀 크기 */
+export function thumbSize(publicPath: string): { width: number; height: number } {
+  const cached = sizeCache.get(publicPath);
+  if (cached) return cached;
+  const file = path.join(process.cwd(), "public", publicPath.replace(/^\//, ""));
+  const size = readSize(file);
+  sizeCache.set(publicPath, size);
+  return size;
 }

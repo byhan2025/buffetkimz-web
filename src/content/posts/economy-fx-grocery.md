@@ -8,7 +8,7 @@ publishedAt: 2026-11-19
 readingMinutes: 8
 toolHref: "/posts/economy-service-prices"
 toolTitle: "이어 읽기 · 체감물가"
-tags: ["환율", "원화가치", "수입물가", "소비자물가", "장바구니", "원자재"]
+tags: ["환율", "수입물가", "장바구니"]
 sources:
   - label: "한국은행 — 물가 및 환율 관련 통계·보도자료"
     url: "https://www.bok.or.kr"

@@ -7,7 +7,7 @@ question: "매달 사는 게 정말 유리할까"
 publishedAt: 2026-11-15
 readingMinutes: 8
 app: "pension-tax"
-tags: ["적립식", "거치식", "리밸런싱", "자산배분", "평균단가", "절세계좌"]
+tags: ["적립식", "리밸런싱", "자산배분"]
 sources:
   - label: "금융투자협회 공시 및 투자설명서"
     url: "https://dis.kofia.or.kr"

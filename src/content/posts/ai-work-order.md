@@ -7,7 +7,7 @@ question: "AI가 일을 헛나가면 어디부터 볼까"
 publishedAt: 2026-11-18
 readingMinutes: 7
 app: "disclosure-check"
-tags: ["AI", "프롬프트", "업무 자동화", "검수", "구조화", "책임"]
+tags: ["AI", "프롬프트", "업무 자동화"]
 sources:
   - label: "작성자 업무 기록(2026년, 문서·도구 제작 과정)"
   - label: "개인정보보호법 — 개인정보 처리 원칙"

@@ -8,7 +8,7 @@ publishedAt: 2026-11-16
 readingMinutes: 7
 toolHref: "/posts/retire-fixed-cost"
 toolTitle: "이어 읽기 · 고정비"
-tags: ["기준금리", "대출금리", "COFIX", "변동금리", "고정금리", "재산정 주기"]
+tags: ["기준금리", "대출금리", "COFIX"]
 sources:
   - label: "한국은행 기준금리 운용 관련 통화정책방향 자료"
     url: "https://www.bok.or.kr"

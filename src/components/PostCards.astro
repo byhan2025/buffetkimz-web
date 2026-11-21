@@ -6,6 +6,7 @@
  * 질문이 제목과 거의 같은 문장이면 질문 줄을 숨긴다(같은 말을 두 번 읽지 않게).
  */
 import { shouldShowQuestion } from "@/lib/posts";
+import { thumbSize } from "@/lib/thumbs";
 import { withBase } from "@/config/site";
 
 export type PostCard = {
@@ -13,11 +14,16 @@ export type PostCard = {
   title: string;
   description: string;
   categoryName: string;
+  /** 카드에 붙는 주제 태그 — 최대 2개(분류 1 + 주제 2 = 3개) */
+  tags?: string[];
   date: string;
   readingMinutes: number;
   /** 대표이미지 (public 기준 경로) */
   thumb?: string;
   thumbAlt?: string;
+  /** 대표이미지 실제 크기 — 없으면 파일 헤더에서 읽는다 */
+  thumbWidth?: number;
+  thumbHeight?: number;
   question?: string;
   toolName?: string;
   toolUrl?: string;
@@ -36,12 +42,22 @@ interface Props {
 
 const { items, columns = 3 } = Astro.props;
 const grid = columns === 2 ? "sm:grid-cols-2" : "sm:grid-cols-2 lg:grid-cols-3";
+/** 카드 요약은 80자까지만 — 목록에서 같은 리듬으로 읽히게 */
+const brief = (text: string, limit = 80) => {
+  const t = (text ?? "").replace(/\s+/g, " ").trim();
+  return t.length <= limit ? t : `${t.slice(0, limit).trimEnd()}…`;
+};
 ---
 
 <ul class={`grid gap-4 ${grid}`} data-post-cards>
   {
     items.map((item) => {
       const question = shouldShowQuestion(item.question, item.title) ? item.question : undefined;
+      const dim = item.thumbWidth && item.thumbHeight
+        ? { width: item.thumbWidth, height: item.thumbHeight }
+        : item.thumb
+          ? thumbSize(item.thumb)
+          : undefined;
       return (
         <li class="card card-lift flex flex-col p-5">
           {item.thumb && (
@@ -49,8 +65,8 @@ const grid = columns === 2 ? "sm:grid-cols-2" : "sm:grid-cols-2 lg:grid-cols-3";
               <img
                 src={withBase(item.thumb)}
                 alt={item.thumbAlt ?? ""}
-                width="1280"
-                height="800"
+                width={dim?.width}
+                height={dim?.height}
                 loading="lazy"
                 decoding="async"
               />
@@ -68,16 +84,25 @@ const grid = columns === 2 ? "sm:grid-cols-2" : "sm:grid-cols-2 lg:grid-cols-3";
             </p>
           )}
 
-          <h3 class="mt-1.5 text-[17px] font-bold leading-[1.42] tracking-[-0.03em] text-ink">
+          <h3 class="clamp-2 mt-1.5 text-[17px] font-bold leading-[1.42] tracking-[-0.03em] text-ink" data-card-title>
             <a href={withBase(item.url)} class="block min-h-[24px] hover:text-brand-deep">
               {item.title}
             </a>
           </h3>
 
-          <p class="clamp-2 mt-2 text-[13.5px] leading-[1.7] text-ink-muted">{item.description}</p>
+          <p class="clamp-2 mt-2 text-[13.5px] leading-[1.7] text-ink-muted" data-card-summary>{brief(item.description)}</p>
+
+          {item.tags && item.tags.length > 0 && (
+            <ul class="mt-2.5 flex flex-wrap gap-1.5" data-card-tags>
+              {item.tags.slice(0, 2).map((tag) => (
+                <li class="rounded-full border border-line px-2 py-[3px] text-[12px] leading-none text-ink-muted">{tag}</li>
+              ))}
+            </ul>
+          )}
 
           <p class="mono mt-3 text-[12px] leading-relaxed text-ink-faint" data-card-meta>
-            확인 기준일 {item.baseDate} · {item.sourceOrgLine || `출처 ${item.sourceCount}건`}
+            확인 기준일 {item.baseDate} ·{" "}
+            {item.sourceOrgLine ? `출처 ${item.sourceCount}곳(${item.sourceOrgLine})` : `출처 ${item.sourceCount}건`}
           </p>
 
           <div class="mt-auto flex items-center justify-between gap-2 pt-4">

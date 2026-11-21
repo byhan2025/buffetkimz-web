@@ -3,11 +3,13 @@
  * v5.2 헤더 — 데스크톱은 한 줄, 모바일(<768px)은 두 줄.
  *
  *  1행: buffetkimz 로고 + 검색 + 전체메뉴(≡)
- *  2행: 홈 · 소개 · 블로그 · 도구자료실 · 달력 — 가로 스크롤 없는 1줄 고정 퀵 탭
+ *  2행: 홈 · 소개 · 블로그 · 도구자료실 · 제도달력 — 가로 스크롤 없는 1줄 고정 퀵 탭
  *       (각 칸 44px 높이·12.5px 글자, 360px 폭에서도 넘침 0)
  *
  * 퀵 탭 그리드 비율은 config/site.ts의 `weight`(글자 수 비례)를 그대로 받아 쓴다.
  * 그래서 '도구자료실' 다섯 글자가 좁은 폰에서도 잘리지 않고, 나머지 칸도 44px 터치 폭을 지킨다.
+ *
+ * 배경은 크림(paper) 98% + 약한 블러 — 스크롤해도 두 줄 바 뒤로 본문 글자가 비치지 않는다(v2.2).
  */
 import { withBase, site, nav, quickTabs, quickTabColumns, stripBase } from "@/config/site";
 import HeaderSearch from "@/components/HeaderSearch.tsx";
@@ -18,7 +20,7 @@ const isActive = (match: string) =>
   match === "/" ? path === "/" : path === match || path.startsWith(match + "/");
 ---
 
-<header class="site-header sticky top-0 z-40 border-b border-line/80 bg-white/90 backdrop-blur-md">
+<header class="site-header sticky top-0 z-40 border-b border-line/80 bg-paper/[0.98] backdrop-blur-md">
   <!-- 1행 — 로고 · 주 메뉴(데스크톱) · 검색 · 전체메뉴 -->
   <div class="wrap site-header-row flex items-center gap-4">
     <a

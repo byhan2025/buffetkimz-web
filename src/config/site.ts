@@ -100,7 +100,7 @@ export const nav: NavItem[] = [
 ];
 
 /**
- * 모바일 2행 퀵 탭 — 홈·소개·블로그·도구자료실·달력 다섯 칸.
+ * 모바일 2행 퀵 탭 — 홈·소개·블로그·도구자료실·제도달력 다섯 칸.
  * `weight`는 360px 폭에서도 '도구자료실' 다섯 글자가 줄바꿈·가로 넘침 없이 들어가도록
  * 글자 수에 비례해 나눈 그리드 비율이다(Header.astro의 모바일 그리드가 이 값을 쓴다).
  */
@@ -111,7 +111,7 @@ export const quickTabs: QuickTab[] = [
   { href: "/about", label: "소개", match: "/about", weight: 1.1 },
   { href: "/posts", label: "블로그", match: "/posts", weight: 1.35 },
   { href: "/apps", label: "도구자료실", match: "/apps", weight: 1.75 },
-  { href: "/calendar", label: "달력", match: "/calendar", weight: 1.1 },
+  { href: "/calendar", label: "제도달력", match: "/calendar", weight: 1.75 },
 ];
 
 /** 모바일 퀵 탭 그리드 비율 문자열 (`1fr 1.1fr …`) */
