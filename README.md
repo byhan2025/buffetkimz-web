@@ -27,7 +27,9 @@ v3: 20개 대표 사이트 벤치마킹(보고서 `reports/buffetkimz-web/benchm
 - **검증** — `verify_v77.py` **32/32**, `verify_tax_consistency.py` 22/22, `verify_v71` 254/254,
   `verify_v73` 40/40, `verify_v74` 117/117, `verify_v76` 39/39, 링크 0/0, `tsc --noEmit` 0 오류.
   `astro check`는 이 실행 환경의 프로세스 메모리 한도에서 OOM이라 `tsc` + 해당 3줄 단위 재현·재검으로 대체했다
-  (`reports/buffetkimz-web/v771-final/README.md`).
+  (워크스페이스 `reports/buffetkimz-web/v771-final/README.md`).
+- **라이브** — gh-pages 배포 뒤 `verify_v77 --live` 32/32 · `verify_tax_consistency --live` 22/22.
+  홈 1280/390 캐프처에서 `무료` 0건 · 이중 공백 0건(`reports/buffetkimz-web/v771-live/`).
 
 ### v7.7.0 — 세율 단일출처 · 390 표 카드화 · 부이 UX 4건 · 대출 거치 버그
 
