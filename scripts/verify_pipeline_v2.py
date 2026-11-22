@@ -28,9 +28,12 @@ import time
 import urllib.request
 from pathlib import Path
 
-os.environ.setdefault(
-    "LD_LIBRARY_PATH", "/workspace/.pwlibs/root/usr/lib/x86_64-linux-gnu:/workspace/.local/lib"
-)
+# 2026-11-23 — 실행 환경에서 chromium 공용 라이브러리가 빠져 죽는 일이 있어(avahi 등)
+# 저장소 밖 라이브러리 디렉터리를 LD_LIBRARY_PATH에 합쳐 둔다(scripts/browser_env.py).
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from browser_env import ensure_browser_libs  # noqa: E402
+
+ensure_browser_libs()
 from playwright.sync_api import sync_playwright  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]

@@ -253,6 +253,12 @@ def main() -> int:
     from playwright.sync_api import sync_playwright
     from PIL import Image
 
+    # 2026-11-23 — 실행 환경에 chromium 공용 라이브러리가 빠져 죽는 일이 있어 경로를 합친다.
+    sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+    from browser_env import ensure_browser_libs
+
+    ensure_browser_libs()
+
     MASTER_DIR.mkdir(parents=True, exist_ok=True)
     results = []
     with sync_playwright() as p:
