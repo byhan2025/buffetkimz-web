@@ -85,7 +85,7 @@ companion_files:
 [S5] 06:30  95점 게이트 세법·수치·출처·비중·문체·모바일 (인스팅대리)
       │
 [S6] 07:00  빌드·검증   publish_pipeline → npm build → verify_tax → verify_pipeline_v2
-      │                (라이브 반영은 김대표 승인 후)
+      │                (라이브 반영은 95점+오류 0건+2-Key 통과 시 자동)
       │
 [S7] 주간·월간 사후     링크·소스 신선도 재검증, 성과·로테이션 점검
 ```
@@ -154,14 +154,17 @@ companion_files:
 - **자동 명령**: `python3 scripts/publish_pipeline.py validate --json` · `npm run verify:tax` · `python3 scripts/verify_pipeline_v2.py` + **계산기 fixture 회귀검증**(대표 입력값별 예상 결과 대조)
 - **산출물**: `reports/buffetkimz-web/<version>/gate-YYYYMMDD.json`
 
-### S6. 07:00 — 빌드·검증 (배포는 승인 후)
+### S6. 07:00 — 빌드·검증·자동 배포 (게이트 통과 시)
 
-```bash
+````text
 export PATH=/workspace/.tools/node-v22.23.4-linux-x64/bin:$PATH
 
+# 0) 표준 래퍼 — PATH·flock(/tmp/buffetkimz-build.lock 300초)·스레드 제한·dist 준비 검사를 자동으로 건다
+bash scripts/build_with_lock.sh status     # 환경·락·dist 진단
+
 # 1) 초안 → 콘텐츠 적재(검증 포함)
-python3 scripts/publish_pipeline.py ingest drafts/YYYY-MM-DD-<slug>.md --dry-run
-python3 scripts/publish_pipeline.py ingest drafts/YYYY-MM-DD-<slug>.md
+python3 scripts/publish_pipeline.py ingest <초안.md> --dry-run
+python3 scripts/publish_pipeline.py ingest <초안.md>
 
 # 2) 비중·출처 검사
 python3 scripts/publish_pipeline.py validate
@@ -174,9 +177,10 @@ python3 scripts/publish_pipeline.py build --slug <slug>
 npm run verify:tax
 python3 scripts/verify_pipeline_v2.py
 
-# 5) 라이브 반영은 김대표 승인 후에만
-npm run deploy:pages
-```
+# 5) 라이브 반영 — 정보창고 1차 저장 + 95점 + 오류 0건 + 2-Key(보반과장·뮤즈대리) 통과 시 승인 없이 자동
+bash scripts/build_with_lock.sh deploy     # verify:tax → dist 준비 검사 → npm run deploy:pages
+#    대외 발송(SNS·메일 소식지), 로고·브랜드·색·메뉴 구조, 계정·결제 변경은 여전히 별도 승인 대상이다.
+````
 
 - **캐시 검증**: 배포 후 라이브 URL에서 (a) 새 글 HTTP 200, (b) 제목·기준일 일치, (c) 계산기 기본값 일치, (d) 콘솔 오류 0을 확인한다. CDN 캐시가 남으면 쿼리 버스터로 재확인하고, 그래도 옛 화면이면 재배포한다.
 - **금지**: 이 단계에서 로고·브랜드·색·메뉴 구조를 바꾸지 않는다(승인 전 창작물 반영 금지).
@@ -273,7 +277,7 @@ npm run deploy:pages
 | 06:00 | S4 4종 생성 | 보반대리·큐이대리·뮤즈대리 | 초안 4종 |
 | 06:30 | S5 게이트 | 인스팅대리 | `gate-*.json` |
 | 07:00 | S6 빌드·검증 | 보반과장 | 빌드·실측 리포트 |
-| 승인 후 | 라이브 반영 | 보반과장 | 배포 로그 |
+| 06:20~06:50 | 라이브 반영(게이트 통과 시 자동) | 보반과장·뮤즈대리 | 배포 로그·리뷰 리포트 |
 | 일 20:00 / 월 1일 | S7 사후 | 키링대리·큐이대리 | 링크·소스 리포트 |
 
 기존 5대 타임라인(`guidelines/timeline-0X-*.md`)의 발행 창과 충돌하지 않게, **06:00 일괄 대령** 후 골든타임 3회 창에 맞춰 배분한다.
@@ -333,8 +337,8 @@ python3 scripts/publish_pipeline.py build --slug <slug>
 npm run verify:tax
 python3 scripts/verify_pipeline_v2.py
 
-# 배포(승인 후)
-npm run deploy:pages
+# 배포(게이트 통과 시 자동 — 래퍼로만 실행)
+bash scripts/build_with_lock.sh deploy
 ```
 
 ## 11. 도입 로드맵
