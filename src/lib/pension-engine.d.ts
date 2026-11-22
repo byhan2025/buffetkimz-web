@@ -1,8 +1,9 @@
 /**
  * `pension-engine.mjs`(연금 인출·세금 계산 엔진)의 타입 선언.
  *
- * 엔진 파일은 보고서(`reports/buffetkimz-web/v60-pension-sim/pension_engine.mjs`)와
- * **해시가 같은 원본**이다(복사 후 수정 금지). 타입은 이 선언 파일에만 둔다.
+ * v8.6.0 — 원천징수 경로에 연금소득공제(§47의2)를 반영하며 보고서 원본과 달라졌다
+ * (`withholdingTaxableAmount`). 이제 이 파일이 사이트의 원본이다 — 보고서 사본을 덮어쓰지 않는다.
+ * 타입은 이 선언 파일에만 둔다.
  */
 declare module "@/lib/pension-engine.mjs" {
   export const LAW_VERSION: string;
@@ -104,4 +105,6 @@ declare module "@/lib/pension-engine.mjs" {
   export function calcOptimalWithdrawalYears(args: Record<string, unknown>): Record<string, unknown>;
   export function healthInsuranceExposure(args?: { publicPension?: number }): Record<string, unknown>;
   export function withholdingRate(age: number, opts?: { lifelong?: boolean }): Record<string, unknown>;
+  export function pensionIncomeDeduction(totalPension: number): number;
+  export function withholdingTaxableAmount(privatePension: number, publicPension?: number): number;
 }
