@@ -49,8 +49,12 @@ v3: 20개 대표 사이트 벤치마킹(보고서 `reports/buffetkimz-web/benchm
 - **검증** `publish_pipeline.py validate` **오류 0**(경고 85·정보 39) · `verify:tax` **22/22** · `verify_v77` **32/32** ·
   `verify_v79` **41/41** · `capture_academy_v80.py` **54/54** · `audit_dist_links.py` 299페이지 **0/0** ·
   `scripts/capture_live_v86.py` **42/42**(8주소 × 1280·390 · 퀵탭 46×44 · og 17강 · 라이트박스 · 계산기 6종 재현 · sitemap).
-- **캡처** `reports/buffetkimz-web/v86-live/`(390·1280 fold, 퀵탭, 라이트박스, `verify-v86-local.json`) ·
+- **캡처** `reports/buffetkimz-web/v86-live/`(390·1280 fold, 퀵탭, 라이트박스, `verify-v86-local.json`·`verify-v86.json`) ·
   감사 재현물은 `reports/buffetkimz-web/audit-99-v850/`.
+- **라이브** `main` `01397ae` · `gh-pages` `a5aaba4` → https://byhan2025.github.io/buffetkimz-web/?v=860 .
+  GitHub Pages `built`(a5aaba4) 확인 후 `scripts/capture_live_v86.py` **42/42**(8주소 × 1280·390 HTTP 200 ·
+  콘솔 오류 0 · 가로 넘침 0 · 퀵탭 '홈' 46×44 · 글자와 겹침 0 · 아카데미 17강 og:image 카드 표지 ·
+  라이트박스 빈 속성 0 · 계산기 6종 재현 · sitemap 글 30편·강의 17강·lastmod 11.22).
 
 ### v8.5.0 — 자산리포트(블로그 읽을거리) 신규 10편 + 글별 썸네일 10장
 
