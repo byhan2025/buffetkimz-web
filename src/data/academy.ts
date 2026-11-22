@@ -11,15 +11,16 @@
  *  · 특정 상품·운용사를 권하지 않는다. 보험은 재무설계의 도구로만 다룬다.
  *  · 외부 채널·영상·시리즈 이름은 쓰지 않는다. 회차 표기는 `STEP-강`(예: 2-3강) 하나만 쓴다.
  */
-import { ACADEMY_LESSONS, lessonBySlug, lessonsOfStep, type AcademyLesson } from "./academy-lessons";
+import { ACADEMY_LESSONS as ADULT_LESSONS, lessonBySlug, lessonsOfStep, type AcademyLesson } from "./academy-lessons";
+import { SCHOOL_LESSONS } from "./academy-school-lessons";
 
 export const ACADEMY = {
-  name: "한스푼 아카데미",
+  name: "버핏킴즈 금융생활학교",
   /** 히어로 아래 한 줄 */
-  tagline: "하루 한스푼, 15분",
+  tagline: "용돈부터 은퇴까지, 내 돈을 결정하는 연습",
   /** 프로그램 목적 한 문장 */
   promise:
-    "영상 한 편을 5분 읽기·계산기·카드 6장·1차 출처로 다시 묶었습니다. 강의마다 내 숫자로 끝나는 15분을 만듭니다.",
+    "초등 고학년·청소년·첫 월급·가계·자산형성·은퇴 6트랙 52주와, 성인 실전 6 STEP 41강을 한곳에 모았습니다. 강의마다 5분 읽기·카드 6장·내 숫자 계산기·1차 출처로 끝납니다.",
   /** 강의 1개의 표준 구성 */
   standard: "5분 읽기 → 10분 계산기 → 카드 6장 확인 → 출처 1개 직접 열어보기 → 다음 강 1문장",
   counts: { steps: 6, lessons: 41, cardSets: 9, cards: 54, hours: "약 11시간 40분" },
@@ -29,7 +30,7 @@ export const ACADEMY = {
 export const ACADEMY_SET = [
   {
     no: "①",
-    title: "5분 한스푼 읽기",
+    title: "5분 읽기",
     minutes: "5분",
     body: "개념·기준·예외를 한 번에 끝내는 1,200~1,500자 글. 한 문장에 한 뜻만 담고, 어려운 말은 처음 나올 때 풀어 씁니다.",
   },
@@ -144,10 +145,22 @@ export const ACADEMY_STEPS: AcademyStep[] = stepBase.map((s) => {
 
 export const stepByNo = (no: number) => ACADEMY_STEPS.find((s) => s.no === no);
 
-/** 지금 열린 강의 — 학습 순서 그대로 */
+/** 지금 열린 강의 — 성인 5강 + 학교 트랙 3강, 학습 순서대로 */
+export const ACADEMY_LESSONS: AcademyLesson[] = [...ADULT_LESSONS, ...SCHOOL_LESSONS];
 export const OPEN_LESSONS: AcademyLesson[] = ACADEMY_LESSONS;
 export const openLessonCount = OPEN_LESSONS.length;
 export const openStepCount = ACADEMY_STEPS.filter((s) => s.status === "open").length;
+
+/** 학교 트랙(초등·청소년·첫 월급)만 — 허브의 트랙 카드가 읽는다 */
+export const SCHOOL_OPEN_LESSONS = OPEN_LESSONS.filter((l) => (l.track ?? "adult") !== "adult");
+
+/** 트랙 이름 — 화면 라벨을 한 곳에서 만든다 */
+export const TRACK_LABEL: Record<NonNullable<AcademyLesson["track"]>, string> = {
+  adult: "성인 실전",
+  elementary: "초등 고학년",
+  teen: "청소년",
+  firstpay: "첫 월급",
+};
 
 /** 수강 경로 3가지 — 진단 3문항의 답 개수로 갈린다. */
 export const ACADEMY_PATHS = [

@@ -1,0 +1,589 @@
+---
+/**
+ * 「내 돈 운영표」 학교 트랙 1칸 — 초등·청소년·첫 월급 (v8.2.0).
+ *
+ * 세 가지 계산기를 한 컴포넌트에서 변형(variant)으로 가른다.
+ *   allowance  용돈 → ① 쓸 돈 · ② 모을 돈 · ③ 남길 돈, 목표까지 걸리는 주
+ *   teenplan   월 반복 결제 → 1년 비용, BNPL → 갚을 총액
+ *   firstpay   세전·공제 → 실수령, 고정비·변동비 → 남는 돈 세 칸
+ *
+ * 지키는 것
+ *  · 입력값은 화면 안에서만 계산한다. 주소·localStorage·서버 어디에도 남기지 않는다.
+ *  · 결과는 색만으로 알리지 않는다 — '칸 완성'/'넘었어요' 같은 글자와 아이콘을 함께 쓴다.
+ *  · 버튼 44px 이상, 글자 16px 이상(초등·청소년이 직접 만지는 화면).
+ */
+import { withBase, site } from "@/config/site";
+import type { SheetVariant } from "@/data/academy-lessons";
+
+interface Props {
+  variant?: Extract<SheetVariant, "allowance" | "teenplan" | "firstpay">;
+  slotNo?: number;
+  slotTitle?: string;
+  line?: string;
+}
+const { variant = "allowance", slotNo = 1, slotTitle = "용돈 약속 카드", line = "" } = Astro.props;
+
+const copy = {
+  allowance: {
+    eyebrow: "초등 1편 · 운영표",
+    progress: "용돈 세 칸 · 0 / 1칸",
+    done: "용돈 세 칸 · 1 / 1칸",
+    head: "용돈 약속 카드",
+    intro: "용돈과 두 칸을 고르면 세 번째 칸과 목표까지 걸리는 주가 함께 나옵니다.",
+    commit: "이 칸 채우기",
+    again: "값 바꿔서 다시 채우기",
+    a: "용돈",
+    b: "① 쓸 돈",
+    c: "② 모을 돈",
+    out: "③ 남길 돈",
+    rows: ["용돈", "① 쓸 돈", "② 모을 돈", "③ 남길 돈", "목표까지"],
+  },
+  teenplan: {
+    eyebrow: "청소년 1편 · 운영표",
+    progress: "구독 정리표 · 0 / 1칸",
+    done: "구독 정리표 · 1 / 1칸",
+    head: "구독 정리표",
+    intro: "월 반복 결제와 BNPL 조건을 고르면 1년 비용과 갚을 총액이 함께 나옵니다.",
+    commit: "이 칸 채우기",
+    again: "값 바꿔서 다시 채우기",
+    a: "월 반복 결제",
+    b: "개월",
+    c: "BNPL 금액",
+    d: "BNPL 수수료율",
+    out: "1년 합계",
+    rows: ["연간 반복 결제", "BNPL 갚을 총액", "1년 합계"],
+  },
+  firstpay: {
+    eyebrow: "첫 월급 1편 · 운영표",
+    progress: "실수령 확인표 · 0 / 1칸",
+    done: "실수령 확인표 · 1 / 1칸",
+    head: "실수령 확인표",
+    intro: "세전과 공제 합계를 고르면 실수령과 남는 돈 세 칸이 함께 나옵니다.",
+    commit: "이 칸 채우기",
+    again: "값 바꿔서 다시 채우기",
+    a: "세전",
+    b: "공제 합계",
+    c: "고정비",
+    d: "변동비",
+    out: "실수령",
+    rows: ["세전", "공제 합계", "실수령", "고정비", "변동비", "남는 돈"],
+  },
+}[variant];
+
+const money = (n: number) => `${n.toLocaleString("ko-KR")}원`;
+---
+
+<section
+  class="sheet"
+  data-sheet
+  data-variant={variant}
+  aria-labelledby="sheet-heading"
+>
+  <div class="sheet-head">
+    <div>
+      <p class="eyebrow">{copy.eyebrow}</p>
+      <h2 id="sheet-heading" class="sec-title">내 돈 운영표 · {slotNo}번 칸</h2>
+      <p class="mt-2 max-w-[54ch] text-[16px] leading-[1.75] text-ink-muted">
+        {copy.head}의 첫 줄입니다. {line || copy.intro} 고른 값은 이 화면 안에서만 계산됩니다.
+      </p>
+    </div>
+    <p class="sheet-progress mono" data-sheet-progress>{copy.progress}</p>
+  </div>
+
+  <div class="sheet-body">
+    <div class="sheet-form">
+      {
+        variant === "allowance" ? (
+          <>
+            <fieldset class="sheet-field">
+              <legend class="sheet-legend">{copy.a} <span class="mono">이번 주</span></legend>
+              <div class="sheet-chips">
+                {[5000, 7000, 10000].map((v) => (
+                  <label class="sheet-chip sheet-chip--num">
+                    <input type="radio" name="al-allowance" value={v} checked={v === 7000} data-sheet-input />
+                    <span>{v.toLocaleString("ko-KR")}원</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+            <fieldset class="sheet-field">
+              <legend class="sheet-legend">{copy.b} <span class="mono">이번 주에 쓸 돈</span></legend>
+              <div class="sheet-chips">
+                {[2000, 3000, 4000].map((v) => (
+                  <label class="sheet-chip sheet-chip--num">
+                    <input type="radio" name="al-spend" value={v} checked={v === 3000} data-sheet-input />
+                    <span>{v.toLocaleString("ko-KR")}원</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+            <fieldset class="sheet-field">
+              <legend class="sheet-legend">{copy.c} <span class="mono">목표에 넣는 돈</span></legend>
+              <div class="sheet-chips">
+                {[2000, 3000, 4000].map((v) => (
+                  <label class="sheet-chip sheet-chip--num">
+                    <input type="radio" name="al-save" value={v} checked={v === 3000} data-sheet-input />
+                    <span>{v.toLocaleString("ko-KR")}원</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+          </>
+        ) : variant === "teenplan" ? (
+          <>
+            <fieldset class="sheet-field">
+              <legend class="sheet-legend">{copy.a} <span class="mono">구독·게임·소액결제</span></legend>
+              <div class="sheet-chips">
+                {[10000, 30000, 50000].map((v) => (
+                  <label class="sheet-chip sheet-chip--num">
+                    <input type="radio" name="tp-month" value={v} checked={v === 30000} data-sheet-input />
+                    <span>{(v / 10000).toLocaleString("ko-KR")}만원</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+            <fieldset class="sheet-field">
+              <legend class="sheet-legend">{copy.b} <span class="mono">1년으로 바꿔 보기</span></legend>
+              <div class="sheet-chips">
+                {[6, 12].map((v) => (
+                  <label class="sheet-chip sheet-chip--num">
+                    <input type="radio" name="tp-months" value={v} checked={v === 12} data-sheet-input />
+                    <span>{v}개월</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+            <fieldset class="sheet-field">
+              <legend class="sheet-legend">{copy.c} <span class="mono">먼저 받고 나중에 갚는 결제</span></legend>
+              <div class="sheet-chips">
+                {[100000, 200000, 300000].map((v) => (
+                  <label class="sheet-chip sheet-chip--num">
+                    <input type="radio" name="tp-bnpl" value={v} checked={v === 200000} data-sheet-input />
+                    <span>{(v / 10000).toLocaleString("ko-KR")}만원</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+            <fieldset class="sheet-field">
+              <legend class="sheet-legend">{copy.d} <span class="mono">가정 값</span></legend>
+              <div class="sheet-chips">
+                {[3, 5, 7].map((v) => (
+                  <label class="sheet-chip sheet-chip--num">
+                    <input type="radio" name="tp-rate" value={v} checked={v === 5} data-sheet-input />
+                    <span>{v}%</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+          </>
+        ) : (
+          <>
+            <fieldset class="sheet-field">
+              <legend class="sheet-legend">{copy.a} <span class="mono">월급명세서 지급 합계</span></legend>
+              <div class="sheet-chips">
+                {[250, 300, 350].map((v) => (
+                  <label class="sheet-chip sheet-chip--num">
+                    <input type="radio" name="fp-gross" value={v} checked={v === 300} data-sheet-input />
+                    <span>{v}만원</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+            <fieldset class="sheet-field">
+              <legend class="sheet-legend">{copy.b} <span class="mono">4대보험 + 세금</span></legend>
+              <div class="sheet-chips">
+                {[28, 33, 38].map((v) => (
+                  <label class="sheet-chip sheet-chip--num">
+                    <input type="radio" name="fp-deduct" value={v} checked={v === 33} data-sheet-input />
+                    <span>{v}만원</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+            <fieldset class="sheet-field">
+              <legend class="sheet-legend">{copy.c} <span class="mono">월세·통신·보험료</span></legend>
+              <div class="sheet-chips">
+                {[100, 120, 140].map((v) => (
+                  <label class="sheet-chip sheet-chip--num">
+                    <input type="radio" name="fp-fixed" value={v} checked={v === 120} data-sheet-input />
+                    <span>{v}만원</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+            <fieldset class="sheet-field">
+              <legend class="sheet-legend">{copy.d} <span class="mono">식비·교통·여가</span></legend>
+              <div class="sheet-chips">
+                {[40, 60, 80].map((v) => (
+                  <label class="sheet-chip sheet-chip--num">
+                    <input type="radio" name="fp-variable" value={v} checked={v === 60} data-sheet-input />
+                    <span>{v}만원</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+          </>
+        )
+      }
+
+      <div class="sheet-result">
+        <p class="text-[16px] font-semibold text-ink-faint">{copy.out}</p>
+        <p class="mt-1 text-[26px] font-bold leading-none tracking-[-0.035em] text-brand-deep" data-sheet-out>
+          —
+        </p>
+        <p class="mt-2 text-[16px] leading-[1.6] text-ink-muted" data-sheet-breakdown>—</p>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-3">
+        <button type="button" class="btn btn-primary btn-sm min-h-[48px] text-[16px]" data-sheet-commit>
+          {copy.commit}
+        </button>
+        <a href={withBase("/academy/#school-weeks")} class="text-[16px] text-ink-faint underline underline-offset-2">
+          학교 로드맵
+        </a>
+      </div>
+
+      <p class="text-[16px] leading-[1.7] text-ink-faint">
+        고른 값은 이 화면 안에서만 계산하고, 주소·서버·저장소 어디에도 남기지 않습니다. 화면을 닫으면 사라집니다.
+        기준일 {site.baseDateLabel}.
+      </p>
+    </div>
+
+    <div class="sheet-preview" data-sheet-preview>
+      <p class="mono text-[16px] tracking-[0.04em] text-ink-faint">내 돈 운영표 · 1칸 중 {slotNo}번</p>
+
+      <div class="sheet-empty" data-sheet-empty>
+        <p class="text-[17px] font-semibold text-ink">아직 빈칸입니다</p>
+        <p class="mt-1 text-[16px] leading-[1.7] text-ink-muted">
+          왼쪽에서 값을 고른 뒤 <span class="font-semibold text-ink-soft">{copy.commit}</span>를 누르면, 결과가 한
+          줄로 남습니다.
+        </p>
+      </div>
+
+      <div class="sheet-filled" data-sheet-filled hidden>
+        <p class="text-[16px] font-bold tracking-[0.14em] text-brand-deep">칸 완성</p>
+        <p class="mt-1.5 text-[17px] font-bold tracking-[-0.025em] text-ink">{copy.head} · 첫 줄</p>
+        <dl class="sheet-filled-list mt-2" data-sheet-rows>
+          {copy.rows.map((r) => (
+            <div>
+              <dt>{r}</dt>
+              <dd data-sheet-row={r}>—</dd>
+            </div>
+          ))}
+        </dl>
+        <p class="mt-3 border-t border-dashed border-line pt-2 text-[16px] leading-[1.65] text-ink-faint">
+          기준일 {site.baseDateLabel} · 금액은 모두 가상 예시입니다. 실제 숫자는 내 명세서·계좌에서 확인합니다.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  const money = (n: number) => `${Math.round(n).toLocaleString("ko-KR")}원`;
+
+  document.querySelectorAll<HTMLElement>("[data-sheet][data-variant]").forEach((root) => {
+    const variant = root.dataset.variant;
+    const inputs = [...root.querySelectorAll<HTMLInputElement>("[data-sheet-input]")];
+    const outEl = root.querySelector<HTMLElement>("[data-sheet-out]");
+    const breakdownEl = root.querySelector<HTMLElement>("[data-sheet-breakdown]");
+    const progressEl = root.querySelector<HTMLElement>("[data-sheet-progress]");
+    const empty = root.querySelector<HTMLElement>("[data-sheet-empty]");
+    const filled = root.querySelector<HTMLElement>("[data-sheet-filled]");
+    const commitBtn = root.querySelector<HTMLButtonElement>("[data-sheet-commit]");
+    const row = (name: string) => root.querySelector<HTMLElement>(`[data-sheet-row="${name}"]`);
+    const picked = (name: string) => Number(inputs.find((i) => i.name === name && i.checked)?.value ?? 0);
+
+    let committed = false;
+
+    const calc = () => {
+      if (variant === "allowance") {
+        const allowance = picked("al-allowance");
+        const spend = picked("al-spend");
+        const save = picked("al-save");
+        const keep = allowance - spend - save;
+        const need = Math.max(30000 - 6000, 0);
+        const weeks = save > 0 ? Math.ceil(need / save) : 0;
+        const skipWeeks = weeks > 2 ? Math.ceil(need / (weeks - 2)) : 0;
+        return {
+          out: money(keep),
+          state: keep < 0 ? "over" : "ok",
+          breakdown:
+            keep < 0
+              ? `①②가 용돈보다 ${money(-keep)} 많아요. ①이나 ②를 줄여 보세요.`
+              : `쓸 돈 ${money(spend)} + 모을 돈 ${money(save)} = ${money(spend + save)}`,
+          rows: {
+            용돈: money(allowance),
+            "① 쓸 돈": money(spend),
+            "② 모을 돈": money(save),
+            "③ 남길 돈": money(keep),
+            "목표까지": save > 0 ? `${weeks}주 · 2주 쉬면 매주 ${money(skipWeeks)}` : "모을 돈을 0원보다 크게",
+          },
+        };
+      }
+      if (variant === "teenplan") {
+        const month = picked("tp-month");
+        const months = picked("tp-months");
+        const bnpl = picked("tp-bnpl");
+        const rate = picked("tp-rate") / 100;
+        const annual = month * months;
+        const bnplTotal = bnpl * (1 + rate);
+        return {
+          out: money(annual + bnplTotal),
+          state: "ok",
+          breakdown: `연간 반복 결제 ${money(annual)} + BNPL 갚을 총액 ${money(bnplTotal)}`,
+          rows: {
+            "연간 반복 결제": `${money(month)} × ${months}개월 = ${money(annual)}`,
+            "BNPL 갚을 총액": `${money(bnpl)} + 수수료 ${money(bnpl * rate)} = ${money(bnplTotal)}`,
+            "1년 합계": money(annual + bnplTotal),
+          },
+        };
+      }
+      const gross = picked("fp-gross") * 10000;
+      const deduct = picked("fp-deduct") * 10000;
+      const fixed = picked("fp-fixed") * 10000;
+      const variable = picked("fp-variable") * 10000;
+      const net = gross - deduct;
+      const spare = net - fixed - variable;
+      const a = Math.round(spare * 0.5);
+      const b = Math.round(spare * 0.2);
+      const c = spare - a - b;
+      return {
+        out: money(net),
+        state: spare < 0 ? "over" : "ok",
+        breakdown:
+          spare < 0
+            ? `고정비·변동비가 실수령보다 ${money(-spare)} 많아요. 줄일 항목을 먼저 골라요.`
+            : `남는 돈 ${money(spare)} → ① ${money(a)} · ② ${money(b)} · ③ ${money(c)}`,
+        rows: {
+          세전: money(gross),
+          "공제 합계": money(deduct),
+          실수령: money(net),
+          고정비: money(fixed),
+          변동비: money(variable),
+          "남는 돈": spare < 0 ? `넘었어요 ${money(spare)}` : money(spare),
+        },
+      };
+    };
+
+    const render = () => {
+      const s = calc();
+      if (outEl) outEl.textContent = s.out;
+      if (breakdownEl) breakdownEl.textContent = s.breakdown;
+      root.dataset.state = s.state;
+      if (committed) {
+        Object.entries(s.rows).forEach(([k, v]) => {
+          const el = row(k);
+          if (el) el.textContent = v;
+        });
+      }
+    };
+
+    inputs.forEach((i) => i.addEventListener("change", render));
+
+    commitBtn?.addEventListener("click", () => {
+      committed = true;
+      render();
+      if (empty) empty.hidden = true;
+      if (filled) filled.hidden = false;
+      if (progressEl) {
+        progressEl.textContent =
+          variant === "allowance" ? "용돈 세 칸 · 1 / 1칸" : variant === "teenplan" ? "구독 정리표 · 1 / 1칸" : "실수령 확인표 · 1 / 1칸";
+      }
+      commitBtn.textContent = "값 바꿔서 다시 채우기";
+      filled?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    });
+
+    render();
+  });
+</script>
+
+<style>
+  .sheet {
+    padding: 20px;
+    border: 1px solid var(--color-line);
+    border-radius: 20px;
+    background-color: #ffffff;
+    box-shadow:
+      0 1px 2px rgb(11 27 41 / 0.04),
+      0 20px 44px -34px rgb(11 27 41 / 0.5);
+  }
+
+  @media (min-width: 768px) {
+    .sheet {
+      padding: 28px;
+    }
+  }
+
+  .sheet-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .sheet-progress {
+    display: inline-flex;
+    align-items: center;
+    min-height: 30px;
+    padding: 0 10px;
+    border-radius: 999px;
+    background-color: var(--color-brand-soft);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--color-brand-deep);
+  }
+
+  .sheet-body {
+    display: grid;
+    gap: 18px;
+    margin-top: 18px;
+  }
+
+  @media (min-width: 900px) {
+    .sheet-body {
+      grid-template-columns: minmax(0, 1.18fr) minmax(0, 1fr);
+      gap: 24px;
+      align-items: start;
+    }
+  }
+
+  .sheet-form {
+    display: grid;
+    gap: 16px;
+    min-width: 0;
+  }
+
+  .sheet-field {
+    min-width: 0;
+  }
+
+  .sheet-legend {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 6px;
+    margin-bottom: 6px;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--color-ink-soft);
+  }
+
+  .sheet-legend .mono {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--color-ink-faint);
+  }
+
+  .sheet-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .sheet-chip {
+    display: inline-flex;
+    cursor: pointer;
+  }
+
+  .sheet-chip input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .sheet-chip span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 48px;
+    padding: 0 14px;
+    border: 1px solid var(--color-line);
+    border-radius: 12px;
+    background-color: #ffffff;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--color-ink-muted);
+    transition:
+      border-color 140ms var(--ease-out-soft),
+      background-color 140ms var(--ease-out-soft);
+  }
+
+  .sheet-chip--num span {
+    min-width: 76px;
+    justify-content: center;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .sheet-chip input:checked + span {
+    border-color: var(--color-brand);
+    background-color: var(--color-brand-soft);
+    color: var(--color-brand-deep);
+  }
+
+  .sheet-chip input:focus-visible + span {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 2px;
+  }
+
+  .sheet-result {
+    padding: 14px 16px;
+    border-radius: 14px;
+    background-color: var(--color-paper);
+    border: 1px solid var(--color-line-soft);
+  }
+
+  .sheet[data-state="over"] .sheet-result {
+    border-color: #b4544b;
+    background-color: #fdf3f1;
+  }
+
+  .sheet[data-state="over"] .sheet-result > p:first-child::before {
+    content: "! ";
+    font-weight: 700;
+    color: #b4544b;
+  }
+
+  .sheet-preview {
+    padding: 16px;
+    border: 1px dashed var(--color-line);
+    border-radius: 16px;
+    background-color: var(--color-cream);
+  }
+
+  .sheet-filled {
+    margin-top: 10px;
+  }
+
+  .sheet-filled-list {
+    display: grid;
+    gap: 2px;
+  }
+
+  .sheet-filled-list > div {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--color-line-soft);
+  }
+
+  .sheet-filled-list dt {
+    flex: none;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--color-ink-faint);
+  }
+
+  .sheet-filled-list dd {
+    margin: 0;
+    text-align: right;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--color-ink);
+  }
+</style>

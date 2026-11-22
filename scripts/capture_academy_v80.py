@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
-"""v8.1 「한스푼 아카데미」 STEP 1·2 확장 — 실물 캡처·검증.
+"""v8.2 「버핏킴즈 금융생활학교」 초등·청소년·첫 월급 확장 — 실물 캡처·검증.
 
 무엇을 재는가
-  A. 허브 + 강의 5개(1-1·1-2·2-1·2-2·2-3) × 1280·390 — HTTP 200 · 콘솔 오류 0 · 가로 넘침 0
+  A. 허브 + 강의 8개(성인 5 + 학교 3) × 1280·390 — HTTP 200 · 콘솔 오류 0 · 가로 넘침 0
   B. 헤더 — 1280·1024 에서 메뉴 가로 넘침 0 · '아카데미' 항목이 실제로 보이는가
   C. 390 모바일 — 퀵 탭 6칸 유지 · 하위 드로어에 아카데미 진입
-  D. 허브 — 지금 열린 강의 5개 카드 · 로드맵 '공개 2강/3강' · 진단 3문항 → 경로 전환
-  E. 강의 — 카드뉴스 인라인 뷰어(넘기기·썸네일·크게 보기) · 5분 읽기 글자수 1,200~1,500
-       · 운영표 1칸(강의마다 계산기 모양이 다르다) · 입력값 저장 0건 · 주소 불변
-  F. 캡처 — 1280·390 전체 화면 + 주요 구획(카드뉴스·로드맵·운영표)
+  D. 허브 — 지금 열린 강의 8개 · 6 STEP 로드맵(성인 5강) · 52주 52칸·7트랙 탭 전환 · 진단 3문항
+  E. 강의 — 카드뉴스 인라인 뷰어 · 5분 읽기 1,200~1,500자 · 운영표 1칸(저장 0건) · 주소 불변
+  E5. 학교 트랙 — 한 화면 한 질문(1개만 보임 → 선택 → 다음), 본문 16px 이상, 버튼 44px 이상
+  F. 캡처 — 1280·390 전체 화면 + 주요 구획
 
 사용: npm run build && python3 scripts/capture_academy_v80.py
-결과: /workspace/reports/buffetkimz-web/academy-step12/
+결과: /workspace/reports/buffetkimz-web/academy-v820/
 """
 from __future__ import annotations
 
@@ -30,7 +30,7 @@ from playwright.sync_api import sync_playwright  # noqa: E402
 
 APP = pathlib.Path(__file__).resolve().parent.parent
 ROOT = APP / "dist"
-OUT = pathlib.Path("/workspace/reports/buffetkimz-web/academy-step12")
+OUT = pathlib.Path("/workspace/reports/buffetkimz-web/academy-v820")
 OUT.mkdir(parents=True, exist_ok=True)
 CHROME = os.environ.get("PW_CHROME") or (
     "/workspace/.cache/ms-playwright/chromium_headless_shell-1255/chrome-headless-shell-linux64/chrome-headless-shell"
@@ -46,7 +46,12 @@ LESSONS = [
     ("2-1", "/academy/step2-account-order/"),
     ("2-2", "/academy/step2-isa-numbers/"),
     ("2-3", "/academy/step2-pension-tax-limit/"),
+    ("초등1", "/academy/school-elementary-allowance/"),
+    ("청소년1", "/academy/school-teen-payments/"),
+    ("첫월급1", "/academy/school-firstpay-stub/"),
 ]
+
+SCHOOL = {"초등1", "청소년1", "첫월급1"}
 
 
 def check(name: str, ok: bool, detail: str = "") -> None:
@@ -100,7 +105,7 @@ with sync_playwright() as p:
             pg.screenshot(path=str(OUT / f"{name}-{width}-full.png"), full_page=True)
             pg.screenshot(path=str(OUT / f"{name}-{width}-fold.png"))
             ctx.close()
-    check("A1 허브·강의 5개 × 1280/390 HTTP 200", not bad, ", ".join(bad))
+    check("A1 허브·강의 8개 × 1280/390 HTTP 200", not bad, ", ".join(bad))
     check("A2 콘솔 오류 0", not console_errors, " | ".join(console_errors[:3]))
     check("A3 가로 넘침 0", not overflow, ", ".join(overflow[:4]))
 
@@ -188,10 +193,10 @@ with sync_playwright() as p:
         }"""
     )
     check(
-        "D1 허브 — 지금 열린 강의 5개 카드 · 각 강의 주소 연결",
-        hub["count"] == 5
-        and len([l for l in hub["links"] if l and "/academy/step" in l]) == 5
-        and hub["heroCta"] and "/academy/step1-three-buckets/" in hub["heroCta"],
+        "D1 허브 — 지금 열린 강의 8개 카드 · 각 강의 주소 연결",
+        hub["count"] == 8
+        and len([l for l in hub["links"] if l and "/academy/" in l]) == 8
+        and hub["heroCta"] and "#open" in hub["heroCta"],
         f"{hub['count']} · {hub['links']} · cta {hub['heroCta']}",
     )
     check(
@@ -220,6 +225,39 @@ with sync_playwright() as p:
         "D3 진단 3문항 → 경로 전환(0·1·2·3개)",
         diag["steps"] == [["none"], ["starter"], ["builder"], ["all"]] and diag["count"] == "3개 체크",
         f"{diag['steps']} / {diag['count']}",
+    )
+
+    # 52주 연재 로드맵 — 52칸·7트랙 탭
+    roadmap = pg.evaluate(
+        """() => {
+          const weeks = [...document.querySelectorAll('[data-week]')];
+          const blocks = [...document.querySelectorAll('[data-track-block]')];
+          const tabs = [...document.querySelectorAll('[data-track-tab]')];
+          const tab = tabs.find(t => t.dataset.trackTab === 'teen');
+          tab?.click();
+          const vis = (el) => el.offsetParent !== null;
+          const teen = { weeks: weeks.filter(vis).length, blocks: blocks.filter(vis).length,
+                         note: document.querySelector('[data-track-note]')?.textContent.trim() ?? '',
+                         pressed: tabs.filter(t => t.getAttribute('aria-pressed') === 'true').map(t => t.dataset.trackTab) };
+          const all = tabs.find(t => t.dataset.trackTab === 'all');
+          all?.click();
+          return { weeks: weeks.length, blocks: blocks.length, tabs: tabs.length,
+                   open: document.querySelectorAll('.school-week-open').length,
+                   teen, back: weeks.filter(vis).length };
+        }"""
+    )
+    check(
+        "D4 52주 로드맵 — 52칸·7트랙·지금 열린 7주 · 탭 필터(청소년 8주)",
+        roadmap["weeks"] == 52
+        and roadmap["blocks"] == 7
+        and roadmap["tabs"] == 8
+        and roadmap["open"] == 7
+        and roadmap["teen"]["weeks"] == 8
+        and roadmap["teen"]["blocks"] == 1
+        and "청소년" in roadmap["teen"]["note"]
+        and roadmap["teen"]["pressed"] == ["teen"]
+        and roadmap["back"] == 52,
+        f"{roadmap}",
     )
     ctx.close()
 
@@ -327,7 +365,9 @@ with sync_playwright() as p:
                     sheet.get("found")
                     and sheet.get("filled")
                     and sheet.get("empty")
-                    and sheet.get("after", "").startswith(("STEP 1 · 1", "STEP 2 · 1"))
+                    and str(sheet.get("after", "")).startswith(
+                        ("STEP 1 · 1", "STEP 2 · 1", "용돈 세 칸 · 1", "구독 정리표 · 1", "실수령 확인표 · 1")
+                    )
                     and sheet.get("stored") == 0
                     and pg.url == BASE + path,
                     f"{sheet.get('before')} → {sheet.get('after')} · {sheet.get('rows')}",
@@ -337,6 +377,56 @@ with sync_playwright() as p:
                     el.scroll_into_view_if_needed()
                     pg.wait_for_timeout(250)
                     pg.screenshot(path=str(OUT / f"lesson-{slug}-sheet-filled-{width}.png"))
+
+                # 학교 트랙 — 한 화면 한 질문 · 16px/44px
+                if slug in SCHOOL:
+                    a11y = pg.evaluate(
+                        """() => {
+                          const root = document.querySelector('[data-school-lesson]');
+                          if (!root) return { found: false };
+                          const visible = (el) => el.offsetParent !== null && el.getClientRects().length > 0;
+                          const leaf = [...root.querySelectorAll('p,li,span,dt,dd,em,strong,a,h1,h2,h3,legend,button')]
+                            .filter(el => visible(el) && el.children.length === 0)
+                            .filter(el => (el.textContent || '').trim().length > 0)
+                            .filter(el => !el.closest('svg'))
+                            .filter(el => !el.closest('[data-home-pill]'));
+                          const small = leaf
+                            .filter(el => parseFloat(getComputedStyle(el).fontSize) < 15.9)
+                            .slice(0, 6)
+                            .map(el => `${el.tagName.toLowerCase()} ${getComputedStyle(el).fontSize} · ${(el.textContent || '').trim().slice(0, 18)}`);
+                          const buttons = [...root.querySelectorAll('button, .btn')]
+                            .filter(visible)
+                            .map(el => ({ h: Math.round(el.getBoundingClientRect().height), t: (el.textContent || '').trim().slice(0, 14) }))
+                            .filter(b => b.h < 44);
+                          const items = [...root.querySelectorAll('[data-quiz-item]')];
+                          const visItems = () => items.filter(i => !i.hidden).length;
+                          const before = visItems();
+                          const first = root.querySelector('[data-quiz-opt]');
+                          first?.click();
+                          const fb = items[0].querySelector('[data-quiz-fb]');
+                          const fbText = fb?.textContent?.trim() ?? '';
+                          const fbIcon = items[0].querySelector('[data-quiz-icon]')?.textContent?.trim() ?? '';
+                          const next = items[0].querySelector('[data-quiz-next]');
+                          next?.click();
+                          const second = visItems();
+                          const count = root.querySelector('[data-quiz-count]')?.textContent?.trim() ?? '';
+                          return { found: true, small, buttons, before, second, fbVisible: !!fb && !fb.hidden,
+                                   fbText, fbIcon, count };
+                        }"""
+                    )
+                    check(
+                        f"E5 {slug} 학교 트랙 — 한 화면 한 질문·16px·버튼 44px·정답 글자+아이콘",
+                        a11y.get("found")
+                        and a11y.get("before") == 1
+                        and a11y.get("second") == 1
+                        and a11y.get("fbVisible")
+                        and ("맞아요" in a11y.get("fbText", "") or "다시 보기" in a11y.get("fbText", ""))
+                        and a11y.get("fbIcon") in {"✓", "↺"}
+                        and a11y.get("count", "").startswith("2 / 3")
+                        and not a11y.get("small")
+                        and not a11y.get("buttons"),
+                        f"small={a11y.get('small')} buttons={a11y.get('buttons')} fb={a11y.get('fbText')} {a11y.get('count')}",
+                    )
             ctx.close()
 
     check(

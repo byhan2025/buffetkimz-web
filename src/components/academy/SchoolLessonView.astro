@@ -1,0 +1,758 @@
+---
+/**
+ * 학교 트랙 강의 화면 — 초등 고학년·청소년·첫 월급 (v8.2.0).
+ *
+ * 왜 성인 강의(LessonView)와 따로 그리는가
+ *  · 셋톡 부이대리 기준: 본문 16px 이상, 버튼 44px 이상, 한 화면 한 질문.
+ *  · 성인 강의는 12~13px 보조 라벨이 많다. 그 화면을 그대로 쓰면 기준을 맞출 수 없다.
+ *  · 뼈대는 같다: ① 카드뉴스 6장(인라인 뷰어) ② 5분 읽기(1,200~1,500자) ③ 한 화면 한 질문 ④ 내 숫자 실습
+ *    ⑤ 1차 출처 + 면책 + 내 돈 운영표 1칸.
+ *
+ * 숫자는 `data/academy-school-lessons.ts`에서만 온다. 입력값은 화면 안에서만 계산한다.
+ */
+import Base from "@/layouts/Base.astro";
+import HomePill from "@/components/HomePill.astro";
+import SheetSlot from "@/components/academy/SheetSlot.astro";
+import CardNewsViewer from "@/components/academy/CardNewsViewer.astro";
+import SchoolQuiz from "@/components/academy/SchoolQuiz.astro";
+import { withBase, site } from "@/config/site";
+import { ACADEMY, TRACK_LABEL } from "@/data/academy";
+import { SCHOOL_LESSON_CHARS, SCHOOL_LESSONS } from "@/data/academy-school-lessons";
+import { SCHOOL_WEEKS } from "@/data/academy-school";
+import { LESSON_SPEC, type AcademyLesson } from "@/data/academy-lessons";
+import { availableCount } from "@/lib/card-assets";
+import { breadcrumbList, graph } from "@/lib/schema";
+
+interface Props {
+  lesson: AcademyLesson;
+}
+const { lesson } = Astro.props;
+
+const track = lesson.track ?? "elementary";
+const path = `/academy/${lesson.slug}`;
+const chars = SCHOOL_LESSON_CHARS[lesson.slug] ?? 0;
+const cardCount = availableCount(lesson.cardSet);
+const weeks = SCHOOL_WEEKS.filter((w) => w.lessonSlug === lesson.slug);
+const trackName = TRACK_LABEL[track];
+
+if (chars < LESSON_SPEC.minChars || chars > LESSON_SPEC.maxChars) {
+  throw new Error(
+    `${lesson.label} 원고가 ${chars}자입니다. 규격은 1,200~1,500자(공백 제외)입니다 — academy-school-lessons.ts의 reading을 고치세요.`,
+  );
+}
+
+/** 같은 트랙의 다른 강의 — 이전/다음 이동 */
+const siblings = SCHOOL_LESSONS.filter((l) => (l.track ?? "adult") === track);
+const here = siblings.findIndex((l) => l.slug === lesson.slug);
+const prevLesson = here > 0 ? siblings[here - 1] : undefined;
+
+const sections = [
+  { id: "cardnews", no: "①", label: "카드뉴스 6장", note: "3분" },
+  { id: "read", no: "②", label: "5분 읽기", note: `${chars.toLocaleString("ko-KR")}자` },
+  { id: "quiz", no: "③", label: "한 화면 한 질문", note: "3문항" },
+  { id: "calc", no: "④", label: "내 숫자 실습", note: "10분" },
+  { id: "sheet", no: "⑤", label: "운영표 1칸", note: "완료" },
+  { id: "sources", no: "⑥", label: "1차 출처", note: "2분" },
+];
+
+const caveats = [
+  `금액은 ${lesson.label}의 가상 예시입니다. 내 용돈·결제·급여에 넣으면 결과가 달라집니다.`,
+  "고른 값은 주소·저장소·서버에 남기지 않습니다. 화면을 닫으면 사라집니다.",
+  "이 강의는 특정 상품·금융회사를 권하지 않습니다. 숫자의 기준일과 출처는 아래에서 확인하세요.",
+];
+
+const jsonLd = graph([
+  breadcrumbList([
+    { name: "홈", path: "/" },
+    { name: "금융생활학교", path: "/academy" },
+    { name: trackName, path: "/academy/#school-weeks" },
+    { name: `${lesson.label} ${lesson.shortTitle}`, path },
+  ]),
+  {
+    "@type": "LearningResource",
+    "@id": `${site.url}${path}/#lesson`,
+    name: lesson.title,
+    description: lesson.hook,
+    inLanguage: "ko",
+    learningResourceType: "강의",
+    educationalLevel: trackName,
+    timeRequired: `PT${LESSON_SPEC.minutes}M`,
+    isPartOf: { "@id": `${site.url}/academy/#course` },
+    provider: { "@id": `${site.url}/#organization` },
+    dateModified: site.baseDate,
+    teaches: lesson.keyNumbers.map((k) => `${k.label} ${k.value}`),
+  },
+]);
+---
+
+<Base
+  title={`${lesson.label} ${lesson.shortTitle} | ${ACADEMY.name}`}
+  description={`${lesson.question} — ${lesson.hook} 5분 읽기 ${chars.toLocaleString("ko-KR")}자, 한 화면 한 질문 3문항, 내 숫자 실습, 카드 6장, 1차 출처. 기준일 ${site.baseDateLabel}.`}
+  path={path}
+  type="article"
+  publishedTime={site.baseDate}
+  jsonLd={jsonLd}
+>
+  <div class="school" data-school-lesson>
+    <!-- 히어로 -->
+    <section class="scene-sky border-b border-line/70">
+      <div class="wrap py-6 md:py-9">
+        <HomePill />
+        <nav class="breadcrumb" aria-label="위치">
+          <a href={withBase("/")}>홈</a>
+          <span aria-hidden="true">/</span>
+          <a href={withBase("/academy")}>금융생활학교</a>
+          <span aria-hidden="true">/</span>
+          <a href={withBase("/academy/#school-weeks")}>{trackName}</a>
+          <span aria-hidden="true">/</span>
+          <span class="text-ink-muted">{lesson.label}</span>
+        </nav>
+
+        <div class="mt-5 max-w-[68ch]">
+          <ul class="flex flex-wrap items-center gap-2">
+            <li class="chip is-brand">{trackName} · {lesson.label}</li>
+            {weeks.map((w) => (
+              <li class="chip mono">{w.id} · {w.week}주</li>
+            ))}
+            <li class="chip">5분 읽기</li>
+            <li class="chip">카드뉴스 {cardCount > 0 ? `${cardCount}장` : "준비 중"}</li>
+            <li class="chip">한 화면 한 질문 3문항</li>
+            <li class="chip mono">기준일 {site.baseDateLabel}</li>
+          </ul>
+          <h1 class="mt-4 text-[28px] font-bold leading-[1.32] tracking-[-0.042em] text-ink md:text-[38px] [text-wrap:balance]">
+            {lesson.title}
+          </h1>
+          <p class="mt-3 text-[17px] leading-[1.8] text-ink-soft">
+            {trackName} 트랙의 첫 강의입니다. 카드 6장으로 먼저 보고, 5분 읽고, 세 질문으로 확인하고, 내 숫자로
+            한 번 계산합니다. 모든 금액은 가상 예시입니다.
+          </p>
+        </div>
+
+        <!-- 조건별 손익 반전 -->
+        <div class="hook mt-6" data-hook>
+          <p class="hook-lead">{lesson.hook}</p>
+          <div class="hook-grid">
+            <div class="hook-side">
+              <p class="hook-tag">{lesson.fork.short.tag}</p>
+              <h2 class="hook-head">{lesson.fork.short.head}</h2>
+              <p class="hook-body">{lesson.fork.short.body}</p>
+              <p class="hook-verdict">{lesson.fork.short.verdict}</p>
+            </div>
+            <div class="hook-side is-long">
+              <p class="hook-tag">{lesson.fork.long.tag}</p>
+              <h2 class="hook-head">{lesson.fork.long.head}</h2>
+              <p class="hook-body">{lesson.fork.long.body}</p>
+              <p class="hook-verdict">{lesson.fork.long.verdict}</p>
+            </div>
+          </div>
+          <div class="hook-foot">
+            {lesson.keyNumbers.map((k) => (
+              <span>
+                <span class="hook-num-label">{k.label}</span>
+                <span class="hook-num">{k.value}</span>
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="scene-white">
+      <div class="wrap py-9 md:py-14">
+        <div class="grid gap-10 lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-14">
+          <div class="min-w-0">
+            <!-- ① 카드뉴스 -->
+            <div id="cardnews" class="scroll-mt-[calc(var(--header-h)+16px)]">
+              <CardNewsViewer set={lesson.cardSet} no="①" eyebrow="카드뉴스 먼저 보기" size="school" />
+              <p class="mt-3 text-[16px] leading-[1.7] text-ink-faint">
+                카드는 저장·공유·출력용입니다(1080×1350). 읽기 전에 6장을 훑으면 지금 내 숫자가 어디에 걸리는지
+                먼저 보입니다.
+              </p>
+            </div>
+
+            <!-- ② 5분 읽기 -->
+            <div id="read" class="mt-14 scroll-mt-[calc(var(--header-h)+16px)]">
+              <div class="border-b border-line pb-3">
+                <p class="eyebrow">② 5분 읽기</p>
+                <h2 class="mt-2 text-[26px] font-bold tracking-[-0.035em] text-ink md:text-[30px]">
+                  {lesson.shortTitle}
+                </h2>
+                <p class="mono mt-2 text-[16px] text-ink-faint">
+                  {chars.toLocaleString("ko-KR")}자 (공백 제외) · 약 {lesson.readingMinutes}분
+                </p>
+              </div>
+
+              <p class="read-question mt-5">{lesson.question}?</p>
+
+              <div class="conclusion mt-4">
+                <p class="text-[16px] font-bold tracking-[0.08em] text-brand-deep">결론</p>
+                <p class="mt-2 text-[18px] font-semibold leading-[1.75] tracking-[-0.012em] text-ink">
+                  {lesson.thesis}
+                </p>
+              </div>
+
+              <div class="reading mt-7">
+                {
+                  lesson.reading.map((sec) => (
+                    <>
+                      <h2>{sec.h}</h2>
+                      {sec.ps.map((p) => (
+                        <p>{p}</p>
+                      ))}
+                    </>
+                  ))
+                }
+              </div>
+            </div>
+
+            <!-- ③ 한 화면 한 질문 -->
+            <div id="quiz" class="mt-14 scroll-mt-[calc(var(--header-h)+16px)]">
+              {lesson.quiz ? (
+                <SchoolQuiz items={lesson.quiz.items} no="③" />
+              ) : (
+                <p class="note-box text-[17px]">이 강의의 질문은 준비 중입니다.</p>
+              )}
+            </div>
+
+            <!-- ④ 내 숫자 실습 -->
+            <div id="calc" class="mt-14 scroll-mt-[calc(var(--header-h)+16px)]">
+              <div class="border-b border-line pb-3">
+                <p class="eyebrow">④ 내 숫자 실습</p>
+                <h2 class="mt-2 text-[26px] font-bold tracking-[-0.035em] text-ink md:text-[30px]">
+                  세 번 넣어 보기
+                </h2>
+                <p class="mt-2 text-[17px] leading-[1.7] text-ink-muted">{lesson.calculator.note}</p>
+              </div>
+
+              <ul class="mt-5 grid gap-3">
+                {
+                  lesson.scenarios.map((sc, i) => (
+                    <li class="card card-lift p-5">
+                      <div class="flex flex-wrap items-baseline justify-between gap-2">
+                        <p class="text-[16px] font-bold tracking-[0.06em] text-brand-deep">
+                          예시 {String.fromCharCode(65 + i)} · {sc.label}
+                        </p>
+                        <p class="mono text-[16px] font-semibold text-ink-soft">{sc.result}</p>
+                      </div>
+                      <h3 class="mt-2 text-[18px] font-bold leading-snug tracking-[-0.02em] text-ink">{sc.title}</h3>
+                      <ul class="mt-2 grid gap-1 rounded-xl bg-paper px-3 py-2">
+                        {sc.settings.map((s) => (
+                          <li class="text-[16px] leading-[1.6] text-ink-muted">· {s}</li>
+                        ))}
+                      </ul>
+                      <p class="mt-2 text-[16px] leading-[1.65] text-ink-faint">{sc.expect}</p>
+                      <a
+                        href={withBase(sc.href ?? lesson.calculator.href)}
+                        class="btn btn-secondary btn-sm mt-3 inline-flex min-h-[48px] items-center text-[16px]"
+                      >
+                        {sc.cta ?? `${lesson.calculator.name} 열기`}
+                        <span aria-hidden="true" class="ml-1.5">→</span>
+                      </a>
+                    </li>
+                  ))
+                }
+              </ul>
+
+              <div class="note-box mt-4">
+                <p class="text-[17px] font-semibold text-ink">입력값을 저장하지 않는 이유</p>
+                <p class="mt-1 text-[16px] leading-[1.7]">
+                  용돈·결제·급여는 내 이야기입니다. 이 페이지의 계산기는 값을 주소(URL)에 붙이지 않고, 브라우저
+                  저장소에도 쓰지 않습니다. 화면을 닫으면 값이 사라집니다.
+                </p>
+              </div>
+            </div>
+
+            <!-- ⑤ 운영표 1칸 -->
+            <div id="sheet" class="mt-14 scroll-mt-[calc(var(--header-h)+16px)]">
+              <SheetSlot
+                variant={lesson.sheet.variant}
+                slotNo={lesson.sheet.slotNo}
+                slotTitle={lesson.sheet.slotTitle}
+                line={lesson.sheet.line}
+              />
+            </div>
+
+            <!-- ⑥ 1차 출처 -->
+            <div id="sources" class="mt-14 scroll-mt-[calc(var(--header-h)+16px)]">
+              <div class="border-b border-line pb-3">
+                <p class="eyebrow">⑥ 1차 출처</p>
+                <h2 class="mt-2 text-[26px] font-bold tracking-[-0.035em] text-ink md:text-[30px]">
+                  직접 열어볼 원문
+                </h2>
+                <p class="mt-2 text-[17px] leading-[1.7] text-ink-muted">
+                  이 강의의 숫자가 나온 기관 안내입니다. 확인한 것만 적었고, 기준일이 바뀌면 글과 카드를 함께 다시
+                  만듭니다.
+                </p>
+              </div>
+
+              <a href={withBase(lesson.cardSet.href)} class="card card-lift mt-4 flex items-center gap-4 p-4">
+                <span class="card-thumb" aria-hidden="true">
+                  <span class="mono">카드</span>
+                  <strong>{cardCount}</strong>
+                </span>
+                <span class="min-w-0 flex-1">
+                  <span class="block text-[16px] font-bold text-brand-deep">자료앨범 세트</span>
+                  <span class="mt-1 block text-[18px] font-bold tracking-[-0.02em] text-ink">
+                    {lesson.cardSet.title}
+                  </span>
+                  <span class="mt-1 block text-[16px] text-ink-muted">{lesson.cardSet.meta}</span>
+                </span>
+                <span class="btn btn-secondary btn-sm card-set-btn">자료앨범 →</span>
+              </a>
+
+              <ul class="mt-5 grid gap-2">
+                {
+                  lesson.sources.map((s) => (
+                    <li>
+                      <a href={s.url} target="_blank" rel="noopener noreferrer" class="source-row">
+                        <span class="min-w-0">
+                          <span class="block text-[17px] font-semibold leading-snug text-ink">{s.label}</span>
+                          <span class="mt-1 block text-[16px] leading-[1.65] text-ink-muted">{s.what}</span>
+                        </span>
+                        <span class="source-host mono">{s.host} ↗</span>
+                      </a>
+                    </li>
+                  ))
+                }
+              </ul>
+              <p class="mt-3 text-[16px] leading-[1.65] text-ink-faint">
+                확인한 안내만 적었습니다. 링크는 기관 사이트에서 직접 열립니다. 기준일 {site.baseDateLabel}.
+              </p>
+
+              <p class="disclaimer mt-5">
+                <strong class="font-semibold text-ink">이 글은 특정 상품을 권하지 않습니다.</strong> 이 글과 카드는
+                제도와 계산 구조를 설명하는 학습 자료입니다. 가입·전환을 권하지 않으며, 보험은 재무설계의 도구로만
+                다룹니다.{" "}
+                <a href={withBase("/principles")} class="link font-semibold text-ink-soft">편집 원칙 보기</a>
+              </p>
+            </div>
+
+            <!-- 다음 -->
+            <div class="mt-10 rounded-2xl border border-line bg-paper-deep/55 p-5 md:p-6">
+              <p class="text-[16px] font-bold tracking-[0.06em] text-brand-deep">{lesson.next.label}</p>
+              <div class="mt-2 flex flex-wrap items-baseline gap-2">
+                <p class="text-[19px] font-bold tracking-[-0.03em] text-ink">{lesson.next.title}</p>
+                {lesson.next.status && <span class="chip">{lesson.next.status}</span>}
+              </div>
+              <p class="mt-2 text-[16px] leading-[1.7] text-ink-muted">{lesson.next.body}</p>
+              <div class="mt-4 flex flex-wrap gap-2">
+                {lesson.next.href ? (
+                  <a href={withBase(lesson.next.href)} class="btn btn-primary btn-sm min-h-[48px] text-[16px]">
+                    다음 편으로
+                    <span aria-hidden="true" class="ml-1.5">→</span>
+                  </a>
+                ) : (
+                  <a href={withBase("/academy/#school-weeks")} class="btn btn-primary btn-sm min-h-[48px] text-[16px]">
+                    학교 로드맵으로
+                  </a>
+                )}
+                {prevLesson && (
+                  <a
+                    href={withBase(`/academy/${prevLesson.slug}/`)}
+                    class="btn btn-secondary btn-sm min-h-[48px] text-[16px]"
+                  >
+                    이전 강 · {prevLesson.label}
+                  </a>
+                )}
+              </div>
+            </div>
+
+            <p class="mt-8 border-t border-line pt-4 text-[16px] leading-[1.7] text-ink-faint">
+              {ACADEMY.name} · {trackName} {lesson.label} · 기준일 {site.baseDateLabel} · 숫자는 제도 변경에 따라
+              달라질 수 있습니다.
+            </p>
+          </div>
+
+          <!-- 사이드 -->
+          <aside class="min-w-0 lg:sticky lg:top-[calc(var(--header-h)+16px)] lg:self-start">
+            <div class="card p-4 md:p-5">
+              <p class="text-[16px] font-bold tracking-[0.06em] text-brand-deep">이 강의</p>
+              <dl class="meta mt-2">
+                <div>
+                  <dt>트랙</dt>
+                  <dd>{trackName}</dd>
+                </div>
+                <div>
+                  <dt>회차</dt>
+                  <dd>{lesson.label}</dd>
+                </div>
+                <div>
+                  <dt>분량</dt>
+                  <dd>5분 읽기 · 10분 실습</dd>
+                </div>
+                <div>
+                  <dt>질문</dt>
+                  <dd>3문항 · 한 화면 하나</dd>
+                </div>
+                <div>
+                  <dt>카드</dt>
+                  <dd>{cardCount > 0 ? `${cardCount}장` : "제작 중"}</dd>
+                </div>
+              </dl>
+              <a
+                href="#sheet"
+                class="btn btn-primary btn-sm mt-3 inline-flex min-h-[48px] w-full items-center justify-center text-[16px]"
+              >
+                내 숫자 실습으로
+              </a>
+            </div>
+
+            <nav class="card mt-3 p-4 md:p-5" aria-label="이 페이지 목차">
+              <p class="text-[16px] font-bold tracking-[0.06em] text-ink-faint">이 페이지</p>
+              <ul class="toc mt-2">
+                {
+                  sections.map((s) => (
+                    <li>
+                      <a href={`#${s.id}`}>
+                        <span class="mono text-[16px] text-ink-faint" aria-hidden="true">{s.no}</span>
+                        <span class="flex-1 text-[16px] font-semibold text-ink-soft">{s.label}</span>
+                        <span class="mono text-[16px] text-ink-faint">{s.note}</span>
+                      </a>
+                    </li>
+                  ))
+                }
+              </ul>
+            </nav>
+
+            <div class="card mt-3 p-4 md:p-5">
+              <p class="text-[16px] font-bold tracking-[0.06em] text-ink-faint">가정과 한계</p>
+              <ul class="mt-2 space-y-2 text-[16px] leading-[1.65] text-ink-muted">
+                {caveats.map((c) => (
+                  <li>· {c}</li>
+                ))}
+              </ul>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+  </div>
+</Base>
+
+<style>
+  .school {
+    font-size: 17px;
+  }
+
+  /* 전역 작은 라벨(12px)을 학교 트랙 기준으로 올린다 — 자식 컴포넌트에도 적용 */
+  .school :global(.eyebrow) {
+    font-size: 16px;
+  }
+
+  .school :global(.chip) {
+    min-height: 38px;
+    padding: 0 12px;
+    font-size: 16px;
+  }
+
+  .school :global(.chip.is-brand) {
+    border-color: rgb(26 79 253 / 0.3);
+    background-color: var(--color-brand-soft);
+    color: var(--color-brand-deep);
+  }
+
+  .school :global(.btn) {
+    font-size: 16px;
+  }
+
+  .school :global(.mono) {
+    letter-spacing: 0.01em;
+  }
+
+  .breadcrumb {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    font-size: 16px;
+    color: var(--color-ink-faint);
+  }
+
+  .breadcrumb a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+
+  .breadcrumb a:hover {
+    color: var(--color-ink);
+  }
+
+  .hook {
+    padding: 18px;
+    border: 1px solid var(--color-line);
+    border-radius: 18px;
+    background-color: #ffffff;
+    box-shadow: 0 20px 44px -38px rgb(11 27 41 / 0.55);
+  }
+
+  @media (min-width: 768px) {
+    .hook {
+      padding: 24px;
+    }
+  }
+
+  .hook-lead {
+    font-size: 18px;
+    font-weight: 650;
+    line-height: 1.7;
+    color: var(--color-ink);
+    text-wrap: pretty;
+  }
+
+  .hook-grid {
+    display: grid;
+    gap: 10px;
+    margin-top: 14px;
+  }
+
+  @media (min-width: 768px) {
+    .hook-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .hook-side {
+    padding: 16px;
+    border-radius: 14px;
+    border: 1px solid var(--color-line-soft);
+    background-color: var(--color-paper);
+  }
+
+  .hook-side.is-long {
+    border-color: rgb(26 79 253 / 0.28);
+    background-color: var(--color-brand-soft);
+  }
+
+  .hook-tag {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--color-ink-faint);
+  }
+
+  .hook-side.is-long .hook-tag {
+    color: var(--color-brand-deep);
+  }
+
+  .hook-head {
+    margin-top: 4px;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.4;
+    color: var(--color-ink);
+  }
+
+  .hook-body {
+    margin-top: 8px;
+    font-size: 17px;
+    line-height: 1.7;
+    color: var(--color-ink-muted);
+  }
+
+  .hook-verdict {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--color-line);
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1.6;
+    color: var(--color-clay);
+  }
+
+  .hook-side.is-long .hook-verdict {
+    color: var(--color-brand-deep);
+  }
+
+  .hook-foot {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--color-line-soft);
+  }
+
+  .hook-foot > span {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 6px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    background-color: var(--color-paper);
+  }
+
+  .hook-num-label {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--color-ink-faint);
+  }
+
+  .hook-num {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--color-brand-deep);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .read-question {
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.55;
+    letter-spacing: -0.02em;
+    color: var(--color-ink);
+    text-wrap: pretty;
+  }
+
+  .conclusion {
+    max-width: 66ch;
+    padding: 16px 18px;
+    border-left: 3px solid var(--color-brand);
+    border-radius: 0 12px 12px 0;
+    background-color: rgb(242 240 232 / 0.55);
+  }
+
+  .reading {
+    max-width: 68ch;
+  }
+
+  .reading h2 {
+    margin-top: 30px;
+    font-size: 23px;
+    font-weight: 700;
+    line-height: 1.4;
+    letter-spacing: -0.03em;
+    color: var(--color-ink);
+  }
+
+  .reading h2:first-child {
+    margin-top: 0;
+  }
+
+  .reading p {
+    margin-top: 12px;
+    font-size: 17px;
+    line-height: 1.9;
+    color: var(--color-ink-soft);
+    text-wrap: pretty;
+  }
+
+  .note-box {
+    padding: 16px;
+    border: 1px solid var(--color-line);
+    border-radius: 14px;
+    background-color: var(--color-cream);
+    color: var(--color-ink-muted);
+  }
+
+  .card-thumb {
+    display: grid;
+    place-items: center;
+    width: 66px;
+    height: 82px;
+    flex: none;
+    border-radius: 10px;
+    background-image: linear-gradient(160deg, #2a5bff 0%, #1233b8 100%);
+    color: #ffffff;
+  }
+
+  .card-thumb .mono {
+    font-size: 16px;
+    opacity: 0.85;
+  }
+
+  .card-thumb strong {
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .card-set-btn {
+    min-height: 48px;
+    white-space: nowrap;
+  }
+
+  @media (max-width: 560px) {
+    .card-set-btn {
+      display: none;
+    }
+  }
+
+  .source-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 56px;
+    padding: 12px 4px;
+    border-bottom: 1px solid var(--color-line-soft);
+  }
+
+  .source-row:hover {
+    background-color: var(--color-brand-soft);
+  }
+
+  .source-host {
+    flex: none;
+    align-self: center;
+    font-size: 16px;
+    color: var(--color-brand-deep);
+    white-space: nowrap;
+  }
+
+  .disclaimer {
+    padding: 14px 16px;
+    border-radius: 12px;
+    border: 1px solid var(--color-line);
+    background-color: var(--color-cream);
+    font-size: 16px;
+    line-height: 1.75;
+    color: var(--color-ink-muted);
+  }
+
+  .meta {
+    display: grid;
+    gap: 4px;
+  }
+
+  .meta > div {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--color-line-soft);
+  }
+
+  .meta dt {
+    flex: none;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--color-ink-faint);
+  }
+
+  .meta dd {
+    margin: 0;
+    text-align: right;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--color-ink-soft);
+  }
+
+  .toc {
+    display: grid;
+    gap: 1px;
+  }
+
+  .toc a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 48px;
+    border-radius: 8px;
+    padding: 0 4px;
+  }
+
+  .toc a:hover {
+    background-color: var(--color-brand-soft);
+  }
+</style>

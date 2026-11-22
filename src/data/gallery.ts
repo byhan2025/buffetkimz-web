@@ -123,6 +123,193 @@ const yearendSlides: GallerySlide[] = [
 
 export const galleryItems: GalleryItem[] = [
   /**
+   * v8.2.0 — 「버핏킴즈 금융생활학교」 초등·청소년·첫 월급 3강과 함께 온 3세트(18장).
+   * A. 용돈 세 칸 / B. 소액결제와 사기 방어 / C. 첫 월급명세서 3줄.
+   * 스타일은 2차 배치와 같은 **손글씨 + 형광펜 + 크림지 + 파스텔 2D**다(렌더 `tmp/clay1222/render_school.py`).
+   * 6장 연속 세트라 분류는 `carousel`이고, 태그 `손글씨 다이어그램`·`학교 트랙`으로 구분한다.
+   * 카드 속 금액은 모두 가상 예시이며, 기준일은 2026. 11. 22.이다.
+   */
+  {
+    id: "allowance-three-rooms-hand",
+    title: "용돈 7,000원, 세 칸으로 나누기",
+    tagline: "손글씨 카드 6장 · 쓸 돈 3,000 · 모을 돈 3,000 · 남길 돈 1,000",
+    summary:
+      "용돈을 받은 날 먼저 세 칸으로 나누면 남는 돈을 세지 않아도 됩니다. 7,000원을 ① 쓸 돈 3,000원, ② 모을 돈 3,000원, ③ 남길 돈 1,000원으로 나누고, 목표 30,000원까지 8주를 계산합니다. 물가가 오르면 같은 돈으로 살 수 있는 양이 줄어든다는 한 줄도 담았습니다.",
+    category: "carousel",
+    createdAt: "2026-11-22",
+    tags: ["카드뉴스", "손글씨 다이어그램", "학교 트랙", "초등", "용돈", "저축", "물가"],
+    slides: [
+      {
+        src: "/gallery/3d-allowance-01.png",
+        width: W,
+        height: H,
+        alt: "표지 — 나무 책상 위 봉투 세 개와 동전, 첫 봉투에 동전을 넣는 마스코트와 '용돈 7,000원, 세 칸으로 나눠 볼까?'",
+        caption: "표지 — 용돈 7,000원을 세 칸으로 나눠 볼까?",
+      },
+      {
+        src: "/gallery/3d-allowance-02.png",
+        width: W,
+        height: H,
+        alt: "오해 vs 팩트 — 빈 지갑을 든 마스코트와 세 봉투에 동전을 나눠 담는 마스코트",
+        caption: "오해 vs 팩트 — 남으면 모은다 / 먼저 나눈다",
+      },
+      {
+        src: "/gallery/3d-allowance-03.png",
+        width: W,
+        height: H,
+        alt: "칸 ① — 동전 하나와 간식·연필이 든 장바구니를 든 마스코트, '이번 주에 쓸 돈 3,000원'",
+        caption: "칸 ① — 이번 주에 쓸 돈 3,000원",
+      },
+      {
+        src: "/gallery/3d-allowance-04.png",
+        width: W,
+        height: H,
+        alt: "칸 ② — 유리병에 동전을 넣는 마스코트와 병에 기댄 사다리, 병 위의 자전거 그림",
+        caption: "칸 ② — 목표 30,000원, 매주 3,000원",
+      },
+      {
+        src: "/gallery/3d-allowance-05.png",
+        width: W,
+        height: H,
+        alt: "칸 ③ — 뚜껑 있는 작은 통에 동전을 넣는 마스코트와 옆에 세운 우산",
+        caption: "칸 ③ — 급할 때 쓰는 돈 1,000원",
+      },
+      {
+        src: "/gallery/3d-allowance-06.png",
+        width: W,
+        height: H,
+        alt: "오늘 할 일 — 봉투 세 개에 연필로 이름을 쓰는 마스코트와 동전 더미, 세 칸 체크리스트",
+        caption: "오늘 할 일 — 봉투 3개에 이름 붙이기",
+      },
+    ],
+    basis:
+      "자체 기준(세 칸 비율·목표 주수는 예시) · 기준일 2026. 11. 22. · 모든 금액 가상 · 물가 통계는 통계청 소비자물가지수에서 확인",
+    related: [
+      { label: "초등 1강 — 용돈 7,000원, 세 칸", href: "/academy/school-elementary-allowance/" },
+      { label: "금융생활학교 52주 로드맵", href: "/academy/#school-weeks" },
+    ],
+  },
+  {
+    id: "teen-pay-traps-hand",
+    title: "월 5,000원이 1년이면 60,000원",
+    tagline: "손글씨 카드 6장 · 구독 12개월 · BNPL 수수료 · 112·1332",
+    summary:
+      "작은 결제도 12개월로 바꾸면 크기가 보입니다. 월 5,000원 구독은 1년 60,000원, 월 30,000원 소액결제는 1년 360,000원입니다. 200,000원을 3개월로 나눠 갚을 때 수수료 5%면 10,000원이 붙어 총 210,000원을 갚습니다. 송금 요청 앞에서 멈추고 112·1332로 확인하는 순서도 담았습니다.",
+    category: "carousel",
+    createdAt: "2026-11-22",
+    tags: ["카드뉴스", "손글씨 다이어그램", "학교 트랙", "청소년", "소액결제", "BNPL", "금융사기"],
+    slides: [
+      {
+        src: "/gallery/3d-teen-pay-01.png",
+        width: W,
+        height: H,
+        alt: "표지 — 화면에서 동전이 흘러나와 유리병에 담기는 휴대폰과 놀란 마스코트",
+        caption: "표지 — 월 5,000원이 1년이면 60,000원",
+      },
+      {
+        src: "/gallery/3d-teen-pay-02.png",
+        width: W,
+        height: H,
+        alt: "오해 vs 팩트 — 동전 하나를 든 마스코트와 달력 12칸에 동전이 쌓인 모습을 보는 마스코트",
+        caption: "오해 vs 팩트 — 한 달 5천 원 / 1년으로 보기",
+      },
+      {
+        src: "/gallery/3d-teen-pay-03.png",
+        width: W,
+        height: H,
+        alt: "반복 결제 — 달력 12칸마다 동전 하나씩, 그 옆을 가리키는 마스코트",
+        caption: "반복 결제 — 한 달 30,000원이면 1년 360,000원",
+      },
+      {
+        src: "/gallery/3d-teen-pay-04.png",
+        width: W,
+        height: H,
+        alt: "BNPL — 가게에서 작은 상자를 받는 마스코트와 위에 떠 있는 시계·수수료 동전",
+        caption: "BNPL — 200,000원 3개월, 수수료 10,000원",
+      },
+      {
+        src: "/gallery/3d-teen-pay-05.png",
+        width: W,
+        height: H,
+        alt: "사기 신호 — 휴대폰에서 물음표 봉투가 나오고 한 손을 든 채 뒤로 물러서는 마스코트, 경찰 호루라기와 방패",
+        caption: "사기 신호 — 송금 요청은 멈추고 확인(112·1332)",
+      },
+      {
+        src: "/gallery/3d-teen-pay-06.png",
+        width: W,
+        height: H,
+        alt: "오늘 할 일 — 세 칸 체크리스트를 든 마스코트와 휴대폰·호루라기",
+        caption: "오늘 할 일 — 결제 내역에서 3개 찾기",
+      },
+    ],
+    basis:
+      "자체 계산(구독·소액결제·BNPL 금액은 가상) · 기준일 2026. 11. 22. · 신고 경로는 경찰청 112·금융감독원 불법금융신고센터 1332 안내",
+    related: [
+      { label: "청소년 1강 — 소액결제와 먼저 받는 돈", href: "/academy/school-teen-payments/" },
+      { label: "금융생활학교 52주 로드맵", href: "/academy/#school-weeks" },
+    ],
+  },
+  {
+    id: "firstpay-stub-hand",
+    title: "세전 300만, 통장엔 267만",
+    tagline: "손글씨 카드 6장 · 지급 · 공제 33만(가상) · 실수령",
+    summary:
+      "월급명세서는 세 줄입니다. ① 지급 합계(세전) ② 공제 합계 ③ 실수령입니다. 세전 300만 원에서 4대보험과 세금 33만 원(가상)을 빼면 실수령 267만 원이고, 여기서 고정비·변동비를 빼 남는 돈을 세 칸으로 나눕니다. 4대보험 이름 네 개와 근로자 부담 몫을 카드에 담았습니다.",
+    category: "carousel",
+    createdAt: "2026-11-22",
+    tags: ["카드뉴스", "손글씨 다이어그램", "학교 트랙", "첫 월급", "명세서", "4대보험", "실수령"],
+    slides: [
+      {
+        src: "/gallery/3d-firstpay-01.png",
+        width: W,
+        height: H,
+        alt: "표지 — 세 줄이 그어진 긴 명세서를 두 손으로 든 마스코트와 지갑",
+        caption: "표지 — 세전 300만, 통장엔 267만",
+      },
+      {
+        src: "/gallery/3d-firstpay-02.png",
+        width: W,
+        height: H,
+        alt: "오해 vs 팩트 — 큰 동전 자루를 안고 빈 지갑을 본 마스코트와 작은 자루를 들고 통에 동전을 나눠 주는 마스코트",
+        caption: "오해 vs 팩트 — 세전 300만 / 실수령 267만",
+      },
+      {
+        src: "/gallery/3d-firstpay-03.png",
+        width: W,
+        height: H,
+        alt: "1줄 지급 — 책상 위 빈 카드 세 장과 동전, 첫 장을 가리키는 마스코트",
+        caption: "1줄 지급 — 기본급·수당을 더한 세전",
+      },
+      {
+        src: "/gallery/3d-firstpay-04.png",
+        width: W,
+        height: H,
+        alt: "2줄 공제 — 작은 통 네 개에 동전이 쏟아지는 모습을 살피는 마스코트",
+        caption: "2줄 공제 — 4대보험과 세금, 가상 33만 원",
+      },
+      {
+        src: "/gallery/3d-firstpay-05.png",
+        width: W,
+        height: H,
+        alt: "3줄 실수령 — 동전을 세 유리병에 나누는 마스코트, 우산·달력·새싹이 각 병 옆에",
+        caption: "3줄 실수령 — 267만 원을 세 칸으로",
+      },
+      {
+        src: "/gallery/3d-firstpay-06.png",
+        width: W,
+        height: H,
+        alt: "오늘 할 일 — 긴 명세서의 세 줄을 빨간 연필로 동그라미하는 마스코트",
+        caption: "오늘 할 일 — 세 숫자에 동그라미",
+      },
+    ],
+    basis:
+      "4대보험료율 2026년 기준(건강보험 7.19%·장기요양 0.9448%는 사업주 포함, 근로자 몫은 절반) · 공제 33만 원과 세금은 가상 · 기준일 2026. 11. 22. · 실제 금액은 명세서와 국세청 안내에서 확인",
+    related: [
+      { label: "첫 월급 1강 — 명세서 3줄", href: "/academy/school-firstpay-stub/" },
+      { label: "금융생활학교 52주 로드맵", href: "/academy/#school-weeks" },
+    ],
+  },
+  /**
    * v8.1.0 — 「한스푼 아카데미」 STEP 1·2 확장과 함께 온 2차 5세트(30장).
    * C. 계좌 배치표 / E. 낙폭과 회복 / G. 퇴직연금 3층 / H. 보장 공백 5칸 / I. 12개월 금융 달력.
    * 스타일은 3D 클레이가 아니라 **손글씨 + 형광펜 + 크림지**다. 파일 이름만 기존 경로 규칙(`3d-`)을 유지했고,

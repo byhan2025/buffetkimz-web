@@ -8,6 +8,9 @@
  *   emergency 생활비·적립액 → 비상금 목표액·도달 개월 (1-2강)
  *   order     월 여유자금 → 1·2·3순위 배분·예상 공제 (2-1강)
  *   isa       연 수익 → ISA 절세액·전환 추가 공제 (2-2강)
+ *   allowance 용돈 → 쓸 돈·모을 돈·남길 돈 (초등 1강, v8.2.0)
+ *   teenplan  월 반복 결제·BNPL → 1년 비용·갚을 총액 (청소년 1강)
+ *   firstpay  세전·공제 → 실수령·세 칸 (첫 월급 1강)
  *
  * 공통 원칙: 입력값은 화면 안에서만 계산하고 주소·서버·저장소에 남기지 않는다.
  */
@@ -16,6 +19,7 @@ import SheetCashflow from "./SheetCashflow.astro";
 import SheetEmergency from "./SheetEmergency.astro";
 import SheetOrder from "./SheetOrder.astro";
 import SheetIsa from "./SheetIsa.astro";
+import SheetSchool from "./SheetSchool.astro";
 import type { SheetVariant } from "@/data/academy-lessons";
 
 interface Props {
@@ -37,6 +41,8 @@ const { variant = "pension", slotNo, slotTitle, line } = Astro.props;
     <SheetOrder slotNo={slotNo} slotTitle={slotTitle} line={line} />
   ) : variant === "isa" ? (
     <SheetIsa slotNo={slotNo} slotTitle={slotTitle} line={line} />
+  ) : variant === "allowance" || variant === "teenplan" || variant === "firstpay" ? (
+    <SheetSchool variant={variant} slotNo={slotNo} slotTitle={slotTitle} line={line} />
   ) : (
     <SheetSlotPension />
   )

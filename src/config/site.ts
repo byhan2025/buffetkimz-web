@@ -189,7 +189,7 @@ export const nav: NavItem[] = [
   {
     href: "/academy",
     label: "아카데미",
-    desc: "한스푼 아카데미 · 6 STEP 41강",
+    desc: "금융생활학교 · 6트랙 52주",
     match: "/academy",
   },
   {

@@ -1,6 +1,6 @@
 ---
 /**
- * 홈 — 「한스푼 아카데미」 진입 밴드 (v8.1.0 — STEP 1·2 개설).
+ * 홈 — 「버핏킴즈 금융생활학교」 진입 밴드 (v8.2.0 — 6트랙 52주 + 학교 3강).
  *
  * 포털 픽(읽고 열어 보기) 아래에 놓아, 글·도구를 본 사람이 '배우는 순서'로 넘어가게 한다.
  * 대표 카드는 지금 열린 첫 강의(STEP 1 · 1-1강)를 보여 준다 — 개수와 순서는 data/academy.ts가 정한다.
@@ -18,21 +18,21 @@ const nums = featured.keyNumbers.slice(0, 2);
   <div class="wrap py-10 md:py-12">
     <div class="academy-band">
       <div class="min-w-0">
-        <p class="eyebrow">한스푼 아카데미</p>
+        <p class="eyebrow">금융생활학교</p>
         <h2 class="academy-band-title">
-          글과 도구 사이에,<br />배우는 순서를 놓았습니다
+          용돈부터 은퇴까지,<br />배우는 순서를 놓았습니다
         </h2>
         <p class="academy-band-desc">
           {ACADEMY.promise}
         </p>
         <ul class="mt-3 flex flex-wrap gap-1.5">
-          <li class="chip">{ACADEMY.counts.steps} STEP · {ACADEMY.counts.lessons}강</li>
-          <li class="chip">강의 1개 15분</li>
-          <li class="chip">카드 {ACADEMY.counts.cardSets}세트 {ACADEMY.counts.cards}장</li>
+          <li class="chip">6트랙 · 52주</li>
+          <li class="chip">성인 실전 {ACADEMY.counts.steps} STEP · {ACADEMY.counts.lessons}강</li>
+          <li class="chip">지금 열린 {OPEN_LESSONS.length}강</li>
         </ul>
         <div class="mt-4 flex flex-wrap gap-2">
           <a href={withBase("/academy")} class="btn btn-secondary btn-sm min-h-[44px]">
-            아카데미 전체 보기
+            금융생활학교 전체 보기
           </a>
           <a href={withBase(featuredHref)} class="btn btn-tertiary btn-sm min-h-[44px]">
             {featured.label} — {featured.shortTitle}

@@ -27,9 +27,18 @@ interface Props {
   linkLabel?: string;
   /** 이 강의에서 특히 먼저 볼 장 (1부터). 없으면 세트의 startIndex */
   focus?: number;
+  /** `school`이면 초등·청소년 기준(글자 16px 이상·버튼 48px)으로 그린다 */
+  size?: "default" | "school";
 }
 
-const { set, no = "④", eyebrow = "자료앨범 3D 카드뉴스", linkLabel = "자료앨범에서 6장 전체 보기", focus } = Astro.props;
+const {
+  set,
+  no = "④",
+  eyebrow = "자료앨범 3D 카드뉴스",
+  linkLabel = "자료앨범에서 6장 전체 보기",
+  focus,
+  size = "default",
+} = Astro.props;
 
 /** 빌드 시점에 실제로 있는 PNG만 남긴다 — 없는 파일로 깨진 이미지를 그리지 않는다. */
 const slides = availableSlides(set);
@@ -50,7 +59,7 @@ const heading = `${set.title} — 카드뉴스 ${slides.length}장`;
 ---
 
 <section
-  class="cn"
+  class:list={["cn", size === "school" && "is-school"]}
   data-cardnews
   data-start={start}
   aria-labelledby={`cn-title-${set.id}`}
@@ -278,6 +287,58 @@ const heading = `${set.title} — 카드뉴스 ${slides.length}장`;
 </script>
 
 <style>
+  /* 초등·청소년 강의용 — 글자 16px 이상, 버튼 48px 이상(셋톡 부이대리 기준) */
+  .cn.is-school .cn-meta,
+  .cn.is-school .cn-gallery-link,
+  .cn.is-school .cn-note,
+  .cn.is-school .cn-dialog-caption,
+  .cn.is-school .cn-dialog-count {
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  .cn.is-school .cn-counter {
+    font-size: 16px;
+    min-width: 64px;
+  }
+
+  .cn.is-school .cn-caption {
+    font-size: 17px;
+    line-height: 1.6;
+  }
+
+  .cn.is-school .cn-thumb-no {
+    font-size: 16px;
+    width: 26px;
+    height: 26px;
+  }
+
+  .cn.is-school .cn-dialog-title {
+    font-size: 17px;
+  }
+
+  .cn.is-school .cn-nav {
+    width: 52px;
+    height: 52px;
+  }
+
+  .cn.is-school .cn-actions .btn,
+  .cn.is-school .cn-empty .btn {
+    font-size: 16px;
+    min-height: 48px;
+  }
+
+  .cn.is-school .cn-empty-title {
+    font-size: 18px;
+  }
+
+  .cn.is-school .cn-empty-body,
+  .cn.is-school .cn-empty-list li,
+  .cn.is-school .cn-empty-list .mono {
+    font-size: 16px;
+    line-height: 1.7;
+  }
+
   .cn {
     padding: 16px;
     border: 1px solid var(--color-line);

@@ -68,7 +68,39 @@ export type LessonScenario = {
 
 export type LessonSource = { label: string; what: string; url: string; host: string };
 
-export type SheetVariant = "pension" | "cashflow" | "emergency" | "order" | "isa";
+export type SheetVariant =
+  | "pension"
+  | "cashflow"
+  | "emergency"
+  | "order"
+  | "isa"
+  /** v8.2.0 학교 트랙 — 초등 용돈 세 칸 */
+  | "allowance"
+  /** v8.2.0 학교 트랙 — 청소년 구독·BNPL */
+  | "teenplan"
+  /** v8.2.0 학교 트랙 — 첫 월급 실수령 */
+  | "firstpay";
+
+/** 강의가 속한 트랙 — 성인 실전 6 STEP과 학교 3트랙을 가른다 */
+export type LessonTrack = "adult" | "elementary" | "teen" | "firstpay";
+
+/** 한 화면 한 질문 퀴즈의 선택지 — 정답은 색이 아니라 글자·아이콘으로 알린다 */
+export type LessonQuizOption = {
+  label: string;
+  /** 정답 여부 — 화면에는 '맞아요'/'다시 보기' 글자와 아이콘으로 함께 나간다 */
+  ok?: boolean;
+  /** 고른 뒤 보여 주는 한 줄 — 왜 그런지 */
+  why: string;
+};
+
+export type LessonQuizItem = {
+  q: string;
+  /** 질문 아래 작은 힌트 */
+  hint?: string;
+  options: LessonQuizOption[];
+  /** 한 문항을 마친 뒤 남기는 한 줄 */
+  explain: string;
+};
 
 export type LessonSheet = {
   variant: SheetVariant;
@@ -81,6 +113,11 @@ export type LessonSheet = {
 
 export type AcademyLesson = {
   slug: string;
+  /** 없으면 성인 실전(`adult`) — 학교 트랙만 값을 갖는다 */
+  track?: LessonTrack;
+  /** 학교 트랙의 한 화면 한 질문 퀴즈 — 없으면 퀴즈 구획을 그리지 않는다 */
+  quiz?: { items: LessonQuizItem[] };
+  /** 성인 STEP은 1~6, 학교 트랙은 0 */
   step: number;
   no: number;
   /** `1-1강` */

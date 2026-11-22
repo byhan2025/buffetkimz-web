@@ -1,30 +1,82 @@
 ---
 /**
- * /academy — 「한스푼 아카데미」 허브 (v8.1.0 — STEP 1·2 개설).
+ * /academy — 「버핏킴즈 금융생활학교」 통합 허브 (v8.2.0).
  *
- * ① 히어로 — 프로그램 한 줄 소개 + 숫자(6 STEP·41강·지금 열린 N강) + 첫 강의로 가는 버튼
- * ② 지금 열린 강의 — STEP 1·2의 강의를 카드로 펼친다(카드뉴스·계산기·출처·운영표가 붙은 강의)
- * ③ 강의 1개의 4종 세트 — 5분 읽기 · 카드뉴스 6장 · 계산기 · 1차 출처
- * ④ 6 STEP 로드맵 — 41강을 단계·질문·산출물로 펴고, 열린 STEP은 강의 목록을 링크로 붙인다
- * ⑤ 수강 경로 3가지 + 진단 3문항 — 체크 개수로 경로를 고른다(자바스크립트 없이도 경로는 읽힌다)
- * ⑥ 원칙·면책 — 특정 상품 비권유, 기준일
+ * ① 히어로 — 프로그램 한 줄 소개 + 숫자(6트랙 52주 · 성인 실전 6 STEP 41강 · 지금 열린 N강) + 첫 강의 버튼
+ * ② 트랙 안내 — 초등 · 청소년 · 첫 월급 · 성인 실전 네 갈래를 먼저 보여 준다
+ * ③ 지금 열린 강의 — 성인 5강 + 학교 트랙 3강을 카드로 펼친다(트랙 칩 포함)
+ * ④ 52주 연재 로드맵 — 7트랙 52주를 탭으로 거르고, 지금 열린 주는 강의로 연결한다
+ * ⑤ 성인 실전 6 STEP 로드맵 — 41강을 단계·질문·산출물로 편다
+ * ⑥ 수강 경로 3가지 + 진단 3문항 — 성인 실전의 진입점
+ * ⑦ 원칙·면책 — 특정 상품 비권유, 아동·청소년 개인정보 기준, 기준일
  *
- * 숫자(강수·세트·시간·금액)는 `data/academy.ts`·`data/academy-lessons.ts`·`data/tax-rules.ts`에서만 읽는다.
+ * 숫자(주차·강수·세트)는 `data/academy.ts`·`data/academy-school.ts`·`data/academy-lessons.ts`에서만 읽는다.
+ * 52주와 41강은 합산하지 않는다 — 52주는 공개 연재, 41강은 성인 심화 후보다.
  */
 import Base from "@/layouts/Base.astro";
 import HomePill from "@/components/HomePill.astro";
 import { withBase, site } from "@/config/site";
-import { ACADEMY, ACADEMY_SET, ACADEMY_STEPS, ACADEMY_PATHS, ACADEMY_DIAGNOSIS, OPEN_LESSONS, openLessonCount } from "@/data/academy";
+import {
+  ACADEMY,
+  ACADEMY_SET,
+  ACADEMY_STEPS,
+  ACADEMY_PATHS,
+  ACADEMY_DIAGNOSIS,
+  OPEN_LESSONS,
+  openLessonCount,
+  TRACK_LABEL,
+} from "@/data/academy";
+import { SCHOOL_COUNTS, SCHOOL_TRACKS, SCHOOL_WEEKS, weeksOfTrack } from "@/data/academy-school";
 import { breadcrumbList, graph, partOfWebsite } from "@/lib/schema";
 import { availableCount } from "@/lib/card-assets";
 
-const first = OPEN_LESSONS[0];
-const firstHref = `/academy/${first.slug}/`;
+const adultOpen = OPEN_LESSONS.filter((l) => (l.track ?? "adult") === "adult").length;
+const schoolOpen = OPEN_LESSONS.length - adultOpen;
+
+/** 트랙 안내 카드 — 첫 강의가 있으면 그 강의로 연결한다 */
+const trackCards = [
+  {
+    id: "elementary",
+    name: "초등 고학년",
+    weeks: 8,
+    line: "용돈·저축·물가",
+    body: "7,000원을 세 칸으로 나누고, 목표까지 몇 주인지 계산합니다. 모든 금액은 가상입니다.",
+    href: "/academy/school-elementary-allowance/",
+    status: "1강 열림",
+  },
+  {
+    id: "teen",
+    name: "청소년",
+    weeks: 8,
+    line: "소액결제·BNPL·사기 방어",
+    body: "월 5,000원을 1년으로 바꿔 보고, 송금 요청 앞에서 멈추는 순서를 익힙니다(112·1332).",
+    href: "/academy/school-teen-payments/",
+    status: "1강 열림",
+  },
+  {
+    id: "firstpay",
+    name: "첫 월급 · 사회초년생",
+    weeks: 8,
+    line: "명세서·비상금·첫해 운영표",
+    body: "세전 300만 원에서 왜 33만 원이 빠지는지, 명세서 세 줄로 확인합니다.",
+    href: "/academy/school-firstpay-stub/",
+    status: `1강 열림`,
+  },
+  {
+    id: "adult",
+    name: "성인 실전",
+    weeks: 41,
+    line: "6 STEP · 41강 심화",
+    body: "돈의 기초부터 1년 운영표까지. 지금 5강이 열려 있고, 12편을 우선 제작합니다.",
+    href: "#roadmap",
+    status: `${adultOpen}강 열림`,
+  },
+];
 
 const jsonLd = graph([
   breadcrumbList([
     { name: "홈", path: "/" },
-    { name: "아카데미", path: "/academy" },
+    { name: "금융생활학교", path: "/academy" },
   ]),
   {
     "@type": "Course",
@@ -45,8 +97,8 @@ const jsonLd = graph([
 ---
 
 <Base
-  title={`${ACADEMY.name} — 6 STEP 41강 · 하루 한스푼 15분 금융 수업`}
-  description={`${ACADEMY.name}는 금융·투자·연금·재무를 6단계 41강으로 나눈 학습 프로그램입니다. 강의 1개는 5분 읽기, 카드뉴스 6장, 내 숫자 계산기, 1차 출처로 묶여 있습니다. 지금 STEP 1·2의 ${openLessonCount}강이 열려 있습니다. 기준일 ${site.baseDateLabel}.`}
+  title={`${ACADEMY.name} — 6트랙 52주 · 성인 실전 6 STEP 41강`}
+  description={`${ACADEMY.name}는 초등 고학년·청소년·첫 월급·가계·자산형성·은퇴 6트랙 52주와 성인 실전 6 STEP 41강을 한곳에 모은 무료 금융교육입니다. 강의 1개는 5분 읽기, 카드뉴스 6장, 내 숫자 계산기, 1차 출처로 묶여 있습니다. 지금 ${openLessonCount}강이 열려 있습니다. 기준일 ${site.baseDateLabel}.`}
   path="/academy"
   jsonLd={jsonLd}
 >
@@ -54,34 +106,36 @@ const jsonLd = graph([
   <section class="scene-sky border-b border-line/70">
     <div class="wrap py-6 md:py-10">
       <HomePill />
-      <nav class="flex flex-wrap items-center gap-2 text-[12px] text-ink-faint" aria-label="위치">
-        <a href={withBase("/")} class="inline-flex min-h-[44px] items-center hover:text-ink md:min-h-[24px]">홈</a>
+      <nav class="flex flex-wrap items-center gap-2 text-[16px] text-ink-faint" aria-label="위치">
+        <a href={withBase("/")} class="inline-flex min-h-[44px] items-center hover:text-ink md:min-h-[28px]">홈</a>
         <span aria-hidden="true">/</span>
-        <span class="text-ink-muted">아카데미</span>
+        <span class="text-ink-muted">금융생활학교</span>
       </nav>
 
       <div class="mt-4 grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:items-end">
         <div class="max-w-[62ch]">
           <p class="eyebrow">{ACADEMY.tagline}</p>
-          <h1 class="mt-2 text-[30px] font-bold leading-[1.22] tracking-[-0.042em] text-ink md:text-[42px]">
+          <h1 class="mt-2 text-[30px] font-bold leading-[1.22] tracking-[-0.042em] text-ink md:text-[44px]">
             {ACADEMY.name}
           </h1>
-          <p class="mt-3 text-[14.5px] leading-[1.8] text-ink-soft">{ACADEMY.promise}</p>
+          <p class="mt-3 text-[15px] leading-[1.8] text-ink-soft">{ACADEMY.promise}</p>
 
           <ul class="mt-4 flex flex-wrap gap-1.5">
-            <li class="chip">{ACADEMY.counts.steps} STEP · {ACADEMY.counts.lessons}강</li>
-            <li class="chip !border-brand/30 !bg-brand-soft !text-brand-deep">지금 열린 강의 {openLessonCount}개</li>
-            <li class="chip">카드 {ACADEMY.counts.cardSets}세트 {ACADEMY.counts.cards}장</li>
-            <li class="chip">{ACADEMY.counts.hours}</li>
+            <li class="chip">{SCHOOL_COUNTS.tracks}트랙 · {SCHOOL_COUNTS.weeks}주</li>
+            <li class="chip">성인 실전 {ACADEMY.counts.steps} STEP · {ACADEMY.counts.lessons}강</li>
+            <li class="chip !border-brand/30 !bg-brand-soft !text-brand-deep">
+              지금 열린 강의 {openLessonCount}개 (성인 {adultOpen} · 학교 {schoolOpen})
+            </li>
+            <li class="chip">카드뉴스 6장 단위</li>
             <li class="chip mono">기준일 {site.baseDateLabel}</li>
           </ul>
 
           <div class="mt-5 flex flex-wrap gap-2">
-            <a href={withBase(firstHref)} class="btn btn-primary min-h-[46px]">
-              {first.label}부터 시작하기
+            <a href="#open" class="btn btn-primary min-h-[46px]">
+              지금 열린 {openLessonCount}강 보기
               <span aria-hidden="true" class="ml-1.5">→</span>
             </a>
-            <a href="#roadmap" class="btn btn-secondary min-h-[46px]">6 STEP 로드맵</a>
+            <a href="#school-weeks" class="btn btn-secondary min-h-[46px]">52주 로드맵</a>
           </div>
         </div>
 
@@ -89,7 +143,7 @@ const jsonLd = graph([
         <div class="card p-5 md:p-6">
           <div class="flex items-baseline justify-between gap-3">
             <p class="text-[11px] font-bold tracking-[0.16em] text-brand-deep">강의 1개 = 15분</p>
-            <p class="mono text-[11.5px] text-ink-faint">읽기 5 + 계산 10</p>
+            <p class="mono text-[11.5px] text-ink-faint">읽기 5 + 실습 10</p>
           </div>
           <p class="mt-2 text-[15.5px] font-semibold leading-[1.6] tracking-[-0.02em] text-ink">
             카드로 먼저 보고, 읽고, 계산하고,<br />출처에서 확인합니다.
@@ -106,56 +160,42 @@ const jsonLd = graph([
             ))}
           </ol>
           <p class="mt-4 border-t border-line-soft pt-3 text-[12px] leading-[1.65] text-ink-muted">
-            강의를 마치면 <strong class="font-semibold text-ink">내 돈 운영표</strong> 한 칸이 채워집니다. 41강을
-            모두 마치면 문서 6장이 남습니다.
+            초등·청소년 강의는 같은 흐름에 <strong class="font-semibold text-ink">한 화면 한 질문</strong> 3문항을
+            더합니다. 본문 16px 이상, 버튼 44px 이상입니다.
           </p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ② 지금 열린 강의 -->
-  <section class="scene-sky-band border-b border-line" id="open">
-    <div class="wrap py-10 md:py-14">
+  <!-- ② 트랙 안내 -->
+  <section class="scene-white border-b border-line" id="tracks">
+    <div class="wrap py-10 md:py-12">
       <div class="sec-head">
         <div>
-          <p class="eyebrow">지금 열린 강의</p>
-          <h2 class="sec-title">STEP 1·2<br />{openLessonCount}강이 열렸습니다</h2>
+          <p class="eyebrow">트랙</p>
+          <h2 class="sec-title">용돈부터 은퇴까지<br />네 갈래로 시작합니다</h2>
         </div>
         <div class="sec-head-side">
           <p class="sec-desc">
-            돈의 기초 체력(STEP 1) 두 강과 계좌 배치(STEP 2) 세 강입니다.<br />
-            어떤 강의든 카드뉴스 6장 → 5분 읽기 → 계산기 → 운영표 1칸 순서로 끝납니다.
+            52주 연재는 6트랙 × 8편 + 특집 4편입니다. 성인 실전 41강은 그 위의 심화 과정이고,
+            두 숫자는 합산하지 않습니다.
           </p>
         </div>
       </div>
 
-      <ul class="academy-lessons mt-6">
+      <ul class="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {
-          OPEN_LESSONS.map((lesson) => (
-            <li class="academy-lesson" data-step={lesson.step}>
-              <a href={withBase(`/academy/${lesson.slug}/`)} class="academy-lesson-link">
-                <span class="academy-lesson-head">
-                  <span class="chip !min-h-[22px] !px-2 !text-[10.5px] !border-brand/30 !bg-brand-soft !text-brand-deep">
-                    STEP {lesson.step} · {lesson.label}
-                  </span>
-                  <span class="academy-lesson-cards mono">
-                    {availableCount(lesson.cardSet) > 0 ? `카드 ${availableCount(lesson.cardSet)}장` : "카드 준비 중"}
-                  </span>
-                </span>
-                <span class="academy-lesson-title">{lesson.title}</span>
-                <span class="academy-lesson-hook">{lesson.hook}</span>
-                <span class="academy-lesson-nums">
-                  {lesson.keyNumbers.map((k) => (
-                    <span>
-                      <span class="academy-lesson-num-label">{k.label}</span>
-                      <span class="academy-lesson-num">{k.value}</span>
-                    </span>
-                  ))}
-                </span>
-                <span class="academy-lesson-go">
-                  카드뉴스부터 보기 <span aria-hidden="true">→</span>
-                </span>
+          trackCards.map((t) => (
+            <li class="card card-lift flex flex-col p-5">
+              <div class="flex items-baseline justify-between gap-2">
+                <p class="text-[11px] font-bold tracking-[0.14em] text-brand-deep">{t.name}</p>
+                <span class="chip !min-h-[26px] !text-[12px]">{t.status}</span>
+              </div>
+              <p class="mono mt-2 text-[13.5px] font-semibold text-ink">{t.weeks}주 · {t.line}</p>
+              <p class="mt-2 flex-1 text-[12.5px] leading-[1.7] text-ink-muted">{t.body}</p>
+              <a href={withBase(t.href)} class="mt-3 inline-flex min-h-[44px] items-center text-[13px] font-bold text-brand-deep">
+                열린 강의 보기 <span aria-hidden="true" class="ml-1">→</span>
               </a>
             </li>
           ))
@@ -164,53 +204,161 @@ const jsonLd = graph([
     </div>
   </section>
 
-  <!-- ③ 강의 1개의 4종 세트 -->
-  <section class="scene-white border-b border-line">
+  <!-- ③ 지금 열린 강의 -->
+  <section class="scene-sky-band border-b border-line" id="open">
     <div class="wrap py-10 md:py-14">
       <div class="sec-head">
         <div>
-          <p class="eyebrow">강의의 모양</p>
-          <h2 class="sec-title">영상 한 편을<br />네 가지로 다시 묶었습니다</h2>
+          <p class="eyebrow">지금 열린 강의</p>
+          <h2 class="sec-title">성인 {adultOpen}강 · 학교 {schoolOpen}강<br />{openLessonCount}강이 열렸습니다</h2>
         </div>
         <div class="sec-head-side">
           <p class="sec-desc">
-            길게 이어 보는 대신, 카드로 먼저 잡고 읽고 계산하고 원문을 확인하는 순서로 나눴습니다.<br />
-            어느 강의든 같은 네 칸을 지나기 때문에, 끝났는지 스스로 확인할 수 있습니다.
+            성인 실전 STEP 1·2의 다섯 강과, 초등·청소년·첫 월급의 첫 강입니다.<br />
+            어떤 강의든 카드뉴스 6장 → 읽기 → 실습 → 운영표 1칸 순서로 끝납니다.
           </p>
         </div>
       </div>
 
-      <ul class="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <ul class="academy-lessons mt-6">
         {
-          ACADEMY_SET.map((set) => (
-            <li class="card card-lift flex flex-col p-5">
-              <div class="flex items-baseline justify-between gap-2">
-                <span class="text-[19px] font-bold tracking-[-0.03em] text-brand" aria-hidden="true">
-                  {set.no}
-                </span>
-                <span class="mono text-[11.5px] text-ink-faint">{set.minutes}</span>
-              </div>
-              <h3 class="mt-2 text-[15.5px] font-bold leading-snug tracking-[-0.025em] text-ink">{set.title}</h3>
-              <p class="mt-1.5 text-[12.5px] leading-[1.7] text-ink-muted">{set.body}</p>
-            </li>
-          ))
+          OPEN_LESSONS.map((lesson) => {
+            const track = lesson.track ?? "adult";
+            return (
+              <li class="academy-lesson" data-step={lesson.step} data-track={track}>
+                <a href={withBase(`/academy/${lesson.slug}/`)} class="academy-lesson-link">
+                  <span class="academy-lesson-head">
+                    <span class="chip !min-h-[22px] !px-2 !text-[10.5px] !border-brand/30 !bg-brand-soft !text-brand-deep">
+                      {TRACK_LABEL[track]} · {lesson.label}
+                    </span>
+                    <span class="academy-lesson-cards mono">
+                      {availableCount(lesson.cardSet) > 0 ? `카드 ${availableCount(lesson.cardSet)}장` : "카드 준비 중"}
+                    </span>
+                  </span>
+                  <span class="academy-lesson-title">{lesson.title}</span>
+                  <span class="academy-lesson-hook">{lesson.hook}</span>
+                  <span class="academy-lesson-nums">
+                    {lesson.keyNumbers.map((k) => (
+                      <span>
+                        <span class="academy-lesson-num-label">{k.label}</span>
+                        <span class="academy-lesson-num">{k.value}</span>
+                      </span>
+                    ))}
+                  </span>
+                  <span class="academy-lesson-go">
+                    카드뉴스부터 보기 <span aria-hidden="true">→</span>
+                  </span>
+                </a>
+              </li>
+            );
+          })
         }
       </ul>
 
-      <p class="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[12px] text-ink-faint">
-        <span>입력값은 서버로 보내지 않습니다</span>
-        <span>카드마다 조문·기준일 표기</span>
-        <span>확인하지 못한 조문 번호는 쓰지 않습니다</span>
+      <p class="mt-4 text-[12.5px] leading-[1.7] text-ink-faint">
+        초등·청소년 강의는 가상 금액만 쓰고, 입력값을 주소·저장소·서버에 남기지 않습니다. 세 트랙 3강은
+        클라이언트 저장 없이 가상 금액으로만 연습합니다. 세 트랙 3강은 캡처에서 16px·44px 기준을 함께 확인했습니다.
       </p>
     </div>
   </section>
 
-  <!-- ④ 6 STEP 로드맵 -->
-  <section class="scene-cream border-b border-line" id="roadmap">
+  <!-- ④ 52주 연재 로드맵 -->
+  <section class="scene-cream border-b border-line" id="school-weeks">
     <div class="wrap py-10 md:py-14">
       <div class="sec-head">
         <div>
-          <p class="eyebrow">로드맵</p>
+          <p class="eyebrow">52주 연재 로드맵</p>
+          <h2 class="sec-title">6트랙 × 8편 + 특집 4편<br />{SCHOOL_COUNTS.weeks}주</h2>
+        </div>
+        <div class="sec-head-side">
+          <p class="sec-desc">
+            초등 고학년 8 · 청소년 8 · 첫 월급 8 · 가계 8 · 자산형성 8 · 은퇴 8 · 특집 4입니다.<br />
+            지금은 3트랙의 첫 강이 열려 있고, 나머지는 주 1편 순서로 준비합니다.
+          </p>
+        </div>
+      </div>
+
+      <div class="school-tabs-wrap mt-6">
+        <div class="school-tabs" role="group" aria-label="52주 트랙 거르기">
+          <button type="button" class="school-tab is-active" data-track-tab="all" aria-pressed="true">
+            전체 <span class="mono">{SCHOOL_COUNTS.weeks}</span>
+          </button>
+          {
+            SCHOOL_TRACKS.map((t) => (
+              <button type="button" class="school-tab" data-track-tab={t.id} aria-pressed="false">
+                {t.label} <span class="mono">{t.weeks}</span>
+              </button>
+            ))
+          }
+        </div>
+        <p class="school-tabs-note" data-track-note aria-live="polite">
+          전체 {SCHOOL_COUNTS.weeks}주를 보여 줍니다. 트랙을 고르면 그 트랙만 남습니다.
+        </p>
+      </div>
+
+      <div class="school-blocks mt-5" data-school-blocks>
+        {
+          SCHOOL_TRACKS.map((t) => {
+            const weeks = weeksOfTrack(t.id);
+            return (
+              <section class="school-block" data-track-block={t.id} aria-labelledby={`track-${t.id}`}>
+                <div class="school-block-head">
+                  <h3 id={`track-${t.id}`} class="text-[17px] font-bold tracking-[-0.02em] text-ink">
+                    {t.label}
+                  </h3>
+                  <p class="text-[12.5px] text-ink-muted">{t.blurb}</p>
+                  <span class="chip !min-h-[24px] !text-[11.5px]">{t.weeks}주</span>
+                </div>
+                <ol class="school-weeks">
+                  {weeks.map((w) => (
+                    <li class="school-week" data-week={w.id}>
+                      <div class="school-week-top">
+                        <span class="mono school-week-no">{w.week}주</span>
+                        <span class="mono text-[10.5px] text-ink-faint">{w.id}</span>
+                        {w.lessonSlug ? (
+                          <span class="school-week-open">지금 열림</span>
+                        ) : (
+                          <span class="school-week-soon">연재 예정</span>
+                        )}
+                      </div>
+                      <p class="school-week-title">{w.title}</p>
+                      <p class="school-week-goal">{w.goal}</p>
+                      <p class="school-week-take">
+                        <span class="font-semibold text-ink-soft">가져갈 것</span> {w.takeaway}
+                      </p>
+                      {w.lessonSlug ? (
+                        <a href={withBase(`/academy/${w.lessonSlug}/`)} class="school-week-link">
+                          이 주의 강의 보기 <span aria-hidden="true">→</span>
+                        </a>
+                      ) : (
+                        <p class="school-week-practice">실습 · {w.practice}</p>
+                      )}
+                    </li>
+                  ))}
+                </ol>
+              </section>
+            );
+          })
+        }
+      </div>
+
+      <div class="note-box mt-6">
+        <p class="text-[12px] font-semibold text-ink">공개 리듬과 검수</p>
+        <p class="mt-1.5 text-[12.5px] leading-[1.75] text-ink-muted">
+          성인 파일럿으로 공통 형식을 확인한 뒤 첫 용돈 편부터 주 1편(월요일 오전) 공개를 제안합니다. 공개 전
+          사실·효력일·조건·단위·계산·접근성·권리 검수를 거치고, 필수 결함이 하나라도 남으면 공개를 보류합니다.
+          52주·41강·우선 12편은 서로 다른 목록이므로 하나의 숫자로 합산하지 않습니다. 측정은 실습 완료율·다음 편 이동률·같은 세션 전후 문제 차이로 하고, 초등·청소년에게 지속 식별자나 실제 재무 데이터는 만들지 않습니다.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ⑤ 성인 실전 6 STEP 로드맵 -->
+  <section class="scene-white border-b border-line" id="roadmap">
+    <div class="wrap py-10 md:py-14">
+      <div class="sec-head">
+        <div>
+          <p class="eyebrow">성인 실전 심화</p>
           <h2 class="sec-title">{ACADEMY.counts.steps} STEP · {ACADEMY.counts.lessons}강</h2>
         </div>
         <div class="sec-head-side">
@@ -225,7 +373,7 @@ const jsonLd = graph([
         {
           ACADEMY_STEPS.map((step) => {
             const open = step.status === "open";
-            const lessons = OPEN_LESSONS.filter((l) => l.step === step.no);
+            const lessons = OPEN_LESSONS.filter((l) => (l.track ?? "adult") === "adult" && l.step === step.no);
             return (
               <li class="academy-step" data-open={open ? "true" : "false"} id={`step-${step.no}`}>
                 <div class="academy-step-no" aria-hidden="true">
@@ -279,12 +427,12 @@ const jsonLd = graph([
     </div>
   </section>
 
-  <!-- ⑤ 수강 경로 3가지 + 진단 3문항 -->
+  <!-- ⑥ 수강 경로 + 진단 -->
   <section class="scene-white border-b border-line" id="paths">
     <div class="wrap py-10 md:py-14">
       <div class="sec-head">
         <div>
-          <p class="eyebrow">수강 경로</p>
+          <p class="eyebrow">성인 실전 수강 경로</p>
           <h2 class="sec-title">어디서 시작할지<br />세 질문으로 고릅니다</h2>
         </div>
         <div class="sec-head-side">
@@ -313,7 +461,6 @@ const jsonLd = graph([
         }
       </ul>
 
-      <!-- 진단 3문항 — 체크 개수로 경로를 고른다 -->
       <div class="academy-diagnosis mt-4" data-diagnosis>
         <div class="min-w-0">
           <div class="academy-diagnosis-head">
@@ -363,7 +510,7 @@ const jsonLd = graph([
           <div data-diagnosis-answer="all" hidden>
             <p class="mt-1 text-[14px] font-bold text-ink">6단계 전체 — 41강</p>
             <p class="mt-1 text-[12.5px] leading-[1.65] text-ink-muted">
-              순서대로 6장의 문서를 남깁니다. 지금은 STEP 1·2의 {openLessonCount}강이 열려 있습니다.
+              순서대로 6장의 문서를 남깁니다. 지금은 STEP 1·2의 5강이 열려 있습니다.
             </p>
           </div>
           <noscript>
@@ -376,18 +523,25 @@ const jsonLd = graph([
     </div>
   </section>
 
-  <!-- ⑥ 원칙·면책 -->
+  <!-- ⑦ 원칙·면책 -->
   <section class="scene-white">
-    <div class="wrap py-8 md:py-10">
-      <div class="grid gap-3 md:grid-cols-2">
+    <div class="wrap py-8 md:py-12">
+      <div class="grid gap-3 md:grid-cols-3">
         <div class="note-box">
-          <p class="text-[12px] font-semibold text-ink">이 아카데미가 하지 않는 일</p>
+          <p class="text-[12px] font-semibold text-ink">이 학교가 하지 않는 일</p>
           <p class="mt-1.5">
-            특정 상품을 권하지 않습니다. 보험은 재무설계의 도구로만 다룹니다. 모든 숫자에 조문과 기준일을
+            특정 상품을 권하지 않습니다. 보험은 재무설계의 도구로만 다룹니다. 모든 숫자에 조문·기관과 기준일을
             붙이고, 확인하지 못한 조문은 쓰지 않습니다.
           </p>
           <p class="mt-2">
             <a href={withBase("/principles")} class="link font-semibold text-ink-soft">편집 원칙 보기</a>
+          </p>
+        </div>
+        <div class="note-box">
+          <p class="text-[12px] font-semibold text-ink">초등·청소년 기준</p>
+          <p class="mt-1.5">
+            본문 16px 이상, 버튼 44px 이상, 한 화면 한 질문. 정답은 색만이 아니라 글자와 아이콘으로 알립니다.
+            실습은 가상 금액만 쓰고, 입력값을 주소·저장소·서버에 남기지 않습니다. 지속 식별자도 만들지 않습니다.
           </p>
         </div>
         <div class="note-box">
@@ -404,6 +558,35 @@ const jsonLd = graph([
 </Base>
 
 <script>
+  /**
+   * 52주 트랙 거르기 — 화면 안에서만 동작한다. 고른 트랙을 주소나 저장소에 남기지 않는다.
+   * 자바스크립트가 없으면 7트랙이 모두 보인다.
+   */
+  const tabs = [...document.querySelectorAll<HTMLElement>("[data-track-tab]")];
+  const blocks = [...document.querySelectorAll<HTMLElement>("[data-track-block]")];
+  const note = document.querySelector<HTMLElement>("[data-track-note]");
+
+  const pick = (id: string) => {
+    tabs.forEach((t) => {
+      const on = t.dataset.trackTab === id;
+      t.classList.toggle("is-active", on);
+      t.setAttribute("aria-pressed", on ? "true" : "false");
+    });
+    const shown = blocks.filter((b) => id === "all" || b.dataset.trackBlock === id);
+    blocks.forEach((b) => {
+      b.hidden = !shown.includes(b);
+    });
+    const weeks = shown.reduce((n, b) => n + b.querySelectorAll("[data-week]").length, 0);
+    if (note) {
+      note.textContent =
+        id === "all"
+          ? `전체 ${weeks}주를 보여 줍니다. 트랙을 고르면 그 트랙만 남습니다.`
+          : `${shown[0]?.querySelector("h3")?.textContent?.trim() ?? ""} ${weeks}주만 보여 줍니다.`;
+    }
+  };
+
+  tabs.forEach((t) => t.addEventListener("click", () => pick(t.dataset.trackTab ?? "all")));
+
   /**
    * 진단 3문항 — 체크 개수만 센다. 입력값을 어디에도 저장하지 않는다.
    * 0~1개 입문 / 2개 자산가·은퇴 / 3개 6단계 전체.
@@ -557,7 +740,188 @@ const jsonLd = graph([
     color: var(--color-brand-deep);
   }
 
-  /* ---- 로드맵 ---- */
+  /* ---- 52주 트랙 탭 ---- */
+  .school-tabs-wrap {
+    display: grid;
+    gap: 8px;
+  }
+
+  .school-tabs {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: thin;
+  }
+
+  .school-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    padding: 0 14px;
+    border: 1px solid var(--color-line);
+    border-radius: 999px;
+    background-color: #ffffff;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-ink-muted);
+    white-space: nowrap;
+    cursor: pointer;
+  }
+
+  .school-tab:hover {
+    border-color: rgb(26 79 253 / 0.4);
+  }
+
+  .school-tab.is-active {
+    border-color: var(--color-brand);
+    background-color: var(--color-brand-soft);
+    color: var(--color-brand-deep);
+  }
+
+  .school-tab .mono {
+    font-size: 11px;
+    color: var(--color-ink-faint);
+  }
+
+  .school-tab.is-active .mono {
+    color: var(--color-brand-deep);
+  }
+
+  .school-tabs-note {
+    font-size: 12px;
+    color: var(--color-ink-faint);
+  }
+
+  .school-blocks {
+    display: grid;
+    gap: 16px;
+  }
+
+  .school-block {
+    padding: 14px;
+    border: 1px solid var(--color-line);
+    border-radius: 16px;
+    background-color: #ffffff;
+  }
+
+  .school-block-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 8px;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed var(--color-line);
+  }
+
+  .school-block-head p {
+    flex: 1 1 220px;
+    min-width: 0;
+  }
+
+  .school-weeks {
+    display: grid;
+    gap: 6px;
+    margin-top: 10px;
+  }
+
+  @media (min-width: 700px) {
+    .school-weeks {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1100px) {
+    .school-weeks {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  .school-week {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+    padding: 10px 11px;
+    border: 1px solid var(--color-line-soft);
+    border-radius: 12px;
+    background-color: var(--color-paper);
+  }
+
+  .school-week-top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .school-week-no {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--color-brand-deep);
+  }
+
+  .school-week-open,
+  .school-week-soon {
+    margin-left: auto;
+    padding: 2px 7px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 700;
+  }
+
+  .school-week-open {
+    background-color: var(--color-brand);
+    color: #ffffff;
+  }
+
+  .school-week-soon {
+    background-color: var(--color-paper-deep);
+    color: var(--color-ink-faint);
+  }
+
+  .school-week-title {
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.45;
+    letter-spacing: -0.02em;
+    color: var(--color-ink);
+    text-wrap: pretty;
+  }
+
+  .school-week-goal {
+    font-size: 11.5px;
+    line-height: 1.55;
+    color: var(--color-ink-muted);
+  }
+
+  .school-week-take {
+    font-size: 11px;
+    line-height: 1.5;
+    color: var(--color-ink-faint);
+  }
+
+  .school-week-practice {
+    margin-top: auto;
+    padding-top: 4px;
+    font-size: 10.5px;
+    line-height: 1.5;
+    color: var(--color-ink-faint);
+    border-top: 1px dotted var(--color-line);
+  }
+
+  .school-week-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    margin-top: auto;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--color-brand-deep);
+  }
+
+  /* ---- 성인 STEP 로드맵 ---- */
   .academy-steps {
     display: grid;
     gap: 10px;

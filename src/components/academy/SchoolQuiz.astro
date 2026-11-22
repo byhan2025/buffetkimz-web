@@ -1,0 +1,360 @@
+---
+/**
+ * 한 화면 한 질문 퀴즈 — 초등·청소년·첫 월급 강의 (v8.2.0).
+ *
+ * 왜 이 모양인가 (셋톡 부이대리 기준)
+ *  · 한 번에 질문 하나만 보여 준다. 질문을 다 펼치면 어린 학습자는 어디를 봐야 할지 모른다.
+ *  · 본문 16px 이상, 선택지 버튼 48px 이상.
+ *  · 정답·오답을 색만으로 알리지 않는다 — '✓ 맞아요' / '↺ 다시 보기' 글자와 아이콘을 함께 쓴다.
+ *  · 고른 값은 화면 안에만 둔다. 주소·localStorage·서버에 남기지 않는다.
+ *  · 자바스크립트가 없으면 세 문항이 순서대로 모두 보인다(읽을 수는 있게).
+ */
+import type { LessonQuizItem } from "@/data/academy-lessons";
+
+interface Props {
+  items: LessonQuizItem[];
+  /** 섹션 번호 — 기본 ⑤ */
+  no?: string;
+}
+const { items, no = "⑤" } = Astro.props;
+---
+
+<section class="quiz" data-quiz aria-labelledby="quiz-heading">
+  <div class="quiz-head">
+    <p class="eyebrow">{no} 한 화면 한 질문</p>
+    <h2 id="quiz-heading" class="text-[24px] font-bold tracking-[-0.035em] text-ink md:text-[28px]">
+      세 질문으로 확인해요
+    </h2>
+    <p class="mt-2 text-[17px] leading-[1.7] text-ink-muted">
+      정답을 맞히는 것보다 이유를 읽는 것이 중요합니다. 틀려도 괜찮아요. 다시 고르면 됩니다.
+    </p>
+  </div>
+
+  <div class="quiz-progress" aria-live="polite">
+    <span class="mono" data-quiz-count>1 / {items.length} 문항</span>
+    <span class="quiz-dots" aria-hidden="true">
+      {items.map((_, i) => <span class={i === 0 ? "is-on" : ""} data-quiz-dot={i} />)}
+    </span>
+  </div>
+
+  <ol class="quiz-list">
+    {
+      items.map((item, qi) => (
+        <li class="quiz-item" data-quiz-item={qi}>
+          <p class="quiz-no mono">질문 {qi + 1}</p>
+          <h3 class="quiz-q">{item.q}</h3>
+          {item.hint && <p class="quiz-hint">힌트 · {item.hint}</p>}
+
+          <ul class="quiz-opts">
+            {item.options.map((opt, oi) => (
+              <li>
+                <button
+                  type="button"
+                  class="quiz-opt"
+                  data-quiz-opt
+                  data-ok={opt.ok ? "true" : "false"}
+                  data-why={opt.why}
+                  data-label={opt.label}
+                  aria-pressed="false"
+                >
+                  <span class="quiz-opt-mark mono" aria-hidden="true">
+                    {String.fromCharCode(65 + oi)}
+                  </span>
+                  <span class="quiz-opt-label">{opt.label}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+
+          <p class="quiz-fb" data-quiz-fb hidden>
+            <span class="quiz-fb-icon" aria-hidden="true" data-quiz-icon>
+              ✓
+            </span>
+            <span class="quiz-fb-text" data-quiz-fb-text />
+          </p>
+
+          <div class="quiz-actions">
+            <button type="button" class="btn btn-secondary btn-sm min-h-[48px] text-[16px]" data-quiz-next>
+              {qi === items.length - 1 ? "퀴즈 마치기" : "다음 질문"}
+            </button>
+            <span class="quiz-note text-[16px] text-ink-faint" data-quiz-explain hidden>
+              {item.explain}
+            </span>
+          </div>
+        </li>
+      ))
+    }
+  </ol>
+
+  <div class="quiz-done" data-quiz-done hidden>
+    <p class="text-[20px] font-bold text-ink">세 문항을 모두 확인했어요</p>
+    <p class="mt-1 text-[17px] leading-[1.7] text-ink-muted">
+      이제 아래 운영표에서 내 숫자를 넣어 보세요. 고른 값은 화면에만 남습니다.
+    </p>
+    <a href="#sheet" class="btn btn-primary btn-sm mt-3 inline-flex min-h-[48px] items-center text-[16px]">
+      내 숫자 실습으로
+      <span class="ml-1.5" aria-hidden="true">→</span>
+    </a>
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-quiz]").forEach((root) => {
+    const items = [...root.querySelectorAll<HTMLElement>("[data-quiz-item]")];
+    const countEl = root.querySelector<HTMLElement>("[data-quiz-count]");
+    const dots = [...root.querySelectorAll<HTMLElement>("[data-quiz-dot]")];
+    const doneEl = root.querySelector<HTMLElement>("[data-quiz-done]");
+    let current = 0;
+
+    // 처음에는 첫 질문만 보인다(자바스크립트가 없으면 전부 보인다).
+    items.forEach((item, i) => {
+      item.hidden = i !== 0;
+    });
+
+    const show = (idx: number) => {
+      current = idx;
+      items.forEach((item, i) => {
+        item.hidden = i !== idx;
+      });
+      dots.forEach((d, i) => d.classList.toggle("is-on", i <= idx));
+      if (countEl) countEl.textContent = `${idx + 1} / ${items.length} 문항`;
+      if (doneEl) doneEl.hidden = true;
+      items[idx]?.scrollIntoView({ block: "nearest" });
+    };
+
+    items.forEach((item, idx) => {
+      const opts = [...item.querySelectorAll<HTMLButtonElement>("[data-quiz-opt]")];
+      const fb = item.querySelector<HTMLElement>("[data-quiz-fb]");
+      const icon = item.querySelector<HTMLElement>("[data-quiz-icon]");
+      const fbText = item.querySelector<HTMLElement>("[data-quiz-fb-text]");
+      const explain = item.querySelector<HTMLElement>("[data-quiz-explain]");
+      const next = item.querySelector<HTMLButtonElement>("[data-quiz-next]");
+
+      opts.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const ok = btn.dataset.ok === "true";
+          opts.forEach((b) => {
+            b.setAttribute("aria-pressed", b === btn ? "true" : "false");
+            b.classList.toggle("is-picked", b === btn);
+          });
+          if (fb) fb.hidden = false;
+          if (icon) icon.textContent = ok ? "✓" : "↺";
+          if (fbText) fbText.textContent = `${ok ? "맞아요" : "다시 보기"} — ${btn.dataset.why ?? ""}`;
+          item.dataset.answered = ok ? "right" : "retry";
+          if (explain) explain.hidden = false;
+        });
+      });
+
+      next?.addEventListener("click", () => {
+        if (idx < items.length - 1) {
+          show(idx + 1);
+        } else {
+          items.forEach((it) => {
+            it.hidden = true;
+          });
+          dots.forEach((d) => d.classList.add("is-on"));
+          if (countEl) countEl.textContent = `${items.length} / ${items.length} 문항`;
+          if (doneEl) {
+            doneEl.hidden = false;
+            doneEl.scrollIntoView({ block: "nearest" });
+          }
+        }
+      });
+    });
+
+    show(0);
+  });
+</script>
+
+<style>
+  .quiz {
+    padding: 20px;
+    border: 1px solid var(--color-line);
+    border-radius: 20px;
+    background-color: var(--color-cream);
+  }
+
+  @media (min-width: 768px) {
+    .quiz {
+      padding: 26px;
+    }
+  }
+
+  .quiz-progress {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 14px;
+    font-size: 16px;
+    color: var(--color-brand-deep);
+  }
+
+  .quiz-dots {
+    display: inline-flex;
+    gap: 5px;
+  }
+
+  .quiz-dots span {
+    width: 22px;
+    height: 5px;
+    border-radius: 999px;
+    background-color: #d8d2c2;
+  }
+
+  .quiz-dots span.is-on {
+    background-color: var(--color-brand);
+  }
+
+  .quiz-list {
+    display: grid;
+    gap: 14px;
+    margin-top: 12px;
+  }
+
+  .quiz-item {
+    padding: 16px;
+    border: 1px solid var(--color-line);
+    border-radius: 16px;
+    background-color: #ffffff;
+  }
+
+  .quiz-no {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--color-brand-deep);
+  }
+
+  .quiz-q {
+    margin-top: 6px;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.5;
+    letter-spacing: -0.02em;
+    color: var(--color-ink);
+    text-wrap: pretty;
+  }
+
+  .quiz-hint {
+    margin-top: 6px;
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--color-ink-muted);
+  }
+
+  .quiz-opts {
+    display: grid;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .quiz-opt {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    width: 100%;
+    min-height: 52px;
+    padding: 12px 14px;
+    border: 1.5px solid var(--color-line);
+    border-radius: 14px;
+    background-color: #ffffff;
+    text-align: left;
+    cursor: pointer;
+    transition:
+      border-color 140ms var(--ease-out-soft),
+      background-color 140ms var(--ease-out-soft);
+  }
+
+  .quiz-opt:hover {
+    border-color: rgb(26 79 253 / 0.45);
+  }
+
+  .quiz-opt.is-picked {
+    border-color: var(--color-brand);
+    background-color: var(--color-brand-soft);
+  }
+
+  .quiz-opt:focus-visible {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 2px;
+  }
+
+  .quiz-opt-mark {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    flex: none;
+    border-radius: 999px;
+    background-color: var(--color-paper);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--color-ink-faint);
+  }
+
+  .quiz-opt-label {
+    font-size: 17px;
+    line-height: 1.55;
+    color: var(--color-ink);
+  }
+
+  .quiz-fb {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-top: 12px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1.5px solid var(--color-line);
+    background-color: var(--color-paper);
+    font-size: 16px;
+    line-height: 1.65;
+    color: var(--color-ink-soft);
+  }
+
+  .quiz-fb-icon {
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    flex: none;
+    border-radius: 999px;
+    background-color: #ffffff;
+    border: 1.5px solid currentColor;
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .quiz-item[data-answered="right"] .quiz-fb {
+    border-color: #2f7d5c;
+    color: #226046;
+    background-color: #f0f9f3;
+  }
+
+  .quiz-item[data-answered="retry"] .quiz-fb {
+    border-color: #b4544b;
+    color: #8f3d36;
+    background-color: #fdf3f1;
+  }
+
+  .quiz-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    margin-top: 14px;
+  }
+
+  .quiz-note {
+    flex: 1 1 220px;
+    min-width: 0;
+    line-height: 1.6;
+  }
+
+  .quiz-done {
+    margin-top: 14px;
+    padding: 16px;
+    border-radius: 16px;
+    border: 1.5px solid rgb(26 79 253 / 0.3);
+    background-color: var(--color-brand-soft);
+  }
+</style>
