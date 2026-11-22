@@ -51,8 +51,8 @@ v3: 20개 대표 사이트 벤치마킹(보고서 `reports/buffetkimz-web/benchm
   `scripts/capture_live_v86.py` **42/42**(8주소 × 1280·390 · 퀵탭 46×44 · og 17강 · 라이트박스 · 계산기 6종 재현 · sitemap).
 - **캡처** `reports/buffetkimz-web/v86-live/`(390·1280 fold, 퀵탭, 라이트박스, `verify-v86-local.json`·`verify-v86.json`) ·
   감사 재현물은 `reports/buffetkimz-web/audit-99-v850/`.
-- **라이브** `main` `6c9d73c` · `gh-pages` `2bfa9f9` → https://byhan2025.github.io/buffetkimz-web/?v=860 .
-  GitHub Pages `built`(2bfa9f9) 확인 후 `scripts/capture_live_v86.py` **42/42**(8주소 × 1280·390 HTTP 200 ·
+- **라이브** `main` `63f155b` · `gh-pages` `32bbd77` → https://byhan2025.github.io/buffetkimz-web/?v=860 .
+  GitHub Pages `built`(32bbd77) 확인 후 `scripts/capture_live_v86.py` **42/42**(8주소 × 1280·390 HTTP 200 ·
   콘솔 오류 0 · 가로 넘침 0 · 퀵탭 '홈' 46×44 · 글자와 겹침 0 · 아카데미 17강 og:image 카드 표지 ·
   라이트박스 빈 속성 0 · 계산기 6종 재현 · sitemap 글 30편·강의 17강·lastmod 11.22).
 
