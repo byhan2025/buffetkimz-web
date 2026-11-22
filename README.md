@@ -38,6 +38,10 @@ v3: 20개 대표 사이트 벤치마킹(보고서 `reports/buffetkimz-web/benchm
   `audit_dist_links.py` 페이지 267 · 링크·이미지 **0/0**.
 - **캡처** — `reports/buffetkimz-web/academy-step12/`(허브·5강 1280·390, 헤더, 운영표 채움),
   `reports/buffetkimz-web/v81-live/`(라이브 아카데미 허브·STEP 1·2·자료앨범 × 1280·390, `?v=810`).
+- **라이브** — `main` `b3c0c92` · `gh-pages` `f8190ac` → https://byhan2025.github.io/buffetkimz-web/ .
+  GitHub Pages `built` 확인 후 네 주소(아카데미·1-1강·2-1강·자료앨범) × 1280·390 HTTP 200 ·
+  콘솔 오류 0 · 가로 넘침 0 · 자료앨범 17세트 87장 · 새 카드 30장 로드 · 2-1강 카드뉴스 6장 확인
+  (`reports/buffetkimz-web/v81-live/verify-live-v810.json` 6/6).
 
 ### v8.0.0 — 「한스푼 아카데미」 파일럿 + 자료앨범 1차 4세트(24장)
 
