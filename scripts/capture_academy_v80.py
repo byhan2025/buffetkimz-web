@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
-"""v8.3 「버핏킴즈 금융생활학교」 STEP 3·가계 확장 — 실물 캡처·검증.
+"""v8.4 「버핏킴즈 금융생활학교」 STEP 4~6·자산형성·은퇴 확장 — 실물 캡처·검증.
 
 무엇을 재는가
-  A. 허브 + 강의 12개(성인 7 + 학교 5) × 1280·390 — HTTP 200 · 콘솔 오류 0 · 가로 넘침 0
+  A. 허브 + 강의 17개(성인 10 + 학교 7) × 1280·390 — HTTP 200 · 콘솔 오류 0 · 가로 넘침 0
   B. 헤더 — 1280·1024 에서 메뉴 가로 넘침 0 · '아카데미' 항목이 실제로 보이는가
   C. 390 모바일 — 퀵 탭 6칸 유지 · 하위 드로어에 아카데미 진입
-  D. 허브 — 지금 열린 강의 12개 · 6 STEP 로드맵(성인 7강) · 52주 52칸·7트랙 탭 전환 · 진단 3문항
+  D. 허브 — 지금 열린 강의 17개 · 6 STEP 로드맵(성인 10강·STEP 4~6 공개) · 52주 52칸·7트랙 탭 전환 · 진단 3문항
   E. 강의 — 카드뉴스 인라인 뷰어 · 5분 읽기 1,200~1,500자 · 운영표 1칸(저장 0건) · 주소 불변
   E5. 학교 트랙 — 한 화면 한 질문(1개만 보임 → 선택 → 다음), 본문 16px 이상, 버튼 44px 이상
   F. 캡처 — 1280·390 전체 화면 + 주요 구획
 
 사용: npm run build && python3 scripts/capture_academy_v80.py
-결과: /workspace/reports/buffetkimz-web/academy-v830/
+결과: /workspace/reports/buffetkimz-web/academy-v840/
 """
 from __future__ import annotations
 
@@ -30,7 +30,7 @@ from playwright.sync_api import sync_playwright  # noqa: E402
 
 APP = pathlib.Path(__file__).resolve().parent.parent
 ROOT = APP / "dist"
-OUT = pathlib.Path("/workspace/reports/buffetkimz-web/academy-v830")
+OUT = pathlib.Path("/workspace/reports/buffetkimz-web/academy-v840")
 OUT.mkdir(parents=True, exist_ok=True)
 CHROME = os.environ.get("PW_CHROME") or (
     "/workspace/.cache/ms-playwright/chromium_headless_shell-1255/chrome-headless-shell-linux64/chrome-headless-shell"
@@ -48,14 +48,19 @@ LESSONS = [
     ("2-3", "/academy/step2-pension-tax-limit/"),
     ("3-1", "/academy/step3-drawdown-recovery/"),
     ("3-2", "/academy/step3-etf-six-numbers/"),
+    ("4-1", "/academy/step4-retire-drawdown-order/"),
+    ("5-1", "/academy/step5-silson-generation-switch/"),
+    ("6-1", "/academy/step6-rebalance-cash/"),
     ("초등1", "/academy/school-elementary-allowance/"),
     ("청소년1", "/academy/school-teen-payments/"),
     ("첫월급1", "/academy/school-firstpay-stub/"),
     ("가계1", "/academy/school-household-cashflow/"),
     ("가계2", "/academy/school-household-coverage/"),
+    ("자산형성1", "/academy/school-asset-split-weights/"),
+    ("은퇴1", "/academy/school-retire-3tier-order/"),
 ]
 
-SCHOOL = {"초등1", "청소년1", "첫월급1", "가계1", "가계2"}
+SCHOOL = {"초등1", "청소년1", "첫월급1", "가계1", "가계2", "자산형성1", "은퇴1"}
 
 
 def check(name: str, ok: bool, detail: str = "") -> None:
@@ -120,7 +125,7 @@ with sync_playwright() as p:
             pg.screenshot(path=str(OUT / f"{name}-{width}-full.png"), full_page=True)
             pg.screenshot(path=str(OUT / f"{name}-{width}-fold.png"))
             ctx.close()
-    check("A1 허브·강의 12개 × 1280/390 HTTP 200", not bad, ", ".join(bad))
+    check("A1 허브·강의 17개 × 1280/390 HTTP 200", not bad, ", ".join(bad))
     check("A2 콘솔 오류 0", not console_errors, " | ".join(console_errors[:3]))
     check("A3 가로 넘침 0", not overflow, ", ".join(overflow[:4]))
 
@@ -208,16 +213,16 @@ with sync_playwright() as p:
         }"""
     )
     check(
-        "D1 허브 — 지금 열린 강의 12개 카드 · 각 강의 주소 연결",
-        hub["count"] == 12
-        and len([l for l in hub["links"] if l and "/academy/" in l]) == 12
+        "D1 허브 — 지금 열린 강의 17개 카드 · 각 강의 주소 연결",
+        hub["count"] == 17
+        and len([l for l in hub["links"] if l and "/academy/" in l]) == 17
         and hub["heroCta"] and "#open" in hub["heroCta"],
         f"{hub['count']} · {hub['links']} · cta {hub['heroCta']}",
     )
     check(
-        "D2 로드맵 — STEP 1 '공개 2강' · STEP 2 '공개 3강' · STEP 3 '공개 2강' · 나머지 준비중",
-        [s["status"] for s in hub["steps"]] == ["공개 2강", "공개 3강", "공개 2강", "준비중", "준비중", "준비중"]
-        and [len(s["lessons"]) for s in hub["steps"]] == [2, 3, 2, 0, 0, 0],
+        "D2 로드맵 — STEP 1~6 모두 공개(2·3·2·1·1·1강) · 강의 링크 10개",
+        [s["status"] for s in hub["steps"]] == ["공개 2강", "공개 3강", "공개 2강", "공개 1강", "공개 1강", "공개 1강"]
+        and [len(s["lessons"]) for s in hub["steps"]] == [2, 3, 2, 1, 1, 1],
         f"{[(s['no'], s['status'], len(s['lessons'])) for s in hub['steps']]}",
     )
 
@@ -261,11 +266,11 @@ with sync_playwright() as p:
         }"""
     )
     check(
-        "D4 52주 로드맵 — 52칸·7트랙·지금 열린 10주 · 탭 필터(청소년 8주)",
+        "D4 52주 로드맵 — 52칸·7트랙·지금 열린 12주 · 탭 필터(청소년 8주)",
         roadmap["weeks"] == 52
         and roadmap["blocks"] == 7
         and roadmap["tabs"] == 8
-        and roadmap["open"] == 10
+        and roadmap["open"] == 12
         and roadmap["teen"]["weeks"] == 8
         and roadmap["teen"]["blocks"] == 1
         and "청소년" in roadmap["teen"]["note"]
@@ -384,6 +389,11 @@ with sync_playwright() as p:
                             "STEP 1 · 1",
                             "STEP 2 · 1",
                             "STEP 3 · 1",
+                            "STEP 4 · 1",
+                            "STEP 5 · 1",
+                            "STEP 6 · 1",
+                            "분산 점검표 · 1",
+                            "연금 지도 · 1",
                             "용돈 세 칸 · 1",
                             "구독 정리표 · 1",
                             "실수령 확인표 · 1",
@@ -532,5 +542,5 @@ result = {
     "shared": {"viewer": viewer_report, "chars": chars_report, "sheet": sheet_report},
     "checks": CHECKS,
 }
-(OUT / "verify-academy-v80.json").write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
-print(f"\n{result['passed']}/{result['total']} 통과 → {OUT / 'verify-academy-v80.json'}")
+(OUT / "verify-academy-v840.json").write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
+print(f"\n{result['passed']}/{result['total']} 통과 → {OUT / 'verify-academy-v840.json'}")

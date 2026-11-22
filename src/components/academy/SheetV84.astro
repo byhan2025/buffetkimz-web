@@ -1,0 +1,773 @@
+---
+/**
+ * 「내 돈 운영표」 v8.4.0 계산기 — 다섯 변형이 한 파일에 있다.
+ *
+ *   draworder  4-1강 · 인출 순서표   시작 자산·연 인출액·순서 → 5년 뒤 잔액과 두 기준선
+ *   silson     5-1강 · 보장 빈칸표   세대·보험료·선택 → 3년 비용과 3년 뒤 월 보험료
+ *   rebalance  6-1강 · 12개월 달력   총자산·목표 비중·현재 비중 → 덜기/채우기 금액과 밴드
+ *   assetplan  학교 자산형성 1강 · 분산 점검표  총액·비중·하락률 → 전체 손실률
+ *   pensionmap 학교 은퇴 1강 · 연금 지도      세 층 월 수령액 → 연 사적연금·소득 합계와 두 선
+ *
+ * 공통 원칙: 입력값은 화면 안에서만 계산하고 주소·서버·저장소 어디에도 남기지 않는다.
+ * 금액은 강의 본문과 같은 식(해마다 초 인출 후 수익률 적용, 전체 손실률 = 손실 ÷ 총액)에서 나온다.
+ */
+import { withBase, site } from "@/config/site";
+
+type V84Variant = "draworder" | "silson" | "rebalance" | "assetplan" | "pensionmap";
+
+interface Props {
+  variant?: V84Variant;
+  slotNo?: number;
+  slotTitle?: string;
+  line?: string;
+}
+const { variant = "draworder", slotNo = 4, slotTitle = "인출 순서표", line = "" } = Astro.props;
+
+/** 이 다섯 변형 중 성인 STEP에 속하는 것 — 진행 표기를 'STEP n'으로 쓴다 */
+const ADULT_STEP: Record<string, number> = { draworder: 4, silson: 5, rebalance: 6 };
+const stepNo = ADULT_STEP[variant];
+const progressPrefix = stepNo ? `STEP ${stepNo}` : slotTitle;
+
+const DRAW_START = [20000, 30000, 50000];
+const DRAW_AMOUNT = [1000, 1500, 2000];
+const SIL_BASE = { gen1: 176982, gen2: 126773 } as const;
+const SIL_CONV = 21620;
+const SIL_AFTER3 = 43241;
+const SIL_SEL = { gen1: 111499, gen2: 92544 } as const;
+const RB_TOTAL = [500, 1000, 2000];
+const RB_TARGET = [50, 70, 80];
+const RB_GAP = [12, 0, -8];
+const AS_TOTAL = [50, 100, 200];
+const AS_SHARE = [50, 70, 80];
+const AS_DROP = [20, 30, 50];
+const RT_NATIONAL = [80, 100, 120];
+const RT_RETIRE = [30, 50, 80];
+const RT_PERSONAL = [20, 30, 50];
+
+const defaults = {
+  drawStart: 30000,
+  drawAmount: 1500,
+  drawOrder: "bad",
+  silGen: "gen1",
+  silPick: "conv",
+  rbTotal: 1000,
+  rbTarget: 70,
+  rbGap: 12,
+  asTotal: 100,
+  asShare: 70,
+  asDrop: 30,
+  rtNational: 100,
+  rtRetire: 50,
+  rtPersonal: 30,
+};
+
+const man = (v: number) => `${v.toLocaleString("ko-KR")}만`;
+const outLabel =
+  variant === "draworder"
+    ? "5년 뒤 잔액"
+    : variant === "silson"
+      ? "3년 비용"
+      : variant === "rebalance"
+        ? "지금 할 일"
+        : variant === "assetplan"
+          ? "전체 손실률"
+          : "월 합계";
+---
+
+<section class:list={["sheet", { "is-school": !stepNo }]} data-sheet data-variant={variant} aria-labelledby="sheet-heading">
+  <div class="sheet-head">
+    <div>
+      <p class="eyebrow">{stepNo ? `STEP ${stepNo}` : "금융생활학교"} · {slotTitle}</p>
+      <h2 id="sheet-heading" class="sec-title">내 돈 운영표 · {slotNo}번 칸</h2>
+      <p class="mt-2 max-w-[54ch] text-[13px] leading-[1.7] text-ink-muted">
+        {slotTitle}의 첫 줄입니다. {line || "값을 고르면 결과가 바로 나옵니다."} 고른 값은 이 화면 안에서만 계산됩니다.
+      </p>
+    </div>
+    <p class="sheet-progress mono" data-sheet-progress>{progressPrefix} · 0 / 6칸</p>
+  </div>
+
+  <div class="sheet-body">
+    <div class="sheet-form">
+      {
+        variant === "draworder" ? (
+          <>
+            <fieldset class="sheet-field">
+              <legend class="sheet-legend">
+                시작 자산 <span class="mono">은퇴 직전 잔액</span>
+              </legend>
+              <div class="sheet-chips">
+                {DRAW_START.map((v) => (
+                  <label class="sheet-chip sheet-chip--num">
+                    <input type="radio" name="dr-start" value={v} checked={v === defaults.drawStart} data-sheet-input />
+                    <span>{man(v)}</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+
+            <fieldset class="sheet-field">
+              <legend class="sheet-legend">
+                연 인출액 <span class="mono">생활비로 나가는 돈</span>
+              </legend>
+              <div class="sheet-chips">
+                {DRAW_AMOUNT.map((v) => (
+                  <label class="sheet-chip sheet-chip--num">
+                    <input type="radio" name="dr-amount" value={v} checked={v === defaults.drawAmount} data-sheet-input />
+                    <span>{man(v)}</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+
+            <fieldset class="sheet-field">
+              <legend class="sheet-legend">
+                수익률 순서 <span class="mono">같은 5개 · 평균 0%</span>
+              </legend>
+              <div class="sheet-chips">
+                <label class="sheet-chip">
+                  <input type="radio" name="dr-order" value="bad" checked={defaults.drawOrder === "bad"} data-sheet-input />
+                  <span>하락 먼저</span>
+                </label>
+                <label class="sheet-chip">
+                  <input type="radio" name="dr-order" value="good" checked={defaults.drawOrder === "good"} data-sheet-input />
+                  <span>상승 먼저</span>
+                </label>
+              </div>
+            </fieldset>
+          </>
+        ) : variant === "silson" ? (
+          <>
+            <fieldset class="sheet-field">
+              <legend class="sheet-legend">
+                내 세대 <span class="mono">2013년 3월 이전 계약</span>
+              </legend>
+              <div class="sheet-chips">
+                <label class="sheet-chip">
+                  <input type="radio" name="si-gen" value="gen1" checked={defaults.silGen === "gen1"} data-sheet-input />
+                  <span>1세대</span>
+                </label>
+                <label class="sheet-chip">
+                  <input type="radio" name="si-gen" value="gen2" checked={defaults.silGen === "gen2"} data-sheet-input />
+                  <span>2세대</span>
+                </label>
+              </div>
+            </fieldset>
+
+            <fieldset class="sheet-field">
+              <legend class="sheet-legend">
+                무엇을 고를까 <span class="mono">전환 또는 선택형</span>
+              </legend>
+              <div class="sheet-chips">
+                <label class="sheet-chip">
+                  <input type="radio" name="si-pick" value="conv" checked={defaults.silPick === "conv"} data-sheet-input />
+                  <span>계약전환(5세대)</span>
+                </label>
+                <label class="sheet-chip">
+                  <input type="radio" name="si-pick" value="sel" checked={defaults.silPick === "sel"} data-sheet-input />
+                  <span>선택형 3옵션</span>
+                </label>
+              </div>
+            </fieldset>
+          </>
+        ) : variant === "rebalance" ? (
+          <>
+            <fieldset class="sheet-field">
+              <legend class="sheet-legend">
+                총자산 <span class="mono">투자하는 돈</span>
+              </legend>
+              <div class="sheet-chips">
+                {RB_TOTAL.map((v) => (
+                  <label class="sheet-chip sheet-chip--num">
+                    <input type="radio" name="rb-total" value={v} checked={v === defaults.rbTotal} data-sheet-input />
+                    <span>{man(v)}</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+
+            <fieldset class="sheet-field">
+              <legend class="sheet-legend">
+                목표 주식 비중 <span class="mono">나머지는 채권·현금</span>
+              </legend>
+              <div class="sheet-chips">
+                {RB_TARGET.map((v) => (
+                  <label class="sheet-chip sheet-chip--num">
+                    <input type="radio" name="rb-target" value={v} checked={v === defaults.rbTarget} data-sheet-input />
+                    <span>{v}%</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+
+            <fieldset class="sheet-field">
+              <legend class="sheet-legend">
+                지금 주식 비중 <span class="mono">목표와 견주어</span>
+              </legend>
+              <div class="sheet-chips">
+                {RB_GAP.map((v) => (
+                  <label class="sheet-chip sheet-chip--num">
+                    <input type="radio" name="rb-gap" value={v} checked={v === defaults.rbGap} data-sheet-input />
+                    <span>{v > 0 ? `+${v}%p` : v === 0 ? "목표 근처" : `${v}%p`}</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+          </>
+        ) : variant === "assetplan" ? (
+          <>
+            <fieldset class="sheet-field">
+              <legend class="sheet-legend">
+                총액 <span class="mono">가상 금액</span>
+              </legend>
+              <div class="sheet-chips">
+                {AS_TOTAL.map((v) => (
+                  <label class="sheet-chip sheet-chip--num">
+                    <input type="radio" name="as-total" value={v} checked={v === defaults.asTotal} data-sheet-input />
+                    <span>{man(v)}</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+
+            <fieldset class="sheet-field">
+              <legend class="sheet-legend">
+                A 자산 비중 <span class="mono">나머지는 B</span>
+              </legend>
+              <div class="sheet-chips">
+                {AS_SHARE.map((v) => (
+                  <label class="sheet-chip sheet-chip--num">
+                    <input type="radio" name="as-share" value={v} checked={v === defaults.asShare} data-sheet-input />
+                    <span>{v}%</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+
+            <fieldset class="sheet-field">
+              <legend class="sheet-legend">
+                A 하락률 <span class="mono">B는 그대로</span>
+              </legend>
+              <div class="sheet-chips">
+                {AS_DROP.map((v) => (
+                  <label class="sheet-chip sheet-chip--num">
+                    <input type="radio" name="as-drop" value={v} checked={v === defaults.asDrop} data-sheet-input />
+                    <span>−{v}%</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+          </>
+        ) : (
+          <>
+            <fieldset class="sheet-field">
+              <legend class="sheet-legend">
+                국민연금 <span class="mono">공적 · 월</span>
+              </legend>
+              <div class="sheet-chips">
+                {RT_NATIONAL.map((v) => (
+                  <label class="sheet-chip sheet-chip--num">
+                    <input type="radio" name="rt-national" value={v} checked={v === defaults.rtNational} data-sheet-input />
+                    <span>{man(v)}</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+
+            <fieldset class="sheet-field">
+              <legend class="sheet-legend">
+                퇴직연금 <span class="mono">사적 · 월</span>
+              </legend>
+              <div class="sheet-chips">
+                {RT_RETIRE.map((v) => (
+                  <label class="sheet-chip sheet-chip--num">
+                    <input type="radio" name="rt-retire" value={v} checked={v === defaults.rtRetire} data-sheet-input />
+                    <span>{man(v)}</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+
+            <fieldset class="sheet-field">
+              <legend class="sheet-legend">
+                개인연금 <span class="mono">사적 · 월</span>
+              </legend>
+              <div class="sheet-chips">
+                {RT_PERSONAL.map((v) => (
+                  <label class="sheet-chip sheet-chip--num">
+                    <input type="radio" name="rt-personal" value={v} checked={v === defaults.rtPersonal} data-sheet-input />
+                    <span>{man(v)}</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+          </>
+        )
+      }
+
+      <div class="sheet-result">
+        <p class="sheet-out-label text-[11.5px] font-semibold text-ink-faint" data-sheet-out-label>{outLabel}</p>
+        <p class="mt-1 text-[24px] font-bold leading-none tracking-[-0.035em] text-brand-deep" data-sheet-out>—</p>
+        <p class="mono mt-1.5 text-[11.5px] text-ink-faint" data-sheet-breakdown>—</p>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2">
+        <button type="button" class="btn btn-primary btn-sm min-h-[44px]" data-sheet-commit>이 칸 채우기</button>
+        <a
+          href={withBase(stepNo ? "/academy/#roadmap" : "/academy/#school-weeks")}
+          class="text-[12px] text-ink-faint underline underline-offset-2"
+        >
+          {stepNo ? "아카데미 로드맵" : "52주 로드맵"}
+        </a>
+      </div>
+
+      <p class="text-[11.5px] leading-[1.6] text-ink-faint">
+        고른 값은 이 화면 안에서만 계산하고, 주소·서버·저장소 어디에도 남기지 않습니다. 화면을 닫으면 사라집니다.
+        기준일 {site.baseDateLabel}.
+      </p>
+    </div>
+
+    <div class="sheet-preview" data-sheet-preview>
+      <p class="mono text-[11px] tracking-[0.04em] text-ink-faint">내 돈 운영표 · 6칸 중 {slotNo}번</p>
+
+      <div class="sheet-empty" data-sheet-empty>
+        <p class="text-[13.5px] font-semibold text-ink">아직 빈칸입니다</p>
+        <p class="mt-1 text-[12px] leading-[1.65] text-ink-muted">
+          왼쪽에서 값을 고른 뒤 <span class="font-semibold text-ink-soft">이 칸 채우기</span>를 누르면, 규칙이 한
+          줄로 남습니다.
+        </p>
+      </div>
+
+      <div class="sheet-filled" data-sheet-filled hidden>
+        <p class="text-[11px] font-bold tracking-[0.14em] text-brand-deep">칸 완성</p>
+        <p class="mt-1.5 text-[15px] font-bold tracking-[-0.025em] text-ink">{slotTitle} · 첫 줄</p>
+        <dl class="sheet-filled-list mt-2">
+          <div><dt>기준</dt><dd data-row="a">—</dd></div>
+          <div><dt>입력</dt><dd data-row="b">—</dd></div>
+          <div><dt>결과</dt><dd data-row="c">—</dd></div>
+          <div><dt>기준선</dt><dd data-row="d">—</dd></div>
+          <div><dt>다음 할 일</dt><dd data-row="e">—</dd></div>
+        </dl>
+        <p class="mt-2 border-t border-dashed border-line pt-2 text-[11.5px] leading-[1.6] text-ink-faint">
+          기준일 {site.baseDateLabel} · 금액은 가상 예시입니다.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  const fmtMan = (man: number) => {
+    const v = man >= 100 ? Math.round(man) : Math.round(man * 10) / 10;
+    const eok = Math.floor(v / 10000);
+    const rest = Math.round(v % 10000 * 10) / 10;
+    if (!eok) return `${rest.toLocaleString("ko-KR")}만원`;
+    return rest ? `${eok}억 ${rest.toLocaleString("ko-KR")}만원` : `${eok}억원`;
+  };
+
+  const fmtWon = (won: number) => {
+    const man = Math.floor(won / 10000);
+    const rest = Math.round(won % 10000);
+    return rest ? `${man.toLocaleString("ko-KR")}만 ${rest.toLocaleString("ko-KR")}원` : `${man.toLocaleString("ko-KR")}만원`;
+  };
+
+  const VARIANT_LABEL: Record<string, string> = {
+    draworder: "STEP 4",
+    silson: "STEP 5",
+    rebalance: "STEP 6",
+  };
+
+  const DRAW_SEQ = [-0.3, -0.2, 0.05, 0.2, 0.25];
+  const SIL_BASE: Record<string, number> = { gen1: 176982, gen2: 126773 };
+  const SIL_CONV = 21620;
+  const SIL_AFTER3 = 43241;
+  const SIL_SEL: Record<string, number> = { gen1: 111499, gen2: 92544 };
+
+  document
+    .querySelectorAll<HTMLElement>(
+      '[data-sheet][data-variant="draworder"], [data-sheet][data-variant="silson"], [data-sheet][data-variant="rebalance"], [data-sheet][data-variant="assetplan"], [data-sheet][data-variant="pensionmap"]',
+    )
+    .forEach((root) => {
+      const variant = root.dataset.variant ?? "draworder";
+      const inputs = [...root.querySelectorAll<HTMLInputElement>("[data-sheet-input]")];
+      const outEl = root.querySelector<HTMLElement>("[data-sheet-out]");
+      const breakdownEl = root.querySelector<HTMLElement>("[data-sheet-breakdown]");
+      const progressEl = root.querySelector<HTMLElement>("[data-sheet-progress]");
+      const empty = root.querySelector<HTMLElement>("[data-sheet-empty]");
+      const filled = root.querySelector<HTMLElement>("[data-sheet-filled]");
+      const commitBtn = root.querySelector<HTMLButtonElement>("[data-sheet-commit]");
+      const row = (k: string) => root.querySelector<HTMLElement>(`[data-row="${k}"]`);
+      const pick = (name: string) => inputs.find((i) => i.name === name && i.checked)?.value ?? "";
+      const num = (name: string) => Number(pick(name) || 0);
+
+      const slotLabel = root.querySelector<HTMLElement>(".sheet-progress")?.textContent ?? "";
+      const prefix = slotLabel.split(" · ")[0];
+      let committed = false;
+
+      const calc = () => {
+        if (variant === "draworder") {
+          const start = num("dr-start");
+          const draw = num("dr-amount");
+          const order = pick("dr-order");
+          const seq = order === "bad" ? DRAW_SEQ : [...DRAW_SEQ].reverse();
+          const end = seq.reduce((v, r) => (v - draw) * (1 + r), start);
+          const label = order === "bad" ? "하락 먼저" : "상승 먼저";
+          const taxLine =
+            draw <= 1500
+              ? "사적연금 연 1,500만원 이하 — 연금소득세"
+              : "사적연금 연 1,500만원 초과 — 종합과세 또는 15% 분리과세 선택";
+          const healthLine =
+            draw <= 2000
+              ? "소득 합계 연 2,000만원 이하 — 공단 확인"
+              : "소득 합계 연 2,000만원 초과 — 피부양자 요건 확인";
+          return {
+            out: fmtMan(end),
+            state: "ok",
+            breakdown: `${label} · ${fmtMan(draw)} × 5년 · 평균 0%`,
+            rows: {
+              a: `${fmtMan(start)} · ${fmtMan(draw)} 인출`,
+              b: `순서 ${label}`,
+              c: `5년 뒤 ${fmtMan(end)}`,
+              d: `${taxLine} / ${healthLine}`,
+              e: "생활비 2년치를 현금으로 먼저 확보",
+            },
+          };
+        }
+        if (variant === "silson") {
+          const gen = pick("si-gen") || "gen1";
+          const mode = pick("si-pick") || "conv";
+          if (mode === "conv") {
+            const cost3 = SIL_CONV * 36;
+            return {
+              out: fmtWon(cost3),
+              state: "ok",
+              breakdown: `전환 후 3년 월 ${SIL_CONV.toLocaleString("ko-KR")}원 · 3년 뒤 ${SIL_AFTER3.toLocaleString("ko-KR")}원`,
+              rows: {
+                a: `${gen === "gen1" ? "1세대" : "2세대"} · 지금 월 ${SIL_BASE[gen].toLocaleString("ko-KR")}원`,
+                b: "계약전환(5세대)",
+                c: `3년 비용 ${fmtWon(cost3)}`,
+                d: `3년 뒤 월 ${SIL_AFTER3.toLocaleString("ko-KR")}원`,
+                e: "가입일·청구 내역·철회 기간 확인",
+              },
+            };
+          }
+          const sel = SIL_SEL[gen];
+          const rate = Math.round((1 - sel / SIL_BASE[gen]) * 1000) / 10;
+          return {
+            out: fmtWon(sel),
+            state: "ok",
+            breakdown: `${gen === "gen1" ? "1세대" : "2세대"} 선택형 3옵션 · ${rate}% 인하`,
+            rows: {
+              a: `지금 월 ${SIL_BASE[gen].toLocaleString("ko-KR")}원`,
+              b: "선택형 3옵션",
+              c: `월 ${sel.toLocaleString("ko-KR")}원`,
+              d: `인하 ${rate}% · 연 ${fmtWon((SIL_BASE[gen] - sel) * 12)}`,
+              e: "포기하는 항목의 할인율을 먼저 확인",
+            },
+          };
+        }
+        if (variant === "rebalance") {
+          const total = num("rb-total");
+          const target = num("rb-target");
+          const gap = num("rb-gap");
+          const goal = Math.round((total * target) / 100);
+          const now = Math.round((total * (target + gap)) / 100);
+          const diff = now - goal;
+          const lo = target - 5;
+          const hi = target + 5;
+          return {
+            out: diff === 0 ? "그대로 두기" : `${fmtMan(Math.abs(diff))} ${diff > 0 ? "덜기" : "채우기"}`,
+            state: "ok",
+            breakdown: `목표 ${target}% = ${fmtMan(goal)} · 지금 ${target + gap}% = ${fmtMan(now)} · 밴드 ${lo}~${hi}%`,
+            rows: {
+              a: `총자산 ${fmtMan(total)}`,
+              b: `목표 ${target}% · 지금 ${target + gap}%`,
+              c: diff === 0 ? "밴드 안" : `${fmtMan(Math.abs(diff))} ${diff > 0 ? "덜기" : "채우기"}`,
+              d: `밴드 ${lo}~${hi}% 벗어나면 점검`,
+              e: "점검일을 달력에 먼저 적기 · 생활비 3~6개월 현금",
+            },
+          };
+        }
+        if (variant === "assetplan") {
+          const total = num("as-total");
+          const share = num("as-share");
+          const drop = num("as-drop");
+          const a = Math.round(((total * share) / 100) * 10) / 10;
+          const loss = Math.round(a * (drop / 100) * 10) / 10;
+          const rate = Math.round((loss / total) * 1000) / 10;
+          const full = Math.round(total * (drop / 100) * 10) / 10;
+          return {
+            out: `−${rate}%`,
+            state: "ok",
+            breakdown: `${share}% 쪽이 −${drop}% · 한 곳에 다 담았다면 −${drop}%`,
+            rows: {
+              a: `총액 ${fmtMan(total)}`,
+              b: `${share}:${100 - share} · A ${fmtMan(a)}`,
+              c: `A에서 −${fmtMan(loss)} · 전체 −${rate}%`,
+              d: `전부 담았다면 −${fmtMan(full)}`,
+              e: "겹치는 종목·업종 확인 · 1년에 한 번 비중 점검",
+            },
+          };
+        }
+        const national = num("rt-national");
+        const retire = num("rt-retire");
+        const personal = num("rt-personal");
+        const month = national + retire + personal;
+        const privateYear = (retire + personal) * 12;
+        const incomeYear = month * 12;
+        return {
+          out: `월 ${fmtMan(month)}`,
+          state: "ok",
+          breakdown: `연 사적연금 ${fmtMan(privateYear)} · 소득 합계 ${fmtMan(incomeYear)}`,
+          rows: {
+            a: `국민 ${fmtMan(national)} · 퇴직 ${fmtMan(retire)} · 개인 ${fmtMan(personal)}`,
+            b: `월 ${fmtMan(month)}`,
+            c: `연 사적연금 ${fmtMan(privateYear)} — ${privateYear <= 1500 ? "1,500만원 이하" : "1,500만원 초과"}`,
+            d: `소득 합계 ${fmtMan(incomeYear)} — ${incomeYear <= 2000 ? "2,000만원 이하" : "2,000만원 초과"}`,
+            e: "비는 구간 길이 확인 · 공단에 자격 문의",
+          },
+        };
+      };
+
+      const labelEl = root.querySelector<HTMLElement>("[data-sheet-out-label]");
+      const render = () => {
+        const s = calc();
+        if (labelEl && variant === "silson") {
+          labelEl.textContent = pick("si-pick") === "sel" ? "월 보험료" : "3년 비용";
+        }
+        if (outEl) outEl.textContent = s.out;
+        if (breakdownEl) breakdownEl.textContent = s.breakdown;
+        root.dataset.state = s.state;
+        if (committed) {
+          Object.entries(s.rows).forEach(([k, v]) => {
+            const el = row(k);
+            if (el) el.textContent = v;
+          });
+        }
+      };
+
+      inputs.forEach((i) => i.addEventListener("change", render));
+
+      commitBtn?.addEventListener("click", () => {
+        committed = true;
+        render();
+        if (empty) empty.hidden = true;
+        if (filled) filled.hidden = false;
+        if (progressEl) progressEl.textContent = `${prefix} · 1 / 6칸`;
+        commitBtn.textContent = "값 바꿔서 다시 채우기";
+        filled?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      });
+
+      render();
+    });
+</script>
+
+<style>
+  .sheet {
+    padding: 20px;
+    border: 1px solid var(--color-line);
+    border-radius: 20px;
+    background-color: #ffffff;
+    box-shadow:
+      0 1px 2px rgb(11 27 41 / 0.04),
+      0 20px 44px -34px rgb(11 27 41 / 0.5);
+  }
+
+  @media (min-width: 768px) {
+    .sheet {
+      padding: 28px;
+    }
+  }
+
+  .sheet-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .sheet-progress {
+    display: inline-flex;
+    align-items: center;
+    min-height: 28px;
+    padding: 0 10px;
+    border-radius: 999px;
+    background-color: var(--color-brand-soft);
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--color-brand-deep);
+  }
+
+  .sheet-body {
+    display: grid;
+    gap: 18px;
+    margin-top: 18px;
+  }
+
+  @media (min-width: 900px) {
+    .sheet-body {
+      grid-template-columns: minmax(0, 1.18fr) minmax(0, 1fr);
+      gap: 24px;
+      align-items: start;
+    }
+  }
+
+  .sheet-form {
+    display: grid;
+    gap: 14px;
+    min-width: 0;
+  }
+
+  .sheet-field {
+    min-width: 0;
+  }
+
+  .sheet-legend {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 6px;
+    margin-bottom: 6px;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--color-ink-soft);
+  }
+
+  .sheet-legend .mono {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--color-ink-faint);
+  }
+
+  .sheet-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .sheet-chip {
+    display: inline-flex;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .sheet-chip input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .sheet-chip span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 12px;
+    border: 1px solid var(--color-line);
+    border-radius: 12px;
+    background-color: #ffffff;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--color-ink-muted);
+    transition:
+      border-color 140ms var(--ease-out-soft),
+      background-color 140ms var(--ease-out-soft);
+  }
+
+  .sheet-chip--num span {
+    min-width: 62px;
+    justify-content: center;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .sheet-chip input:checked + span {
+    border-color: var(--color-brand);
+    background-color: var(--color-brand-soft);
+    color: var(--color-brand-deep);
+  }
+
+  .sheet-chip input:focus-visible + span {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 2px;
+  }
+
+  .sheet-result {
+    padding: 14px 16px;
+    border-radius: 14px;
+    background-color: var(--color-paper);
+    border: 1px solid var(--color-line-soft);
+  }
+
+  .sheet-preview {
+    padding: 16px;
+    border: 1px dashed var(--color-line);
+    border-radius: 16px;
+    background-color: var(--color-cream);
+  }
+
+  .sheet-filled {
+    margin-top: 10px;
+  }
+
+  .sheet-filled-list {
+    display: grid;
+    gap: 2px;
+  }
+
+  .sheet-filled-list > div {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 5px 0;
+    border-bottom: 1px solid var(--color-line-soft);
+  }
+
+  .sheet-filled-list dt {
+    flex: none;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-ink-faint);
+  }
+
+  .sheet-filled-list dd {
+    margin: 0;
+    text-align: right;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--color-ink);
+  }
+
+
+  /* ── 학교 트랙(자산형성·은퇴) — 본문 16px·버튼 48px 기준을 같은 계산기에 적용한다 ── */
+  .is-school .sheet-head p,
+  .is-school .sheet-progress,
+  .is-school .sheet-out-label,
+  .is-school .sheet-legend,
+  .is-school .sheet-legend .mono,
+  .is-school .sheet-result .mono,
+  .is-school .sheet-preview p,
+  .is-school .sheet-preview a,
+  .is-school .sheet-form a,
+  .is-school .sheet-form > p,
+  .is-school .sheet-filled-list dt,
+  .is-school .sheet-filled-list dd {
+    font-size: 16px;
+  }
+
+  .is-school .sheet-chip span {
+    min-height: 48px;
+    padding: 0 14px;
+    font-size: 16px;
+  }
+
+  .is-school .sheet-chip--num span {
+    min-width: 76px;
+  }
+
+  .is-school .sheet-progress {
+    min-height: 32px;
+  }
+</style>

@@ -145,13 +145,13 @@ export const ACADEMY_STEPS: AcademyStep[] = stepBase.map((s) => {
 
 export const stepByNo = (no: number) => ACADEMY_STEPS.find((s) => s.no === no);
 
-/** 지금 열린 강의 — 성인 7강 + 학교 트랙 5강, 학습 순서대로 */
+/** 지금 열린 강의 — 성인 10강 + 학교 트랙 7강, 학습 순서대로 */
 export const ACADEMY_LESSONS: AcademyLesson[] = [...ADULT_LESSONS, ...SCHOOL_LESSONS];
 export const OPEN_LESSONS: AcademyLesson[] = ACADEMY_LESSONS;
 export const openLessonCount = OPEN_LESSONS.length;
 export const openStepCount = ACADEMY_STEPS.filter((s) => s.status === "open").length;
 
-/** 학교 트랙(초등·청소년·첫 월급)만 — 허브의 트랙 카드가 읽는다 */
+/** 학교 트랙(초등·청소년·첫 월급·가계·자산형성·은퇴)만 — 허브의 트랙 카드가 읽는다 */
 export const SCHOOL_OPEN_LESSONS = OPEN_LESSONS.filter((l) => (l.track ?? "adult") !== "adult");
 
 /** 트랙 이름 — 화면 라벨을 한 곳에서 만든다 */
@@ -161,6 +161,8 @@ export const TRACK_LABEL: Record<NonNullable<AcademyLesson["track"]>, string> = 
   teen: "청소년",
   firstpay: "첫 월급",
   household: "가계",
+  asset: "자산형성",
+  retire: "은퇴",
 };
 
 /** 수강 경로 3가지 — 진단 3문항의 답 개수로 갈린다. */

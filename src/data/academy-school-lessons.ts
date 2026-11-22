@@ -119,8 +119,43 @@ const SET_COVERAGE: LessonCardSet = {
   ],
 };
 
+/** v8.4.0 — 자산형성 1강 · 은퇴 1강 카드 세트 (자료앨범의 같은 세트 6장) */
+const SET_ASSET_SPLIT: LessonCardSet = {
+  id: "asset-rebalance-hand",
+  title: "오를 때 덜고 내릴 때 채우기 — 리밸런싱과 현금 비중",
+  meta: "손글씨 카드 6장 · 목표 비중 · 점검 주기 · 현금 비중",
+  href: "/gallery/?cat=carousel",
+  startIndex: 0,
+  slides: [
+    card("asset-rebalance", 1, "표지 — 리밸런싱은 오를 때 덜고 내릴 때 채우는 일", "저울 위 두 단지 사이에서 동전을 옮겨 담는 마스코트와 '오를 때 덜고 내릴 때 채웁니다'"),
+    card("asset-rebalance", 2, "오해 vs 팩트 — 그냥 두기 / 목표금액 = 총자산 × 목표비중, 넘으면 덜기", "왼쪽은 무너질 듯 높이 쌓은 동전 탑을 붙든 마스코트, 오른쪽은 크기가 고른 세 단지를 나란히 둔 마스코트"),
+    card("asset-rebalance", 3, "① 목표 비중 — 총자산 1,000만이면 주식 700만, 지금 820만이면 120만 덜기", "둘로 나눈 파이 옆에서 자와 연필을 든 마스코트, '총자산 1,000만이면 주식 700만'"),
+    card("asset-rebalance", 4, "② 점검 — 정기 연 1회 + 임계 ±5%p, 점검 날짜를 달력에 먼저 적기", "달력의 한 칸에 동그라미를 치는 마스코트와 작은 종, '1년에 한 번, 5%p 넘으면 그때도'"),
+    card("asset-rebalance", 5, "③ 현금 비중 — 생활비 3~6개월 + 3년 안에 쓸 돈은 투자 밖에", "울타리 친 동전 나무와, 바구니·우산을 올려둔 나무 선반을 가리키는 마스코트"),
+    card("asset-rebalance", 6, "요약 — 내 리밸런싱 3줄 규칙", "체크박스 세 칸이 있는 클립보드를 든 마스코트와 3줄 규칙"),
+  ],
+};
+
+const SET_RETIRE_3TIER: LessonCardSet = {
+  id: "retirement-3tier-hand",
+  title: "퇴직연금 DB·DC·IRP, 어디에 담을까",
+  meta: "손글씨 카드 6장 · 임금상승률 vs 운용수익률",
+  href: "/gallery/?cat=carousel",
+  startIndex: 0,
+  slides: [
+    card("retirement-3tier", 1, "표지 — 퇴직연금 DB·DC·IRP 한눈 비교", "세 층으로 쌓은 블록과 동전, 맨 위층을 가리키는 마스코트"),
+    card("retirement-3tier", 2, "오해 vs 팩트 — 퇴직금은 다 똑같다 / 임금상승률 vs 운용수익률", "왼쪽은 같은 동전 두 개를 든 갸우뚱한 마스코트, 오른쪽은 저울로 동전 더미를 비교하는 마스코트"),
+    card("retirement-3tier", 3, "DB형 — 임금상승률이 높고 오래 다닐 때", "창문과 금고가 있는 회사 건물, 사다리를 오르는 마스코트"),
+    card("retirement-3tier", 4, "DC형 — 직접 굴릴 때, 이직이 잦을 때", "동전을 돛으로 단 종이배를 조타하는 마스코트"),
+    card("retirement-3tier", 5, "IRP — 퇴직금 받을 통장 + 세액공제 300만", "문과 동전 투입구가 있는 단지에 서류 가방을 넣는 마스코트"),
+    card("retirement-3tier", 6, "수령 — 일시금 vs 연금, 퇴직소득세 30~40% 감면", "모래시계에서 동전이 손으로 떨어지고 달력과 단지가 놓인 장면"),
+  ],
+};
+
 export const schoolCardSetById = (id: string): LessonCardSet | undefined =>
-  [SET_ALLOWANCE, SET_TEEN_PAY, SET_FIRSTPAY, SET_HOUSEHOLD, SET_COVERAGE].find((s) => s.id === id);
+  [SET_ALLOWANCE, SET_TEEN_PAY, SET_FIRSTPAY, SET_HOUSEHOLD, SET_COVERAGE, SET_ASSET_SPLIT, SET_RETIRE_3TIER].find(
+    (s) => s.id === id,
+  );
 
 /* ------------------------------------------------------------------
    초등 1강 — 용돈 7,000원, 세 칸
@@ -680,7 +715,232 @@ const QUIZ_COVER: LessonQuizItem[] = [
 ];
 
 /* ------------------------------------------------------------------
-   강의 5개
+   자산형성 1강 — 나눠 담기와 비중 (FL-36)
+   · 가상 100만 원을 70:30으로 나누고, 70% 쪽이 −30% 빠졌을 때 전체 손실을 센다.
+   ------------------------------------------------------------------ */
+const AS_TOTAL = 100; // 가상 금액(만원)
+const AS_A = 70; // A 자산(만원)
+const AS_DROP = 0.3; // A 자산 하락률
+const AS_LOSS = Math.round(AS_A * AS_DROP); // 21만
+const AS_PORT = Math.round((AS_LOSS / AS_TOTAL) * 1000) / 10; // 21%
+
+const N_ASSET = {
+  total: manwon(AS_TOTAL),
+  a: manwon(AS_A),
+  b: manwon(AS_TOTAL - AS_A),
+  dropA: pct(AS_DROP, 0),
+  loss: manwon(AS_LOSS),
+  portLoss: pct(AS_LOSS / AS_TOTAL, 0),
+  fullLoss: manwon(Math.round(AS_TOTAL * AS_DROP)),
+  overlap: pct(0.4, 0),
+  targetA: pct(AS_A / AS_TOTAL, 0),
+  targetB: pct((AS_TOTAL - AS_A) / AS_TOTAL, 0),
+};
+
+const READING_ASSET: ReadingSection[] = [
+  {
+    h: "한 문장으로 답하면",
+    ps: [
+      `${N_ASSET.total}을 두 곳에 ${N_ASSET.targetA}와 ${N_ASSET.targetB}로 나눠 담으면 ${N_ASSET.a}와 ${N_ASSET.b}가 됩니다. ${N_ASSET.a} 쪽이 ${N_ASSET.dropA} 빠지면 그쪽에서 ${N_ASSET.loss}가 줄고, 전체로는 ${N_ASSET.portLoss} 손실입니다.`,
+      `한 곳에 다 담았다면 같은 하락에서 ${N_ASSET.fullLoss}가 줄어듭니다. 빠지는 비율은 같지만, 전체 손실은 ${N_ASSET.portLoss}와 ${N_ASSET.dropA}로 달라집니다.`,
+      `나눠 담는 이유는 수익을 늘리기 위해서가 아니라, 한 곳이 흔들릴 때 전체가 같이 흔들리지 않게 하기 위해서입니다. 오늘 남길 것은 두 가지입니다. 나눠 담는 이유와, 나눴는지 확인하는 방법입니다.`,
+    ],
+  },
+  {
+    h: "왜 덜 흔들리나",
+    ps: [
+      `손실은 빠진 곳의 금액에만 붙습니다. ${N_ASSET.b}는 그대로 있으니 전체에서 줄어드는 몫은 작아집니다. 반대로 B가 오르면 전체는 조금 더해집니다.`,
+      `오를 때도 같습니다. 한 곳만 오르면 전체는 조금 오르고, 한 곳만 빠지면 전체는 조금 빠집니다. 오르내림이 작아지는 대신 최고 수익도 작아집니다.`,
+      `그래서 나눠 담기는 '덜 잃는 대신 덜 버는' 선택입니다. 얼마나 나눌지는 내가 감당할 수 있는 흔들림에서 정합니다.`,
+      `빠진 뒤 돌아오는 길도 다릅니다. A가 ${N_ASSET.dropA} 빠지면 원래 금액으로 돌아오려면 그보다 큰 상승이 필요합니다. B는 그대로인데 A만 회복을 기다리는 셈입니다.`,
+    ],
+  },
+  {
+    h: "종목 수가 아니라 겹침",
+    ps: [
+      `이름이 다른 상품 열 개를 샀는데 같은 회사를 ${N_ASSET.overlap}씩 담고 있다면, 사실상 한 곳에 담은 것과 같습니다. 하나가 빠지면 열 개가 같이 빠집니다.`,
+      `같은 업종도 마찬가지입니다. 업종이 같으면 뉴스 하나에 함께 움직입니다. 그래서 개수보다 '무엇이 겹치는지'를 먼저 봅니다. 업종 비중은 공시에서 퍼센트로 확인합니다.`,
+      `구성을 확인하는 방법은 간단합니다. 상품의 상위 구성 종목과 업종 비중을 나란히 놓고, 겹치는 이름을 표시합니다. 이름이 달라도 겹친 이름이 많으면 같은 위험을 두 번 산 것입니다.`,
+      `분산은 상품 개수를 세는 일이 아니라, 서로 다르게 움직이는 자산이 몇 개인지 세는 일입니다.`,
+    ],
+  },
+  {
+    h: "비중을 적어 두면",
+    ps: [
+      `목표 비중을 정하면 확인할 숫자가 하나로 줄어듭니다. 목표금액 = 총액 × 비중. ${N_ASSET.total}의 ${N_ASSET.targetA}는 ${N_ASSET.a}입니다. 비중은 퍼센트로 적고, 확인할 때는 금액으로 바꿉니다.`,
+      `오르면 목표보다 커지고, 내리면 작아집니다. 1년에 한 번 날짜를 정해 두고 목표금액과 비교하면, 얼마를 옮겨야 하는지가 바로 나옵니다.`,
+      `비중은 소수점까지 맞출 필요가 없습니다. 크게 어긋났을 때만 손대는 규칙이면 충분합니다.`,
+      `처음 비중을 정할 때는 오래 묶어 둘 돈과 가까운 시일에 쓸 돈을 먼저 나눕니다. 가까운 시일에 쓸 돈은 흔들리지 않는 곳에 두고, 나머지로 비중을 정합니다.`,
+    ],
+  },
+  {
+    h: "자주 하는 실수 3가지",
+    ps: [
+      `첫째, 이름이 다른 상품을 여러 개 사면 분산이라고 생각합니다. 담긴 자산이 같으면 같이 움직입니다.`,
+      `둘째, 비중을 정하지 않고 감으로 삽니다. 목표금액을 적어 두지 않으면 오를 때 더 사고 내릴 때 팔게 됩니다.`,
+      `셋째, 한 번 정한 비중을 몇 년씩 확인하지 않습니다. 1년에 한 번 날짜를 정해 두면 이 셋은 한 번에 해결됩니다.`,
+    ],
+  },
+  {
+    h: "출처와 기준일",
+    ps: [
+      `금액은 모두 가상 예시입니다. 분산과 위험의 관계는 금융감독원 e-금융교육센터와 금융투자협회 공시 자료에서 확인합니다.`,
+      `이 글은 특정 종목·상품을 권하지 않습니다. 기준일은 2026. 11. 22.입니다.`,
+    ],
+  },
+];
+
+const QUIZ_ASSET: LessonQuizItem[] = [
+  {
+    q: `${N_ASSET.a}을 A에, ${N_ASSET.b}를 B에 넣었어요. A가 ${N_ASSET.dropA} 빠지면 전체는 얼마나 줄어들까요?`,
+    hint: `A에서만 손실이 납니다.`,
+    options: [
+      { label: `${N_ASSET.loss} (${N_ASSET.portLoss})`, ok: true, why: `${N_ASSET.a} × ${N_ASSET.dropA} = ${N_ASSET.loss}이고, 전체 ${N_ASSET.total}의 ${N_ASSET.portLoss}입니다.` },
+      { label: `${N_ASSET.fullLoss} (${N_ASSET.dropA})`, why: "전부 A에 넣었을 때의 손실입니다." },
+      { label: "0원", why: "A가 빠지면 A에 넣은 만큼은 줄어듭니다." },
+    ],
+    explain: "나눠 담으면 빠지는 곳의 금액만 손실이 됩니다.",
+  },
+  {
+    q: "종목을 열 개로 늘렸어요. '분산됐다'고 말하려면 무엇을 먼저 볼까요?",
+    hint: "개수보다 겹침을 봅니다.",
+    options: [
+      { label: "같은 회사·같은 업종이 겹치는지", ok: true, why: `이름이 달라도 같은 회사를 ${N_ASSET.overlap}씩 담았다면 함께 움직입니다.` },
+      { label: "상품 이름이 모두 다른지", why: "이름이 달라도 담긴 자산이 같으면 같이 움직입니다." },
+      { label: "수수료가 가장 싼지", why: "수수료는 비용이고, 겹침은 위험의 문제입니다." },
+    ],
+    explain: "분산은 개수가 아니라 서로 다르게 움직이는지의 문제입니다.",
+  },
+  {
+    q: `목표 비중 ${N_ASSET.targetA}:${N_ASSET.targetB}를 적어 두면 무엇이 쉬워질까요?`,
+    hint: `목표금액 = 총액 × 비중`,
+    options: [
+      { label: "지금 얼마를 옮겨야 하는지 계산", ok: true, why: `${N_ASSET.total}의 ${N_ASSET.targetA}가 ${N_ASSET.a}입니다. 지금 금액과 비교하면 차이가 나옵니다.` },
+      { label: "내일 오를 종목을 맞히는 일", why: "비중은 오를 종목을 맞히는 도구가 아닙니다." },
+      { label: "세금이 없어지는 일", why: "비중을 적는다고 세금이 사라지지는 않습니다." },
+    ],
+    explain: "비중을 적어 두면 판단이 계산으로 바뀝니다.",
+  },
+];
+
+/* ------------------------------------------------------------------
+   은퇴 1강 — 국민·퇴직·개인연금 3층 (FL-42)
+   · 세 층의 월 수령액을 합쳐 연 사적연금과 소득 합계를 따로 센다.
+   · 1,500만 원(세금)과 2,000만 원(건보료)은 다른 제도다.
+   ------------------------------------------------------------------ */
+const RT_NATIONAL = 100; // 국민연금 월(만원)
+const RT_RETIRE = 50; // 퇴직연금 월(만원)
+const RT_PERSONAL = 30; // 개인연금 월(만원)
+const RT_MONTH = RT_NATIONAL + RT_RETIRE + RT_PERSONAL; // 180만
+const RT_PRIVATE_YEAR = (RT_RETIRE + RT_PERSONAL) * 12; // 960만
+const RT_INCOME_YEAR = RT_MONTH * 12; // 2,160만
+
+const N_RETIRE = {
+  national: manwon(RT_NATIONAL),
+  retire: manwon(RT_RETIRE),
+  personal: manwon(RT_PERSONAL),
+  month: manwon(RT_MONTH),
+  privateYear: manwon(RT_PRIVATE_YEAR),
+  incomeYear: manwon(RT_INCOME_YEAR),
+  privateLimit: `연 ${manwon(1500)}`,
+  healthLimit: `연 ${manwon(2000)}`,
+  earlyCut: pct(0.05, 0),
+  earlyMax: pct(0.3, 0),
+  laterAdd: pct(0.072),
+  openAge: "61~65세",
+  irpAge: "55세",
+  irpYears: "5년",
+  taxLow: pct(0.055),
+  tax70: pct(0.044),
+  separate: pct(0.15, 0),
+};
+
+const READING_RETIRE: ReadingSection[] = [
+  {
+    h: "한 문장으로 답하면",
+    ps: [
+      `연금은 한 곳에서 나오지 않습니다. 나라가 운영하는 국민연금(공적), 회사를 통해 쌓는 퇴직연금, 내가 따로 넣는 개인연금까지 세 층입니다.`,
+      `국민연금 ${N_RETIRE.national}, 퇴직연금 ${N_RETIRE.retire}, 개인연금 ${N_RETIRE.personal}을 받으면 한 달 ${N_RETIRE.month}입니다. 연으로 바꾸면 사적연금(퇴직·개인) ${N_RETIRE.privateYear}, 소득 합계 ${N_RETIRE.incomeYear}입니다.`,
+      `금액은 사람마다 다르지만, 세 층을 나눠 세는 방식은 같습니다. 세 층을 한 장에 그려 두면 어디가 비어 있는지 눈으로 보입니다.`,
+    ],
+  },
+  {
+    h: "세 층은 시작 시점이 다르다",
+    ps: [
+      `국민연금은 출생연도에 따라 ${N_RETIRE.openAge} 사이에서 열립니다. 일찍 받으면 1년마다 ${N_RETIRE.earlyCut}씩 최대 ${N_RETIRE.earlyMax}까지 줄고, 늦추면 1년마다 ${N_RETIRE.laterAdd}씩 늘어납니다.`,
+      `퇴직연금과 개인연금은 ${N_RETIRE.irpAge}부터, 가입 기간 ${N_RETIRE.irpYears}을 채우면 연금으로 받을 수 있습니다. 회사를 그만두면 퇴직연금은 IRP로 이어받습니다.`,
+      `퇴직연금은 회사가 굴리는 DB와 내가 굴리는 DC로 나뉩니다. 어느 쪽이든 받을 때는 IRP로 모아 연금으로 받는 방식이 일반적입니다.`,
+      `그래서 퇴직 뒤 국민연금이 열리기 전까지 몇 년은 비는 구간이 생깁니다. 이 구간을 무엇으로 메울지가 첫 번째 질문입니다.`,
+    ],
+  },
+  {
+    h: "받는 순서와 세금",
+    ps: [
+      `비는 구간은 사적연금에서 먼저 꺼내 씁니다. 사적연금은 연 ${N_RETIRE.privateLimit}까지 연금소득세로 끝나고, 55~69세는 ${N_RETIRE.taxLow}, 70~79세는 ${N_RETIRE.tax70}입니다.`,
+      `이 선을 넘으면 다음 해에 종합과세되거나 ${N_RETIRE.separate} 분리과세를 고를 수 있습니다. 어느 쪽이 나은지는 다른 소득에 따라 달라집니다.`,
+      `그래서 인출 금액을 해마다 같은 선에서 나눠 받는 방식이 많이 쓰입니다.`,
+      `비는 구간이 길수록 사적연금을 꺼내는 속도가 빨라집니다. 그만큼 나중에 받을 돈이 줄어들므로, 구간 길이와 인출 속도를 함께 적어 두고 시작합니다.`,
+    ],
+  },
+  {
+    h: "두 개의 선을 섞지 않기",
+    ps: [
+      `사적연금 ${N_RETIRE.privateLimit}은 세금 기준이고, 소득 합계 ${N_RETIRE.healthLimit}은 건강보험 피부양자 자격 기준입니다. 두 제도는 목적도 계산도 다릅니다.`,
+      `위 예시는 사적연금이 ${N_RETIRE.privateYear}이라 세금 기준 아래지만, 소득 합계는 ${N_RETIRE.incomeYear}이라 건보 기준 위입니다. 세금은 연금소득세로 끝나도 건보 자격은 따로 확인해야 합니다.`,
+      `자격은 소득뿐 아니라 재산도 함께 봅니다. 정확한 판단은 국민건강보험공단에 내 소득 자료로 확인합니다. 두 기준선은 해마다 같은 자리에서 다시 확인합니다.`,
+    ],
+  },
+  {
+    h: "내 숫자로 확인하는 순서",
+    ps: [
+      `첫째, 세 층의 예상 수령액을 조회합니다. 국민연금은 국민연금공단, 퇴직·개인연금은 금융감독원 통합연금포털에서 한 번에 볼 수 있습니다.`,
+      `둘째, 국민연금이 열리기까지 비는 구간이 몇 년인지 계산합니다. 그 기간에 생활비가 얼마나 필요한지가 사적연금 인출 속도를 정합니다.`,
+      `셋째, 두 기준선을 따로 적습니다. 사적연금 ${N_RETIRE.privateLimit}(세금)과 소득 합계 ${N_RETIRE.healthLimit}(건보료)입니다. 한 줄에 섞어 적으면 판단이 어긋납니다.`,
+    ],
+  },
+  {
+    h: "출처와 기준일",
+    ps: [
+      `사적연금 과세는 소득세법 제20조의3·제64조의4, 피부양자 요건은 국민건강보험법 시행규칙에서 확인합니다.`,
+      `내 예상 수령액은 국민연금공단과 금융감독원 통합연금포털에서 조회합니다. 이 글은 특정 상품을 권하지 않고, 기준일은 2026. 11. 22.입니다.`,
+    ],
+  },
+];
+
+const QUIZ_RETIRE: LessonQuizItem[] = [
+  {
+    q: "세 층 가운데 나라가 운영하는 공적연금은 어느 것일까요?",
+    hint: "공적은 나라, 사적은 회사와 개인입니다.",
+    options: [
+      { label: "국민연금", ok: true, why: "국민연금이 공적연금이고, 퇴직연금·개인연금은 사적연금입니다." },
+      { label: "퇴직연금", why: "퇴직연금은 회사를 통해 쌓는 사적연금입니다." },
+      { label: "개인연금", why: "개인연금은 내가 따로 넣는 사적연금입니다." },
+    ],
+    explain: "세금과 건보 기준을 볼 때 공적과 사적을 나눠 셉니다.",
+  },
+  {
+    q: `사적연금이 ${N_RETIRE.privateLimit}을 넘으면 어떻게 될까요?`,
+    hint: "선을 넘으면 과세 방식이 갈립니다.",
+    options: [
+      { label: "종합과세되거나 분리과세를 고를 수 있습니다", ok: true, why: `넘은 해에는 종합과세 또는 ${N_RETIRE.separate} 분리과세 중에서 고릅니다.` },
+      { label: "연금을 더 이상 받을 수 없습니다", why: "못 받는 것이 아니라 세금 계산 방식이 바뀌는 것입니다." },
+      { label: "건강보험료가 바로 두 배가 됩니다", why: "건보료는 소득 합계와 재산을 따로 봅니다." },
+    ],
+    explain: "1,500만 원은 세금 기준입니다. 건보 기준과 섞지 않습니다.",
+  },
+  {
+    q: "국민연금을 1년 늦게 받으면 수령액은 어떻게 될까요?",
+    hint: "늦출수록 늘어납니다.",
+    options: [
+      { label: `1년마다 ${N_RETIRE.laterAdd}씩 늘어납니다`, ok: true, why: "연기하면 매달 조금씩 더해져 1년에 7.2% 수준으로 늘어납니다." },
+      { label: `1년마다 ${N_RETIRE.earlyCut}씩 줄어듭니다`, why: "줄어드는 것은 일찍 받는 조기 수령입니다." },
+      { label: "금액이 그대로입니다", why: "조기·연기에는 가산과 감액이 붙습니다." },
+    ],
+    explain: "정확한 금액은 국민연금공단 모의수령액에서 확인합니다.",
+  },
+];
+/* ------------------------------------------------------------------
+   강의 7개 — 초등·청소년·첫 월급·가계(2)·자산형성·은퇴 (v8.4.0)
    ------------------------------------------------------------------ */
 export const SCHOOL_LESSONS: AcademyLesson[] = [
   {
@@ -1231,6 +1491,224 @@ export const SCHOOL_LESSONS: AcademyLesson[] = [
     quiz: { items: QUIZ_COVER },
     reading: READING_COVER,
   },
+  {
+    slug: "school-asset-split-weights",
+    track: "asset",
+    thesis: `${N_ASSET.total}을 ${N_ASSET.targetA}:${N_ASSET.targetB}로 나누면 ${N_ASSET.a} 쪽이 ${N_ASSET.dropA} 빠져도 전체는 ${N_ASSET.portLoss}만 줄어듭니다. 한 곳에 다 담았다면 ${N_ASSET.fullLoss}입니다.`,
+    step: 0,
+    no: 1,
+    label: "자산형성 1강",
+    shortTitle: "나눠 담기와 비중",
+    title: "같은 100만 원, 나눠 담으면 무엇이 달라질까?",
+    question: "왜 나눠 담으면 덜 흔들릴까",
+    readingMinutes: 5,
+    hook: `같은 ${N_ASSET.dropA} 하락인데, 나눠 담으면 ${N_ASSET.loss}가 줄고 한 곳에 다 담으면 ${N_ASSET.fullLoss}가 줄어듭니다.`,
+    fork: {
+      short: {
+        tag: "한 곳에 다 담는다",
+        head: `${N_ASSET.dropA} 빠지면 전체가 ${N_ASSET.dropA}`,
+        body: `${N_ASSET.total}을 모두 A에 넣으면 A가 ${N_ASSET.dropA} 빠질 때 ${N_ASSET.fullLoss}가 사라집니다.`,
+        verdict: "수익은 크지만 흔들림도 그대로 커집니다.",
+      },
+      long: {
+        tag: "두 곳에 나눠 담는다",
+        head: `${N_ASSET.targetA}:${N_ASSET.targetB}면 전체는 ${N_ASSET.portLoss}`,
+        body: `${N_ASSET.a}와 ${N_ASSET.b}로 나누면 빠진 쪽에서만 손실이 납니다. 전체로는 ${N_ASSET.portLoss}입니다.`,
+        verdict: "이 글의 주제입니다. 아래 운영표에서 내 숫자로 확인합니다.",
+      },
+    },
+    keyNumbers: [
+      { label: "가상 금액", value: N_ASSET.total },
+      { label: `${N_ASSET.targetA} 쪽 하락`, value: N_ASSET.dropA },
+      { label: "전체 손실", value: N_ASSET.portLoss },
+    ],
+    numbers: N_ASSET,
+    calculator: {
+      name: "나눠 담기 계산기",
+      href: "#sheet",
+      note:
+        "이 페이지 아래 운영표가 계산기입니다. 총액과 비중, 한쪽 하락률을 고르면 전체 손실률이 나옵니다(입력값은 화면에만).",
+    },
+    scenarios: [
+      {
+        id: "split",
+        label: "나눠 담기",
+        title: `${N_ASSET.total} = ${N_ASSET.a} + ${N_ASSET.b} · A ${N_ASSET.dropA} → 전체 ${N_ASSET.portLoss}`,
+        settings: ["가상 100만원", "A 70% · B 30%", "A가 −30%"],
+        result: `전체 ${N_ASSET.portLoss} 손실`,
+        expect: "손실은 빠진 A에서만 납니다.",
+        href: "#sheet",
+        cta: "운영표에서 이 값 채우기",
+      },
+      {
+        id: "full",
+        label: "한 곳에",
+        title: `${N_ASSET.total} 전부 A · ${N_ASSET.dropA} → ${N_ASSET.fullLoss}`,
+        settings: ["가상 100만원", "A 100%", "A가 −30%"],
+        result: `${N_ASSET.fullLoss} 손실`,
+        expect: "같은 하락인데 전체 손실이 커집니다.",
+        href: "#sheet",
+        cta: "운영표에서 이 값 채우기",
+      },
+      {
+        id: "overlap",
+        label: "겹침",
+        title: `이름이 다른 두 상품이 같은 회사를 ${N_ASSET.overlap}씩`,
+        settings: ["상품 2개", "상위 종목이 겹침", "함께 움직임"],
+        result: "사실상 한 곳",
+        expect: "개수를 늘려도 겹치면 분산이 아닙니다.",
+      },
+    ],
+    sources: [
+      {
+        label: "금융감독원 e-금융교육센터",
+        what: "분산과 위험의 관계를 예시로 설명한 공식 교육 자료",
+        url: "https://edu.fss.or.kr/",
+        host: "edu.fss.or.kr",
+      },
+      {
+        label: "금융투자협회 전자공시 — 펀드·ETF 구성",
+        what: "상품의 상위 구성 종목과 업종 비중을 보는 1차 공시",
+        url: "https://dis.kofia.or.kr/",
+        host: "dis.kofia.or.kr",
+      },
+      {
+        label: "한국은행 — 경제교육",
+        what: "위험과 수익의 관계를 쉽게 풀어 쓴 공식 자료",
+        url: "https://www.bok.or.kr/",
+        host: "bok.or.kr",
+      },
+    ],
+    cardSet: SET_ASSET_SPLIT,
+    sheet: {
+      variant: "assetplan",
+      slotNo: 1,
+      slotTitle: "분산 점검표",
+      line: "총액·두 자산 비중·하락률을 넣어 전체 손실률을 적습니다.",
+    },
+    next: {
+      label: "다음 편",
+      title: "FL-37 · ETF 구성과 비용 읽기",
+      body: "무엇에 나눠 담았는지 알았으니, 그 안의 구성과 비용을 숫자로 확인합니다.",
+      href: "/academy/#school-weeks",
+      status: "준비중",
+    },
+    quiz: { items: QUIZ_ASSET },
+    reading: READING_ASSET,
+  },
+  {
+    slug: "school-retire-3tier-order",
+    track: "retire",
+    thesis: `국민연금 ${N_RETIRE.national}·퇴직연금 ${N_RETIRE.retire}·개인연금 ${N_RETIRE.personal}을 받으면 월 ${N_RETIRE.month}, 연 사적연금 ${N_RETIRE.privateYear}·소득 합계 ${N_RETIRE.incomeYear}입니다. ${N_RETIRE.privateLimit}(세금)과 ${N_RETIRE.healthLimit}(건보료) 두 선을 따로 봅니다.`,
+    step: 0,
+    no: 1,
+    label: "은퇴 1강",
+    shortTitle: "3층 연금과 두 개의 선",
+    title: "국민·퇴직·개인연금, 세 층은 언제 열릴까?",
+    question: "연금은 언제, 어떤 순서로 받을까",
+    readingMinutes: 5,
+    hook: `세 층을 합치면 월 ${N_RETIRE.month}이지만, 세금 기준(${N_RETIRE.privateLimit})과 건보 기준(${N_RETIRE.healthLimit})은 서로 다른 숫자로 갈립니다.`,
+    fork: {
+      short: {
+        tag: "한 숫자로 본다",
+        head: "1,500만과 2,000만을 섞습니다",
+        body: `사적연금 ${N_RETIRE.privateLimit}은 세금 기준, 소득 합계 ${N_RETIRE.healthLimit}은 건보 기준입니다. 하나를 넘었다고 다른 하나도 넘은 것이 아닙니다.`,
+        verdict: "두 선을 따로 적어야 판단이 맞습니다.",
+      },
+      long: {
+        tag: "세 층을 나눠 센다",
+        head: "공적·사적·비는 구간",
+        body: `국민연금 ${N_RETIRE.national}, 퇴직연금 ${N_RETIRE.retire}, 개인연금 ${N_RETIRE.personal}. 국민연금이 열리기 전 비는 구간을 사적연금으로 메웁니다.`,
+        verdict: "이 글의 주제입니다. 아래 연금 지도에서 내 숫자로 확인합니다.",
+      },
+    },
+    keyNumbers: [
+      { label: "월 합계", value: N_RETIRE.month },
+      { label: "연 사적연금", value: N_RETIRE.privateYear },
+      { label: "연 소득 합계", value: N_RETIRE.incomeYear },
+    ],
+    numbers: N_RETIRE,
+    calculator: {
+      name: "3층 연금 지도",
+      href: "#sheet",
+      note:
+        "이 페이지 아래 운영표가 계산기입니다. 세 층의 월 수령액을 고르면 연 사적연금과 소득 합계, 두 기준선이 함께 나옵니다(입력값은 화면에만).",
+    },
+    scenarios: [
+      {
+        id: "sum",
+        label: "세 층 합계",
+        title: `${N_RETIRE.national} + ${N_RETIRE.retire} + ${N_RETIRE.personal} = 월 ${N_RETIRE.month}`,
+        settings: ["국민연금 월 100만원", "퇴직연금 월 50만원", "개인연금 월 30만원"],
+        result: `월 ${N_RETIRE.month}`,
+        expect: "금액은 가상 예시입니다.",
+        href: "#sheet",
+        cta: "운영표에서 이 값 채우기",
+      },
+      {
+        id: "private",
+        label: "세금 기준",
+        title: `(${N_RETIRE.retire} + ${N_RETIRE.personal}) × 12개월 = ${N_RETIRE.privateYear}`,
+        settings: ["퇴직연금 월 50만원", "개인연금 월 30만원", "연 1,500만원 기준"],
+        result: `${N_RETIRE.privateLimit} 아래`,
+        expect: "연금소득세로 끝나는 구간입니다.",
+        href: "#sheet",
+        cta: "운영표에서 이 값 채우기",
+      },
+      {
+        id: "health",
+        label: "건보 기준",
+        title: `${N_RETIRE.month} × 12개월 = ${N_RETIRE.incomeYear}`,
+        settings: ["세 층 합계 월 180만원", "소득 합계 연 2,000만원 기준", "재산도 함께 봄"],
+        result: `${N_RETIRE.healthLimit} 위`,
+        expect: "세금이 끝나도 건보 자격은 따로 확인합니다.",
+        href: "#sheet",
+        cta: "운영표에서 이 값 채우기",
+      },
+    ],
+    sources: [
+      {
+        label: "국민연금공단 — 내 연금 알아보기",
+        what: "가입 이력·예상 수령액과 조기·연기 수령 조건",
+        url: "https://www.nps.or.kr/",
+        host: "nps.or.kr",
+      },
+      {
+        label: "금융감독원 통합연금포털 — 내 연금 확인",
+        what: "공적연금·퇴직연금·개인연금을 한 번에 조회",
+        url: "https://100lifeplan.fss.or.kr/",
+        host: "fss.or.kr",
+      },
+      {
+        label: "소득세법 제20조의3·제64조의4 — 연금소득",
+        what: "사적연금 연 1,500만 원 기준과 연금소득세율",
+        url: "https://www.law.go.kr/법령/소득세법",
+        host: "law.go.kr",
+      },
+      {
+        label: "국민건강보험공단 — 피부양자 자격 안내",
+        what: "소득 합계 연 2,000만 원 등 피부양자 요건과 확인 절차",
+        url: "https://www.nhis.or.kr/",
+        host: "nhis.or.kr",
+      },
+    ],
+    cardSet: SET_RETIRE_3TIER,
+    sheet: {
+      variant: "pensionmap",
+      slotNo: 1,
+      slotTitle: "연금 지도",
+      line: "세 층의 월 수령액을 넣어 연 사적연금과 소득 합계, 두 기준선을 적습니다.",
+    },
+    next: {
+      label: "다음 편",
+      title: "FL-43 · 연금 개시와 인출 일정",
+      body: "비는 구간을 무엇으로 메울지, 언제 얼마씩 꺼낼지 달력에 적습니다.",
+      href: "/academy/#school-weeks",
+      status: "준비중",
+    },
+    quiz: { items: QUIZ_RETIRE },
+    reading: READING_RETIRE,
+  },
 ];
 
 /** 강의별 원고 글자 수 — 빌드 가드와 화면 표기가 함께 읽는다 */
@@ -1246,4 +1724,12 @@ export const SCHOOL_LESSON_CHARS: Record<string, number> = Object.fromEntries(
 
 export const schoolLessonBySlug = (slug: string) => SCHOOL_LESSONS.find((l) => l.slug === slug);
 
-export const schoolCardSets = [SET_ALLOWANCE, SET_TEEN_PAY, SET_FIRSTPAY, SET_HOUSEHOLD, SET_COVERAGE];
+export const schoolCardSets = [
+  SET_ALLOWANCE,
+  SET_TEEN_PAY,
+  SET_FIRSTPAY,
+  SET_HOUSEHOLD,
+  SET_COVERAGE,
+  SET_ASSET_SPLIT,
+  SET_RETIRE_3TIER,
+];

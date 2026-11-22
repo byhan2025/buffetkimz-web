@@ -352,6 +352,7 @@ export const SCHOOL_WEEKS: SchoolWeek[] = [
     practice: "구성 자산이 겹치는 두 포트 비교",
     check: "겹치는 위험을 한 가지 식별",
     takeaway: "집중도 점검표",
+    lessonSlug: "school-asset-split-weights",
   },
   {
     week: 37, id: "FL-37", track: "asset", target: "자산형성",
@@ -400,6 +401,7 @@ export const SCHOOL_WEEKS: SchoolWeek[] = [
     practice: "세 가지 모의 연금 일정을 달력에 표시",
     check: "공백이 생기는 구간과 확인 기관 찾기",
     takeaway: "연금 지도",
+    lessonSlug: "school-retire-3tier-order",
   },
   {
     week: 43, id: "FL-43", track: "retire", target: "은퇴",

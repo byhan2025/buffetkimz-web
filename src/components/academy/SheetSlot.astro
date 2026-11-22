@@ -15,6 +15,11 @@
  *   coverage  진단비·지급률·감액 → 예상 수령액 (가계 2강)
  *   policy    투자금·비중·손실 한도 → 손실 금액·회복 필요 상승 (3-1강)
  *   etfcheck  보유 금액·비용률·기간 → 기간 비용 (3-2강)
+ *   draworder 시작 자산·연 인출액·순서 → 5년 뒤 잔액과 두 기준선 (4-1강, v8.4.0)
+ *   silson    세대·보험료·선택 → 3년 비용·3년 뒤 보험료 (5-1강)
+ *   rebalance 총자산·목표 비중 → 덜기/채우기 금액·밴드 (6-1강)
+ *   assetplan 총액·비중·하락률 → 전체 손실률 (학교 자산형성 1강)
+ *   pensionmap 세 층 월 수령액 → 연 사적연금·소득 합계와 두 기준선 (학교 은퇴 1강)
  *
  * 공통 원칙: 입력값은 화면 안에서만 계산하고 주소·서버·저장소에 남기지 않는다.
  */
@@ -25,6 +30,7 @@ import SheetOrder from "./SheetOrder.astro";
 import SheetIsa from "./SheetIsa.astro";
 import SheetSchool from "./SheetSchool.astro";
 import SheetPolicy from "./SheetPolicy.astro";
+import SheetV84 from "./SheetV84.astro";
 import type { SheetVariant } from "@/data/academy-lessons";
 
 interface Props {
@@ -50,6 +56,8 @@ const { variant = "pension", slotNo, slotTitle, line } = Astro.props;
     <SheetSchool variant={variant} slotNo={slotNo} slotTitle={slotTitle} line={line} />
   ) : variant === "policy" || variant === "etfcheck" ? (
     <SheetPolicy variant={variant} slotNo={slotNo} slotTitle={slotTitle} line={line} />
+  ) : variant === "draworder" || variant === "silson" || variant === "rebalance" || variant === "assetplan" || variant === "pensionmap" ? (
+    <SheetV84 variant={variant} slotNo={slotNo} slotTitle={slotTitle} line={line} />
   ) : (
     <SheetSlotPension />
   )

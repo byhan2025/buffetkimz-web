@@ -16,6 +16,7 @@
 import {
   PENSION_ACCOUNT,
   PRIVATE_PENSION_TAX,
+  PUBLIC_PENSION_HEALTH_LIMIT,
   ISA,
   INCOME_TAX,
   wonLabel,
@@ -87,10 +88,29 @@ export type SheetVariant =
   /** v8.3.0 학교 트랙 가계 — 현금흐름 3줄 */
   | "household"
   /** v8.3.0 학교 트랙 가계 — 보장 공백 5칸 */
-  | "coverage";
+  | "coverage"
+  /** v8.4.0 STEP 4 — 인출 순서표(3억·연 1,500만·순서) */
+  | "draworder"
+  /** v8.4.0 STEP 5 — 보장 빈칸표(실손 세대·보험료·선택) */
+  | "silson"
+  /** v8.4.0 STEP 6 — 12개월 달력(목표 비중·밴드·현금) */
+  | "rebalance"
+  /** v8.4.0 학교 자산형성 — 나눠 담기와 비중 */
+  | "assetplan"
+  /** v8.4.0 학교 은퇴 — 3층 연금 지도와 두 기준선 */
+  | "pensionmap";
 
 /** 강의가 속한 트랙 — 성인 실전 6 STEP과 학교 4트랙을 가른다 */
-export type LessonTrack = "adult" | "elementary" | "teen" | "firstpay" | "household";
+export type LessonTrack =
+  | "adult"
+  | "elementary"
+  | "teen"
+  | "firstpay"
+  | "household"
+  /** v8.4.0 — 52주 자산형성 트랙 */
+  | "asset"
+  /** v8.4.0 — 52주 은퇴 트랙 */
+  | "retire";
 
 /** 한 화면 한 질문 퀴즈의 선택지 — 정답은 색이 아니라 글자·아이콘으로 알린다 */
 export type LessonQuizOption = {
@@ -280,8 +300,69 @@ const SET_ETF_NUMBERS: LessonCardSet = {
   ],
 };
 
+/** F. 리밸런싱과 현금 비중 — STEP 6 6-1강 · 학교 자산형성 1강 (v8.4.0) */
+const SET_REBALANCE: LessonCardSet = {
+  id: "asset-rebalance-hand",
+  title: "오를 때 덜고 내릴 때 채우기 — 리밸런싱과 현금 비중",
+  meta: "손글씨 카드 6장 · 목표 비중 · 점검 주기 · 현금 비중",
+  href: "/gallery/?cat=carousel",
+  startIndex: 0,
+  slides: [
+    card("asset-rebalance", 1, "표지 — 리밸런싱은 오를 때 덜고 내릴 때 채우는 일", "저울 위 두 단지 사이에서 동전을 옮겨 담는 마스코트와 '오를 때 덜고 내릴 때 채웁니다'"),
+    card("asset-rebalance", 2, "오해 vs 팩트 — 그냥 두기 / 목표금액 = 총자산 × 목표비중, 넘으면 덜기", "왼쪽은 무너질 듯 높이 쌓은 동전 탑을 붙든 마스코트, 오른쪽은 크기가 고른 세 단지를 나란히 둔 마스코트"),
+    card("asset-rebalance", 3, "① 목표 비중 — 총자산 1,000만이면 주식 700만, 지금 820만이면 120만 덜기", "둘로 나눈 파이 옆에서 자와 연필을 든 마스코트, '총자산 1,000만이면 주식 700만'"),
+    card("asset-rebalance", 4, "② 점검 — 정기 연 1회 + 임계 ±5%p, 점검 날짜를 달력에 먼저 적기", "달력의 한 칸에 동그라미를 치는 마스코트와 작은 종, '1년에 한 번, 5%p 넘으면 그때도'"),
+    card("asset-rebalance", 5, "③ 현금 비중 — 생활비 3~6개월 + 3년 안에 쓸 돈은 투자 밖에", "울타리 친 동전 나무와, 바구니·우산을 올려둔 나무 선반을 가리키는 마스코트"),
+    card("asset-rebalance", 6, "요약 — 내 리밸런싱 3줄 규칙", "체크박스 세 칸이 있는 클립보드를 든 마스코트와 3줄 규칙"),
+  ],
+};
+
+/** G. 실손 세대 전환·약관 공백 — STEP 5 5-1강 (v8.4.0) */
+const SET_SILSON: LessonCardSet = {
+  id: "silson-switch-3d",
+  title: "실손 50% 할인, 갈아타기 전 3가지",
+  meta: "3D 스토리 카드 6장 · 11. 23. 시행 계약전환",
+  href: "/gallery/?cat=carousel",
+  startIndex: 0,
+  slides: [
+    card("silson-switch", 1, "표지 — 내일부터 시작되는 50% 할인", "보험 증권 두 권을 양손에 들고 번갈아 보는 너구리 캐릭터와 '내일부터 시작되는 실손 50% 할인'"),
+    card("silson-switch", 2, "대상 — 2013년 3월 이전 계약", "낡은 증권 한 권을 두 손으로 든 캐릭터와 '2013년 3월 이전 1·2세대 실손'"),
+    card("silson-switch", 3, "함정 1 — 병원 이용이 많다면 자기부담률", "병원 모형과 저금통을 저울에 올려 견주는 캐릭터와 '병원 자주 간다면 먼저 따져야 해요'"),
+    card("silson-switch", 4, "함정 2 — 철회·해지는 1회", "잠긴 유리함 앞에서 황금 티켓 한 장을 든 캐릭터와 '선택형 할인은 철회·해지 1회'"),
+    card("silson-switch", 5, "함정 3 — 기존 계약을 해지하면 할인 종료", "가위를 든 캐릭터와 '전환 전 6개월 기존 계약 해지하면'"),
+    card("silson-switch", 6, "클로징 — 가입일과 병원 이용 빈도부터", "증권을 돋보기로 들여다보는 캐릭터와 '숫자보다 증권을 먼저 펼쳐 보세요'"),
+  ],
+};
+
+/** H. 은퇴 첫 5년 순서 위험 — STEP 4 4-1강 (v8.4.0) */
+const SET_RETIRE_DRAW: LessonCardSet = {
+  id: "retire-drawdown-hand",
+  title: "은퇴 첫 5년의 순서 위험 — 같은 수익률, 인출 순서가 만든 차이",
+  meta: "손글씨 카드 6장 · 3억 · 연 1,500만 · 순서 비교",
+  href: "/gallery/?cat=carousel",
+  startIndex: 0,
+  slides: [
+    card("retire-drawdown", 1, "표지 — 은퇴 첫 5년, 같은 수익률도 순서가 결과를 가른다", "회색 두 개와 노란 세 개로 놓인 징검다리를 동전 바구니를 들고 건너는 마스코트, '같은 수익률도 순서가 갈립니다'"),
+    card("retire-drawdown", 2, "오해 vs 팩트 — 평균이 같으면 같다? / 인출이 있으면 순서가 결과를 바꾼다", "왼쪽은 같은 동전 더미 둘을 비교하며 갸우뚱하는 마스코트, 오른쪽은 내려갔다 오르는 선을 그린 종이를 든 마스코트"),
+    card("retire-drawdown", 3, "① 3억·연 1,500만 인출 — 5개 수익률을 순서만 바꾸면 4,547만 원 차이", "막대 두 개와 달력, 지갑을 든 마스코트, '하락 먼저 1억 6,760만 / 상승 먼저 2억 1,307만' 비교표"),
+    card("retire-drawdown", 4, "② 현금 버퍼 — 생활비 2년치는 현금으로, 하락장에도 투자를 팔지 않기", "골짜기 위 다리에 늘어놓은 자루와 우산, 자루를 들고 다리를 건너는 마스코트"),
+    card("retire-drawdown", 5, "③ 사적연금 1,500만(세금)과 소득 합계 2,000만(건보료)은 다른 제도", "높이가 다른 두 팻말 사이에서 연필을 든 마스코트, '사적연금 1,500만 / 소득 합계 2,000만' 구분표"),
+    card("retire-drawdown", 6, "요약 — 은퇴 첫 5년 3줄 점검", "클립보드와 안락의자에 앉은 마스코트, 은퇴 첫 5년 3줄 점검"),
+  ],
+};
+
 export const cardSetById = (id: string): LessonCardSet | undefined =>
-  [SET_THREE_BUCKETS, SET_TAX_MOMENTS, SET_ACCOUNT_ORDER, SET_ISA_BASICS, SET_DRAWDOWN, SET_ETF_NUMBERS].find(
+  [
+    SET_THREE_BUCKETS,
+    SET_TAX_MOMENTS,
+    SET_ACCOUNT_ORDER,
+    SET_ISA_BASICS,
+    SET_DRAWDOWN,
+    SET_ETF_NUMBERS,
+    SET_REBALANCE,
+    SET_SILSON,
+    SET_RETIRE_DRAW,
+  ].find(
     (s) => s.id === id,
   );
 
@@ -762,6 +843,245 @@ const READING_32: ReadingSection[] = [
     ps: [
       `같은 지수를 따라가도 환헤지 여부에 따라 결과가 달라집니다. 환헤지 상품은 환율 변동을 줄이는 대신 비용이 ${N32.hedgeCost} 수준 붙고, 비헤지 상품은 환율이 수익률을 흔듭니다. 어느 쪽이 낫다기보다 내가 감당할 수 있는 변동인지의 문제입니다.`,
       `숫자의 기준일은 2026. 11. 22.이고, 총보수·기타비용은 금융투자협회 펀드공시, 거래량·괴리율은 거래소 안내에서 확인했습니다. 이 강의는 특정 종목·운용사를 권하지 않습니다.`,
+    ],
+  },
+];
+
+/* ------------------------------------------------------------------
+   4-1강 — 은퇴 첫 5년 순서 위험 (v8.4.0)
+   · 3억에서 매년 초 1,500만을 빼고, 5개 수익률(평균 0%)을 순서만 바꿔 돌린다.
+   · 수익률 전망이 아니라 같은 수익률에서 순서만 바꾼 산술 비교다.
+   ------------------------------------------------------------------ */
+const DD_START = 30000; // 시작 자산(만원) — 3억
+const DD_DRAW = 1500; // 연 인출액(만원)
+const DD_SEQ = [-0.3, -0.2, 0.05, 0.2, 0.25] as const;
+/** 해마다 초에 인출하고, 남은 돈에 그해 수익률을 곱한다 */
+const drawdownRun = (rates: readonly number[]) =>
+  Math.round(rates.reduce((v, r) => (v - DD_DRAW) * (1 + r), DD_START));
+const RUN_BAD = drawdownRun(DD_SEQ); // 16,760만
+const RUN_GOOD = drawdownRun([...DD_SEQ].reverse()); // 21,307만
+const RUN_GAP = RUN_GOOD - RUN_BAD; // 4,547만
+const RUN_LOW2 = drawdownRun(DD_SEQ.slice(0, 2)); // 13,260만
+
+/** 16,760 → "1억 6,760만원" — 억·만을 함께 쓰는 금액 표기 */
+const wonMix = (man: number) => {
+  const eok = Math.floor(man / 10000);
+  const rest = man % 10000;
+  if (!eok) return `${rest.toLocaleString("ko-KR")}만원`;
+  return rest ? `${eok}억 ${rest.toLocaleString("ko-KR")}만원` : `${eok}억원`;
+};
+
+const N41 = {
+  start: wonMix(DD_START),
+  draw: manLabel(DD_DRAW),
+  seq: "−30% · −20% · +5% · +20% · +25%",
+  avg: pct(0, 0),
+  bad: wonMix(RUN_BAD),
+  good: wonMix(RUN_GOOD),
+  gap: wonMix(RUN_GAP),
+  low2: wonMix(RUN_LOW2),
+  dropFirst: "−30% · −20%",
+  riseFirst: "+25% · +20% · +5%",
+  years: "5년",
+  cash2: wonMix(DD_DRAW * 2),
+  privateLimit: `연 ${manLabel(PRIVATE_PENSION_TAX.annualThreshold)}`,
+  healthLimit: `연 ${manLabel(PUBLIC_PENSION_HEALTH_LIMIT)}`,
+};
+
+const READING_41: ReadingSection[] = [
+  {
+    h: "한 문장으로 답하면",
+    ps: [
+      `은퇴 첫 5년에는 같은 수익률도 어떤 순서로 오느냐가 결과를 바꿉니다. ${N41.start}을 두고 해마다 ${N41.draw}을 빼면서 5년 수익률 ${N41.seq}(평균 ${N41.avg})을 순서만 바꿔 돌려 보면, 하락이 먼저 온 쪽은 ${N41.bad}, 상승이 먼저 온 쪽은 ${N41.good}으로 ${N41.gap} 벌어집니다.`,
+      `계산은 단순합니다. 해마다 초에 ${N41.draw}을 빼고 남은 돈에 그해 수익률을 곱합니다. 다섯 해를 같은 방식으로 반복하면 위 두 숫자가 나옵니다. 수익률은 같고 순서만 다릅니다.`,
+      `이 글의 숫자는 전망이 아니라 산술 조건입니다. 금액이 달라도 원리는 같으므로, 내 통장 숫자에 같은 순서를 대입해 볼 수 있습니다.`,
+    ],
+  },
+  {
+    h: "평균이 같으면 같을까",
+    ps: [
+      `인출이 없으면 순서는 결과를 바꾸지 않습니다. 곱셈은 순서를 바꿔도 값이 같기 때문입니다. 문제는 중간에 돈을 빼는 순간 생깁니다.`,
+      `하락한 해에 같은 금액을 빼려면 더 큰 값을 치릅니다. ${N41.start}이 ${N41.dropFirst}를 지나 ${N41.low2}까지 내려간 뒤에도 ${N41.draw}을 빼야 하므로, 회복할 원금이 그만큼 줄어듭니다.`,
+      `반대로 상승이 먼저 오면 원금이 커진 상태에서 하락을 맞습니다. 빼는 금액은 같지만 남는 돈이 달라집니다. 이것을 인출 순서 위험이라고 부릅니다.`,
+    ],
+  },
+  {
+    h: "내 숫자로 옮기면",
+    ps: [
+      `${N41.start}·${N41.draw}·${N41.years}이면 하락 먼저 ${N41.bad}, 상승 먼저 ${N41.good}입니다. 차이 ${N41.gap}은 같은 수익률을 받고도 생긴 금액입니다.`,
+      `첫 두 해가 ${N41.dropFirst}이면 잔액은 ${N41.low2}까지 내려갑니다. 그 상태에서 남은 세 해에 ${N41.riseFirst}를 다 받아도 ${N41.bad}에 그칩니다. 반대로 ${N41.riseFirst}가 먼저 오면 같은 하락을 뒤에서 맞고도 ${N41.good}이 남습니다.`,
+      `그래서 은퇴 직전에 정할 것은 수익률 목표보다 '하락이 먼저 왔을 때 몇 년을 버틸 수 있는가'입니다. 버틸 수 있는 기간이 길면 수익률을 조금 낮춰도 됩니다.`,
+    ],
+  },
+  {
+    h: "현금 버퍼와 두 개의 선",
+    ps: [
+      `첫 5년을 버티는 장치는 현금입니다. 생활비 2년치인 ${N41.cash2}을 투자 밖에 두면, 하락한 해에 투자를 팔지 않고 그 돈으로 생활합니다. 현금은 수익이 0에 가깝지만 강제 매도를 막아 회복할 시간을 법니다.`,
+      `버퍼가 줄면 다음 해에 채우고, 늘면 투자로 옮깁니다. 인출액과 생활비가 같다면 버퍼는 '몇 년 치'로만 관리하면 됩니다.`,
+      `숫자를 볼 때 두 선을 섞지 않습니다. 사적연금은 ${N41.privateLimit}을 넘으면 과세 방식이 갈리고(소득세법 제20조의3·제64조의4), 건강보험 피부양자 요건은 소득 합계 ${N41.healthLimit}입니다(국민건강보험법 시행규칙). 기준도 목적도 다른 제도입니다.`,
+      `사적연금 ${N41.privateLimit}은 연금소득의 과세 기준이고, 소득 합계 ${N41.healthLimit}은 건보료를 내는지 피부양자로 남는지를 가르는 요건입니다. 하나를 넘었다고 다른 하나도 넘은 것이 아닙니다.`,
+    ],
+  },
+  {
+    h: "출처와 기준일",
+    ps: [
+      `사적연금 과세 기준은 소득세법 제20조의3·제64조의4, 건강보험 피부양자 소득 요건은 국민건강보험법 시행규칙 별표 1의2에서 확인합니다. 내 연금 예상액은 금융감독원 통합연금포털과 국민연금공단에서 조회할 수 있습니다.`,
+      `이 글의 시뮬레이션은 자체 계산이며 수익률 전망이 아닙니다. 요건과 세율은 원문에서 확인하고, 기준일은 2026. 11. 22.입니다.`,
+    ],
+  },
+];
+
+/* ------------------------------------------------------------------
+   5-1강 — 실손 세대 전환·약관 공백 (v8.4.0)
+   · 보험료 예시는 금융위원회 보도자료(2026. 11. 19.)의 손해보험사 6곳 평균(60대 여성) 값이다.
+   · 특정 보험사·상품을 권하지 않는다. 할인율·보장은 보험사와 선택 조건에 따라 다르다.
+   ------------------------------------------------------------------ */
+const SIL_BASE1 = 176982; // 1세대 월 보험료 예시
+const SIL_BASE2 = 126773; // 2세대 월 보험료 예시
+const SIL_CONV = 21620; // 전환 후 3년간 월 보험료(5세대 보험료의 50%)
+const SIL_AFTER3 = 43241; // 3년 뒤 월 보험료
+const SIL_SEL1 = 111499; // 선택형 3옵션 모두 — 1세대
+const SIL_SEL2 = 92544; // 선택형 3옵션 모두 — 2세대
+
+const N51 = {
+  since: "2026년 11월 23일",
+  period: "2027년 5월 22일",
+  people: "1,630만 명",
+  base1: wonLabel(SIL_BASE1),
+  base2: wonLabel(SIL_BASE2),
+  conv: wonLabel(SIL_CONV),
+  after3: wonLabel(SIL_AFTER3),
+  gapMonth: wonLabel(SIL_AFTER3 - SIL_CONV),
+  save3: wonLabel((SIL_AFTER3 - SIL_CONV) * 36),
+  sel1: wonLabel(SIL_SEL1),
+  sel2: wonLabel(SIL_SEL2),
+  sel1Rate: pct(1 - SIL_SEL1 / SIL_BASE1),
+  sel2Rate: pct(1 - SIL_SEL2 / SIL_BASE2),
+  halfRate: pct(0.5, 0),
+  diskYears: "3년",
+  nonSevereLimit: manLabel(1000),
+  selfRate: pct(0.5, 0),
+  cancelFree: "3개월",
+  cancelLimit: "6개월",
+  keepMonths: "6개월",
+};
+
+const READING_51: ReadingSection[] = [
+  {
+    h: "한 문장으로 답하면",
+    ps: [
+      `${N51.since}부터 1·2세대 실손을 5세대로 바꾸는 계약전환이 열립니다. 전환하면 ${N51.diskYears} 동안 새로 산출된 5세대 보험료의 ${N51.halfRate}를 깎습니다. 1세대 ${N51.base1} 예시라면 ${N51.diskYears} 동안 ${N51.conv}을 내고, ${N51.diskYears} 뒤부터 ${N51.after3}입니다.`,
+      `가장 많이 틀리는 것이 ${N51.halfRate}의 기준입니다. 지금 내는 1·2세대 보험료의 절반이 아니라, 전환 뒤 새로 계산된 5세대 보험료의 절반입니다.`,
+      `대상은 2013년 3월 이전에 가입해 재가입 조건이 붙지 않은 계약으로, 금융위원회 기준 약 ${N51.people}입니다. 신청은 ${N51.period}까지입니다.`,
+    ],
+  },
+  {
+    h: "3년이 지나면",
+    ps: [
+      `할인은 ${N51.diskYears}입니다. 비교는 ${N51.diskYears} 뒤 보험료로 다시 해야 합니다. 같은 예시에서 ${N51.diskYears} 뒤 ${N51.after3}은 지금 ${N51.base1}보다 여전히 낮습니다. 5세대 보험료 자체가 4세대보다 낮게 설계되어 있어, 할인이 겹치면 체감 인하 폭이 커집니다.`,
+      `${N51.diskYears} 동안 아끼는 금액은 월 차액 ${N51.gapMonth} × 36개월 = ${N51.save3}입니다. 할인이 끝난 뒤의 보험료까지 함께 적어 두어야 판단이 흔들리지 않습니다.`,
+      `전환하지 않고 기존 계약을 두고 특약으로 깎는 선택형도 있습니다. 세 옵션을 모두 고르면 1세대 ${N51.sel1}(${N51.sel1Rate} 인하), 2세대 ${N51.sel2}(${N51.sel2Rate} 인하)입니다.`,
+    ],
+  },
+  {
+    h: "보장이 바뀌는 지점",
+    ps: [
+      `전환은 보험료만 바꾸지 않습니다. 보장이 5세대 구조로 바뀌어 비중증 비급여는 연 ${N51.nonSevereLimit} 한도에 자기부담 ${N51.selfRate}가 됩니다. 대신 암·뇌혈관·심장 같은 중증 구간은 유지되거나 두터워집니다.`,
+      `그래서 병원을 얼마나 다니는지가 판단을 가릅니다. 도수치료나 비급여 주사를 꾸준히 받아 왔다면, 전환 뒤 같은 치료에 내는 돈이 달라집니다.`,
+      `선택형은 반대로 지금 보장을 남기고 고른 항목만 포기합니다. 내가 포기하는 항목의 할인율이 곧 그 항목에 쓰던 돈입니다.`,
+    ],
+  },
+  {
+    h: "되돌릴 수 없는 부분",
+    ps: [
+      `결정 전에 세 가지를 확인합니다. 첫째 청약철회 기간입니다. 전환 뒤 ${N51.cancelFree} 안에는 조건 없이 철회할 수 있고, ${N51.cancelFree}이 지나 ${N51.cancelLimit} 안에는 보험사고가 없을 때만 됩니다.`,
+      `둘째는 되돌림의 비용입니다. 철회하면 할인은 다시 받을 수 없고, 할인 없이 다시 전환하려면 심사를 거쳐야 합니다. 선택형 특약은 철회와 해지가 1회뿐입니다.`,
+      `셋째는 같은 증권의 다른 담보입니다. 전환 신청 전 ${N51.keepMonths} 안에, 또는 할인 기간 중에 실손 외 담보를 해지하거나 감액하면 할인이 붙지 않거나 끝납니다. 모집인이 먼저 전화해 권하는 아웃바운드 영업도 금지되어 있습니다.`,
+      `이 글은 특정 보험사나 상품을 권하지 않습니다. 내 증권의 가입일과 지난 1~2년 청구 내역을 먼저 펼쳐 보는 것이 순서입니다. 숫자 네 개만 확인하면 판단이 빨라집니다. 내 세대, 비중이 큰 청구 항목, ${N51.diskYears} 뒤 보험료, 철회할 수 있는 기간입니다.`,
+    ],
+  },
+  {
+    h: "출처와 기준일",
+    ps: [
+      `할인율·대상·철회 조건은 금융위원회 보도자료와 제도 Q&A에서 확인했습니다. 시행은 ${N51.since}, 기준일은 2026. 11. 22.입니다.`,
+      `보험료 예시는 손해보험사 평균을 든 금융위 자료이며, 실제 금액은 보험사와 선택 조건에 따라 다릅니다. 약관의 지급 기준은 내 증권 원문에서 확인합니다.`,
+    ],
+  },
+];
+
+/* ------------------------------------------------------------------
+   6-1강 — 리밸런싱과 현금 비중 (v8.4.0)
+   · 목표금액 = 총자산 × 목표비중. 밴드는 ±5%p, 점검은 연 1회.
+   ------------------------------------------------------------------ */
+const RB_TOTAL = 1000; // 총자산(만원)
+const RB_TARGET = 0.7; // 목표 주식 비중
+const RB_BAND = 0.05; // 임계 밴드(±5%p)
+const RB_HIGH = 820; // 지금 주식 금액(만원) — 오른 경우
+const RB_LOW = 620; // 지금 주식 금액(만원) — 내린 경우
+const RB_CASH3 = 250 * 3; // 생활비 3개월
+const RB_CASH6 = 250 * 6; // 생활비 6개월
+const RB_NEAR = 1200; // 3년 안에 쓸 돈
+
+const N61 = {
+  total: manLabel(RB_TOTAL),
+  target: pct(RB_TARGET, 0),
+  targetAmount: manLabel(Math.round(RB_TOTAL * RB_TARGET)),
+  high: manLabel(RB_HIGH),
+  trim: manLabel(RB_HIGH - Math.round(RB_TOTAL * RB_TARGET)),
+  low: manLabel(RB_LOW),
+  fill: manLabel(Math.round(RB_TOTAL * RB_TARGET) - RB_LOW),
+  band: `±${pct(RB_BAND, 0)}p`,
+  lowBand: pct(RB_TARGET - RB_BAND, 0),
+  highBand: pct(RB_TARGET + RB_BAND, 0),
+  cash3: manLabel(RB_CASH3),
+  cash6: manLabel(RB_CASH6),
+  near: manLabel(RB_NEAR),
+  once: "연 1회",
+  months: "3~6개월",
+  years: "3년",
+};
+
+const READING_61: ReadingSection[] = [
+  {
+    h: "한 문장으로 답하면",
+    ps: [
+      `리밸런싱은 오를 때 덜고 내릴 때 채우는 일입니다. 기준은 감이 아니라 한 줄입니다. 목표금액 = 총자산 × 목표비중. ${N61.total}에서 주식 ${N61.target}를 목표로 두면 목표금액은 ${N61.targetAmount}입니다.`,
+      `지금 주식이 ${N61.high}이면 ${N61.trim}을 덜고, ${N61.low}이면 ${N61.fill}을 채웁니다. 오른 자산을 줄이고 덜 오른 자산을 늘리는 것뿐인데, 결과는 한 자산에 쏠린 위험을 줄이는 일입니다.`,
+      `수익을 포기하는 것이 아니라 정해 둔 비율로 되돌리는 규칙입니다. 되돌리는 날과 기준을 미리 적어 두면 그날의 기분이 개입할 자리가 줄어듭니다. 규칙은 목표 비중·밴드·점검일 세 줄이면 충분합니다.`,
+    ],
+  },
+  {
+    h: "왜 규칙이 필요한가",
+    ps: [
+      `오르는 자산은 가만히 두어도 비중이 커집니다. 같은 ${N61.total}에서 주식이 오르면 총자산에서 차지하는 몫이 목표보다 커지고, 다음 하락에서 흔들리는 폭도 함께 커집니다.`,
+      `오해는 '그냥 두면 알아서 맞춰진다'입니다. 인출과 하락이 겹치면 비중은 반대 방향으로 어긋납니다. 그래서 확인하지 않으면 오차가 쌓입니다.`,
+      `목표 비중은 오르내림이 큰 자산일수록 낮게 잡습니다. 감당할 수 있는 하락 폭을 먼저 정하고, 그 폭에서 역산해 비중을 정하는 순서가 안전합니다.`,
+      `규칙이 있으면 판단할 것이 줄어듭니다. 오늘 오르내림을 보고 정하는 대신, 정해 둔 날에 숫자만 확인하면 됩니다.`,
+    ],
+  },
+  {
+    h: "언제 손대나",
+    ps: [
+      `점검은 정기와 임계 두 가지로 둡니다. 정기는 ${N61.once}, 임계는 목표에서 ${N61.band} 벗어났을 때입니다. 목표 ${N61.target}라면 ${N61.lowBand}~${N61.highBand}를 밴드로 적습니다.`,
+      `점검 날짜를 달력에 먼저 적습니다. 생일이나 연말정산처럼 잊지 않는 날에 붙여 두면 그해 점검은 자동으로 남습니다. 그 사이에는 오르내림이 보여도 손대지 않습니다. 자주 손대면 거래 비용과 세금이 쌓이고, 규칙이 감정으로 바뀝니다.`,
+      `맞추는 방법은 세 가지입니다. 오른 자산을 팔아 다른 자산을 사는 매매, 새로 들어온 돈을 덜 채워진 쪽에 넣기, 모아 둔 현금으로 채우기입니다. 매매가 적은 순서대로 비용과 세금도 적습니다.`,
+      `새 돈이 들어오면 파는 대신 덜 채워진 쪽에 넣는 방법도 있습니다. 매도 없이 비중을 맞추는 방식이라 비용이 적습니다.`,
+    ],
+  },
+  {
+    h: "현금 비중",
+    ps: [
+      `현금은 수익이 0에 가깝지만 규칙의 일부입니다. 생활비 ${N61.months}치인 ${N61.cash3}에서 ${N61.cash6}를 바로 꺼낼 수 있는 곳에 두고, ${N61.years} 안에 쓸 돈(${N61.near})은 투자 밖에 둡니다.`,
+      `하락장에서 현금이 있으면 투자를 팔지 않고 버틸 수 있습니다. 반대로 현금이 바닥이면 가장 싼 값에 파는 일이 생깁니다.`,
+      `현금도 비중입니다. 목표 비중에 현금을 넣어 두면, 하락해 주식 비중이 줄었을 때 현금으로 채우는 규칙이 자연스럽게 생깁니다. 현금을 몇 개월 치로 둘지는 소득이 끊겨도 버틸 수 있는 기간에서 정합니다.`,
+      `계좌에 따라 비용이 다릅니다. 연금계좌 안에서 비중을 바꾸면 차익에 바로 과세되지 않고 수령할 때 과세되지만, 일반계좌는 매매마다 세금과 수수료가 붙습니다.`,
+    ],
+  },
+  {
+    h: "출처와 기준일",
+    ps: [
+      `목표 비중·밴드·현금 ${N61.months}는 자체 정리한 운영 규칙이고, 금액은 가상 예시입니다. 비용은 금융투자협회 펀드공시에서, 지수 등락은 거래소 통계에서 확인합니다.`,
+      `이 글은 특정 종목·상품을 권하지 않습니다. 기준일은 2026. 11. 22.입니다.`,
     ],
   },
 ];
@@ -1497,6 +1817,323 @@ export const ACADEMY_LESSONS: AcademyLesson[] = [
       status: "준비중",
     },
     reading: READING_32,
+  },
+  {
+    slug: "step4-retire-drawdown-order",
+    thesis: `${N41.start}에서 해마다 ${N41.draw}을 빼면서 5년 수익률 ${N41.seq}, 평균 ${N41.avg}인 다섯 해의 순서만 바꾸면, 하락이 먼저 온 쪽은 ${N41.bad}, 상승이 먼저 온 쪽은 ${N41.good}으로 갈라져 ${N41.gap} 차이가 납니다. 인출이 있는 한 순서가 결과를 바꿉니다.`,
+    step: 4,
+    no: 1,
+    label: "4-1강",
+    shortTitle: "은퇴 첫 5년 인출 순서",
+    title: "은퇴 첫 5년 순서 위험 — 같은 수익률, 인출 순서가 만든 차이",
+    question: "수익률이 같아도 받는 순서가 왜 결과를 바꿀까",
+    readingMinutes: 5,
+    hook: `평균 수익률이 ${N41.avg}으로 같은 5년이라도, 첫 두 해에 ${N41.dropFirst}가 오면 잔액이 ${N41.low2}까지 내려가고 그 뒤는 회복에 쓰입니다.`,
+    fork: {
+      short: {
+        tag: "평균 수익률만 본다",
+        head: "평균이 같으면 같다고 봅니다",
+        body: `수익률을 더해 평균을 내면 두 경우가 같습니다. 하지만 중간에 ${N41.draw}을 빼면, 빼는 시점의 잔액이 결과를 정합니다.`,
+        verdict: "인출이 있으면 평균만으로는 판단할 수 없습니다.",
+      },
+      long: {
+        tag: "순서와 현금을 함께 본다",
+        head: "하락이 먼저면 현금이 먼저",
+        body: `생활비 2년치인 ${N41.cash2}을 투자 밖에 두면, 하락한 해에 투자를 팔지 않고 그 돈으로 생활합니다.`,
+        verdict: "이 글의 주제입니다. 아래 인출 순서표에서 내 숫자로 확인합니다.",
+      },
+    },
+    keyNumbers: [
+      { label: "시작 자산", value: N41.start },
+      { label: "하락 먼저", value: N41.bad },
+      { label: "상승 먼저", value: N41.good },
+    ],
+    numbers: N41,
+    calculator: {
+      name: "연금 인출·세금 시뮬레이터",
+      href: "/apps/pension-draw/run",
+      note: "인출액과 수익률 순서를 넣어 잔액이 어떻게 달라지는지 확인합니다(입력값은 화면에만).",
+    },
+    scenarios: [
+      {
+        id: "bad",
+        label: "하락 먼저",
+        title: `${N41.start} · ${N41.draw} 인출 · ${N41.dropFirst} 먼저`,
+        settings: ["시작 자산 3억원", "연 인출 1,500만원", "수익률 −30%·−20%·+5%·+20%·+25%"],
+        result: `5년 뒤 ${N41.bad}`,
+        expect: "해마다 초에 인출하고, 남은 돈에 그해 수익률을 곱했습니다.",
+        href: "#sheet",
+        cta: "운영표에서 이 값 채우기",
+      },
+      {
+        id: "good",
+        label: "상승 먼저",
+        title: `${N41.start} · ${N41.draw} 인출 · ${N41.riseFirst} 먼저`,
+        settings: ["시작 자산 3억원", "연 인출 1,500만원", "같은 수익률 5개, 순서만 반대"],
+        result: `5년 뒤 ${N41.good}`,
+        expect: `순서만 바꿨는데 ${N41.gap} 차이입니다.`,
+        href: "#sheet",
+        cta: "운영표에서 이 값 채우기",
+      },
+      {
+        id: "gap",
+        label: "차이",
+        title: `${N41.good} − ${N41.bad} = ${N41.gap}`,
+        settings: ["같은 수익률 5개(평균 0%)", "같은 인출액", "순서만 반대"],
+        result: `${N41.gap} 차이`,
+        expect: "평균 수익률은 두 경우 모두 0%입니다.",
+      },
+    ],
+    sources: [
+      {
+        label: "소득세법 제20조의3·제64조의4 — 연금소득과 연금소득세",
+        what: "사적연금 연 1,500만 원 기준과 초과 시 과세 방식(종합과세 또는 15% 분리과세 선택)",
+        url: "https://www.law.go.kr/법령/소득세법",
+        host: "law.go.kr",
+      },
+      {
+        label: "국민건강보험법 시행규칙 별표 1의2 — 피부양자 자격",
+        what: "소득 합계 연 2,000만 원 등 피부양자 요건(세금 기준과 다른 제도)",
+        url: "https://www.law.go.kr/법령/국민건강보험법시행규칙",
+        host: "law.go.kr",
+      },
+      {
+        label: "금융감독원 통합연금포털 — 내 연금 확인",
+        what: "공적연금·퇴직연금·개인연금 예상 수령액을 한 번에 조회",
+        url: "https://100lifeplan.fss.or.kr/",
+        host: "fss.or.kr",
+      },
+      {
+        label: "국민연금공단 — 내 연금 알아보기",
+        what: "가입 이력과 예상 수령액, 조기·연기 수령 조건",
+        url: "https://www.nps.or.kr/",
+        host: "nps.or.kr",
+      },
+    ],
+    cardSet: SET_RETIRE_DRAW,
+    sheet: {
+      variant: "draworder",
+      slotNo: 4,
+      slotTitle: "인출 순서표",
+      line: "시작 자산·연 인출액·순서를 넣어 5년 뒤 잔액과 두 기준선을 적습니다.",
+    },
+    next: {
+      label: "다음 강",
+      title: "4-2강 · 연금 1,500만 원 경계와 개시 시점",
+      body: "받을 금액을 정했으니, 언제 열고 어떤 순서로 받을지 정합니다.",
+      status: "준비중",
+    },
+    reading: READING_41,
+  },
+  {
+    slug: "step5-silson-generation-switch",
+    thesis: `1·2세대 실손을 5세대로 바꾸면 ${N51.diskYears} 동안 새 5세대 보험료의 ${N51.halfRate}를 깎습니다. 1세대 ${N51.base1} 예시라면 ${N51.diskYears} 동안 ${N51.conv}, ${N51.diskYears} 뒤 ${N51.after3}입니다. 다만 ${N51.halfRate}는 지금 내는 보험료의 절반이 아닙니다.`,
+    step: 5,
+    no: 1,
+    label: "5-1강",
+    shortTitle: "실손 세대 전환 3가지",
+    title: `실손 세대 전환·약관 공백 — 보험료 ${N51.halfRate} 전에 볼 3가지`,
+    question: "할인은 어디에 붙고, 무엇을 포기하는 걸까",
+    readingMinutes: 5,
+    hook: `${N51.base1}을 내던 1세대가 5세대로 바꾸면 ${N51.diskYears} 동안 ${N51.conv}, ${N51.diskYears} 뒤 ${N51.after3}입니다. 그런데 ${N51.halfRate}는 내 보험료의 절반이 아닙니다.`,
+    fork: {
+      short: {
+        tag: "50%만 보고 바꾼다",
+        head: "내 보험료의 절반으로 봅니다",
+        body: `${N51.base1}의 ${N51.halfRate}면 ${N51.conv}보다 훨씬 낮아야 하지만, 할인은 새로 산출된 5세대 보험료에 붙습니다.`,
+        verdict: "숫자의 기준을 먼저 확인해야 합니다.",
+      },
+      long: {
+        tag: "증권과 청구 내역을 먼저 편다",
+        head: "가입일·병원 이용·3년 뒤 보험료",
+        body: `대상은 2013년 3월 이전 계약 약 ${N51.people}입니다. 지난 1~2년 청구 내역에서 비중이 큰 항목과 ${N51.diskYears} 뒤 보험료 ${N51.after3}을 함께 봅니다.`,
+        verdict: "이 글의 주제입니다. 아래 보장 빈칸표에서 내 숫자로 확인합니다.",
+      },
+    },
+    keyNumbers: [
+      { label: "1세대 월 보험료", value: N51.base1 },
+      { label: `전환 후 월(${N51.diskYears})`, value: N51.conv },
+      { label: `${N51.diskYears} 뒤 월`, value: N51.after3 },
+    ],
+    numbers: N51,
+    calculator: {
+      name: "내 실손 세대 비교",
+      href: "/apps/silson-compare/run",
+      note: "내 세대와 보험료를 넣어 전환·선택형의 보험료를 나란히 비교합니다(입력값은 화면에만).",
+    },
+    scenarios: [
+      {
+        id: "conv",
+        label: "계약전환",
+        title: `${N51.base1} → ${N51.conv} → ${N51.diskYears} 뒤 ${N51.after3}`,
+        settings: ["1세대 월 17만 6,982원(금융위 예시)", "5세대 전환", "3년 50% 할인"],
+        result: `${N51.diskYears} 동안 월 ${N51.conv}`,
+        expect: `할인 기간에 아끼는 금액은 ${N51.save3}입니다.`,
+        href: "#sheet",
+        cta: "운영표에서 이 값 채우기",
+      },
+      {
+        id: "sel",
+        label: "선택형",
+        title: `1세대 ${N51.sel1}(${N51.sel1Rate} 인하) · 2세대 ${N51.sel2}(${N51.sel2Rate} 인하)`,
+        settings: ["기존 계약 유지", "도수·비급여 MRI·자기부담 20% 세 옵션", "철회·해지 1회"],
+        result: `1세대 ${N51.sel1}`,
+        expect: "포기하는 항목의 할인율이 곧 그 항목에 쓰던 돈입니다.",
+        href: "#sheet",
+        cta: "운영표에서 이 값 채우기",
+      },
+      {
+        id: "coverage",
+        label: "보장 변화",
+        title: `비중증 비급여 연 ${N51.nonSevereLimit} · 자기부담 ${N51.selfRate}`,
+        settings: ["5세대 구조로 전환", "중증 구간은 유지", "병원 이용 많으면 불리"],
+        result: `자기부담 ${N51.selfRate}`,
+        expect: "보험료만 보고 정하면 3년 뒤에 같은 자리로 돌아옵니다.",
+      },
+    ],
+    sources: [
+      {
+        label: "금융위원회 — 실손보험 점검회의 보도자료(2026-11-19)",
+        what: "계약전환 ${N51.halfRate} 할인·선택형 할인특약의 시행일과 대상",
+        url: "https://www.fsc.go.kr/no010101/88173",
+        host: "fsc.go.kr",
+      },
+      {
+        label: "금융위원회·금융감독원 — 제도 관련 Q&A(2026-11)",
+        what: "청약철회 기간, 기존 계약 해지 시 할인 종료, 아웃바운드 권유 금지",
+        url: "https://www.fsc.go.kr/comm/getFile?fileNo=9&fileTy=ATTACH&srvcId=BBSTY1&upperNo=88173",
+        host: "fsc.go.kr",
+      },
+      {
+        label: "금융감독원 파인 — 보험상품 공시",
+        what: "세대별 실손 보험료와 보장 구조를 상품명 없이 확인",
+        url: "https://fine.fss.or.kr/",
+        host: "fine.fss.or.kr",
+      },
+      {
+        label: "법제처 국가법령정보센터 — 보험업법",
+        what: "약관 설명 의무와 부당승환(갈아타기) 금지 규정",
+        url: "https://www.law.go.kr/법령/보험업법",
+        host: "law.go.kr",
+      },
+    ],
+    cardSet: SET_SILSON,
+    sheet: {
+      variant: "silson",
+      slotNo: 5,
+      slotTitle: "보장 빈칸표",
+      line: "세대와 보험료, 선택을 넣어 3년 비용과 3년 뒤 보험료를 적습니다.",
+    },
+    next: {
+      label: "다음 강",
+      title: "5-2강 · 약관에서 갈리는 5칸",
+      body: "보험료를 정했으니, 실제 수령액을 정하는 면책·감액·지급 기준을 봅니다.",
+      status: "준비중",
+    },
+    reading: READING_51,
+  },
+  {
+    slug: "step6-rebalance-cash",
+    thesis: `목표금액은 총자산 × 목표비중 한 줄로 정해집니다. ${N61.total}에서 주식 ${N61.target}면 목표는 ${N61.targetAmount}이고, 지금 ${N61.high}이면 ${N61.trim}을 덜고 ${N61.low}이면 ${N61.fill}을 채웁니다. 점검은 ${N61.once}와 ${N61.band} 두 가지로 둡니다.`,
+    step: 6,
+    no: 1,
+    label: "6-1강",
+    shortTitle: "리밸런싱과 현금 비중",
+    title: "리밸런싱과 현금 비중 — 오를 때 덜고 내릴 때 채우기",
+    question: "가만히 두면 왜 쏠리고, 언제 손대야 할까",
+    readingMinutes: 5,
+    hook: `${N61.total}에서 주식 ${N61.target}를 목표로 두면 ${N61.targetAmount}입니다. 지금 ${N61.high}이면 ${N61.trim}을 덜고, ${N61.low}이면 ${N61.fill}을 채웁니다.`,
+    fork: {
+      short: {
+        tag: "그냥 둔다",
+        head: "오른 자산을 그대로 둡니다",
+        body: `주식이 오르면 총자산에서 차지하는 몫이 목표 ${N61.target}를 넘습니다. 다음 하락에서 흔들리는 폭도 함께 커집니다.`,
+        verdict: "확인하지 않으면 오차는 쌓입니다.",
+      },
+      long: {
+        tag: "날짜와 밴드를 정한다",
+        head: "1년에 한 번, 5%p 넘으면 그때도",
+        body: `점검일을 달력에 적고, ${N61.lowBand}~${N61.highBand} 밴드를 벗어났을 때만 손댑니다. 생활비 ${N61.months}치 현금은 투자 밖에 둡니다.`,
+        verdict: "이 글의 주제입니다. 아래 리밸런싱 계산기에서 내 숫자로 확인합니다.",
+      },
+    },
+    keyNumbers: [
+      { label: "목표금액", value: N61.targetAmount },
+      { label: "오르면 덜기", value: N61.trim },
+      { label: "내리면 채우기", value: N61.fill },
+    ],
+    numbers: N61,
+    calculator: {
+      name: "리밸런싱·현금 비중 계산기",
+      href: "#sheet",
+      note: "이 페이지 아래 운영표가 계산기입니다. 총자산·목표 비중·현재 금액을 고르면 덜기/채우기 금액과 밴드가 나옵니다(입력값은 화면에만).",
+    },
+    scenarios: [
+      {
+        id: "trim",
+        label: "오르면 덜기",
+        title: `${N61.total} × ${N61.target} = ${N61.targetAmount} · 지금 ${N61.high}`,
+        settings: ["총자산 1,000만원", "목표 주식 70%", "지금 주식 820만원"],
+        result: `${N61.trim} 덜기`,
+        expect: "오른 만큼만 덜고, 남은 돈은 다른 자산에 넣습니다.",
+        href: "#sheet",
+        cta: "운영표에서 이 값 채우기",
+      },
+      {
+        id: "fill",
+        label: "내리면 채우기",
+        title: `${N61.targetAmount} − ${N61.low} = ${N61.fill}`,
+        settings: ["총자산 1,000만원", "목표 주식 70%", "지금 주식 620만원"],
+        result: `${N61.fill} 채우기`,
+        expect: "새 돈이 들어오면 매도 없이 그쪽에 넣어도 됩니다.",
+        href: "#sheet",
+        cta: "운영표에서 이 값 채우기",
+      },
+      {
+        id: "cash",
+        label: "현금 비중",
+        title: `생활비 ${N61.months} = ${N61.cash3} ~ ${N61.cash6} · 3년 안 쓸 돈 ${N61.near}`,
+        settings: ["월 생활비 250만원", "3개월 750만원 / 6개월 1,500만원", "3년 안에 쓸 돈 1,200만원"],
+        result: `${N61.cash3} ~ ${N61.cash6}`,
+        expect: "현금은 수익이 0에 가깝지만 강제 매도를 막습니다.",
+        href: "#sheet",
+        cta: "운영표에서 이 값 채우기",
+      },
+    ],
+    sources: [
+      {
+        label: "금융투자협회 펀드공시 — 총보수·기타비용",
+        what: "리밸런싱 때 사고파는 상품의 비용을 확인하는 1차 공시",
+        url: "https://dis.kofia.or.kr/",
+        host: "dis.kofia.or.kr",
+      },
+      {
+        label: "한국거래소 — 지수 통계",
+        what: "자산별 기간 등락과 낙폭을 보는 1차 자료",
+        url: "https://www.krx.co.kr/",
+        host: "krx.co.kr",
+      },
+      {
+        label: "금융감독원 파인 — 투자설명서·위험등급",
+        what: "상품의 위험등급과 손실 가능 범위",
+        url: "https://fine.fss.or.kr/",
+        host: "fine.fss.or.kr",
+      },
+    ],
+    cardSet: SET_REBALANCE,
+    sheet: {
+      variant: "rebalance",
+      slotNo: 6,
+      slotTitle: "12개월 달력",
+      line: "총자산·목표 비중·현재 금액을 넣어 덜기/채우기 금액과 밴드를 적고 점검일을 정합니다.",
+    },
+    next: {
+      label: "다음 강",
+      title: "6-2강 · 12개월 금융 달력",
+      body: "한 해에 열리는 제도 일정과 점검일을 달력 한 장에 모읍니다.",
+      status: "준비중",
+    },
+    reading: READING_61,
   },
 ];
 
