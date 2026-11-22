@@ -1123,9 +1123,9 @@ export const SCHOOL_LESSONS: AcademyLesson[] = [
     ],
     sources: [
       {
-        label: "금융감독원 불법금융신고센터 — 1332",
+        label: "금융감독원 불법금융신고센터 — 서민금융1332",
         what: "보이스피싱·불법 대출·송금 요청을 신고하는 공식 창구",
-        url: "https://www.fss.or.kr/s1332/",
+        url: "https://www.fss.or.kr/fss/main/contents.do?menuNo=200901",
         host: "fss.or.kr",
       },
       {
