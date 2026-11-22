@@ -12,6 +12,11 @@
  *
  * 기본값은 빈 문자열(OFF)이다. 토큰이 비면 비콘 태그를 **아예 그리지 않는다**(HTML 0건).
  * 미리보기 상태의 프라이버시·속도·CSP 에 전혀 영향이 없도록 하기 위해서다.
+ *
+ * 실제로 켜는 날 함께 할 일
+ *  · `src/pages/privacy.astro` 5조(쿠키와 광고)에 "쿠키 없는 집계 통계(Cloudflare Web Analytics)로
+ *    페이지뷰·유입 경로만 본다"는 한 줄을 더한다 — 켜 둔 채로 방침이 사실과 달라지지 않게.
+ *  · Cloudflare 대시보드에서 도메인(buffetkimz.com)을 먼저 등록해야 토큰이 나온다.
  */
 
 const viteEnv = (import.meta.env ?? {}) as Record<string, string | undefined>;
