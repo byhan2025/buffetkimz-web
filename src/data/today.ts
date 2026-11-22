@@ -130,8 +130,8 @@ export type TodayData = {
   tool: { label: string; cta: string; href: string; note: string };
 };
 
-const AS_OF = "2026-11-23T06:00:00+09:00";
-const NEXT_CHECK = "2026-11-23T08:20:00+09:00";
+const AS_OF = "2026-11-23T08:25:00+09:00";
+const NEXT_CHECK = "2026-11-23T19:00:00+09:00";
 
 /** 등락률 계산 기준 — 퍼센트마다 분모를 다시 쓰지 않고 여기서 한 번 밝힌다. */
 const CHANGE_BASIS = "전일 종가 대비";
@@ -143,7 +143,7 @@ export const today: TodayData = {
   status: "ok",
   staleAfterDays: 3,
   scheduleConnected: true,
-  updatedAtLabel: "11/23 06:00",
+  updatedAtLabel: "11/23 08:25",
   cadence: "하루 3회(06:00·08:20·19:00) 자동 확인",
   stripNote: `등락률은 ${CHANGE_BASIS}입니다. 지표마다 마지막 기준 시각이 다르고, 값은 참고용입니다.`,
 
@@ -185,16 +185,16 @@ export const today: TodayData = {
     {
       id: "usdkrw",
       name: "원/달러",
-      value: "1,336.20",
-      change: "+6.20원",
+      value: "1,345.63",
+      change: "+9.43원",
       direction: "up",
-      asOf: "2026-11-20T15:30:00+09:00",
-      asOfLabel: "11. 20. 외환시장 마감",
-      source: "연합뉴스(서울 외환시장)",
-      sourceUrl: "https://www.yna.co.kr/view/AKR20261120132200002",
-      basis: "전일 1,330.00원 대비 6.20원 · 주말 휴장, 직전 거래일 종가 기준",
+      asOf: "2026-11-23T08:25:00+09:00",
+      asOfLabel: "11. 23. 08:25 역외",
+      source: "Yahoo Finance(역외 원/달러)",
+      sourceUrl: "https://finance.yahoo.com/quote/KRW=X/",
+      basis: "직전 서울 종가 1,336.20원 대비 9.43원 높음 · 국내 외환시장은 09:00 개장, 역외 호가 기준",
       group: "kr",
-      series: [1322, 1328, 1325, 1330, 1336, 1339, 1334, 1338, 1341, 1339, 1330.0, 1336.2],
+      series: [1328, 1325, 1330, 1336, 1339, 1334, 1338, 1341, 1339, 1330.0, 1336.2, 1345.63],
     },
     {
       id: "sp500",
@@ -308,9 +308,9 @@ export const today: TodayData = {
         "누구에게 — 2013년 3월 이전 가입·재가입 조건이 없는 실손 계약",
       ],
       publishedAt: "2026-11-19",
-      asOf: "2026-11-23T06:00:00+09:00",
-      fetchedAt: "2026-11-23T06:00:00+09:00",
-      nextCheckAt: "2026-11-23T08:20:00+09:00",
+      asOf: "2026-11-23T08:25:00+09:00",
+      fetchedAt: "2026-11-23T08:25:00+09:00",
+      nextCheckAt: "2026-11-23T19:00:00+09:00",
       status: "ok",
       sourceLabel: "금융위원회 보도자료 (2026. 11. 19.)",
       sourceUrl: "https://www.fsc.go.kr/no010101/88173",
@@ -329,9 +329,9 @@ export const today: TodayData = {
         "누구에게 — 사업소득이 있는 개인. 보험 모집수당만 있는 경우는 제외 대상입니다",
         "확인 — 홈택스·손택스에서 고지 여부와 금액을 조회하고, 1천만원이 넘으면 분납을 고릅니다",
       ],
-      asOf: "2026-11-23T06:00:00+09:00",
-      fetchedAt: "2026-11-23T06:00:00+09:00",
-      nextCheckAt: "2026-11-23T08:20:00+09:00",
+      asOf: "2026-11-23T08:25:00+09:00",
+      fetchedAt: "2026-11-23T08:25:00+09:00",
+      nextCheckAt: "2026-11-23T19:00:00+09:00",
       status: "ok",
       sourceLabel: "국세청 — 중간예납 안내 (납부기한 2026. 11. 30.)",
       sourceUrl: "https://www.nts.go.kr/nts/cm/cntnts/cntntsView.do?cntntsId=7674&mi=2237",
@@ -351,9 +351,9 @@ export const today: TodayData = {
         "확인 — 금융사 마감 시각을 피해 12월 29~30일에 이체를 마칩니다",
       ],
       publishedAt: "2026-07-01",
-      asOf: "2026-11-23T06:00:00+09:00",
-      fetchedAt: "2026-11-23T06:00:00+09:00",
-      nextCheckAt: "2026-11-23T08:20:00+09:00",
+      asOf: "2026-11-23T08:25:00+09:00",
+      fetchedAt: "2026-11-23T08:25:00+09:00",
+      nextCheckAt: "2026-11-23T19:00:00+09:00",
       status: "ok",
       sourceLabel: "소득세법 제59조의3 (연금계좌세액공제)",
       sourceUrl: "https://www.law.go.kr/LSW/lsLinkCommonInfo.do?lsJoLnkSeq=1032880515",
@@ -371,9 +371,9 @@ export const today: TodayData = {
         "확인 — 26일 결정문의 금통위원 점도표와 총재 기자회견에서 다음 인상 시점을 봅니다",
       ],
       publishedAt: "2026-11-22",
-      asOf: "2026-11-23T06:00:00+09:00",
-      fetchedAt: "2026-11-23T06:00:00+09:00",
-      nextCheckAt: "2026-11-23T08:20:00+09:00",
+      asOf: "2026-11-23T08:25:00+09:00",
+      fetchedAt: "2026-11-23T08:25:00+09:00",
+      nextCheckAt: "2026-11-23T19:00:00+09:00",
       status: "ok",
       sourceLabel: "한국은행 · 미국 BEA · 나스닥 트레이더 알림 (2026. 11. 23. 확인)",
       sourceUrl: "https://www.bok.or.kr/portal/singl/baseRate/list.do?menuNo=200643",
