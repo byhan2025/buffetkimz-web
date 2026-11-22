@@ -332,7 +332,11 @@ const jsonLd = graph([
               <p class="text-[16px] font-bold tracking-[0.06em] text-brand-deep">{lesson.next.label}</p>
               <div class="mt-2 flex flex-wrap items-baseline gap-2">
                 <p class="text-[19px] font-bold tracking-[-0.03em] text-ink">{lesson.next.title}</p>
-                {lesson.next.status && <span class="chip">{lesson.next.status}</span>}
+                {lesson.next.status && (
+                  <span class="chip">
+                    {lesson.next.status === "준비중" ? "다음 편 준비중" : lesson.next.status}
+                  </span>
+                )}
               </div>
               <p class="mt-2 text-[16px] leading-[1.7] text-ink-muted">{lesson.next.body}</p>
               <div class="mt-4 flex flex-wrap gap-2">

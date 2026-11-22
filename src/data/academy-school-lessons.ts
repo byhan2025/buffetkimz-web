@@ -333,15 +333,15 @@ const QUIZ_TEEN: LessonQuizItem[] = [
    첫 월급 1강 — 명세서 3줄
    ------------------------------------------------------------------ */
 const GROSS = 3_000_000;
-const PENSION_RATE = 0.045; // 국민연금 근로자 부담 9%의 절반
+const PENSION_RATE = 0.0475; // 국민연금 2026년 9.5%의 절반(근로자 기여금 4.75%)
 const EMPLOYMENT_RATE = 0.009; // 고용보험(실업급여) 근로자 부담
-const PENSION_WON = Math.round(GROSS * PENSION_RATE); // 135,000
+const PENSION_WON = Math.round(GROSS * PENSION_RATE); // 142,500
 const HEALTH_WON = Math.round(GROSS * HEALTH_INSURANCE.employeeShare); // 107,850
 const CARE_WON = Math.round((GROSS * HEALTH_INSURANCE.longTermCareRate) / 2); // 14,172
 const EMPLOYMENT_WON = Math.round(GROSS * EMPLOYMENT_RATE); // 27,000
-const INSURANCE_WON = PENSION_WON + HEALTH_WON + CARE_WON + EMPLOYMENT_WON; // 284,022
+const INSURANCE_WON = PENSION_WON + HEALTH_WON + CARE_WON + EMPLOYMENT_WON; // 291,522
 const DEDUCTION_WON = 330_000; // 가상 공제 합계(4대보험 + 소득세·지방소득세)
-const TAX_WON = DEDUCTION_WON - INSURANCE_WON; // 45,978
+const TAX_WON = DEDUCTION_WON - INSURANCE_WON; // 38,478 (330,000 − 291,522)
 const NET = GROSS - DEDUCTION_WON; // 2,670,000
 const FIXED = 1_200_000;
 const VARIABLE = 600_000;
@@ -383,7 +383,8 @@ const READING_PAY: ReadingSection[] = [
     h: "4대보험은 이름이 네 개입니다",
     ps: [
       `4대보험은 국민연금, 건강보험, 장기요양보험, 고용보험입니다. 근로자는 회사와 나눠 냅니다. ${N_PAY.grossWon}을 기준으로 2026년 근로자 부담은 국민연금 ${N_PAY.pension}, 건강보험 ${N_PAY.health}, 장기요양 ${N_PAY.care}, 고용보험 ${N_PAY.employment}입니다.`,
-      `네 개를 더하면 ${N_PAY.insurance}입니다. 여기에 소득세와 지방소득세(소득세에 10%를 더 붙이는 지방세)가 더해집니다. 이 강의에서는 세금을 포함한 공제 합계를 ${N_PAY.deduction}(가상)으로 두었고, 그중 세금 몫은 ${N_PAY.tax}입니다.`,
+      `국민연금은 2026년 보험료율 9.5%로, 근로자 몫은 그 절반인 4.75%입니다.`,
+      `네 개를 더하면 ${N_PAY.insurance}입니다. 여기에 소득세와 지방소득세(소득세에 10%를 더 붙이는 지방세)가 더해집니다. 이 강의에서는 세금을 포함한 공제 합계를 ${N_PAY.deduction}(가상 예시)으로 두었고, 그중 세금 몫은 ${N_PAY.tax}입니다.`,
       `소득세는 부양가족 수, 비과세 항목, 회사의 정산 방식에 따라 달라집니다. 그래서 남의 명세서와 비교하지 말고, 내 명세서의 공제 합계를 직접 읽어야 합니다.`,
       `회사가 내는 몫은 명세서에 '사업주 부담'으로 따로 적히기도 합니다. 내 월급에서 빠지는 돈과 회사가 더 내는 돈은 다릅니다.`,
       `건강보험료는 명세서의 공제 항목에 들어갑니다. 실손보험은 회사가 자동으로 들어 주는 것이 아니라 내가 가입한 상품이므로, 보장 여부와 자기부담률을 약관에서 확인합니다.`,
@@ -408,7 +409,7 @@ const READING_PAY: ReadingSection[] = [
   {
     h: "출처와 기준일",
     ps: [
-      `기준일 2026. 11. 22. · 건강보험료율·장기요양보험료율은 2026년 기준(건강보험 7.19%, 장기요양 0.9448%)이며, 국민연금 4.5%·고용보험 0.9%는 근로자 부담 몫입니다. 공제 합계 ${N_PAY.deduction}과 세금 몫은 계산을 보여 주기 위한 가상 값이므로, 실제 금액은 명세서와 국세청 안내에서 확인합니다.`,
+      `기준일 2026. 11. 22. · 2026년 법정 요율은 건강보험 7.19%, 장기요양 0.9448%, 국민연금 9.5%(근로자 4.75%), 고용보험 1.8%(근로자 0.9%)이고, 4대보험 합계 ${N_PAY.insurance}는 이 요율로 계산한 값입니다. 공제 합계 ${N_PAY.deduction}과 세금 몫 ${N_PAY.tax}는 계산을 보여 주기 위한 가상 예시이므로, 실제 금액은 명세서와 국세청 안내에서 확인합니다.`,
     ],
   },
 ];
@@ -425,7 +426,7 @@ const QUIZ_PAY: LessonQuizItem[] = [
     explain: "세전 → 공제 → 실수령, 세 줄의 순서를 먼저 익힙니다.",
   },
   {
-    q: `세전 ${N_PAY.grossWon}, 공제 합계 ${N_PAY.deduction}(가상)일 때 실수령은 얼마일까요?`,
+    q: `세전 ${N_PAY.grossWon}, 공제 합계 ${N_PAY.deduction}(가상 예시)일 때 실수령은 얼마일까요?`,
     hint: "세전에서 공제를 뺍니다.",
     options: [
       { label: N_PAY.netWon, ok: true, why: `${N_PAY.grossWon} − ${N_PAY.deduction} = ${N_PAY.netWon}입니다.` },
@@ -899,12 +900,12 @@ export const SCHOOL_LESSONS: AcademyLesson[] = [
   {
     slug: "school-firstpay-stub",
     track: "firstpay",
-    thesis: `명세서는 ① 지급 합계(세전) ② 공제 합계 ③ 실수령 세 줄입니다. 세전 ${N_PAY.grossWon}에서 공제 ${N_PAY.deduction}(가상)을 빼면 실수령 ${N_PAY.netWon}입니다.`,
+    thesis: `명세서는 ① 지급 합계(세전) ② 공제 합계 ③ 실수령 세 줄입니다. 세전 ${N_PAY.grossWon}에서 공제 ${N_PAY.deduction}(가상 예시)을 빼면 실수령 ${N_PAY.netWon}입니다.`,
     step: 0,
     no: 1,
     label: "첫 월급 1강",
     shortTitle: "첫 월급명세서 3줄",
-    title: "첫 월급명세서, 세전 300만 원에서 왜 33만 원이 빠질까?",
+    title: "첫 월급명세서, 세전 300만 원에서 왜 33만 원이 빠질까? (공제 합계는 가상 예시)",
     question: "통장에 들어온 돈은 왜 세전보다 적을까",
     readingMinutes: 5,
     hook: `세전 ${N_PAY.gross}과 실수령 ${N_PAY.net}의 차이 ${N_PAY.deduction}. 이 돈의 이름을 알면 다음 달 명세서가 달라집니다.`,
@@ -924,7 +925,8 @@ export const SCHOOL_LESSONS: AcademyLesson[] = [
     },
     keyNumbers: [
       { label: "세전", value: N_PAY.gross },
-      { label: "공제(가상)", value: N_PAY.deduction },
+      { label: "4대보험(법정 요율)", value: N_PAY.insurance },
+      { label: "공제 합계(가상 예시)", value: N_PAY.deduction },
       { label: "실수령", value: N_PAY.net },
     ],
     numbers: N_PAY,
@@ -939,7 +941,7 @@ export const SCHOOL_LESSONS: AcademyLesson[] = [
         id: "stub",
         label: "세 줄",
         title: `${N_PAY.grossWon} − ${N_PAY.deduction} = ${N_PAY.netWon}`,
-        settings: ["세전 300만원", "공제 33만원(가상)", "실수령 267만원"],
+        settings: ["세전 300만원", "공제 33만원(가상 예시)", "실수령 267만원"],
         result: `실수령 ${N_PAY.netWon}`,
         expect: "명세서의 지급·공제·실수령을 같은 순서로 읽습니다.",
         href: "#sheet",
@@ -948,8 +950,8 @@ export const SCHOOL_LESSONS: AcademyLesson[] = [
       {
         id: "insurance",
         label: "4대보험",
-        title: `4대보험 근로자 부담 ${N_PAY.insurance}`,
-        settings: ["국민연금 4.5%", "건강보험 3.595% · 장기요양은 근로자 절반", "고용보험 0.9%"],
+        title: `4대보험 근로자 부담 ${N_PAY.insurance} (2026 법정 요율)`,
+        settings: ["국민연금 4.75%", "건강보험 3.595% · 장기요양은 근로자 절반", "고용보험 0.9%"],
         result: `${N_PAY.insurance}`,
         expect: "소득세는 부양가족·비과세에 따라 달라집니다.",
         href: "#sheet",
@@ -968,9 +970,9 @@ export const SCHOOL_LESSONS: AcademyLesson[] = [
     ],
     sources: [
       {
-        label: "국민연금공단 — 보험료율 안내",
-        what: "국민연금 보험료 9%와 근로자·사업주 부담 비율",
-        url: "https://www.nps.or.kr/",
+        label: "국민연금공단 — 사업장가입자의 연금보험료 납부",
+        what: "연도별 보험료율 표 — 2026년 9.5%, 근로자 기여금 4.75%·사업주 부담금 4.75%",
+        url: "https://www.nps.or.kr/pnsinfo/ntpsklg/getOHAF0016M0.do",
         host: "nps.or.kr",
       },
       {
@@ -997,7 +999,7 @@ export const SCHOOL_LESSONS: AcademyLesson[] = [
       variant: "firstpay",
       slotNo: 1,
       slotTitle: "실수령 확인표",
-      line: "세전·공제 합계·고정비를 넣어 실수령과 세 칸 금액을 적습니다.",
+      line: "세전·공제 합계(가상 예시)·고정비를 넣어 실수령과 세 칸 금액을 적습니다.",
     },
     next: {
       label: "다음 편",

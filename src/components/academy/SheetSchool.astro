@@ -58,7 +58,7 @@ const copy = {
     progress: "실수령 확인표 · 0 / 1칸",
     done: "실수령 확인표 · 1 / 1칸",
     head: "실수령 확인표",
-    intro: "세전과 공제 합계를 고르면 실수령과 남는 돈 세 칸이 함께 나옵니다.",
+    intro: "세전과 공제 합계(가상 예시)를 고르면 실수령과 남는 돈 세 칸이 함께 나옵니다.",
     commit: "이 칸 채우기",
     again: "값 바꿔서 다시 채우기",
     a: "세전",
@@ -221,7 +221,7 @@ const money = (n: number) => `${n.toLocaleString("ko-KR")}원`;
               </div>
             </fieldset>
             <fieldset class="sheet-field">
-              <legend class="sheet-legend">{copy.b} <span class="mono">4대보험 + 세금</span></legend>
+              <legend class="sheet-legend">{copy.b} <span class="mono">4대보험 + 세금 · 가상 예시</span></legend>
               <div class="sheet-chips">
                 {[28, 33, 38].map((v) => (
                   <label class="sheet-chip sheet-chip--num">
