@@ -37,7 +37,10 @@ v3: 20개 대표 사이트 벤치마킹(보고서 `reports/buffetkimz-web/benchm
   (첫월급1 5분 읽기 **1,392자**, 운영표 저장 0건, 한 화면 한 질문) · `audit_dist_links.py` 페이지 **274** · 링크·이미지 **0/0**.
   dist 전체에서 `국민연금 4.5%`·`국민연금 9%` **0건**, 첫 월급 1강 HTML에 `4.75%`·`142,500`·`291,522`·`38,478`·
   `getOHAF0016M0.do` 반영 확인.
-- **라이브** — `main` (아래 기록) · `gh-pages` → https://byhan2025.github.io/buffetkimz-web/academy/school-firstpay-stub/?v=831 .
+- **라이브** — `main` `b0c300e` · `gh-pages` `87942fb` → https://byhan2025.github.io/buffetkimz-web/academy/school-firstpay-stub/?v=831 .
+  GitHub Pages `built` 확인 후 라이브 HTML 실측 — `4.75%`×5 · `142,500`×2 · `291,522`×7 · `38,478`×2 · `getOHAF0016M0.do`×1 ·
+  `(가상 예시)`×7 · `4.5%`·`135,000`·`284,022`·`45,978` **0건**, 5분 읽기 **1,392자**. `capture_live_v83.py --live(9/9)`
+  — 라이브 6주소 × 1280/390 HTTP 200 · 콘솔 오류 0 · 가로 넘침 0 · 허브 52칸·7트랙·12강·열린 10주 · 자료앨부 21세트 111장.
 
 ### v8.3.0 — 금융생활학교 STEP 3 두 강(낙폭·회복 / ETF 6개 숫자) + 가계 2강 + 손글씨 카드 1세트(6장)
 
