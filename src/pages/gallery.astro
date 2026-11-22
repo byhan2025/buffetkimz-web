@@ -113,11 +113,18 @@ const jsonLd = graph([
           </ul>
         </div>
 
-        <!-- 대표 카드 미리보기 — 첫 세트의 첫 장 -->
-        <a href={withBase(galleryItems[0].slides[0].src)} class="group block overflow-hidden rounded-2xl border border-line bg-white shadow-[0_24px_60px_-46px_rgba(15,53,80,0.7)]" data-gallery-hero>
+        <!-- 대표 카드 미리보기 — 첫 세트의 첫 장. v8.6.1 — 필터·검색이 걸리면 보이는 첫 카드를 따라간다 -->
+        <a
+          href={withBase(galleryItems[0].slides[0].src)}
+          class="group block overflow-hidden rounded-2xl border border-line bg-white shadow-[0_24px_60px_-46px_rgba(15,53,80,0.7)]"
+          data-gallery-hero
+          data-gallery-hero-item={galleryItems[0].id}
+          aria-label={`${galleryItems[0].title} 크게 보기`}
+        >
           <img
             src={withBase(galleryItems[0].slides[0].src)}
             alt={galleryItems[0].slides[0].alt}
+            data-gallery-hero-img
             width={galleryItems[0].slides[0].width}
             height={galleryItems[0].slides[0].height}
             class="w-full"
@@ -307,7 +314,7 @@ const jsonLd = graph([
         }
       </div>
 
-      <p class="hidden py-16 text-center text-[14px] text-ink-muted" data-gallery-empty>
+      <p class="py-16 text-center text-[14px] text-ink-muted" data-gallery-empty hidden>
         조건에 맞는 자료가 없습니다. 검색어를 지우거나 다른 태그를 골라 보세요.
       </p>
 
@@ -359,6 +366,8 @@ const jsonLd = graph([
     const search = document.querySelector<HTMLInputElement>("[data-gallery-search]");
     const tagButtons = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-gallery-tag]"));
     const empty = document.querySelector<HTMLElement>("[data-gallery-empty]");
+    const hero = document.querySelector<HTMLAnchorElement>("[data-gallery-hero]");
+    const heroImg = document.querySelector<HTMLImageElement>("[data-gallery-hero-img]");
     const countEl = document.querySelector<HTMLElement>("[data-gallery-count]");
     const slideCountEl = document.querySelector<HTMLElement>("[data-gallery-count-slides]");
 
@@ -422,6 +431,27 @@ const jsonLd = graph([
       if (slideCountEl) slideCountEl.textContent = String(slides);
       if (empty) empty.hidden = shown > 0;
       if (grid) grid.hidden = shown === 0;
+
+      /*
+       * v8.6.1 — 대표 카드도 필터를 따라간다.
+       * 예전에는 늘 첫 세트를 보여 줘서, 검색·분류에서 빠진 카드 한 장이 그대로 남아 보였다.
+       * 이제 보이는 첫 카드의 현재 장을 그리고, 맞는 카드가 없으면 감춘다.
+       */
+      const firstVisible = cards.find((card) => !card.hidden);
+      const heroItem = firstVisible ? byId.get(firstVisible.dataset.galleryItem || "") : undefined;
+      if (hero && heroImg) {
+        if (heroItem) {
+          const slide = heroItem.slides[state.get(heroItem.id) ?? 0];
+          hero.hidden = false;
+          hero.href = slide.src;
+          hero.dataset.galleryHeroItem = heroItem.id;
+          hero.setAttribute("aria-label", `${heroItem.title} 크게 보기`);
+          heroImg.src = slide.src;
+          heroImg.alt = slide.alt;
+        } else {
+          hero.hidden = true;
+        }
+      }
     }
 
     tabs.forEach((t) =>

@@ -33,6 +33,21 @@ import { availableCount } from "@/lib/card-assets";
 const adultOpen = OPEN_LESSONS.filter((l) => (l.track ?? "adult") === "adult").length;
 const schoolOpen = OPEN_LESSONS.length - adultOpen;
 
+/**
+ * 강의 카드 칩 — 트랙 이름과 회차가 겹치지 않게 한 번만 적는다.
+ * v8.6.1 — '은퇴 · 은퇴 1강'처럼 트랙 이름이 회차에 그대로 반복되던 표기를 정리.
+ *   '은퇴' + '은퇴 1강' → '은퇴 · 1강',  '성인 실전' + '4-1강' → '성인 실전 · 4-1강'
+ */
+const lessonChip = (track: string, label: string) => {
+  const trackName = TRACK_LABEL[track as keyof typeof TRACK_LABEL] ?? track;
+  const trackWords = trackName.split(" ");
+  const words = label.split(" ");
+  let i = 0;
+  while (i < words.length - 1 && trackWords.includes(words[i])) i += 1;
+  const tail = words.slice(i).join(" ");
+  return tail ? `${trackName} · ${tail}` : trackName;
+};
+
 /** 트랙 안내 카드 — 첫 강의가 있으면 그 강의로 연결한다 */
 const trackCards = [
   {
@@ -125,7 +140,7 @@ const jsonLd = graph([
 
 <Base
   title={`${ACADEMY.name} — 6트랙 52주 · 성인 실전 6 STEP 41강`}
-  description={`${ACADEMY.name}는 초등 고학년·청소년·첫 월급·가계·자산형성·은퇴 6트랙 52주와 성인 실전 6 STEP 41강을 한곳에 모은 무료 금융교육입니다. 강의 1개는 5분 읽기, 카드뉴스 6장, 내 숫자 계산기, 1차 출처로 묶여 있습니다. 지금 ${openLessonCount}강이 열려 있습니다. 기준일 ${site.baseDateLabel}.`}
+  description={`${ACADEMY.name}는 초등 고학년·청소년·첫 월급·가계·자산형성·은퇴 6트랙 52주와 성인 실전 6 STEP 41강을 한곳에 모은 무료 금융교육입니다. 강의 1개는 5분 읽기, 카드뉴스 6장, 내 숫자 계산기, 1차 출처로 묶여 있습니다. 지금 ${openLessonCount}강이 열려 있습니다. 기준일 ${site.baseDateLabel}`}
   path="/academy"
   jsonLd={jsonLd}
 >
@@ -256,7 +271,7 @@ const jsonLd = graph([
                 <a href={withBase(`/academy/${lesson.slug}/`)} class="academy-lesson-link">
                   <span class="academy-lesson-head">
                     <span class="chip !min-h-[22px] !px-2 !text-[10.5px] !border-brand/30 !bg-brand-soft !text-brand-deep">
-                      {TRACK_LABEL[track]} · {lesson.label}
+                      {lessonChip(track, lesson.label)}
                     </span>
                     <span class="academy-lesson-cards mono">
                       {availableCount(lesson.cardSet) > 0 ? `카드 ${availableCount(lesson.cardSet)}장` : "카드 준비 중"}
