@@ -145,7 +145,7 @@ export const ACADEMY_STEPS: AcademyStep[] = stepBase.map((s) => {
 
 export const stepByNo = (no: number) => ACADEMY_STEPS.find((s) => s.no === no);
 
-/** 지금 열린 강의 — 성인 5강 + 학교 트랙 3강, 학습 순서대로 */
+/** 지금 열린 강의 — 성인 7강 + 학교 트랙 5강, 학습 순서대로 */
 export const ACADEMY_LESSONS: AcademyLesson[] = [...ADULT_LESSONS, ...SCHOOL_LESSONS];
 export const OPEN_LESSONS: AcademyLesson[] = ACADEMY_LESSONS;
 export const openLessonCount = OPEN_LESSONS.length;
@@ -160,6 +160,7 @@ export const TRACK_LABEL: Record<NonNullable<AcademyLesson["track"]>, string> = 
   elementary: "초등 고학년",
   teen: "청소년",
   firstpay: "첫 월급",
+  household: "가계",
 };
 
 /** 수강 경로 3가지 — 진단 3문항의 답 개수로 갈린다. */

@@ -11,6 +11,10 @@
  *   allowance 용돈 → 쓸 돈·모을 돈·남길 돈 (초등 1강, v8.2.0)
  *   teenplan  월 반복 결제·BNPL → 1년 비용·갚을 총액 (청소년 1강)
  *   firstpay  세전·공제 → 실수령·세 칸 (첫 월급 1강)
+ *   household 실수령·고정비·원리금·변동비 → 남는 돈·고정비 비율 (가계 1강, v8.3.0)
+ *   coverage  진단비·지급률·감액 → 예상 수령액 (가계 2강)
+ *   policy    투자금·비중·손실 한도 → 손실 금액·회복 필요 상승 (3-1강)
+ *   etfcheck  보유 금액·비용률·기간 → 기간 비용 (3-2강)
  *
  * 공통 원칙: 입력값은 화면 안에서만 계산하고 주소·서버·저장소에 남기지 않는다.
  */
@@ -20,6 +24,7 @@ import SheetEmergency from "./SheetEmergency.astro";
 import SheetOrder from "./SheetOrder.astro";
 import SheetIsa from "./SheetIsa.astro";
 import SheetSchool from "./SheetSchool.astro";
+import SheetPolicy from "./SheetPolicy.astro";
 import type { SheetVariant } from "@/data/academy-lessons";
 
 interface Props {
@@ -41,8 +46,10 @@ const { variant = "pension", slotNo, slotTitle, line } = Astro.props;
     <SheetOrder slotNo={slotNo} slotTitle={slotTitle} line={line} />
   ) : variant === "isa" ? (
     <SheetIsa slotNo={slotNo} slotTitle={slotTitle} line={line} />
-  ) : variant === "allowance" || variant === "teenplan" || variant === "firstpay" ? (
+  ) : variant === "allowance" || variant === "teenplan" || variant === "firstpay" || variant === "household" || variant === "coverage" ? (
     <SheetSchool variant={variant} slotNo={slotNo} slotTitle={slotTitle} line={line} />
+  ) : variant === "policy" || variant === "etfcheck" ? (
+    <SheetPolicy variant={variant} slotNo={slotNo} slotTitle={slotTitle} line={line} />
   ) : (
     <SheetSlotPension />
   )

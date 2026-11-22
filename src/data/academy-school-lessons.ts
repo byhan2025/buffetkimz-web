@@ -20,7 +20,7 @@ import type {
   LessonQuizItem,
   ReadingSection,
 } from "./academy-lessons";
-import { HEALTH_INSURANCE } from "./tax-rules";
+import { HEALTH_INSURANCE, pct } from "./tax-rules";
 
 const won = (n: number) => `${n.toLocaleString("ko-KR")}원`;
 const manwon = (n: number) => `${n.toLocaleString("ko-KR")}만원`;
@@ -85,8 +85,42 @@ const SET_FIRSTPAY: LessonCardSet = {
   ],
 };
 
+/** D. 가계 현금흐름 3줄 — 가계 1강 (v8.3.0 신규 세트) */
+const SET_HOUSEHOLD: LessonCardSet = {
+  id: "household-budget-hand",
+  title: "월 500만, 남는 돈은 어디서 줄까",
+  meta: "손글씨 카드 6장 · 실수령 · 고정비 · 대출 원리금",
+  href: "/gallery/?cat=carousel",
+  startIndex: 0,
+  slides: [
+    card("household-budget", 1, "표지 — 들어오는 돈과 나가는 돈, 세 줄로", "크림 종이 위 세 줄짜리 장부와 동전, 장부를 가리키는 마스코트"),
+    card("household-budget", 2, "오해 vs 팩트 — 소득이 크면 남는다 / 고정비·원리금이 먼저다", "왼쪽은 큰 동전 하나를 든 마스코트, 오른쪽은 여러 작은 통으로 동전이 빠져나가는 모습을 보는 마스코트"),
+    card("household-budget", 3, "1줄 — 실수령 500만, 세전이 아닙니다", "배관 하나로 유리병에 동전이 차곡차곡 흘러드는 장면과 마스코트"),
+    card("household-budget", 4, "2줄 — 고정비 160만, 날짜가 정해진 지출", "달력이 붙은 작은 통 네 개가 나란히 놓인 선반과 마스코트"),
+    card("household-budget", 5, "3줄 — 대출 원리금 61만, 금리 오르면 이자가 는다", "지붕 위에 큰 동전을 올린 집 모형과 위로 향한 이자 화살표"),
+    card("household-budget", 6, "점검 — 세 줄에 날짜 붙이기", "클립보드와 계산기를 든 마스코트, 세 줄 체크리스트"),
+  ],
+};
+
+/** E. 보장 공백 5칸 — 가계 2강 */
+const SET_COVERAGE: LessonCardSet = {
+  id: "coverage-gaps-hand",
+  title: "보장 공백 5칸 — 약관에서 갈리는 것",
+  meta: "손글씨 카드 6장 · 면책 · 감액 · 지급 기준",
+  href: "/gallery/?cat=carousel",
+  startIndex: 0,
+  slides: [
+    card("coverage-gaps", 1, "표지 — 가입금액 전에 볼 약관 공백 5칸", "다섯 칸 빈 종이 위의 돋보기와 들여다보는 마스코트"),
+    card("coverage-gaps", 2, "오해 vs 팩트 — 진단비 크기만 크면 든든 / 면책·감액·지급 기준", "왼쪽은 금 간 방패와 큰 동전을 든 마스코트, 오른쪽은 돋보기로 계약서를 보는 마스코트"),
+    card("coverage-gaps", 3, "공백 ① ② — 실손 세대별 자기부담, 면책 90일·감액 1~2년", "서로 다른 색 종이 세 장과 청진기, 두 장을 비교하는 마스코트"),
+    card("coverage-gaps", 4, "공백 ③ — 유사암·경계성종양은 일반암의 10~20%", "크기가 다른 세 원과 가장 작은 원을 돋보기로 보는 마스코트"),
+    card("coverage-gaps", 5, "공백 ④ ⑤ — 수술비 종수와 사적연금 2,000만 원(피부양자)", "병원과 저울, 서류 더미와 동전 주머니를 가리키는 마스코트"),
+    card("coverage-gaps", 6, "점검 — 내 증권에서 확인할 3줄", "안경과 펜이 꽂힌 클립보드를 든 마스코트와 3줄 체크리스트"),
+  ],
+};
+
 export const schoolCardSetById = (id: string): LessonCardSet | undefined =>
-  [SET_ALLOWANCE, SET_TEEN_PAY, SET_FIRSTPAY].find((s) => s.id === id);
+  [SET_ALLOWANCE, SET_TEEN_PAY, SET_FIRSTPAY, SET_HOUSEHOLD, SET_COVERAGE].find((s) => s.id === id);
 
 /* ------------------------------------------------------------------
    초등 1강 — 용돈 7,000원, 세 칸
@@ -413,7 +447,231 @@ const QUIZ_PAY: LessonQuizItem[] = [
 ];
 
 /* ------------------------------------------------------------------
-   강의 3개
+   가계 1강 — 고정비·대출 원리금, 가계 현금흐름 3줄 점검 (v8.3.0)
+   · 원리금은 원리금균등분할상환 공식으로 직접 계산한다(가상 금액).
+   ------------------------------------------------------------------ */
+const LOAN_PRINCIPAL = 10000; // 대출 원금(만원) — 1억 원
+const LOAN_MONTHS = 240; // 20년
+const loanPay = (annualRate: number) =>
+  Math.round(
+    ((LOAN_PRINCIPAL * 10000 * (annualRate / 12)) / (1 - Math.pow(1 + annualRate / 12, -LOAN_MONTHS))) / 1000,
+  ) * 1000;
+const MONTHLY = (won: number) => `${Math.round(won / 10000).toLocaleString("ko-KR")}만원`;
+
+const PAY4 = loanPay(0.04); // 606,000원
+const PAY6 = loanPay(0.06); // 716,000원
+const H_INCOME = 500; // 실수령(만원)
+const H_FIXED = 160; // 고정비(만원)
+const H_VARIABLE = 140; // 변동비(만원)
+const H_LOAN4 = Math.round(PAY4 / 10000); // 61만
+const H_LOAN6 = Math.round(PAY6 / 10000); // 72만
+const H_FIXEDLOAN4 = H_FIXED + H_LOAN4; // 221만
+const H_FIXEDLOAN6 = H_FIXED + H_LOAN6; // 232만
+const H_SPARE4 = H_INCOME - H_FIXEDLOAN4 - H_VARIABLE; // 139만
+const H_SPARE6 = H_INCOME - H_FIXEDLOAN6 - H_VARIABLE; // 128만
+const H_RATIO4 = H_FIXEDLOAN4 / H_INCOME;
+const H_RATIO6 = H_FIXEDLOAN6 / H_INCOME;
+
+const N_HOUSE = {
+  income: MONTHLY(H_INCOME * 10000),
+  fixed: MONTHLY(H_FIXED * 10000),
+  variable: MONTHLY(H_VARIABLE * 10000),
+  loan4: MONTHLY(PAY4),
+  loan6: MONTHLY(PAY6),
+  loanDiff: MONTHLY(PAY6 - PAY4),
+  fixedLoan: MONTHLY(H_FIXEDLOAN4 * 10000),
+  fixedLoan6: MONTHLY(H_FIXEDLOAN6 * 10000),
+  spare: MONTHLY(H_SPARE4 * 10000),
+  spare6: MONTHLY(H_SPARE6 * 10000),
+  ratio: pct(H_RATIO4),
+  ratio6: pct(H_RATIO6),
+  interest4: MONTHLY((LOAN_PRINCIPAL * 10000 * 0.04) / 12),
+  interest6: MONTHLY((LOAN_PRINCIPAL * 10000 * 0.06) / 12),
+  principal: MONTHLY(LOAN_PRINCIPAL * 10000),
+  years: `${LOAN_MONTHS / 12}년`,
+};
+
+const READING_HOUSE: ReadingSection[] = [
+  {
+    h: "세 줄이면 보입니다",
+    ps: [
+      `가계 현금흐름은 세 줄이면 보입니다. ① 들어오는 돈(실수령) ② 고정비와 대출 원리금 ③ 남는 돈입니다. 변동비는 ③을 계산할 때 함께 빼면 됩니다.`,
+      `핵심은 ②에 대출 원리금을 넣는 것입니다. 원리금은 매달 같은 날 빠져나가고, 금리가 오르면 이자만 늘어납니다. 생활비처럼 그 달에 조절할 수 있는 돈이 아닙니다.`,
+      `예로 ${N_HOUSE.principal}을 연 4%·${N_HOUSE.years} 원리금균등으로 빌리면 월 ${N_HOUSE.loan4}입니다. 연 6%가 되면 월 ${N_HOUSE.loan6}입니다. 같은 원금인데도 금리 2%p가 월 ${N_HOUSE.loanDiff}을 바꿉니다.`,
+      `세 줄은 한 번 쓰고 끝나지 않습니다. 이사·출산·이직·금리 변동처럼 생활이 바뀔 때마다 다시 셈니다. 숫자를 고치지 않은 채 몇 년이 지나면, 남는 돈은 늘 모자란 상태가 됩니다. 세 줄을 갱신하는 날을 달력에 표시해 두면 그 일이 반복되지 않습니다.`,
+    ],
+  },
+  {
+    h: "내 숫자로 옮기면",
+    ps: [
+      `실수령 ${N_HOUSE.income}, 고정비 ${N_HOUSE.fixed}, 대출 원리금 ${N_HOUSE.loan4}, 변동비 ${N_HOUSE.variable}인 가계를 봅니다. ②는 ${N_HOUSE.fixedLoan}, ③은 ${N_HOUSE.spare}입니다.`,
+      `함께 보는 비율이 (고정비+원리금)÷실수령입니다. ${N_HOUSE.fixedLoan}÷${N_HOUSE.income}은 ${N_HOUSE.ratio}입니다. 이 비율이 50%에 가까우면 소득이 조금만 줄어도 ③이 0에 붙습니다.`,
+      `금리가 6%로 오르면 ②는 ${N_HOUSE.fixedLoan6}, ③은 ${N_HOUSE.spare6}입니다. ③이 줄면 가장 먼저 볼 곳은 변동비입니다. 원리금은 계약이라 그 달에 바꿀 수 없기 때문입니다.`,
+      `③이 0원이거나 마이너스라면 세 줄을 다시 쓰는 것이 아니라, 순서를 바꿉니다. 변동비를 줄이고, 고정비 목록을 다시 만들고, 원리금의 금리·기간을 확인하는 순서입니다.`,
+    ],
+  },
+  {
+    h: "고정비를 다시 세면",
+    ps: [
+      `고정비는 '이번 달에 안 써도 다음 달에 또 나가는 돈'입니다. 월세·관리비·통신·보험료·학원비가 여기 들어갑니다. 반대로 식비·교통·여가는 변동비입니다.`,
+      `고정비를 줄이는 방법은 두 가지입니다. 없애기(구독 해지)와 낮추기(요금제 변경·보험 점검)입니다. 작은 금액도 12개월로 환산하면 결정이 달라집니다.`,
+      `대출은 금리와 기간을 함께 봅니다. 중도상환수수료가 남아 있으면 지금 갑는 것이 이득인지 먼저 계산합니다. 갈아타기는 월 납부액이 아니라 총비용으로 비교합니다.`,
+      `보험료도 고정비입니다. 같은 보장을 유지하면서 보험료를 납부는 방법은 보장을 줄이는 것이 아니라 중복을 찾는 것입니다. 비슷한 담보가 두 개 겹쳐 있으면 하나를 정리하는 것으로 시작합니다.`,
+    ],
+  },
+  {
+    h: "평소에 미리 점검하기",
+    ps: [
+      `소득이 한 달 끊기거나 병원비가 나오면 ③은 바로 무더집니다. 그래서 ③의 절반은 비상금으로 따로 두는 것이 안전합니다. 비상금은 수익을 만드는 돈이 아니라, 이 세 줄을 지켜 주는 돈입니다.`,
+      `점검은 세 줄에 날짜를 붙이는 일입니다. 매달 1일 실수령 확인, 5일 고정비·원리금 확인, 25일 남는 돈 확인. 날짜를 정해 두면 점검이 습관이 됩니다.`,
+      `가계는 둘 이상이 함께 결정합니다. 공동비용과 개인비용을 나누고, 줄일 항목을 한 가지씩 정하면 다툼이 줄어듭니다.`,
+    ],
+  },
+  {
+    h: "출처와 기준일",
+    ps: [
+      `기준일 2026. 11. 22. · 원리금은 원리금균등분할상환 공식으로 직접 계산한 가상 값입니다. 실제 금리·수수료는 금융감독원 파인에서 비교하고, 기준금리는 한국은행 자료를 봅니다. 50%라는 비율은 자체 기준입니다.`,
+    ],
+  },
+];
+
+const QUIZ_HOUSE: LessonQuizItem[] = [
+  {
+    q: `실수령 ${N_HOUSE.income}, 고정비 ${N_HOUSE.fixed}, 대출 원리금 ${N_HOUSE.loan4}일 때 (고정비+원리금)은 실수령의 몇 %일까요?`,
+    hint: `고정비와 원리금을 더한 뒤 실수령으로 나눕니다.`,
+    options: [
+      { label: `${N_HOUSE.ratio}`, ok: true, why: `${N_HOUSE.fixedLoan} ÷ ${N_HOUSE.income} = ${N_HOUSE.ratio}입니다.` },
+      { label: "33%", why: "고정비만 새면 나오는 숫자입니다. 원리금을 빼면 안 됩니다." },
+      { label: "10%", why: "대출 이자만 새면 작아 보입니다. 원금 상환도 매달 나가는 돈입니다." },
+    ],
+    explain: "고정비와 원리금을 함께 새야 그 달에 조절할 수 없는 돈이 보입니다.",
+  },
+  {
+    q: `금리가 4%에서 6%로 오르면 월 원리금은 어떻게 될까요?`,
+    hint: `원금은 그대로이고 이자만 늘어납니다.`,
+    options: [
+      { label: `${N_HOUSE.loan4} → ${N_HOUSE.loan6}`, ok: true, why: `이자가 ${N_HOUSE.interest4}에서 ${N_HOUSE.interest6}으로 늘면서 월 ${N_HOUSE.loanDiff}이 늘어납니다.` },
+      { label: "그대로다", why: "변동금리라면 금리가 오를 때 월 납부액도 함께 오릅니다." },
+      { label: "절반으로 준다", why: "금리가 오르면 납부액은 줄지 않습니다." },
+    ],
+    explain: "같은 원금이라도 금리가 오르면 이자가 늘어 월 납부액이 올라갑니다.",
+  },
+  {
+    q: "남는 돈이 줄었습니다. 가장 먼저 볼 곳은 어디일까요?",
+    hint: "그 달에 바로 바꿀 수 있는 돈부터 봅니다.",
+    options: [
+      { label: "변동비에서 줄일 항목 찾기", ok: true, why: "식비·교통·여가는 이번 달에 바꿀 수 있습니다. 원리금은 계약이라 시간이 걸립니다." },
+      { label: "원리금을 바로 줄이기", why: "원리금은 계약이라 즉시 줄이기 어렵습니다. 금리·기간을 다시 보는 절차가 필요합니다." },
+      { label: "소득이 오르기를 기다리기", why: "기다리는 동안에도 고정비와 원리금은 나갑니다." },
+    ],
+    explain: "바로 바꿀 수 있는 돈부터 보면 점검이 실행으로 이어집니다.",
+  },
+];
+
+/* ------------------------------------------------------------------
+   가계 2강 — 보장 공백 5칸, 약관과 건보료에서 갈리는 것 (v8.3.0)
+   ------------------------------------------------------------------ */
+const DIAG = 3000; // 진단비 가상 금액(만원)
+const UN_PAY = Math.round(DIAG * 0.2); // 유사암 20% → 600만
+const BOUND_PAY = Math.round(DIAG * 0.1); // 경계성 10% → 300만
+const UN_REDUCED = Math.round(UN_PAY * 0.5); // 감액 50% → 300만
+
+const N_COVER = {
+  diag: MONTHLY(DIAG * 10000),
+  un: MONTHLY(UN_PAY * 10000),
+  bound: MONTHLY(BOUND_PAY * 10000),
+  reduced: MONTHLY(UN_REDUCED * 10000),
+  unRate: pct(0.2, 0),
+  boundRate: pct(0.1, 0),
+  reduce: pct(0.5, 0),
+  waiting: "90일",
+  reducePeriod: "1~2년",
+  silson4: pct(0.2, 0),
+  silson5: pct(0.5, 0),
+  pensionTax: MONTHLY(1500 * 10000),
+  dependent: MONTHLY(2000 * 10000),
+};
+
+const READING_COVER: ReadingSection[] = [
+  {
+    h: "가입금액보다 조건",
+    ps: [
+      `보장은 가입금액이 아니라 지급 조건에서 갈립니다. 같은 ${N_COVER.diag}이라도 유사암은 일반암의 ${N_COVER.unRate}, 1년 안에 진단받으면 감액 ${N_COVER.reduce}가 붙어 ${N_COVER.reduced}이 될 수 있습니다.`,
+      `그래서 증권을 볼 때 다섯 칸을 봅니다. ① 실손 세대별 자기부담 ② 면책·감액 기간 ③ 유사암·경계성종양 지급률 ④ 수술비 종수 ⑤ 사적연금과 건보료 경계입니다.`,
+      `다섯 칸은 모두 약관과 공시에서 확인할 수 있습니다. 광고에는 잘 나오지 않습니다. 큰 숫자가 먼저 눈에 들어와도, 실제로 받는 돈은 이 다섯 칸에서 정해집니다.`,
+    ],
+  },
+  {
+    h: "실손과 면책·감액",
+    ps: [
+      `실손은 세대마다 자기부담이 다릅니다. 4세대는 급여 ${N_COVER.silson4} 수준, 5세대는 비중증 비급여 ${N_COVER.silson5}입니다. 같은 병원비라도 내가 내는 돈이 달라집니다.`,
+      `면책기간은 그 기간에 생긴 질병을 보장하지 않는 기간이고, 감액기간은 보장금액을 깎아 지급하는 기간입니다. 암 보험은 면책 ${N_COVER.waiting}, 감액 ${N_COVER.reducePeriod}가 흔합니다.`,
+      `가입한 날짜가 중요합니다. 같은 날 가입해도 면책이 끝나는 날짜가 다르면 보장이 시작되는 날이 다릅니다. 병원 기록을 확인할 때 이 날짜부터 봅니다.`,
+    ],
+  },
+  {
+    h: "유사암과 수술비",
+    ps: [
+      `유사암과 경계성종양은 일반암과 지급률이 다릅니다. 진단비 ${N_COVER.diag}의 ${N_COVER.unRate}면 ${N_COVER.un}, ${N_COVER.boundRate}면 ${N_COVER.bound}입니다. 이름이 비슷해도 약관의 정의가 다르면 다른 담보입니다.`,
+      `수술비는 '몇 종'까지 보장하는지가 핵심입니다. 1종·2종·N종 기준이 상품마다 달라서, 같은 수술도 지급 여부가 갈립니다.`,
+      `진단비가 커도 지급 조건이 좀으면 실제로 받는 돈은 작습니다. 반대로 조건이 넓으면 작은 진단비도 자주 쓰입니다.`,
+    ],
+  },
+  {
+    h: "연금과 건보료의 경계",
+    ps: [
+      `연금을 받을 때도 경계가 있습니다. 사적연금은 연 ${N_COVER.pensionTax}까지 3.3~5.5%로 원천징수되고, 공적연금 소득이 연 ${N_COVER.dependent}을 넘으면 건강보험 피부양자 자격을 잃을 수 있습니다.`,
+      `보장 공백을 줄이는 일은 보험료를 더 내는 일이 아니라, 이미 든 보장이 실제로 작동하는지 확인하는 일입니다. 확인하지 않은 보장은 없는 보장과 같습니다.`,
+      `실손은 세대별 자기부담이 다르고, 진단비는 유사암·감액·면책에서 깎입니다. 세 가지를 모르면 같은 병원비에도 내가 내는 돈이 달라집니다.`,
+      `연금도 같은 방식으로 봅니다. 사적연금은 연 ${N_COVER.pensionTax}까지 원천징수로 끝나지만, 공적연금 소득이 연 ${N_COVER.dependent}을 넘으면 건보료가 새로 붙을 수 있습니다.`,
+      `약관은 어렵지만 다섯 단어만 찾으면 됩니다. 면책·감액·지급률·종수·경계, 이 다섯 단어를 증권에서 찾아 표시합니다.`,
+      `표시한 뒤에는 가족과 한 번 나눕니다. 누가 어떤 보장을 갖고 있는지 서로 알고 있어야, 병원에 갈 때 증권을 찾는 일이 반복되지 않습니다. 보장은 서류가 아니라 그 순간에 작동하는 약속입니다.`,
+      `증권이 오래되어 기억과 다르면 금융감독원 파인에서 가입 내역을 확인합니다. 상품 이름은 달라도 담보 이름과 지급 조건으로 비교하면 됩니다.`,
+    ],
+  },
+  {
+    h: "출처와 기준일",
+    ps: [
+      `기준일 2026. 11. 22. · 실손 자기부담은 금융위원회 보도자료, 피부양자 요건은 국민건강보험법 시행령, 지급률·종수는 보험약관과 금융감독원 공시에서 확인합니다. 지급률과 종수는 상품마다 달라 여기 숫자는 예시입니다.`,
+    ],
+  },
+];
+
+const QUIZ_COVER: LessonQuizItem[] = [
+  {
+    q: `진단비 ${N_COVER.diag}, 유사암 지급률 ${N_COVER.unRate}라면 유사암 진단 시 받는 금액은?`,
+    hint: `진단비에 지급률을 곱합니다.`,
+    options: [
+      { label: `${N_COVER.un}`, ok: true, why: `${N_COVER.diag} × ${N_COVER.unRate} = ${N_COVER.un}입니다.` },
+      { label: `${N_COVER.diag}`, why: "가입금액 전액이 아니라 지급률을 곱한 금액입니다." },
+      { label: `${N_COVER.bound}`, why: `경계성종양 ${N_COVER.boundRate}를 적용한 금액입니다.` },
+    ],
+    explain: "유사암·경계성종양은 일반암과 지급률이 다릅니다.",
+  },
+  {
+    q: `같은 ${N_COVER.diag}이라도 감액기간 1년 안에 진단받고 감액 ${N_COVER.reduce}가 붙으면 얼마를 받을까요?`,
+    hint: `지급률을 적용한 금액에 감액률을 한 번 더 곱합니다.`,
+    options: [
+      { label: `${N_COVER.reduced}`, ok: true, why: `${N_COVER.un} × ${N_COVER.reduce} = ${N_COVER.reduced}입니다.` },
+      { label: `${N_COVER.un}`, why: "감액이 붙으면 지급률을 적용한 금액에서 한 번 더 깎입니다." },
+      { label: "0원", why: "감액은 지급을 막는 것이 아니라 금액을 줄이는 것입니다." },
+    ],
+    explain: "면책은 보장하지 않는 기간, 감액은 깎아 지급하는 기간입니다.",
+  },
+  {
+    q: "건강보험 피부양자 자격이 흔들리는 기준으로 맞는 것은?",
+    hint: "사적연금의 과세 기준과 공적연금의 피부양자 기준은 다릅니다.",
+    options: [
+      { label: `공적연금 소득 연 ${N_COVER.dependent} 초과`, ok: true, why: "피부양자 요건은 공적연금 소득과 재산을 함께 봅니다." },
+      { label: `사적연금 연 ${N_COVER.pensionTax} 초과`, why: "사적연금 1,500만 원은 분리과세·종합과세가 갈리는 과세 기준입니다." },
+      { label: "나이 65세 초과", why: "나이만으로 자격이 정해지지 않습니다. 소득·재산 요건을 봅니다." },
+    ],
+    explain: "사적연금은 1,500만 원(과세), 공적연금은 2,000만 원(피부양자)으로 기준이 다릅니다.",
+  },
+];
+
+/* ------------------------------------------------------------------
+   강의 5개
    ------------------------------------------------------------------ */
 export const SCHOOL_LESSONS: AcademyLesson[] = [
   {
@@ -743,6 +1001,226 @@ export const SCHOOL_LESSONS: AcademyLesson[] = [
     quiz: { items: QUIZ_PAY },
     reading: READING_PAY,
   },
+  {
+    slug: "school-household-cashflow",
+    track: "household",
+    thesis: `실수령 ${N_HOUSE.income}에서 고정비와 대출 원리금 ${N_HOUSE.fixedLoan}을 먼저 빼면 남는 돈은 ${N_HOUSE.spare}입니다. 남는 돈을 세는 것이 아니라, 그 달에 줄일 수 없는 돈을 먼저 빼는 순서입니다.`,
+    step: 0,
+    no: 1,
+    label: "가계 1강",
+    shortTitle: "가계 현금흐름 3줄",
+    title: "고정비·대출 원리금, 가계 현금흐름 3줄 점검 — 남는 돈은 어디서 줄까?",
+    question: "가계에서 먼저 볼 세 줄은 무엇일까",
+    readingMinutes: 5,
+    hook: `같은 실수령 ${N_HOUSE.income}이라도 대출 원리금 ${N_HOUSE.loan4}이 꺼 있는 가계와 그렇지 않은 가계는 남는 돈이 ${N_HOUSE.loan4}만큼 다릅니다.`,
+    fork: {
+      short: {
+        tag: "고정비가 많다",
+        head: "날짜가 정해진 돈부터",
+        body: `월세·통신·보험료처럼 매달 같은 날 나가는 돈을 먼저 셀니다. 고정비 ${N_HOUSE.fixed}과 원리금 ${N_HOUSE.loan4}을 더하면 ${N_HOUSE.fixedLoan}입니다.`,
+        verdict: "변동비를 줄이기 전에 고정비 목록을 먼저 만듭니다.",
+      },
+      long: {
+        tag: "대출 원리금이 크다",
+        head: "금리와 기간을 나눠 봅니다",
+        body: `원리금 ${N_HOUSE.loan4} 중 이자는 ${N_HOUSE.interest4}입니다. 금리가 6%가 되면 원리금은 ${N_HOUSE.loan6}으로 늘어납니다.`,
+        verdict: "이 글의 주제입니다. 아래에서 세 줄과 비율을 계산합니다.",
+      },
+    },
+    keyNumbers: [
+      { label: "실수령", value: N_HOUSE.income },
+      { label: "고정비+원리금", value: N_HOUSE.fixedLoan },
+      { label: "남는 돈", value: N_HOUSE.spare },
+    ],
+    numbers: N_HOUSE,
+    calculator: {
+      name: "가계 현금흐름 3줄 계산기",
+      href: "#sheet",
+      note:
+        "이 페이지 아래 운영표가 계산기입니다. 실수령·고정비·원리금·변동비를 고르면 남는 돈과 고정비 비율이 함께 나옵니다(입력값은 화면에만).",
+    },
+    scenarios: [
+      {
+        id: "three",
+        label: "세 줄",
+        title: `${N_HOUSE.income} − ${N_HOUSE.fixedLoan} − ${N_HOUSE.variable} = ${N_HOUSE.spare}`,
+        settings: ["실수령 500만원", "고정비 160만원", "대출 원리금 61만원 · 변동비 140만원"],
+        result: `남는 돈 ${N_HOUSE.spare}`,
+        expect: "세 줄을 쓰면 남는 돈은 자동으로 정해집니다.",
+        href: "#sheet",
+        cta: "운영표에서 이 값 채우기",
+      },
+      {
+        id: "rate",
+        label: "금리 6%",
+        title: `원리금 ${N_HOUSE.loan4} → ${N_HOUSE.loan6} · 남는 돈 ${N_HOUSE.spare6}`,
+        settings: ["대출 1억원 · 20년", "금리 4% → 6%", "원리금균등분할상환"],
+        result: `월 ${N_HOUSE.loanDiff} 증가`,
+        expect: "원금은 그대로이고 이자만 늘어납니다.",
+        href: "#sheet",
+        cta: "운영표에서 이 값 채우기",
+      },
+      {
+        id: "ratio",
+        label: "비율",
+        title: `(${N_HOUSE.fixed} + ${N_HOUSE.loan4}) ÷ ${N_HOUSE.income} = ${N_HOUSE.ratio}`,
+        settings: ["고정비 160만원", "원리금 61만원", "실수령 500만원"],
+        result: `${N_HOUSE.ratio}`,
+        expect: "50%에 가까우면 소득이 줄 때 남는 돈이 먼저 사라집니다.",
+        href: "#sheet",
+        cta: "운영표에서 이 값 채우기",
+      },
+    ],
+    sources: [
+      {
+        label: "금융감독원 파인 — 대출 금리 비교",
+        what: "금융회사별 대출 금리와 상환 조건을 상품명 없이 비교",
+        url: "https://fine.fss.or.kr/",
+        host: "fine.fss.or.kr",
+      },
+      {
+        label: "한국은행 — 기준금리·통화정책",
+        what: "금리 변동의 출발점이 되는 기준금리 공표",
+        url: "https://www.bok.or.kr/",
+        host: "bok.or.kr",
+      },
+      {
+        label: "통계청 — 가계금융복지조사",
+        what: "가구의 소득·지출·부채 분포를 보는 국가 통계",
+        url: "https://kostat.go.kr/",
+        host: "kostat.go.kr",
+      },
+    ],
+    cardSet: SET_HOUSEHOLD,
+    sheet: {
+      variant: "household",
+      slotNo: 1,
+      slotTitle: "가계 자금 일정표",
+      line: "실수령·고정비·원리금·변동비를 넣어 세 줄과 남는 돈을 적습니다.",
+    },
+    next: {
+      label: "다음 편",
+      title: "가계 2강 · 보장 공백 5칸",
+      body: "남는 돈을 지키는 다음 단계는 보장 점검입니다. 가입금액이 아니라 약관의 다섯 칸을 봅니다.",
+      href: "/academy/school-household-coverage/",
+      status: "공개",
+    },
+    quiz: { items: QUIZ_HOUSE },
+    reading: READING_HOUSE,
+  },
+  {
+    slug: "school-household-coverage",
+    track: "household",
+    thesis: `같은 ${N_COVER.diag}이라도 유사암 ${N_COVER.unRate}면 ${N_COVER.un}, 감액 ${N_COVER.reduce}가 붙으면 ${N_COVER.reduced}입니다. 가입금액보다 약관의 다섯 칸이 실제 수령액을 정합니다.`,
+    step: 0,
+    no: 2,
+    label: "가계 2강",
+    shortTitle: "보장 공백 5칸",
+    title: `보장 공백 5칸 — 약관과 건보료에서 갈리는 것, 같은 ${N_COVER.diag}이 왜 다를까?`,
+    question: "가입금액과 실제 수령액은 왜 다를까",
+    readingMinutes: 5,
+    hook: `진단비 ${N_COVER.diag}을 넣어도 유사암·감액·면책에서 막히면 손에 들어오는 돈은 ${N_COVER.reduced}입니다.`,
+    fork: {
+      short: {
+        tag: "진단비 숫자만 본다",
+        head: "큰 숫자보다 조건",
+        body: `진단비 ${N_COVER.diag}이 같아도 유사암은 ${N_COVER.unRate}입니다. 이름이 다르면 담보도 지급률도 다릅니다.`,
+        verdict: "증권에서 다섯 칸을 먼저 찾아 표시합니다.",
+      },
+      long: {
+        tag: "약관을 뜯어본다",
+        head: "다섯 칸만 찾으면 됩니다",
+        body: `실손 자기부담 · 면책·감액 · 유사암 지급률 · 수술비 종수 · 연금과 건보료 경계. 이 다섯 칸이 실제 수령액을 정합니다.`,
+        verdict: "이 글의 주제입니다. 아래에서 내 증권 숫자로 계산합니다.",
+      },
+    },
+    keyNumbers: [
+      { label: "진단비", value: N_COVER.diag },
+      { label: "유사암", value: N_COVER.un },
+      { label: "감액 후", value: N_COVER.reduced },
+    ],
+    numbers: N_COVER,
+    calculator: {
+      name: "보장 공백 5칸 계산기",
+      href: "#sheet",
+      note:
+        "이 페이지 아래 운영표가 계산기입니다. 진단비·암 구분·감액을 고르면 예상 수령액이 나옵니다(입력값은 화면에만).",
+    },
+    scenarios: [
+      {
+        id: "usual",
+        label: "유사암",
+        title: `${N_COVER.diag} × ${N_COVER.unRate} = ${N_COVER.un}`,
+        settings: ["진단비 3,000만원", "유사암 지급률 20%", "면책 지난 뒤"],
+        result: `${N_COVER.un}`,
+        expect: "일반암과 같은 금액을 기대하면 안 됩니다.",
+        href: "#sheet",
+        cta: "운영표에서 이 값 계산하기",
+      },
+      {
+        id: "reduced",
+        label: "감액 50%",
+        title: `${N_COVER.un} × ${N_COVER.reduce} = ${N_COVER.reduced}`,
+        settings: ["진단비 3,000만원", "유사암 20%", "감액기간 1년 안"],
+        result: `${N_COVER.reduced}`,
+        expect: "감액은 지급을 막지 않고 금액을 줄입니다.",
+        href: "#sheet",
+        cta: "운영표에서 이 값 계산하기",
+      },
+      {
+        id: "boundary",
+        label: "경계성",
+        title: `${N_COVER.diag} × ${N_COVER.boundRate} = ${N_COVER.bound}`,
+        settings: ["진단비 3,000만원", "경계성종양 10%", "일반암과 다른 담보"],
+        result: `${N_COVER.bound}`,
+        expect: "이름이 비슷해도 약관 정의가 다르면 다른 담보입니다.",
+        href: "#sheet",
+        cta: "운영표에서 이 값 계산하기",
+      },
+    ],
+    sources: [
+      {
+        label: "금융위원회 — 실손의료보험 제도 안내",
+        what: "5세대 실손의 자기부담 구조와 시행 시기 보도자료",
+        url: "https://www.fsc.go.kr/",
+        host: "fsc.go.kr",
+      },
+      {
+        label: "국민건강보험공단 — 피부양자 자격 안내",
+        what: "피부양자 소득·재산 요건(공적연금 연 2,000만원 기준)",
+        url: "https://www.nhis.or.kr/",
+        host: "nhis.or.kr",
+      },
+      {
+        label: "금융감독원 파인 — 보험상품 공시",
+        what: "약관·보험료·지급 기준을 상품명 없이 확인",
+        url: "https://fine.fss.or.kr/",
+        host: "fine.fss.or.kr",
+      },
+      {
+        label: "법제처 국가법령정보센터 — 보험업법",
+        what: "약관 설명 의무와 보험 계약의 기본 규칙",
+        url: "https://www.law.go.kr/",
+        host: "law.go.kr",
+      },
+    ],
+    cardSet: SET_COVERAGE,
+    sheet: {
+      variant: "coverage",
+      slotNo: 1,
+      slotTitle: "약관 읽기표",
+      line: "진단비와 지급률·감액을 넣어 예상 수령액을 적고, 다섯 칸을 표시합니다.",
+    },
+    next: {
+      label: "다음 편",
+      title: "FL-30 · 교육비와 노후의 동시 계획",
+      body: "가까운 목표와 먼 목표를 나눠 월 배분을 정합니다. 다음 편에서 두 기한을 함께 놓고 계산합니다.",
+      href: "/academy/#school-weeks",
+      status: "준비중",
+    },
+    quiz: { items: QUIZ_COVER },
+    reading: READING_COVER,
+  },
 ];
 
 /** 강의별 원고 글자 수 — 빌드 가드와 화면 표기가 함께 읽는다 */
@@ -758,4 +1236,4 @@ export const SCHOOL_LESSON_CHARS: Record<string, number> = Object.fromEntries(
 
 export const schoolLessonBySlug = (slug: string) => SCHOOL_LESSONS.find((l) => l.slug === slug);
 
-export const schoolCardSets = [SET_ALLOWANCE, SET_TEEN_PAY, SET_FIRSTPAY];
+export const schoolCardSets = [SET_ALLOWANCE, SET_TEEN_PAY, SET_FIRSTPAY, SET_HOUSEHOLD, SET_COVERAGE];

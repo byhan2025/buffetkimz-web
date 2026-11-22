@@ -79,10 +79,18 @@ export type SheetVariant =
   /** v8.2.0 학교 트랙 — 청소년 구독·BNPL */
   | "teenplan"
   /** v8.2.0 학교 트랙 — 첫 월급 실수령 */
-  | "firstpay";
+  | "firstpay"
+  /** v8.3.0 STEP 3 — 투자정책서(3층 비율·손실 한도) */
+  | "policy"
+  /** v8.3.0 STEP 3 — ETF 기간 비용 점검 */
+  | "etfcheck"
+  /** v8.3.0 학교 트랙 가계 — 현금흐름 3줄 */
+  | "household"
+  /** v8.3.0 학교 트랙 가계 — 보장 공백 5칸 */
+  | "coverage";
 
-/** 강의가 속한 트랙 — 성인 실전 6 STEP과 학교 3트랙을 가른다 */
-export type LessonTrack = "adult" | "elementary" | "teen" | "firstpay";
+/** 강의가 속한 트랙 — 성인 실전 6 STEP과 학교 4트랙을 가른다 */
+export type LessonTrack = "adult" | "elementary" | "teen" | "firstpay" | "household";
 
 /** 한 화면 한 질문 퀴즈의 선택지 — 정답은 색이 아니라 글자·아이콘으로 알린다 */
 export type LessonQuizOption = {
@@ -238,8 +246,44 @@ const SET_ISA_BASICS: LessonCardSet = {
   ],
 };
 
+/** E. 반 토막이면 두 배 — STEP 3 (3-1강). v8.3.0에서 손글씨 6장과 캡션을 맞췄다. */
+const SET_DRAWDOWN: LessonCardSet = {
+  id: "drawdown-recovery-hand",
+  title: "반 토막이면 두 배 — 낙폭과 회복",
+  meta: "손글씨 카드 6장 · 낙폭 · 회복률 · 변동성",
+  href: "/gallery/?cat=carousel",
+  startIndex: 0,
+  slides: [
+    card("drawdown-recovery", 1, "표지 — 낙폭과 회복의 비대칭", "V자 골짜기 아래에 선 마스코트와 반대편 언덕 위의 작은 깃발"),
+    card("drawdown-recovery", 2, "오해 vs 팩트 — +50%면 본전? / 반 토막 뒤엔 +100%", "왼쪽은 금 간 동전을 든 걱정스러운 마스코트, 오른쪽은 깃발이 있는 긴 사다리를 오르는 마스코트"),
+    card("drawdown-recovery", 3, "구간별 회복률 — −10%→+11.1%, −20%→+25%, −30%→+42.9%, −50%→+100%", "동전이 담긴 네 개의 단지와 자, 네 줄 비교표"),
+    card("drawdown-recovery", 4, "함정 — 변동성 끌림, 오를수록 덜 오릅니다", "울퉁불퉁한 길에서 동전을 떨어뜨리는 수레와 옆의 평평한 길"),
+    card("drawdown-recovery", 5, "낙폭을 줄이는 두 장치 — 분산과 현금 비중", "우산 두 개와 달걀 바구니, 동전 주머니를 든 마스코트"),
+    card("drawdown-recovery", 6, "원칙 — 크게 잃지 않는 포트폴리오 규칙", "방패와 클립보드를 든 마스코트와 3줄 체크리스트"),
+  ],
+};
+
+/** D. ETF 6개 숫자 — STEP 3 (3-2강) */
+const SET_ETF_NUMBERS: LessonCardSet = {
+  id: "etf-6numbers-3d",
+  title: "수익률 전에 볼 ETF 6개 숫자",
+  meta: "3D 스토리 카드 6장 · 비용 · 유동성 · 추적",
+  href: "/gallery/?cat=carousel",
+  startIndex: 0,
+  slides: [
+    card("etf-6numbers", 1, "표지 — 수익률 전에 볼 6개 숫자", "여섯 개의 빈 계기판 다이얼이 달린 콘솔, 확대경으로 다이얼을 들여다보는 캐릭터와 '수익률 전에 볼 ETF 6개 숫자'"),
+    card("etf-6numbers", 2, "오해 vs 팩트 — 보수만 싸면 제일 싼 ETF? / 총비용으로 비교", "왼쪽은 아주 작은 가격표가 달린 택배 상자를 든 캐릭터, 오른쪽은 저울 아래 숨은 추 때문에 기운 상자"),
+    card("etf-6numbers", 3, "숫자 ① ② — 순자산과 거래량, 클수록 유동성", "동전이 수북한 큰 좌판과 줄을 선 미니어처 군중, 위에서 깔때기로 동전이 쏟아지는 시장"),
+    card("etf-6numbers", 4, "숫자 ③ ④ — 총보수+기타비용이 실제 비용", "물 위로 드러난 작은 빙산 끝과 물속의 거대한 얼음 덩어리, 옆 작은 배에 탄 캐릭터"),
+    card("etf-6numbers", 5, "숫자 ⑤ ⑥ — 추적오차·괴리율, 지수를 얼마나 따라가나", "트랙에서 줄무늬 주자가 앞서 달리고, 캐릭터가 눈금 없는 긴 줄자를 들고 뒤쫓는 장면"),
+    card("etf-6numbers", 6, "매수 전 10초 — 체크 3가지", "빈 문자판의 큰 회중시계와 세 개의 빈 타일, 손가락을 들어 알려 주는 캐릭터"),
+  ],
+};
+
 export const cardSetById = (id: string): LessonCardSet | undefined =>
-  [SET_THREE_BUCKETS, SET_TAX_MOMENTS, SET_ACCOUNT_ORDER, SET_ISA_BASICS].find((s) => s.id === id);
+  [SET_THREE_BUCKETS, SET_TAX_MOMENTS, SET_ACCOUNT_ORDER, SET_ISA_BASICS, SET_DRAWDOWN, SET_ETF_NUMBERS].find(
+    (s) => s.id === id,
+  );
 
 /* ------------------------------------------------------------------
    1-1강 — 월급이 들어오면 가장 먼저 나눌 3개의 통장
@@ -572,6 +616,152 @@ const READING_23: ReadingSection[] = [
     h: "출처와 기준일",
     ps: [
       `근거는 소득세법 제59조의3입니다. 숫자의 기준일은 2026. 11. 22.이고, 제도가 바뀌면 이 글의 금액도 함께 달라집니다. 아래 1차 출처에서 직접 확인해 보세요.`,
+    ],
+  },
+];
+
+/* ------------------------------------------------------------------
+   3-1강 — 반 토막이면 두 배, 낙폭과 회복 (v8.3.0)
+   · 회복률 = 1 ÷ (1 − 낙폭) − 1. 전망이 아니라 산술 조건이다.
+   ------------------------------------------------------------------ */
+const BASE_INVEST = 1000; // 설명용 투자금(만원)
+const recoveryRate = (dd: number) => 1 / (1 - dd) - 1;
+const DD10 = recoveryRate(0.1);
+const DD20 = recoveryRate(0.2);
+const DD30 = recoveryRate(0.3);
+const DD50 = recoveryRate(0.5);
+const afterLoss = (dd: number) => Math.round(BASE_INVEST * (1 - dd));
+const roundTrip = 1.5 * 0.5 - 1; // +50% 뒤 −50%
+const twiceHalf = 0.5 * 0.5; // −50%가 두 번
+
+const N31 = {
+  base: manLabel(BASE_INVEST),
+  d10: pct(0.1, 0),
+  d20: pct(0.2, 0),
+  d30: pct(0.3, 0),
+  d50: pct(0.5, 0),
+  rec10: pct(DD10),
+  rec20: pct(DD20),
+  rec30: pct(DD30),
+  rec50: pct(DD50),
+  left20: manLabel(afterLoss(0.2)),
+  left30: manLabel(afterLoss(0.3)),
+  left50: manLabel(afterLoss(0.5)),
+  halfBack: manLabel(Math.round(afterLoss(0.5) * 1.5)),
+  roundTrip: pct(roundTrip),
+  twiceHalf: pct(twiceHalf, 0),
+  loss75: pct(1 - twiceHalf, 0),
+  rec300: pct(1 / twiceHalf - 1, 0),
+  loss20after20: pct(0.8 * 1.2 - 1),
+  years: "7년",
+};
+
+const READING_31: ReadingSection[] = [
+  {
+    h: "한 문장으로 답하면",
+    ps: [
+      `반 토막이 나면 본전까지 두 배가 필요합니다. ${N31.base}이 ${N31.d50} 빠져 ${N31.left50}이 되고, 그 ${N31.left50}이 다시 ${N31.base}이 되려면 ${N31.rec50}가 있어야 합니다. 낙폭과 회복은 같은 크기의 반대말이 아닙니다.`,
+      `계산은 한 줄입니다. 회복에 필요한 상승률은 1 ÷ (1 − 낙폭) − 1입니다. ${N31.d10}이면 ${N31.rec10}, ${N31.d20}이면 ${N31.rec20}, ${N31.d30}이면 ${N31.rec30}, ${N31.d50}이면 ${N31.rec50}입니다. 낙폭이 커질수록 필요한 상승률은 가파르게 커집니다.`,
+      `그래서 손실을 줄이는 일이 수익률을 조금 더 올리는 일보다 먼저입니다. ${N31.rec30}의 상승을 기다리는 대신 그 하락을 피하면, 같은 돈으로 더 짧은 시간에 본전에 돌아옵니다. 낙폭을 줄이는 결정은 수익률을 고르는 일보다 단순하고, 효과는 더 오래갑니다.`,
+      `이 글의 숫자는 모두 같은 투자금 ${N31.base}에서 출발했습니다. 금액이 달라도 비율은 같으므로, 내 통장 숫자에 대입해 같은 방식으로 계산할 수 있습니다.`,
+    ],
+  },
+  {
+    h: "기준이 작아지기 때문입니다",
+    ps: [
+      `왜 이런 차이가 생길까요. 수익률은 늘 '지금 있는 돈'을 기준으로 계산하기 때문입니다. ${N31.base}에서 ${N31.d50}를 잃으면 기준이 ${N31.left50}으로 바뀌고, 그 ${N31.left50}에 ${N31.d50}를 더해도 ${N31.halfBack}입니다. 원래 금액의 75%입니다.`,
+      `흔한 착각이 '50% 빠졌으니 50% 오르면 본전'입니다. 빠질 때의 기준과 오를 때의 기준이 다르므로 두 비율은 서로 상쇄되지 않습니다. ${N31.d20} 뒤 ${N31.d20} 상승은 0.8 × 1.2 = 0.96, 즉 ${N31.loss20after20} 손실입니다.`,
+      `같은 이유로 ${N31.d50}가 두 번 오면 0.5 × 0.5 = ${N31.twiceHalf}, ${N31.loss75}가 사라집니다. 이때 본전까지는 ${N31.rec300}가 필요합니다. 손실이 반복될수록 회복은 산술적으로 더 멀어집니다.`,
+    ],
+  },
+  {
+    h: "내 숫자로 옮기면",
+    ps: [
+      `${N31.base}을 굴린다고 해 봅니다. ${N31.d20} 하락이면 ${N31.left20}, 본전까지 ${N31.rec20}입니다. ${N31.d30}이면 ${N31.left30}, ${N31.rec30}입니다. ${N31.d50}이면 ${N31.left50}, ${N31.rec50}입니다. 같은 ${N31.base}인데 필요한 상승률이 ${N31.rec20}에서 ${N31.rec50}로 벌어집니다.`,
+      `손실을 만회하는 동안에도 시간은 흐릅니다. ${N31.rec50}를 만드는 데 ${N31.years}이 걸리면 그 기간은 수익이 아니라 회복에 쓴 시간입니다. 기회비용까지 더하면 반 토막의 실제 비용은 숫자보다 큽니다.`,
+      `그래서 '얼마를 벌 것인가'보다 '얼마까지 잃을 것인가'를 먼저 정합니다. 손실 한도를 ${N31.d20}로 정해 두면 그 지점에서 비중을 줄이는 규칙을 미리 세울 수 있습니다.`,
+    ],
+  },
+  {
+    h: "변동성 끌림과 두 장치",
+    ps: [
+      `오르내림이 반복되면 산술평균보다 실제 결과가 낮아집니다. +50%와 ${N31.d50}를 한 번씩 겪으면 1.5 × 0.5 = 0.75, ${N31.roundTrip}입니다. 두 해의 평균 수익률은 0%인데 통장은 줄어 있습니다. 이것을 변동성 끌림이라고 부릅니다.`,
+      `그래서 수익률이 같은 두 상품도 오르내림이 크면 결과가 다릅니다. 광고에 적힌 평균 수익률만 보면 이 차이를 알 수 없습니다. 최근 몇 해의 최대 낙폭을 함께 봐야 합니다.`,
+      `낙폭을 줄이는 장치는 두 가지입니다. 자산을 나눠 담는 분산과, 급할 때 꺼낼 현금 비중입니다. 현금은 수익이 0에 가깝지만, 하락장에서 강제 매도를 막아 회복할 시간을 벌어 줍니다.`,
+    ],
+  },
+  {
+    h: "출처와 기준일",
+    ps: [
+      `회복률 공식은 자체 정리이고 수익률 전망이 아니라 산술 조건입니다. 펀드·ETF의 기준가와 수익률은 금융투자협회 전자공시에서, 위험 등급과 투자설명서는 금융감독원 파인에서 확인합니다. 숫자의 기준일은 2026. 11. 22.입니다.`,
+    ],
+  },
+];
+
+/* ------------------------------------------------------------------
+   3-2강 — 지수 ETF, 이름 말고 6개 숫자부터 (v8.3.0)
+   · 10년 비용은 단순 합계다(복리 미반영). 비용률은 화면과 글에서 같은 상수로 만든다.
+   ------------------------------------------------------------------ */
+const ETF_FEE = { low: 0.0005, mid: 0.0015, high: 0.0045, other: 0.0002 } as const;
+const ETF_BASE = 1000; // 10년 둘 금액(만원)
+const etfCost = (fee: number) => Math.round(ETF_BASE * (fee + ETF_FEE.other) * 10);
+
+const N32 = {
+  base: manLabel(ETF_BASE),
+  feeLow: pct(ETF_FEE.low, 2),
+  feeMid: pct(ETF_FEE.mid, 2),
+  feeHigh: pct(ETF_FEE.high, 2),
+  other: pct(ETF_FEE.other, 2),
+  costLow: manLabel(etfCost(ETF_FEE.low)),
+  costMid: manLabel(etfCost(ETF_FEE.mid)),
+  costHigh: manLabel(etfCost(ETF_FEE.high)),
+  gap: manLabel(etfCost(ETF_FEE.high) - etfCost(ETF_FEE.low)),
+  years: "10년",
+  tracking: pct(0.0025, 2),
+  premium: pct(0.005, 1),
+  hedgeCost: pct(0.001, 1),
+};
+
+const READING_32: ReadingSection[] = [
+  {
+    h: "이름보다 여섯 숫자",
+    ps: [
+      `지수 ETF를 고를 때 이름과 브랜드보다 먼저 볼 것은 여섯 숫자입니다. 총보수, 기타비용, 추적오차, 괴리율, 분배금, 그리고 거래량과 순자산입니다. 환헤지 여부는 그다음에 붙입니다.`,
+      `결론부터 말하면 실제로 내는 비용은 총보수에 기타비용을 더한 값입니다. 총보수만 보면 싸 보이는 상품도 기타비용을 더하면 순서가 바뀝니다. 두 숫자는 같은 문서에 나란히 적혀 있습니다.`,
+      `여섯 숫자는 모두 운용보고서·투자설명서·거래소 공시에서 확인할 수 있습니다. 반면 광고 문구에는 이 숫자가 빠져 있는 경우가 많습니다.`,
+    ],
+  },
+  {
+    h: "10년이면 얼마가 나가나",
+    ps: [
+      `${N32.base}을 ${N32.years} 둔다고 해 봅니다. 총보수 ${N32.feeLow}에 기타비용 ${N32.other}를 더하면 연 ${pct(ETF_FEE.low + ETF_FEE.other, 2)}이고, ${N32.years} 단순 합계로 ${N32.costLow}입니다. 총보수 ${N32.feeHigh}인 상품은 ${N32.costHigh}입니다.`,
+      `차이는 ${N32.gap}입니다. 수익률이 같다면 이 차이는 그대로 남습니다. 비용은 정해진 만큼 나가고 수익은 정해져 있지 않기 때문에, 비용은 비교적 확실한 기준입니다. 같은 지수 안에서 고민된다면 비용부터 비교해 두는 편이 낫습니다.`,
+      `총보수는 운용사가 받는 몫이고 기타비용은 지수 사용료·감사·결제 같은 부대비용입니다. 매매중개수수료는 운용 방식에 따라 달라 별도로 봅니다. 위 계산은 단순 합계이고 복리는 넣지 않았습니다.`,
+      `비용률은 소수점 둘째 자리에서 갈리는 경우가 많습니다. ${N32.feeLow}와 ${N32.feeMid}의 차이는 작아 보이지만, 금액이 커지고 기간이 길어지면 같은 비율로 커집니다.`,
+    ],
+  },
+  {
+    h: "추적오차와 괴리율",
+    ps: [
+      `추적오차는 ETF가 기초지수를 얼마나 잘 따라가는지를 나타냅니다. 작을수록 지수와 가깝습니다. 여기서는 ${N32.tracking} 수준을 예로 듭니다. 값은 운용보고서에 적힌 기간 기준으로 비교해야 하고, 기간이 다르면 나란히 놓을 수 없습니다.`,
+      `괴리율은 시장가격과 순자산가치의 차이입니다. 거래가 한산하면 괴리율이 ${N32.premium} 넘게 벌어지기도 합니다. 그 시간대에 사면 같은 상품을 더 비싸게 사는 셈입니다.`,
+      `장 시작 직후와 마감 직전은 호가가 벌어지기 쉽습니다. 급하지 않다면 주문 시간을 나눠 보고, 매수 전에 호가와 괴리율을 함께 확인합니다.`,
+    ],
+  },
+  {
+    h: "분배금과 유동성",
+    ps: [
+      `분배금은 ETF가 보유 자산에서 얻은 이자·배당을 투자자에게 나눠 주는 돈입니다. 받으면 수익이 더해지는 것이 아니라 그만큼 기준가격이 내려갑니다. 재투자하지 않으면 복리 효과는 그 자리에서 끊깁니다.`,
+      `거래량과 순자산은 유동성의 지표입니다. 거래량이 적으면 사고팔 때 가격이 불리하게 정해질 수 있고, 순자산이 작으면 상장폐지 가능성도 함께 봐야 합니다.`,
+      `분배금 지급 주기와 재투자 방식은 상품마다 다릅니다. 같은 지수를 따라가도 내 통장에 남는 금액이 달라지는 이유입니다. 분배금이 많다고 더 좋은 상품이 아니라, 그 돈을 다시 넣었는지가 결과를 가릅니다.`,
+      `유동성은 숫자 두 개로만 봐도 충분합니다. 하루 거래대금과 순자산입니다. 둘 다 작은 상품은 급할 때 불리한 가격을 받아들일 수 있습니다.`,
+    ],
+  },
+  {
+    h: "환헤지와 출처",
+    ps: [
+      `같은 지수를 따라가도 환헤지 여부에 따라 결과가 달라집니다. 환헤지 상품은 환율 변동을 줄이는 대신 비용이 ${N32.hedgeCost} 수준 붙고, 비헤지 상품은 환율이 수익률을 흔듭니다. 어느 쪽이 낫다기보다 내가 감당할 수 있는 변동인지의 문제입니다.`,
+      `숫자의 기준일은 2026. 11. 22.이고, 총보수·기타비용은 금융투자협회 펀드공시, 거래량·괴리율은 거래소 안내에서 확인했습니다. 이 강의는 특정 종목·운용사를 권하지 않습니다.`,
     ],
   },
 ];
@@ -1104,6 +1294,209 @@ export const ACADEMY_LESSONS: AcademyLesson[] = [
       status: "준비중",
     },
     reading: READING_23,
+  },
+  {
+    slug: "step3-drawdown-recovery",
+    thesis: `${N31.d50}에서 본전이 되려면 ${N31.rec50}가 필요합니다. 낙폭과 회복은 같은 크기가 아니라, 잃은 뒤의 기준이 작아져 회복이 더 큰 상승을 요구하는 비대칭입니다.`,
+    step: 3,
+    no: 1,
+    label: "3-1강",
+    shortTitle: "반 토막이면 두 배",
+    title: `반 토막이면 두 배 — 낙폭과 회복, 왜 회복이 더 클까?`,
+    question: `${N31.d50}를 회복하려면 왜 ${N31.rec50}가 필요할까`,
+    readingMinutes: 5,
+    hook: `같은 ${N31.base}이라도 ${N31.d20}에서 멈춘 사람은 ${N31.rec20}, ${N31.d50}까지 간 사람은 ${N31.rec50}를 기다립니다.`,
+    fork: {
+      short: {
+        tag: `${N31.d20}에서 멈췄다`,
+        head: `본전까지 ${N31.rec20}`,
+        body: `${N31.base}이 ${N31.left20}이 되었고, ${N31.left20}에 ${N31.rec20}를 더하면 다시 ${N31.base}입니다. 손실 한도를 정해 둔 사람의 자리입니다.`,
+        verdict: `여기서 멈추면 회복은 한 번의 상승으로 끝납니다.`,
+      },
+      long: {
+        tag: `${N31.d50}까지 갔다`,
+        head: `본전까지 ${N31.rec50}`,
+        body: `${N31.base}이 ${N31.left50}이 되었습니다. ${N31.left50}이 ${N31.base}이 되려면 ${N31.rec50}가 필요하고, 그동안의 시간은 수익이 아니라 회복에 쓰입니다.`,
+        verdict: "이 글의 주제입니다. 아래에서 구간별 회복률을 계산합니다.",
+      },
+    },
+    keyNumbers: [
+      { label: "낙폭", value: N31.d50 },
+      { label: "회복에 필요한 상승", value: N31.rec50 },
+      { label: "남는 돈", value: N31.left50 },
+    ],
+    numbers: N31,
+    calculator: {
+      name: "투자 복리·세후 수익률 계산기",
+      href: "/apps/compound-return/run",
+      note: "해마다 다른 수익률을 넣어, 손실이 난 해 뒤에 원금으로 돌아오는 데 몇 년이 걸리는지 확인합니다(입력값은 화면에만).",
+    },
+    scenarios: [
+      {
+        id: "step20",
+        label: "구간별",
+        title: `${N31.base} · ${N31.d20} 하락 → ${N31.rec20}`,
+        settings: ["투자금 1,000만원", "낙폭 20%", "남은 돈 800만원"],
+        result: `본전까지 ${N31.rec20}`,
+        expect: "800만원의 25%가 200만원입니다.",
+        href: "#sheet",
+        cta: "운영표에서 이 값 채우기",
+      },
+      {
+        id: "half",
+        label: "반 토막",
+        title: `${N31.base} · ${N31.d50} 하락 → ${N31.rec50}`,
+        settings: ["투자금 1,000만원", "낙폭 50%", "남은 돈 500만원"],
+        result: `본전까지 ${N31.rec50}`,
+        expect: "500만원이 두 배가 되어야 1,000만원입니다.",
+        href: "#sheet",
+        cta: "운영표에서 이 값 채우기",
+      },
+      {
+        id: "vol",
+        label: "변동성 끌림",
+        title: `+50% 뒤 ${N31.d50} = ${N31.roundTrip}`,
+        settings: ["1년 +50%", "2년 -50%", "두 해 평균 0%"],
+        result: `${N31.roundTrip} 손실`,
+        expect: "평균 수익률이 같아도 오르내림이 크면 결과가 낮아집니다.",
+      },
+    ],
+    sources: [
+      {
+        label: "금융투자협회 전자공시 — 펀드 기준가·수익률",
+        what: "펀드·ETF의 기준가와 기간 수익률을 원문에서 확인(최대 낙폭 비교의 기준)",
+        url: "https://dis.kofia.or.kr/",
+        host: "dis.kofia.or.kr",
+      },
+      {
+        label: "금융감독원 파인 — 투자설명서·위험등급",
+        what: "상품의 위험등급과 투자설명서 원문(손실 가능 범위)",
+        url: "https://fine.fss.or.kr/",
+        host: "fine.fss.or.kr",
+      },
+      {
+        label: "한국거래소 — 지수 통계",
+        what: "지수의 기간별 등락과 낙폭을 보는 1차 자료",
+        url: "https://www.krx.co.kr/",
+        host: "krx.co.kr",
+      },
+    ],
+    cardSet: SET_DRAWDOWN,
+    sheet: {
+      variant: "policy",
+      slotNo: 3,
+      slotTitle: "투자정책서",
+      line: "투자금·3층 비율·손실 한도를 넣어, 하락 때 무엇을 할지 규칙으로 적습니다.",
+    },
+    next: {
+      label: "다음 강",
+      title: "3-2강 · 지수 ETF, 이름 말고 6개 숫자부터",
+      body: "손실을 줄이는 구조를 정했으니, 이제 그 안에 담을 ETF의 비용과 추적을 숫자로 비교합니다.",
+      href: "/academy/step3-etf-six-numbers/",
+      status: "공개",
+    },
+    reading: READING_31,
+  },
+  {
+    slug: "step3-etf-six-numbers",
+    thesis: `같은 지수를 따라가도 ${N32.base}을 ${N32.years} 두면 비용은 ${N32.costLow}과 ${N32.costHigh}로 갈립니다. 이름보다 총보수+기타비용·추적오차·괴리율·분배금·거래량 여섯 숫자를 먼저 봅니다.`,
+    step: 3,
+    no: 2,
+    label: "3-2강",
+    shortTitle: "지수 ETF 6개 숫자",
+    title: `지수 ETF, 이름 말고 6개 숫자부터 — 무엇을 먼저 볼까?`,
+    question: `같은 지수를 따라가는 ETF는 무엇으로 갈릴까`,
+    readingMinutes: 5,
+    hook: `총보수 ${N32.feeLow}인 상품과 ${N32.feeHigh}인 상품은 ${N32.base}을 ${N32.years} 두면 ${N32.gap} 차이가 납니다.`,
+    fork: {
+      short: {
+        tag: "이름과 브랜드만 본다",
+        head: "같은 지수면 같다고 생각합니다",
+        body: `총보수만 비교하면 기타비용이 빠집니다. 총보수 ${N32.feeLow}에 기타비용 ${N32.other}를 더한 연 ${pct(ETF_FEE.low + ETF_FEE.other, 2)}가 실제로 나가는 비율입니다.`,
+        verdict: `비용은 두 숫자를 더해야 보입니다.`,
+      },
+      long: {
+        tag: "여섯 숫자로 본다",
+        head: "총비용·추적·유동성 순서",
+        body: `총보수+기타비용 → 추적오차 → 괴리율 → 분배금 → 거래량·순자산 순서로 봅니다. 이 순서면 같은 지수 안에서도 내 돈이 덜 새는 쪽을 고를 수 있습니다.`,
+        verdict: "이 글의 주제입니다. 아래에서 비용과 추적을 계산합니다.",
+      },
+    },
+    keyNumbers: [
+      { label: "연 총비용", value: pct(ETF_FEE.low + ETF_FEE.other, 2) },
+      { label: `${N32.years} 비용`, value: N32.costHigh },
+      { label: "비용 차이", value: N32.gap },
+    ],
+    numbers: N32,
+    calculator: {
+      name: "ETF 6개 숫자 점검표",
+      href: "#sheet",
+      note: "이 페이지 아래 운영표가 계산기입니다. 총보수·기타비용과 보유 기간을 넣으면 기간 비용이 나옵니다(입력값은 화면에만).",
+    },
+    scenarios: [
+      {
+        id: "low",
+        label: "낮은 비용",
+        title: `총보수 ${N32.feeLow} + 기타 ${N32.other} = ${N32.years} ${N32.costLow}`,
+        settings: ["보유 금액 1,000만원", "총보수 0.05%", "기타비용 0.02%"],
+        result: `${N32.years} ${N32.costLow}`,
+        expect: "연 0.07%를 단순 합계로 계산했습니다.",
+        href: "#sheet",
+        cta: "운영표에서 이 값 계산하기",
+      },
+      {
+        id: "high",
+        label: "높은 비용",
+        title: `총보수 ${N32.feeHigh} + 기타 ${N32.other} = ${N32.years} ${N32.costHigh}`,
+        settings: ["보유 금액 1,000만원", "총보수 0.45%", "기타비용 0.02%"],
+        result: `${N32.years} ${N32.costHigh}`,
+        expect: "같은 지수여도 운용사·상품에 따라 다릅니다.",
+        href: "#sheet",
+        cta: "운영표에서 이 값 계산하기",
+      },
+      {
+        id: "gap",
+        label: "차이",
+        title: `${N32.costHigh} − ${N32.costLow} = ${N32.gap}`,
+        settings: ["같은 지수·같은 수익률 가정", "10년 보유", "복리 미반영"],
+        result: `${N32.gap} 차이`,
+        expect: "수익률이 같다면 이 차이는 그대로 남습니다.",
+      },
+    ],
+    sources: [
+      {
+        label: "금융투자협회 펀드공시 — 총보수·기타비용",
+        what: "ETF의 총보수와 기타비용, 매매중개수수료를 상품별로 공시",
+        url: "https://dis.kofia.or.kr/",
+        host: "dis.kofia.or.kr",
+      },
+      {
+        label: "한국거래소 — ETF 시장 안내",
+        what: "거래량·순자산·괴리율 등 거래 정보",
+        url: "https://www.krx.co.kr/",
+        host: "krx.co.kr",
+      },
+      {
+        label: "금융감독원 파인 — ETF 투자설명서",
+        what: "추적오차·분배금·환헤지 여부가 적힌 투자설명서 원문",
+        url: "https://fine.fss.or.kr/",
+        host: "fine.fss.or.kr",
+      },
+    ],
+    cardSet: SET_ETF_NUMBERS,
+    sheet: {
+      variant: "etfcheck",
+      slotNo: 3,
+      slotTitle: "투자정책서",
+      line: "총보수·기타비용·보유 기간을 넣어, 고른 ETF의 기간 비용을 적습니다.",
+    },
+    next: {
+      label: "다음 강",
+      title: "3-3강 · 지수 vs 액티브",
+      body: "비용과 초과수익 중 무엇을 먼저 볼지, 같은 기간 수익률로 비교하는 순서를 정리합니다.",
+      status: "준비중",
+    },
+    reading: READING_32,
   },
 ];
 

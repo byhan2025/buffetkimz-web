@@ -277,6 +277,7 @@ export const SCHOOL_WEEKS: SchoolWeek[] = [
     practice: "가상 금리 변동 시나리오 비교",
     check: "비용 범위와 감당 가능한 조건 표시",
     takeaway: "대출 경계표",
+    lessonSlug: "school-household-cashflow",
   },
   {
     week: 28, id: "FL-28", track: "household", target: "가계",
@@ -293,6 +294,7 @@ export const SCHOOL_WEEKS: SchoolWeek[] = [
     practice: "합성 약관에서 정의·면책·증빙 표시",
     check: "같은 금액이어도 결과가 다른 이유 설명",
     takeaway: "약관 읽기표",
+    lessonSlug: "school-household-coverage",
   },
   {
     week: 30, id: "FL-30", track: "household", target: "가계",
@@ -317,6 +319,7 @@ export const SCHOOL_WEEKS: SchoolWeek[] = [
     practice: "소득 감소와 돌발 지출을 함께 적용",
     check: "우선순위와 다음 검토일을 결정",
     takeaway: "완성 가계 자금 일정표",
+    lessonSlug: "school-household-cashflow",
   },
   {
     week: 33, id: "FL-33", track: "asset", target: "자산형성",

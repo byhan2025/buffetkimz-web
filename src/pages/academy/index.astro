@@ -4,7 +4,7 @@
  *
  * ① 히어로 — 프로그램 한 줄 소개 + 숫자(6트랙 52주 · 성인 실전 6 STEP 41강 · 지금 열린 N강) + 첫 강의 버튼
  * ② 트랙 안내 — 초등 · 청소년 · 첫 월급 · 성인 실전 네 갈래를 먼저 보여 준다
- * ③ 지금 열린 강의 — 성인 5강 + 학교 트랙 3강을 카드로 펼친다(트랙 칩 포함)
+ * ③ 지금 열린 강의 — 성인 7강 + 학교 트랙 5강을 카드로 펼친다(트랙 칩 포함)
  * ④ 52주 연재 로드맵 — 7트랙 52주를 탭으로 거르고, 지금 열린 주는 강의로 연결한다
  * ⑤ 성인 실전 6 STEP 로드맵 — 41강을 단계·질문·산출물로 편다
  * ⑥ 수강 경로 3가지 + 진단 3문항 — 성인 실전의 진입점
@@ -63,11 +63,20 @@ const trackCards = [
     status: `1강 열림`,
   },
   {
+    id: "household",
+    name: "가계",
+    weeks: 8,
+    line: "공동비용·주거·보장 조건",
+    body: "실수령에서 고정비와 대출 원리금을 빼는 3줄 점검과, 약관에서 갈리는 보장 공백 5칸을 봅니다.",
+    href: "/academy/school-household-cashflow/",
+    status: `2강 열림`,
+  },
+  {
     id: "adult",
     name: "성인 실전",
     weeks: 41,
     line: "6 STEP · 41강 심화",
-    body: "돈의 기초부터 1년 운영표까지. 지금 5강이 열려 있고, 12편을 우선 제작합니다.",
+    body: "돈의 기초부터 1년 운영표까지. 지금 STEP 3까지 열려 있고, 12편을 우선 제작합니다.",
     href: "#roadmap",
     status: `${adultOpen}강 열림`,
   },
@@ -174,7 +183,7 @@ const jsonLd = graph([
       <div class="sec-head">
         <div>
           <p class="eyebrow">트랙</p>
-          <h2 class="sec-title">용돈부터 은퇴까지<br />네 갈래로 시작합니다</h2>
+          <h2 class="sec-title">용돈부터 은퇴까지<br />다섯 갈래로 시작합니다</h2>
         </div>
         <div class="sec-head-side">
           <p class="sec-desc">
@@ -184,13 +193,13 @@ const jsonLd = graph([
         </div>
       </div>
 
-      <ul class="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <ul class="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         {
           trackCards.map((t) => (
             <li class="card card-lift flex flex-col p-5">
               <div class="flex items-baseline justify-between gap-2">
                 <p class="text-[11px] font-bold tracking-[0.14em] text-brand-deep">{t.name}</p>
-                <span class="chip !min-h-[26px] !text-[12px]">{t.status}</span>
+                <span class="chip whitespace-nowrap !min-h-[26px] !text-[12px]">{t.status}</span>
               </div>
               <p class="mono mt-2 text-[13.5px] font-semibold text-ink">{t.weeks}주 · {t.line}</p>
               <p class="mt-2 flex-1 text-[12.5px] leading-[1.7] text-ink-muted">{t.body}</p>
@@ -214,7 +223,7 @@ const jsonLd = graph([
         </div>
         <div class="sec-head-side">
           <p class="sec-desc">
-            성인 실전 STEP 1·2의 다섯 강과, 초등·청소년·첫 월급의 첫 강입니다.<br />
+            성인 실전 STEP 1·2·3의 일곱 강과, 초등·청소년·첫 월급·가계의 다섯 강입니다.<br />
             어떤 강의든 카드뉴스 6장 → 읽기 → 실습 → 운영표 1칸 순서로 끝납니다.
           </p>
         </div>
@@ -256,8 +265,8 @@ const jsonLd = graph([
       </ul>
 
       <p class="mt-4 text-[12.5px] leading-[1.7] text-ink-faint">
-        초등·청소년 강의는 가상 금액만 쓰고, 입력값을 주소·저장소·서버에 남기지 않습니다. 세 트랙 3강은
-        클라이언트 저장 없이 가상 금액으로만 연습합니다. 세 트랙 3강은 캡처에서 16px·44px 기준을 함께 확인했습니다.
+        초등·청소년 강의는 가상 금액만 쓰고, 입력값을 주소·저장소·서버에 남기지 않습니다. 학교 트랙 5강은
+        클라이언트 저장 없이 가상 금액으로만 연습합니다. 네 트랙 5강은 캡처에서 16px·48px 기준을 함께 확인했습니다.
       </p>
     </div>
   </section>
@@ -273,7 +282,7 @@ const jsonLd = graph([
         <div class="sec-head-side">
           <p class="sec-desc">
             초등 고학년 8 · 청소년 8 · 첫 월급 8 · 가계 8 · 자산형성 8 · 은퇴 8 · 특집 4입니다.<br />
-            지금은 3트랙의 첫 강이 열려 있고, 나머지는 주 1편 순서로 준비합니다.
+            지금은 4트랙 5강이 열려 있고, 나머지는 주 1편 순서로 준비합니다.
           </p>
         </div>
       </div>
@@ -510,7 +519,7 @@ const jsonLd = graph([
           <div data-diagnosis-answer="all" hidden>
             <p class="mt-1 text-[14px] font-bold text-ink">6단계 전체 — 41강</p>
             <p class="mt-1 text-[12.5px] leading-[1.65] text-ink-muted">
-              순서대로 6장의 문서를 남깁니다. 지금은 STEP 1·2의 5강이 열려 있습니다.
+              순서대로 6장의 문서를 남깁니다. 지금은 STEP 1·2·3의 7강이 열려 있습니다.
             </p>
           </div>
           <noscript>

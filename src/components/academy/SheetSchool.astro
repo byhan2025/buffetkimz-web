@@ -16,7 +16,7 @@ import { withBase, site } from "@/config/site";
 import type { SheetVariant } from "@/data/academy-lessons";
 
 interface Props {
-  variant?: Extract<SheetVariant, "allowance" | "teenplan" | "firstpay">;
+  variant?: Extract<SheetVariant, "allowance" | "teenplan" | "firstpay" | "household" | "coverage">;
   slotNo?: number;
   slotTitle?: string;
   line?: string;
@@ -68,6 +68,36 @@ const copy = {
     out: "실수령",
     rows: ["세전", "공제 합계", "실수령", "고정비", "변동비", "남는 돈"],
   },
+  household: {
+    eyebrow: "가계 1편 · 운영표",
+    progress: "가계 자금 일정표 · 0 / 1칸",
+    done: "가계 자금 일정표 · 1 / 1칸",
+    head: "가계 자금 일정표",
+    intro: "실수령과 고정비·대출 원리금·변동비를 고르면 남는 돈과 고정비 비율이 함께 나옵니다.",
+    commit: "이 칸 채우기",
+    again: "값 바꿔서 다시 채우기",
+    a: "실수령",
+    b: "고정비",
+    c: "대출 원리금",
+    d: "변동비",
+    out: "남는 돈",
+    rows: ["실수령", "고정비+원리금", "남는 돈", "고정비 비율", "점검일"],
+  },
+  coverage: {
+    eyebrow: "가계 2편 · 운영표",
+    progress: "약관 읽기표 · 0 / 1칸",
+    done: "약관 읽기표 · 1 / 1칸",
+    head: "약관 읽기표",
+    intro: "진단비와 지급률·감액을 고르면 예상 수령액이 나옵니다. 실제 지급은 약관과 심사로 정해집니다.",
+    commit: "이 칸 채우기",
+    again: "값 바꿔서 다시 채우기",
+    a: "진단비",
+    b: "암 구분",
+    c: "감액",
+    d: "면책",
+    out: "예상 수령액",
+    rows: ["진단비", "지급률", "감액", "예상 수령액", "면책 기간"],
+  },
 }[variant];
 
 const money = (n: number) => `${n.toLocaleString("ko-KR")}원`;
@@ -77,6 +107,7 @@ const money = (n: number) => `${n.toLocaleString("ko-KR")}원`;
   class="sheet"
   data-sheet
   data-variant={variant}
+  data-done={copy.done}
   aria-labelledby="sheet-heading"
 >
   <div class="sheet-head">
@@ -176,7 +207,7 @@ const money = (n: number) => `${n.toLocaleString("ko-KR")}원`;
               </div>
             </fieldset>
           </>
-        ) : (
+        ) : variant === "firstpay" ? (
           <>
             <fieldset class="sheet-field">
               <legend class="sheet-legend">{copy.a} <span class="mono">월급명세서 지급 합계</span></legend>
@@ -218,6 +249,89 @@ const money = (n: number) => `${n.toLocaleString("ko-KR")}원`;
                   <label class="sheet-chip sheet-chip--num">
                     <input type="radio" name="fp-variable" value={v} checked={v === 60} data-sheet-input />
                     <span>{v}만원</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+          </>
+        ) : variant === "household" ? (
+          <>
+            <fieldset class="sheet-field">
+              <legend class="sheet-legend">{copy.a} <span class="mono">통장에 들어온 돈</span></legend>
+              <div class="sheet-chips">
+                {[400, 500, 600].map((v) => (
+                  <label class="sheet-chip sheet-chip--num">
+                    <input type="radio" name="hd-income" value={v} checked={v === 500} data-sheet-input />
+                    <span>{v}만원</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+            <fieldset class="sheet-field">
+              <legend class="sheet-legend">{copy.b} <span class="mono">월세·통신·보험료·학원비</span></legend>
+              <div class="sheet-chips">
+                {[120, 160, 200].map((v) => (
+                  <label class="sheet-chip sheet-chip--num">
+                    <input type="radio" name="hd-fixed" value={v} checked={v === 160} data-sheet-input />
+                    <span>{v}만원</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+            <fieldset class="sheet-field">
+              <legend class="sheet-legend">{copy.c} <span class="mono">원금+이자, 매달 같은 날</span></legend>
+              <div class="sheet-chips">
+                {[40, 61, 100].map((v) => (
+                  <label class="sheet-chip sheet-chip--num">
+                    <input type="radio" name="hd-loan" value={v} checked={v === 61} data-sheet-input />
+                    <span>{v}만원</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+            <fieldset class="sheet-field">
+              <legend class="sheet-legend">{copy.d} <span class="mono">식비·교통·여가</span></legend>
+              <div class="sheet-chips">
+                {[100, 140, 180].map((v) => (
+                  <label class="sheet-chip sheet-chip--num">
+                    <input type="radio" name="hd-var" value={v} checked={v === 140} data-sheet-input />
+                    <span>{v}만원</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+          </>
+        ) : (
+          <>
+            <fieldset class="sheet-field">
+              <legend class="sheet-legend">{copy.a} <span class="mono">가입금액</span></legend>
+              <div class="sheet-chips">
+                {[1000, 3000, 5000].map((v) => (
+                  <label class="sheet-chip sheet-chip--num">
+                    <input type="radio" name="cv-diag" value={v} checked={v === 3000} data-sheet-input />
+                    <span>{v.toLocaleString("ko-KR")}만원</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+            <fieldset class="sheet-field">
+              <legend class="sheet-legend">{copy.b} <span class="mono">일반암 100 · 유사암 20 · 경계성 10</span></legend>
+              <div class="sheet-chips">
+                {[100, 20, 10].map((v) => (
+                  <label class="sheet-chip sheet-chip--num">
+                    <input type="radio" name="cv-rate" value={v} checked={v === 20} data-sheet-input />
+                    <span>{v}%</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+            <fieldset class="sheet-field">
+              <legend class="sheet-legend">{copy.c} <span class="mono">감액기간 안에 진단되었는가</span></legend>
+              <div class="sheet-chips">
+                {[0, 50].map((v) => (
+                  <label class="sheet-chip sheet-chip--num">
+                    <input type="radio" name="cv-reduce" value={v} checked={v === 0} data-sheet-input />
+                    <span>{v === 0 ? "지남" : `−${v}%`}</span>
                   </label>
                 ))}
               </div>
@@ -339,6 +453,48 @@ const money = (n: number) => `${n.toLocaleString("ko-KR")}원`;
           },
         };
       }
+      if (variant === "household") {
+        const income = picked("hd-income") * 10000;
+        const fixed = picked("hd-fixed") * 10000;
+        const loan = picked("hd-loan") * 10000;
+        const variable = picked("hd-var") * 10000;
+        const fixedLoan = fixed + loan;
+        const spare = income - fixedLoan - variable;
+        const ratio = (fixedLoan / income) * 100;
+        return {
+          out: money(spare),
+          state: spare < 0 || ratio > 50 ? "over" : "ok",
+          breakdown:
+            spare < 0
+              ? `고정비·원리금·변동비가 실수령보다 ${money(-spare)} 많아요. 변동비부터 줄여 보세요.`
+              : `고정비+원리금 ${money(fixedLoan)} ÷ 실수령 ${money(income)} = ${ratio.toFixed(1)}%`,
+          rows: {
+            실수령: money(income),
+            "고정비+원리금": money(fixedLoan),
+            "남는 돈": spare < 0 ? `넘었어요 ${money(spare)}` : money(spare),
+            "고정비 비율": `${ratio.toFixed(1)}%${ratio > 50 ? " · 자체 기준 50% 초과" : " · 자체 기준 50% 안"}`,
+            점검일: "매달 1일·5일·25일",
+          },
+        };
+      }
+      if (variant === "coverage") {
+        const diag = picked("cv-diag") * 10000;
+        const rate = picked("cv-rate") / 100;
+        const reduce = picked("cv-reduce") / 100;
+        const payout = diag * rate * (1 - reduce);
+        return {
+          out: money(payout),
+          state: "ok",
+          breakdown: `${money(diag)} × ${Math.round(rate * 100)}%${reduce > 0 ? ` × 감액 ${Math.round(reduce * 100)}%` : ""}`,
+          rows: {
+            진단비: money(diag),
+            지급률: `${Math.round(rate * 100)}%`,
+            감액: reduce > 0 ? `−${Math.round(reduce * 100)}%` : "지남",
+            "예상 수령액": money(payout),
+            "면책 기간": "90일(약관 확인)",
+          },
+        };
+      }
       const gross = picked("fp-gross") * 10000;
       const deduct = picked("fp-deduct") * 10000;
       const fixed = picked("fp-fixed") * 10000;
@@ -386,10 +542,7 @@ const money = (n: number) => `${n.toLocaleString("ko-KR")}원`;
       render();
       if (empty) empty.hidden = true;
       if (filled) filled.hidden = false;
-      if (progressEl) {
-        progressEl.textContent =
-          variant === "allowance" ? "용돈 세 칸 · 1 / 1칸" : variant === "teenplan" ? "구독 정리표 · 1 / 1칸" : "실수령 확인표 · 1 / 1칸";
-      }
+      if (progressEl) progressEl.textContent = root.dataset.done ?? "1 / 1칸";
       commitBtn.textContent = "값 바꿔서 다시 채우기";
       filled?.scrollIntoView({ behavior: "smooth", block: "nearest" });
     });

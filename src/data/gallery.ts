@@ -123,6 +123,71 @@ const yearendSlides: GallerySlide[] = [
 
 export const galleryItems: GalleryItem[] = [
   /**
+   * v8.3.0 — 가계 1강(고정비·대출 원리금, 가계 현금희름 3줄)과 함께 온 1세트(6장).
+   * 스타일은 v8.2.0과 같은 **손글씨 + 형광팼 + 크림지 + 파스텔 2D**다(렌더 `tmp/clay1222/render_household.py`).
+   * 6장 연속 세트라 분류는 `carousel`이고, 카드 속 금액은 모두 가상 예시다.
+   */
+  {
+    id: "household-budget-hand",
+    title: "월 500만, 남는 돈은 어디서 줄까",
+    tagline: "손글씨 카드 6장 · 실수령 500 · 고정비 160 · 원리금 61",
+    summary:
+      "가계 현금희름은 세 줄이면 보입니다. ① 실수령 500만원 ② 고정비 160만원과 대출 원리금 61만원 ③ 남는 돈 139만원. 대출 1억 원을 4%에서 6%로 올리면 원리금이 61만원에서 72만원으로 늘어나는 것까지 한 세트에 담았습니다.",
+    category: "carousel",
+    createdAt: "2026-11-22",
+    tags: ["카드뉴스", "손글씨 다이어그램", "학교 트랙", "가계", "현금희름", "고정비", "대출 원리금"],
+    slides: [
+      {
+        src: "/gallery/3d-household-budget-01.png",
+        width: W,
+        height: H,
+        alt: "표지 — 크림 종이 위 세 줄짜리 장부와 동전, 장부를 가리키는 마스코트",
+        caption: "표지 — 들어오는 돈과 나가는 돈, 세 줄로",
+      },
+      {
+        src: "/gallery/3d-household-budget-02.png",
+        width: W,
+        height: H,
+        alt: "오해 vs 팩트 — 왼쪽은 큰 동전 하나를 든 마스코트, 오른쪽은 여러 작은 통으로 동전이 빠져나가는 모습을 보는 마스코트",
+        caption: "오해 vs 팩트 — 소득이 크면 남는다 / 고정비·원리금이 먼저다",
+      },
+      {
+        src: "/gallery/3d-household-budget-03.png",
+        width: W,
+        height: H,
+        alt: "배관 하나로 유리병에 동전이 차곡차곡 흘러드는 장면과 마스코트",
+        caption: "1줄 — 실수령 500만, 세전이 아닙니다",
+      },
+      {
+        src: "/gallery/3d-household-budget-04.png",
+        width: W,
+        height: H,
+        alt: "달력이 붙은 작은 통 네 개가 나란히 놓인 선반과 마스코트",
+        caption: "2줄 — 고정비 160만, 날짜가 정해진 지출",
+      },
+      {
+        src: "/gallery/3d-household-budget-05.png",
+        width: W,
+        height: H,
+        alt: "지붕 위에 큰 동전을 올린 집 모형과 위로 향한 이자 화살표",
+        caption: "3줄 — 대출 원리금 61만, 금리 오르면 이자가 는다",
+      },
+      {
+        src: "/gallery/3d-household-budget-06.png",
+        width: W,
+        height: H,
+        alt: "클립보드와 계산기를 든 마스코트, 세 줄 체크리스트",
+        caption: "점검 — 세 줄에 날짜 붙이기",
+      },
+    ],
+    basis:
+      "자체 계산 — 원리금균등분할상환 공식(대출 1억원·20년·4%·6%) · 기준일 2026. 11. 22. · 금액은 가상 예시, 실제 금리는 금융감독원 파인에서 확인",
+    related: [
+      { label: "가계 1강 — 가계 현금희름 3줄", href: "/academy/school-household-cashflow/" },
+      { label: "대출 원리금 계산기", href: "/apps/loan-repay/run" },
+    ],
+  },
+  /**
    * v8.2.0 — 「버핏킴즈 금융생활학교」 초등·청소년·첫 월급 3강과 함께 온 3세트(18장).
    * A. 용돈 세 칸 / B. 소액결제와 사기 방어 / C. 첫 월급명세서 3줄.
    * 스타일은 2차 배치와 같은 **손글씨 + 형광펜 + 크림지 + 파스텔 2D**다(렌더 `tmp/clay1222/render_school.py`).

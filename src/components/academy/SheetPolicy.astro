@@ -1,0 +1,511 @@
+---
+/**
+ * 「내 돈 운영표」 3번 칸 — 투자정책서 (STEP 3, v8.3.0).
+ *
+ * 두 강의가 같은 3번 칸을 다른 계산기로 채운다.
+ *   policy    3-1강 — 투자금·주식 비중·손실 한도 → 손실 금액, 회복 필요 상승률, 반 토막 점검
+ *   etfcheck  3-2강 — 보유 금액·총보수·기타비용·기간 → 기간 비용
+ *
+ * 공통 원칙: 입력값은 화면 안에서만 계산하고 주소·서버·저장소에 남기지 않는다.
+ * 손실·비용 숫자는 강의 본문과 같은 식(회복률 = 1 ÷ (1 − 낙폭) − 1)에서 나온다.
+ */
+import { withBase, site } from "@/config/site";
+
+interface Props {
+  variant?: "policy" | "etfcheck";
+  slotNo?: number;
+  slotTitle?: string;
+  line?: string;
+}
+const { variant = "policy", slotNo = 3, slotTitle = "투자정책서", line = "" } = Astro.props;
+
+const INVEST = [500, 1000, 2000];
+const EQUITY = [30, 50, 70];
+const LOSS = [10, 20, 30];
+const FEES = [0.0005, 0.0015, 0.0045];
+const EXTRA = [0.0002, 0.0003, 0.0005];
+const HOLD = [5, 10, 20];
+const defaults = { invest: 1000, equity: 50, loss: 20, fee: 0.0005, extra: 0.0002, hold: 10 };
+const pctLabel = (v: number, d = 2) => `${(v * 100).toFixed(d).replace(/\.0+$/, "")}%`;
+---
+
+<section class="sheet" data-sheet data-variant={variant} aria-labelledby="sheet-heading">
+  <div class="sheet-head">
+    <div>
+      <p class="eyebrow">STEP 3 · 투자정책서</p>
+      <h2 id="sheet-heading" class="sec-title">내 돈 운영표 · {slotNo}번 칸</h2>
+      <p class="mt-2 max-w-[54ch] text-[13px] leading-[1.7] text-ink-muted">
+        {slotTitle}의 첫 줄입니다. {line || "투자금과 비율을 넣어 손실 한도와 회복 조건을 적습니다."} 고른 값은 이
+        화면 안에서만 계산됩니다.
+      </p>
+    </div>
+    <p class="sheet-progress mono" data-sheet-progress>STEP 3 · 0 / 6칸</p>
+  </div>
+
+  <div class="sheet-body">
+    <div class="sheet-form">
+      {
+        variant === "policy" ? (
+          <>
+            <fieldset class="sheet-field">
+              <legend class="sheet-legend">
+                투자금 <span class="mono">5년 넘게 묶을 수 있는 돈</span>
+              </legend>
+              <div class="sheet-chips">
+                {INVEST.map((v) => (
+                  <label class="sheet-chip sheet-chip--num">
+                    <input
+                      type="radio"
+                      name="pl-invest"
+                      value={v}
+                      checked={v === defaults.invest}
+                      data-sheet-input
+                    />
+                    <span>{v.toLocaleString("ko-KR")}만</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+
+            <fieldset class="sheet-field">
+              <legend class="sheet-legend">
+                주식 비중 <span class="mono">나머지는 채권·현금</span>
+              </legend>
+              <div class="sheet-chips">
+                {EQUITY.map((v) => (
+                  <label class="sheet-chip sheet-chip--num">
+                    <input
+                      type="radio"
+                      name="pl-equity"
+                      value={v}
+                      checked={v === defaults.equity}
+                      data-sheet-input
+                    />
+                    <span>{v}%</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+
+            <fieldset class="sheet-field">
+              <legend class="sheet-legend">
+                손실 한도 <span class="mono">포트 전체 기준</span>
+              </legend>
+              <div class="sheet-chips">
+                {LOSS.map((v) => (
+                  <label class="sheet-chip sheet-chip--num">
+                    <input type="radio" name="pl-loss" value={v} checked={v === defaults.loss} data-sheet-input />
+                    <span>−{v}%</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+          </>
+        ) : (
+          <>
+            <fieldset class="sheet-field">
+              <legend class="sheet-legend">
+                보유 금액 <span class="mono">ETF에 넣을 돈</span>
+              </legend>
+              <div class="sheet-chips">
+                {INVEST.map((v) => (
+                  <label class="sheet-chip sheet-chip--num">
+                    <input
+                      type="radio"
+                      name="et-base"
+                      value={v}
+                      checked={v === defaults.invest}
+                      data-sheet-input
+                    />
+                    <span>{v.toLocaleString("ko-KR")}만</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+
+            <fieldset class="sheet-field">
+              <legend class="sheet-legend">
+                총보수 <span class="mono">운용사가 받는 몫</span>
+              </legend>
+              <div class="sheet-chips">
+                {FEES.map((v) => (
+                  <label class="sheet-chip sheet-chip--num">
+                    <input
+                      type="radio"
+                      name="et-fee"
+                      value={v}
+                      checked={v === defaults.fee}
+                      data-sheet-input
+                    />
+                    <span>{pctLabel(v)}</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+
+            <fieldset class="sheet-field">
+              <legend class="sheet-legend">
+                기타비용 <span class="mono">지수 사용료·감사·결제</span>
+              </legend>
+              <div class="sheet-chips">
+                {EXTRA.map((v) => (
+                  <label class="sheet-chip sheet-chip--num">
+                    <input
+                      type="radio"
+                      name="et-extra"
+                      value={v}
+                      checked={v === defaults.extra}
+                      data-sheet-input
+                    />
+                    <span>{pctLabel(v)}</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+
+            <fieldset class="sheet-field">
+              <legend class="sheet-legend">
+                보유 기간 <span class="mono">단순 합계 · 복리 미반영</span>
+              </legend>
+              <div class="sheet-chips">
+                {HOLD.map((v) => (
+                  <label class="sheet-chip sheet-chip--num">
+                    <input type="radio" name="et-hold" value={v} checked={v === defaults.hold} data-sheet-input />
+                    <span>{v}년</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+          </>
+        )
+      }
+
+      <div class="sheet-result">
+        <p class="text-[11.5px] font-semibold text-ink-faint" data-sheet-out-label>
+          {variant === "policy" ? "손실 한도 금액" : "기간 비용"}
+        </p>
+        <p class="mt-1 text-[24px] font-bold leading-none tracking-[-0.035em] text-brand-deep" data-sheet-out>
+          —
+        </p>
+        <p class="mono mt-1.5 text-[11.5px] text-ink-faint" data-sheet-breakdown>—</p>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2">
+        <button type="button" class="btn btn-primary btn-sm min-h-[44px]" data-sheet-commit>이 칸 채우기</button>
+        <a href={withBase("/academy/#roadmap")} class="text-[12px] text-ink-faint underline underline-offset-2">
+          아카데미 로드맵
+        </a>
+      </div>
+
+      <p class="text-[11.5px] leading-[1.6] text-ink-faint">
+        고른 값은 이 화면 안에서만 계산하고, 주소·서버·저장소 어디에도 남기지 않습니다. 화면을 닫으면 사라집니다.
+        기준일 {site.baseDateLabel}.
+      </p>
+    </div>
+
+    <div class="sheet-preview" data-sheet-preview>
+      <p class="mono text-[11px] tracking-[0.04em] text-ink-faint">내 돈 운영표 · 6칸 중 {slotNo}번</p>
+
+      <div class="sheet-empty" data-sheet-empty>
+        <p class="text-[13.5px] font-semibold text-ink">아직 빈칸입니다</p>
+        <p class="mt-1 text-[12px] leading-[1.65] text-ink-muted">
+          왼쪽에서 값을 고른 뒤 <span class="font-semibold text-ink-soft">이 칸 채우기</span>를 누르면, 규칙이 한
+          줄로 남습니다.
+        </p>
+      </div>
+
+      <div class="sheet-filled" data-sheet-filled hidden>
+        <p class="text-[11px] font-bold tracking-[0.14em] text-brand-deep">칸 완성</p>
+        <p class="mt-1.5 text-[15px] font-bold tracking-[-0.025em] text-ink">{slotTitle} · 첫 줄</p>
+        <dl class="sheet-filled-list mt-2">
+          <div><dt>기준 금액</dt><dd data-row="base">—</dd></div>
+          <div><dt>{variant === "policy" ? "주식" : "연 총비용률"}</dt><dd data-row="a">—</dd></div>
+          <div><dt>{variant === "policy" ? "손실 한도" : "기간"}</dt><dd data-row="b">—</dd></div>
+          <div><dt>{variant === "policy" ? "회복 필요 상승" : "기간 비용"}</dt><dd data-row="c">—</dd></div>
+          <div><dt>{variant === "policy" ? "반 토막 점검" : "10년 환산"}</dt><dd data-row="d">—</dd></div>
+        </dl>
+        <p class="mt-2 border-t border-dashed border-line pt-2 text-[11.5px] leading-[1.6] text-ink-faint">
+          기준일 {site.baseDateLabel} · 금액은 가상 예시입니다. 회복률은 산술 조건이고 수익률 전망이 아닙니다.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  const man = (won: number) => {
+    if (won >= 10000) {
+      const v = won / 10000;
+      return `${Number.isInteger(v) ? v.toLocaleString("ko-KR") : v.toFixed(1)}만원`;
+    }
+    return `${Math.round(won).toLocaleString("ko-KR")}원`;
+  };
+
+  document.querySelectorAll<HTMLElement>('[data-sheet][data-variant="policy"], [data-sheet][data-variant="etfcheck"]').forEach((root) => {
+    const variant = root.dataset.variant;
+    const inputs = [...root.querySelectorAll<HTMLInputElement>("[data-sheet-input]")];
+    const outEl = root.querySelector<HTMLElement>("[data-sheet-out]");
+    const breakdownEl = root.querySelector<HTMLElement>("[data-sheet-breakdown]");
+    const progressEl = root.querySelector<HTMLElement>("[data-sheet-progress]");
+    const empty = root.querySelector<HTMLElement>("[data-sheet-empty]");
+    const filled = root.querySelector<HTMLElement>("[data-sheet-filled]");
+    const commitBtn = root.querySelector<HTMLButtonElement>("[data-sheet-commit]");
+    const row = (k: string) => root.querySelector<HTMLElement>(`[data-row="${k}"]`);
+    const picked = (name: string) => Number(inputs.find((i) => i.name === name && i.checked)?.value ?? 0);
+
+    let committed = false;
+
+    const calc = () => {
+      if (variant === "policy") {
+        const base = picked("pl-invest");
+        const equityPct = picked("pl-equity");
+        const loss = picked("pl-loss");
+        const equity = Math.round((base * equityPct) / 100);
+        const bond = base - equity;
+        const lossWon = Math.round(base * (loss / 100));
+        const recovery = (1 / (1 - loss / 100) - 1) * 100;
+        const halfHit = (equityPct / 2) * 1; // 주식 반 토막 → 포트 손실 %
+        return {
+          out: man(lossWon * 10000),
+          state: halfHit > loss ? "over" : "ok",
+          breakdown: `회복 필요 +${recovery.toFixed(1).replace(/\.0$/, "")}% · 주식 반 토막이면 포트 −${halfHit}%`,
+          rows: {
+            base: man(base * 10000),
+            a: `${equityPct}% · ${man(equity * 10000)}`,
+            b: `−${loss}% · ${man(lossWon * 10000)}`,
+            c: `+${recovery.toFixed(1).replace(/\.0$/, "")}%`,
+            d:
+              halfHit > loss
+                ? `넘었어요 · 포트 −${halfHit}% (한도 −${loss}%) — 주식 비중을 낮춥니다`
+                : `한도 안 · 포트 −${halfHit}% (한도 −${loss}%) — 현금 ${man(bond * 10000)} 유지`,
+          },
+        };
+      }
+      const base = picked("et-base");
+      const fee = picked("et-fee");
+      const extra = picked("et-extra");
+      const hold = picked("et-hold");
+      const rate = fee + extra;
+      const cost = base * 10000 * rate * hold;
+      const cost10 = base * 10000 * rate * 10;
+      return {
+        out: man(cost),
+        state: "ok",
+        breakdown: `연 ${(rate * 100).toFixed(2).replace(/\.0+$/, "")}% × ${hold}년 · 보유 ${man(base * 10000)}`,
+        rows: {
+          base: man(base * 10000),
+          a: `총보수 ${(fee * 100).toFixed(2).replace(/\.0+$/, "")}% + 기타 ${(extra * 100).toFixed(2).replace(/\.0+$/, "")}% = ${(rate * 100).toFixed(2).replace(/\.0+$/, "")}%`,
+          b: `${hold}년`,
+          c: man(cost),
+          d: man(cost10),
+        },
+      };
+    };
+
+    const render = () => {
+      const s = calc();
+      if (outEl) outEl.textContent = s.out;
+      if (breakdownEl) breakdownEl.textContent = s.breakdown;
+      root.dataset.state = s.state;
+      if (committed) {
+        Object.entries(s.rows).forEach(([k, v]) => {
+          const el = row(k);
+          if (el) el.textContent = v;
+        });
+      }
+    };
+
+    inputs.forEach((i) => i.addEventListener("change", render));
+
+    commitBtn?.addEventListener("click", () => {
+      committed = true;
+      render();
+      if (empty) empty.hidden = true;
+      if (filled) filled.hidden = false;
+      if (progressEl) progressEl.textContent = "STEP 3 · 1 / 6칸";
+      commitBtn.textContent = "값 바꿔서 다시 채우기";
+      filled?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    });
+
+    render();
+  });
+</script>
+
+<style>
+  .sheet {
+    padding: 20px;
+    border: 1px solid var(--color-line);
+    border-radius: 20px;
+    background-color: #ffffff;
+    box-shadow:
+      0 1px 2px rgb(11 27 41 / 0.04),
+      0 20px 44px -34px rgb(11 27 41 / 0.5);
+  }
+
+  @media (min-width: 768px) {
+    .sheet {
+      padding: 28px;
+    }
+  }
+
+  .sheet-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .sheet-progress {
+    display: inline-flex;
+    align-items: center;
+    min-height: 28px;
+    padding: 0 10px;
+    border-radius: 999px;
+    background-color: var(--color-brand-soft);
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--color-brand-deep);
+  }
+
+  .sheet-body {
+    display: grid;
+    gap: 18px;
+    margin-top: 18px;
+  }
+
+  @media (min-width: 900px) {
+    .sheet-body {
+      grid-template-columns: minmax(0, 1.18fr) minmax(0, 1fr);
+      gap: 24px;
+      align-items: start;
+    }
+  }
+
+  .sheet-form {
+    display: grid;
+    gap: 14px;
+    min-width: 0;
+  }
+
+  .sheet-field {
+    min-width: 0;
+  }
+
+  .sheet-legend {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 6px;
+    margin-bottom: 6px;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--color-ink-soft);
+  }
+
+  .sheet-legend .mono {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--color-ink-faint);
+  }
+
+  .sheet-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .sheet-chip {
+    display: inline-flex;
+    cursor: pointer;
+  }
+
+  .sheet-chip input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .sheet-chip span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 12px;
+    border: 1px solid var(--color-line);
+    border-radius: 12px;
+    background-color: #ffffff;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--color-ink-muted);
+    transition:
+      border-color 140ms var(--ease-out-soft),
+      background-color 140ms var(--ease-out-soft);
+  }
+
+  .sheet-chip--num span {
+    min-width: 62px;
+    justify-content: center;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .sheet-chip input:checked + span {
+    border-color: var(--color-brand);
+    background-color: var(--color-brand-soft);
+    color: var(--color-brand-deep);
+  }
+
+  .sheet-chip input:focus-visible + span {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 2px;
+  }
+
+  .sheet-result {
+    padding: 14px 16px;
+    border-radius: 14px;
+    background-color: var(--color-paper);
+    border: 1px solid var(--color-line-soft);
+  }
+
+  .sheet-preview {
+    padding: 16px;
+    border: 1px dashed var(--color-line);
+    border-radius: 16px;
+    background-color: var(--color-cream);
+  }
+
+  .sheet-filled {
+    margin-top: 10px;
+  }
+
+  .sheet-filled-list {
+    display: grid;
+    gap: 2px;
+  }
+
+  .sheet-filled-list > div {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 5px 0;
+    border-bottom: 1px solid var(--color-line-soft);
+  }
+
+  .sheet-filled-list dt {
+    flex: none;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-ink-faint);
+  }
+
+  .sheet-filled-list dd {
+    margin: 0;
+    text-align: right;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--color-ink);
+  }
+</style>
