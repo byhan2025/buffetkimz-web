@@ -50,8 +50,12 @@ v3: 20개 대표 사이트 벤치마킹(보고서 `reports/buffetkimz-web/benchm
   `capture_academy_v80.py` **42/42**(허브·12강 × 1280/390, D4 52칸·7트랙 탭·열린 10주, E5 학교 5강 16px/44px/한 화면
   한 질문/글자+아이콘, E3 전 강의 1,200~1,500자, 운영표 저장 0건) · `audit_dist_links.py` 페이지 **274** · 링크·이미지 **0/0**.
   `capture_academy_v80.py`는 `npm run build:pages` 산출물(BASE=/buffetkimz-web)도 서비스하도록 접두 제거를 넣었다.
-- **캡처** — `reports/buffetkimz-web/academy-v830/`(허브·12강 × 1280·390, 트랙 탭, 가계 운영표·퀴즈).
-- **라이브** — `main` 커밋·`gh-pages` 푸시 후 `?v=830` 실측 기록은 아래 '라이브 검증'에서 갱신한다.
+- **캡처** — `reports/buffetkimz-web/academy-v830/`(허브·12강 × 1280·390, 트랙 탭, 가계 운영표·퀴즈 170장),
+  `reports/buffetkimz-web/v83-live/`(라이브 6주소 × 1280·390 + 강의 운영표 채움, `?v=830`).
+- **라이브** — `main` `9f9f3d2`(코드 `86eb13d` + 가계 2강 건보료 문구 정정) · `gh-pages` `21e0d8f` →
+  https://byhan2025.github.io/buffetkimz-web/ . GitHub Pages `built` 확인 후 `scripts/capture_live_v83.py` **9/9**:
+  6주소 × 1280·390 HTTP 200 · 콘솔 오류 0 · 가로 넘침 0 · 허브 52칸·7트랙 탭·12강·열린 10주·트랙 카드 5 ·
+  STEP 3·가계 4강 카드 6장 로드·운영표 채움·저장 0건(1,297·1,306·1,215·1,267자) · 자료앨범 21세트 111장(새 6장 로드).
 
 ### v8.2.0 — 「버핏킴즈 금융생활학교」 6트랙 52주 + 초등·청소년·첫 월급 3강 + 손글씨 카드 3세트(18장)
 
