@@ -30,5 +30,10 @@ drafts/
 __pycache__/
 scripts/__pycache__/
 
+# 자동 수집 산출물 — 매일 새 파일이 생기므로 git에 넣지 않는다.
+# 운영 산출물의 1차 저장처는 Google Drive '버핏킴즈 정보창고'(자동수집/YYYY-MM/)다.
+automation/output/collected-*.json
+automation/output/collected-*.md
+
 # 배포 임시 폴더(v7.5 — 스크립트 타임스탬프 폴더)
 .deploy-gh-*/

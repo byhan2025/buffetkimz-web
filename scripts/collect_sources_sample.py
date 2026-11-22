@@ -379,8 +379,16 @@ def main() -> int:
     md_path.write_text("\n".join(md) + "\n", encoding="utf-8")
 
     print(f"\n[결과] 성공 {payload['sources_ok']}/{payload['sources_selected']} · 신선 {payload['items_fresh']}건 / 전체 {payload['items_total']}건")
-    print(f"  -> {out_path.relative_to(ROOT)}")
-    print(f"  -> {md_path.relative_to(ROOT)}")
+
+    def shown(p: Path) -> str:
+        """저장소 밖 절대경로(--out /tmp/...)일 때 relative_to가 ValueError를 내지 않게 한다."""
+        try:
+            return str(p.relative_to(ROOT))
+        except ValueError:
+            return str(p)
+
+    print(f"  -> {shown(out_path)}")
+    print(f"  -> {shown(md_path)}")
     return 0 if payload["sources_ok"] else 1
 
 
