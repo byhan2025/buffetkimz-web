@@ -123,6 +123,251 @@ const yearendSlides: GallerySlide[] = [
 
 export const galleryItems: GalleryItem[] = [
   /**
+   * v8.0.0 — 「한스푼 아카데미」 STEP별 자료앨범 1차 4세트(24장) 추가.
+   * A. 세 칸의 지도(월급 3통) / B. 세 순간(15.4%·16.5%·연금소득세) /
+   * D. ETF 6개 숫자 / F. 사적연금 1,500만 원 경계선 — 아카데미 STEP 1·2·3·4와 짝을 이룬다.
+   * 파일: `public/gallery/3d-{three-buckets,tax-moments,etf-6numbers,pension-1500}-NN.png`
+   */
+  {
+    id: "three-buckets-3d",
+    title: "월급이 들어오면, 3개의 통",
+    tagline: "3D 스토리 카드 6장 · 비상금 · 단기목표 · 장기투자",
+    summary:
+      "월급이 들어온 날 바로 세 칸으로 나누면 남는 돈이 달라집니다. 비상금(생활비 3~6개월) → 단기목표(1~3년) → 장기투자(5년 이상·절세계좌) 순서와, 오늘 자동이체 3줄로 끝내는 방법까지 6장으로 정리했습니다.",
+    category: "carousel",
+    createdAt: "2026-11-22",
+    tags: ["월급관리", "비상금", "단기목표", "장기투자", "자동이체", "3D 카드"],
+    slides: [
+      {
+        src: "/gallery/3d-three-buckets-01.png",
+        width: W,
+        height: H,
+        alt: "표지 — 세 칸으로 나뉜 나무 쟁반에 금화·작은 집·새싹이 담겨 있고, 양팔을 벌린 너구리 캐릭터와 '월급이 들어오면 나뉘는 3개의 통'",
+        caption: "표지 — 월급이 들어오면 나뉘는 3개의 통",
+      },
+      {
+        src: "/gallery/3d-three-buckets-02.png",
+        width: W,
+        height: H,
+        alt: "오해 vs 팩트 — 왼쪽은 거의 빈 단지 옆에 시무룩하게 선 캐릭터, 오른쪽은 동전을 세 갈래로 나눠 세 단지에 담는 캐릭터",
+        caption: "오해 vs 팩트 — 남는 돈 모으기 / 먼저 나누고 쓰기",
+      },
+      {
+        src: "/gallery/3d-three-buckets-03.png",
+        width: W,
+        height: H,
+        alt: "비상금 — 금화와 지폐가 든 유리병에 동전을 넣는 캐릭터, 옆에 작은 우산과 방패, 알람시계",
+        caption: "통 ① — 생활비 3~6개월, 바로 꺼낼 수 있게",
+      },
+      {
+        src: "/gallery/3d-three-buckets-04.png",
+        width: W,
+        height: H,
+        alt: "단기목표 — 자물쇠와 깃발이 달린 저금함에 봉투를 넣는 캐릭터, 옆에 작은 여행 가방과 세 개의 달력 블록",
+        caption: "통 ② — 1~3년 안에 쓸 돈은 예·적금으로",
+      },
+      {
+        src: "/gallery/3d-three-buckets-05.png",
+        width: W,
+        height: H,
+        alt: "장기투자 — 금화가 열매로 달린 작은 나무 화분에 물을 주는 캐릭터와 옆의 모래시계",
+        caption: "통 ③ — 5년 이상 묶을 돈은 절세계좌에",
+      },
+      {
+        src: "/gallery/3d-three-buckets-06.png",
+        width: W,
+        height: H,
+        alt: "체크리스트 — 세 개의 빈 체크 동그라미가 있는 클립보드를 든 캐릭터, 책상 위 기어 세 개와 알람시계",
+        caption: "오늘 할 일 — 자동이체 3줄 세팅",
+      },
+    ],
+    basis:
+      "자체 정리(생활비 3~6개월·1~3년·5년 이상 분리 원칙), 소득세법 제59조의3, 조세특례제한법 제91조의18 · 기준일 2026. 11. 22. · 금액과 비율은 소득·지출 구조에 따라 다름",
+    related: [
+      { label: "4대 계좌 세후 비교 시뮬레이터", href: "/apps/account-tax-compare/run" },
+      { label: "3편 — 연말 연금저축 600·IRP 900·ISA 전환 300", href: "/posts/pension-master-03-yearend-900" },
+    ],
+  },
+  {
+    id: "tax-moments-3d",
+    title: "모르면 16.5% 떼이는 세금 세 순간",
+    tagline: "3D 스토리 카드 6장 · 이자·중도해지·연금수령",
+    summary:
+      "세금은 세 번의 순간에 떼어집니다. 일반계좌 이자·배당 15.4%(원천징수), 연금계좌 중도해지 16.5%(기타소득세), 연금수령 5.5~3.3%. 세액공제를 받았으니 이득이라는 착각과, 꺼낼 돈·묶을 돈을 가르는 기준까지 6장으로 담았습니다.",
+    category: "carousel",
+    createdAt: "2026-11-22",
+    tags: ["세금", "15.4%", "16.5%", "연금소득세", "중도해지", "3D 카드"],
+    slides: [
+      {
+        src: "/gallery/3d-tax-moments-01.png",
+        width: W,
+        height: H,
+        alt: "표지 — 나무 선반 위 세 개의 작은 알람시계, 걱정스러운 표정으로 손가락을 든 캐릭터와 '모르면 16.5% 떼이는 세금 세 순간'",
+        caption: "표지 — 모르면 16.5% 떼이는 세 순간",
+      },
+      {
+        src: "/gallery/3d-tax-moments-02.png",
+        width: W,
+        height: H,
+        alt: "오해 vs 팩트 — 왼쪽은 환급 봉투를 안고 웃는 캐릭터, 오른쪽은 밑이 깨진 금고에서 동전이 새는 것을 보고 놀란 캐릭터",
+        caption: "오해 vs 팩트 — 공제받았으니 이득 / 해지하면 16.5%",
+      },
+      {
+        src: "/gallery/3d-tax-moments-03.png",
+        width: W,
+        height: H,
+        alt: "순간 1 — 은행 모형으로 이어지는 동전 레일에서 집게가 동전을 집어 상자에 담고, 동전 하나를 든 채 시무룩한 캐릭터",
+        caption: "순간 1 — 이자·배당 15.4%, 이미 떼고 받습니다",
+      },
+      {
+        src: "/gallery/3d-tax-moments-04.png",
+        width: W,
+        height: H,
+        alt: "순간 2 — 거대한 가위가 금고의 자물쇠를 자르고, 빨간 경보 종이 울리며 동전이 쏟아지는 장면",
+        caption: "순간 2 — 중도해지 16.5% 기타소득세",
+      },
+      {
+        src: "/gallery/3d-tax-moments-05.png",
+        width: W,
+        height: H,
+        alt: "순간 3 — 수도꼭지에서 동전이 한 방울씩 떨어져 모래시계를 거쳐 쟁반으로 흐르고, 손잡이를 돌리는 캐릭터",
+        caption: "순간 3 — 연금으로 받으면 5.5%~3.3%",
+      },
+      {
+        src: "/gallery/3d-tax-moments-06.png",
+        width: W,
+        height: H,
+        alt: "요약 — 왼쪽은 동전 몇 개가 담긴 열린 접시, 오른쪽은 자물쇠가 달린 작은 궤짝, 그 사이에 선 캐릭터",
+        caption: "요약 — 꺼낼 돈과 묶을 돈, 먼저 나눠 두기",
+      },
+    ],
+    basis:
+      "소득세법 제129조(이자·배당 15.4%)·제21조(기타소득 16.5%)·제20조의3(연금소득세 5.5~3.3%), 국세청 연금소득 안내 · 기준일 2026. 11. 22.",
+    related: [
+      { label: "연금저축·IRP 세액공제 계산기", href: "/apps/pension-tax/run" },
+      { label: "5편 — 인출 순서 4단계와 연 1,500만원", href: "/posts/pension-master-05-draw-1500" },
+    ],
+  },
+  {
+    id: "etf-6numbers-3d",
+    title: "수익률 전에 볼 ETF 6개 숫자",
+    tagline: "3D 스토리 카드 6장 · 비용·유동성·추적",
+    summary:
+      "같은 지수를 따라가는 ETF라도 실제로 내는 돈은 다릅니다. 순자산총액·거래량(유동성), 총보수+기타비용(실부담 비용), 추적오차·괴리율까지 여섯 숫자를 보고, 매수 전 10초 점검 3가지로 끝내는 순서를 6장으로 정리했습니다.",
+    category: "carousel",
+    createdAt: "2026-11-22",
+    tags: ["ETF", "총보수", "기타비용", "추적오차", "괴리율", "3D 카드"],
+    slides: [
+      {
+        src: "/gallery/3d-etf-6numbers-01.png",
+        width: W,
+        height: H,
+        alt: "표지 — 여섯 개의 빈 계기판 다이얼이 달린 콘솔, 확대경으로 다이얼을 들여다보는 캐릭터와 '수익률 전에 볼 ETF 6개 숫자'",
+        caption: "표지 — 수익률 전에 볼 6개 숫자",
+      },
+      {
+        src: "/gallery/3d-etf-6numbers-02.png",
+        width: W,
+        height: H,
+        alt: "오해 vs 팩트 — 왼쪽은 아주 작은 가격표가 달린 택배 상자를 든 캐릭터, 오른쪽은 저울 아래 숨은 추 때문에 기운 상자",
+        caption: "오해 vs 팩트 — 보수만 싸면 제일 싼 ETF? / 총비용으로 비교",
+      },
+      {
+        src: "/gallery/3d-etf-6numbers-03.png",
+        width: W,
+        height: H,
+        alt: "순자산·거래량 — 동전이 수북한 큰 좌판과 줄을 선 미니어처 군중, 위에서 깔때기로 동전이 쏟아지는 시장",
+        caption: "숫자 ① ② — 순자산과 거래량, 클수록 유동성",
+      },
+      {
+        src: "/gallery/3d-etf-6numbers-04.png",
+        width: W,
+        height: H,
+        alt: "총보수+기타비용 — 물 위로 드러난 작은 빙산 끝과 물속의 거대한 얼음 덩어리, 옆 작은 배에 탄 캐릭터",
+        caption: "숫자 ③ ④ — 총보수+기타비용이 실제 비용",
+      },
+      {
+        src: "/gallery/3d-etf-6numbers-05.png",
+        width: W,
+        height: H,
+        alt: "추적오차·괴리율 — 트랙에서 줄무늬 주자가 앞서 달리고, 캐릭터가 눈금 없는 긴 줄자를 들고 뒤쫓는 장면",
+        caption: "숫자 ⑤ ⑥ — 추적오차·괴리율, 지수를 얼마나 따라가나",
+      },
+      {
+        src: "/gallery/3d-etf-6numbers-06.png",
+        width: W,
+        height: H,
+        alt: "매수 전 10초 — 빈 문자판의 큰 회중시계와 세 개의 빈 타일, 손가락을 들어 알려 주는 캐릭터",
+        caption: "매수 전 10초 — 체크 3가지",
+      },
+    ],
+    basis:
+      "금융투자협회 펀드공시(총보수·기타비용·매매중개수수료), 금융감독원 ETF 비용 안내, 한국거래소 ETF 시장 안내 · 기준일 2026. 11. 22.",
+    related: [
+      { label: "적립식 투자, 흔들리지 않는 규칙", href: "/posts/invest-dca-rule" },
+    ],
+  },
+  {
+    id: "pension-1500-3d",
+    title: "사적연금 연 1,500만 원 경계선",
+    tagline: "3D 스토리 카드 6장 · 분리과세 vs 종합과세",
+    summary:
+      "사적연금은 연 1,500만 원까지 3.3~5.5% 저율 분리과세로 끝납니다. 무엇이 1,500만 원에 포함되는지, 넘었을 때 16.5% 분리과세와 종합과세 중 고르는 기준, 10년 이상 나눠 받는 인출 속도까지 6장으로 정리했습니다.",
+    category: "carousel",
+    createdAt: "2026-11-22",
+    tags: ["사적연금", "1500만원", "분리과세", "종합과세", "연금수령", "3D 카드"],
+    slides: [
+      {
+        src: "/gallery/3d-pension-1500-01.png",
+        width: W,
+        height: H,
+        alt: "표지 — 흰 선이 그어진 흙길과 작은 나무 게이트, 금화 바구니를 든 캐릭터와 빈 나무 표지판",
+        caption: "표지 — 사적연금 연 1,500만 원 경계선",
+      },
+      {
+        src: "/gallery/3d-pension-1500-02.png",
+        width: W,
+        height: H,
+        alt: "오해 vs 팩트 — 왼쪽은 바람 빠진 풍선을 든 시무룩한 캐릭터, 오른쪽은 두 갈래 길에 자신 있게 선 캐릭터",
+        caption: "오해 vs 팩트 — 넘으면 무조건 손해? / 유리한 쪽을 고릅니다",
+      },
+      {
+        src: "/gallery/3d-pension-1500-03.png",
+        width: W,
+        height: H,
+        alt: "1,500만 원 이하 — 완만한 미끄럼틀을 따라 금화가 쟁반으로 미끄러지고, 꼭대기에 앉아 있는 캐릭터",
+        caption: "이하 — 3.3~5.5% 저율 분리과세로 끝",
+      },
+      {
+        src: "/gallery/3d-pension-1500-04.png",
+        width: W,
+        height: H,
+        alt: "포함 범위 — 두 칸으로 나뉜 큰 단지에 동전이 쏟아지고, 작은 집과 원반은 테두리에 튕겨 밖으로 나가는 장면",
+        caption: "포함 범위 — 공제받은 원금 + 운용수익만",
+      },
+      {
+        src: "/gallery/3d-pension-1500-05.png",
+        width: W,
+        height: H,
+        alt: "1,500만 원 초과 — 금빛 아치문과 크림색 아치문 사이에서 금화와 원반을 양손에 들고 저울질하는 캐릭터",
+        caption: "초과 시 — 16.5% 분리과세 vs 종합과세",
+      },
+      {
+        src: "/gallery/3d-pension-1500-06.png",
+        width: W,
+        height: H,
+        alt: "인출 속도 — 수도꼭지에서 금화 한 닢이 여섯 개 컵 중 첫 컵으로 떨어지고, 손잡이를 천천히 조절하는 캐릭터",
+        caption: "인출 속도 — 10년 이상 나눠 받기, 한 해 금액 낮추기",
+      },
+    ],
+    basis:
+      "소득세법 제14조 제3항 제9호(분리과세 기준 1,500만 원)·제64조의3·제20조의3, 국세청 연금소득 안내 · 기준일 2026. 11. 22.",
+    related: [
+      { label: "연금 인출·세금 시뮬레이터", href: "/apps/pension-draw/run" },
+      { label: "5편 — 인출 순서 4단계와 연 1,500만원", href: "/posts/pension-master-05-draw-1500" },
+    ],
+  },
+  /**
    * v7.8.0 — 3D 클레이 스토리 캐러셀 2세트 추가.
    * 세트3: 1·2세대 실손 계약전환(2026. 11. 23. 시행) / 세트4: 연말 전 900만 원 채우는 순서.
    * 렌더: `python3 scripts/render_gallery_3d.py --prefix s3,s4`

@@ -184,6 +184,12 @@ export const nav: NavItem[] = [
     ],
   },
   {
+    href: "/academy",
+    label: "아카데미",
+    desc: "한스푼 아카데미 · 6 STEP 41강",
+    match: "/academy",
+  },
+  {
     href: "/about",
     label: "버핏킴즈",
     desc: "왜 버핏킴즈인가 · 1:1 문의",
@@ -204,6 +210,7 @@ export const menuLabel = {
   apps: "앱스토어",
   calendar: "골든타임",
   gallery: "자료앨범",
+  academy: "아카데미",
   about: "버핏킴즈",
 } as const;
 

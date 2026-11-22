@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """v7.7.0 통합 회귀 검증 — 95점 재채점 기준을 화면에서 그대로 잰다.
 
-이 한 스크립트가 v7.1·v7.3·v7.4의 판정을 현재 기준(앱 51종 · 자료앨범 6세트 · 메뉴 8분류)으로
+이 한 스크립트가 v7.1·v7.3·v7.4의 판정을 현재 기준(앱 51종 · 자료앨범 세트 수는 gallery.ts에서 셈 · 메뉴 8분류)으로
 다시 잰다. 옛 스크립트는 그때의 숫자를 들고 있어 최신 빌드에서 실패하는 것이 정상이다.
 
   A. 주요 페이지 × 1280/390 — HTTP 200 · 콘솔 오류 0 · 가로 넘침 0
@@ -376,13 +376,18 @@ with sync_playwright() as p:
     check("J1 자산리포트 하위 = 8개 분류", menu["note"] == "8개 분류", menu["note"])
     check("J2 8분류 항목 노출(노후준비·철학 포함)", len(menu["rows"]) >= 8 and "노후준비" in menu["rows"], ", ".join(menu["rows"][:9]))
 
+    # 기대값은 손으로 적지 않고 `src/data/gallery.ts`에서 센다 — 세트를 추가해도 검사가 따라온다.
+    gallery_src = (APP / "src" / "data" / "gallery.ts").read_text(encoding="utf-8")
+    want_sets = len(re.findall(r'^    id: "[a-z0-9-]+",$', gallery_src, re.M))
+    want_slides = len(re.findall(r'src: "/gallery/', gallery_src))
+
     pg.goto(url("/gallery/"), wait_until="networkidle")
     pg.wait_for_timeout(700)
     sets = pg.eval_on_selector_all(".gallery-card", "e => e.length")
     status = pg.inner_text("[data-gallery-status]")
     check(
-        "J3 자료앨범 8세트·33장",
-        (sets == 8 or status.startswith("8세트")) and "33장" in status,
+        f"J3 자료앨범 {want_sets}세트·{want_slides}장 (gallery.ts와 일치)",
+        sets == want_sets and f"{want_sets}세트" in status and f"{want_slides}장" in status,
         f"{sets} · {status.splitlines()[0][:40]}",
     )
 
