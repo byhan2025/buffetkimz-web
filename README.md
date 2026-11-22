@@ -63,7 +63,15 @@ v3: 20개 대표 사이트 벤치마킹(보고서 `reports/buffetkimz-web/benchm
   `capture_academy_v80.py` **54/54**(허브·17강 × 1280/390 HTTP 200·콘솔 0·가로 넘침 0, D2 STEP 1~6 = 2·3·2·1·1·1강,
   D4 52칸·7트랙·열린 12주, E5 학교 7강 16px/48px/한 화면 한 질문/✓·↺, E3 전 강의 1,200~1,500자, 운영표 저장 0건) ·
   `audit_dist_links.py` 페이지 **279** · 링크·이미지 **0/0**.
-- **캡처** — `reports/buffetkimz-web/academy-v840/`(허브·17강 × 1280·390 + 구획·운영표 채움 235장).
+- **캡처** — `reports/buffetkimz-web/academy-v840/`(허브·17강 × 1280·390 + 구획·운영표 채움 235장),
+  `reports/buffetkimz-web/v84-live/`(라이브 7주소 × 1280·390 + 운영표 채움, `?v=840`).
+- **라이브** — `main` `aef1493` · `gh-pages` `806d5f2` → https://byhan2025.github.io/buffetkimz-web/academy/?v=840 .
+  GitHub Pages `built` 확인 후 `scripts/capture_live_v84.py --live` **11/11**: 7주소 × 1280·390 HTTP 200 · 콘솔 오류 0 ·
+  가로 넘침 0 · 저장소 0건 · 허브 52칸·7트랙·**17강**·열린 12주·트랙 카드 7·STEP 1~6(2·3·2·1·1·1) ·
+  새 5강 카드 6장 로드·운영표 채움(1,281·1,203·1,215·1,207·1,213자)·학교 2강 16px · 자료앨범 **23세트 123장**(새 12장 로드).
+- **빌드 메모** — 이 환경은 `RLIMIT_DATA 2GB`·스레드 256 제한이라 `astro build`가 간헐적으로
+  `std::bad_alloc`으로 죽는다. `RAYON_NUM_THREADS=2 TOKIO_WORKER_THREADS=1 UV_THREADPOOL_SIZE=2
+  NODE_OPTIONS=--max-old-space-size=900 npm run build:pages`로 돌리면 안정적으로 끝난다.
 
 ### v8.3.1 — 첫 월급 1강 국민연금 요율 핫픽스(9% → 9.5%, 근로자 4.75%)
 
