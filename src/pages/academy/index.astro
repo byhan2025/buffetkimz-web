@@ -1,32 +1,25 @@
 ---
 /**
- * /academy — 「한스푼 아카데미」 허브 (v8.0 파일럿).
+ * /academy — 「한스푼 아카데미」 허브 (v8.1.0 — STEP 1·2 개설).
  *
- * ① 히어로 — 프로그램 한 줄 소개 + 숫자(6 STEP·41강·9세트 54장) + 강의 1개의 표준 15분
- * ② 강의 1개의 4종 세트 — 5분 읽기 · 계산기 · 3D 카드 · 1차 출처
- * ③ 6 STEP 로드맵 — 41강을 단계·질문·산출물로 편다. 지금 열린 STEP만 링크가 산다.
- * ④ 수강 경로 3가지 + 진단 3문항 — 체크 개수로 경로를 고른다(자바스크립트 없이도 경로는 읽힌다)
- * ⑤ 지금 열린 파일럿 1강 카드 — 이 페이지에서 실제로 갈 수 있는 유일한 강의
+ * ① 히어로 — 프로그램 한 줄 소개 + 숫자(6 STEP·41강·지금 열린 N강) + 첫 강의로 가는 버튼
+ * ② 지금 열린 강의 — STEP 1·2의 강의를 카드로 펼친다(카드뉴스·계산기·출처·운영표가 붙은 강의)
+ * ③ 강의 1개의 4종 세트 — 5분 읽기 · 카드뉴스 6장 · 계산기 · 1차 출처
+ * ④ 6 STEP 로드맵 — 41강을 단계·질문·산출물로 펴고, 열린 STEP은 강의 목록을 링크로 붙인다
+ * ⑤ 수강 경로 3가지 + 진단 3문항 — 체크 개수로 경로를 고른다(자바스크립트 없이도 경로는 읽힌다)
  * ⑥ 원칙·면책 — 특정 상품 비권유, 기준일
  *
- * 숫자(강수·세트·시간·금액)는 `data/academy.ts`와 `data/tax-rules.ts`에서만 읽는다.
+ * 숫자(강수·세트·시간·금액)는 `data/academy.ts`·`data/academy-lessons.ts`·`data/tax-rules.ts`에서만 읽는다.
  */
 import Base from "@/layouts/Base.astro";
 import HomePill from "@/components/HomePill.astro";
 import { withBase, site } from "@/config/site";
-import {
-  ACADEMY,
-  ACADEMY_SET,
-  ACADEMY_STEPS,
-  ACADEMY_PATHS,
-  ACADEMY_DIAGNOSIS,
-  PILOT,
-  OPEN_LESSONS,
-} from "@/data/academy";
+import { ACADEMY, ACADEMY_SET, ACADEMY_STEPS, ACADEMY_PATHS, ACADEMY_DIAGNOSIS, OPEN_LESSONS, openLessonCount } from "@/data/academy";
 import { breadcrumbList, graph, partOfWebsite } from "@/lib/schema";
+import { availableCount } from "@/lib/card-assets";
 
-const pilotHref = `/academy/${PILOT.slug}/`;
-const openCount = OPEN_LESSONS.length;
+const first = OPEN_LESSONS[0];
+const firstHref = `/academy/${first.slug}/`;
 
 const jsonLd = graph([
   breadcrumbList([
@@ -45,7 +38,7 @@ const jsonLd = graph([
       "@type": "CourseInstance",
       name: `${l.label} ${l.shortTitle}`,
       courseMode: "online",
-      url: `${site.url}${pilotHref}`,
+      url: `${site.url}/academy/${l.slug}/`,
     })),
   },
 ]);
@@ -53,7 +46,7 @@ const jsonLd = graph([
 
 <Base
   title={`${ACADEMY.name} — 6 STEP 41강 · 하루 한스푼 15분 금융 수업`}
-  description={`${ACADEMY.name}는 금융·투자·연금·재무를 6단계 41강으로 나눈 학습 프로그램입니다. 강의 1개는 5분 읽기, 내 숫자 계산기, 3D 카드 6장, 1차 출처로 묶여 있습니다. 기준일 ${site.baseDateLabel}.`}
+  description={`${ACADEMY.name}는 금융·투자·연금·재무를 6단계 41강으로 나눈 학습 프로그램입니다. 강의 1개는 5분 읽기, 카드뉴스 6장, 내 숫자 계산기, 1차 출처로 묶여 있습니다. 지금 STEP 1·2의 ${openLessonCount}강이 열려 있습니다. 기준일 ${site.baseDateLabel}.`}
   path="/academy"
   jsonLd={jsonLd}
 >
@@ -77,15 +70,15 @@ const jsonLd = graph([
 
           <ul class="mt-4 flex flex-wrap gap-1.5">
             <li class="chip">{ACADEMY.counts.steps} STEP · {ACADEMY.counts.lessons}강</li>
+            <li class="chip !border-brand/30 !bg-brand-soft !text-brand-deep">지금 열린 강의 {openLessonCount}개</li>
             <li class="chip">카드 {ACADEMY.counts.cardSets}세트 {ACADEMY.counts.cards}장</li>
             <li class="chip">{ACADEMY.counts.hours}</li>
-            <li class="chip">지금 열린 강의 {openCount}개</li>
             <li class="chip mono">기준일 {site.baseDateLabel}</li>
           </ul>
 
           <div class="mt-5 flex flex-wrap gap-2">
-            <a href={withBase(pilotHref)} class="btn btn-primary min-h-[46px]">
-              파일럿 1강 보기
+            <a href={withBase(firstHref)} class="btn btn-primary min-h-[46px]">
+              {first.label}부터 시작하기
               <span aria-hidden="true" class="ml-1.5">→</span>
             </a>
             <a href="#roadmap" class="btn btn-secondary min-h-[46px]">6 STEP 로드맵</a>
@@ -96,10 +89,10 @@ const jsonLd = graph([
         <div class="card p-5 md:p-6">
           <div class="flex items-baseline justify-between gap-3">
             <p class="text-[11px] font-bold tracking-[0.16em] text-brand-deep">강의 1개 = 15분</p>
-            <p class="mono text-[11.5px] text-ink-faint">5분 + 10분</p>
+            <p class="mono text-[11.5px] text-ink-faint">읽기 5 + 계산 10</p>
           </div>
           <p class="mt-2 text-[15.5px] font-semibold leading-[1.6] tracking-[-0.02em] text-ink">
-            읽고, 계산하고, 카드로 남기고,<br />출처에서 확인합니다.
+            카드로 먼저 보고, 읽고, 계산하고,<br />출처에서 확인합니다.
           </p>
           <ol class="academy-flow mt-4">
             {ACADEMY_SET.map((set) => (
@@ -121,7 +114,57 @@ const jsonLd = graph([
     </div>
   </section>
 
-  <!-- ② 강의 1개의 4종 세트 -->
+  <!-- ② 지금 열린 강의 -->
+  <section class="scene-sky-band border-b border-line" id="open">
+    <div class="wrap py-10 md:py-14">
+      <div class="sec-head">
+        <div>
+          <p class="eyebrow">지금 열린 강의</p>
+          <h2 class="sec-title">STEP 1·2<br />{openLessonCount}강이 열렸습니다</h2>
+        </div>
+        <div class="sec-head-side">
+          <p class="sec-desc">
+            돈의 기초 체력(STEP 1) 두 강과 계좌 배치(STEP 2) 세 강입니다.<br />
+            어떤 강의든 카드뉴스 6장 → 5분 읽기 → 계산기 → 운영표 1칸 순서로 끝납니다.
+          </p>
+        </div>
+      </div>
+
+      <ul class="academy-lessons mt-6">
+        {
+          OPEN_LESSONS.map((lesson) => (
+            <li class="academy-lesson" data-step={lesson.step}>
+              <a href={withBase(`/academy/${lesson.slug}/`)} class="academy-lesson-link">
+                <span class="academy-lesson-head">
+                  <span class="chip !min-h-[22px] !px-2 !text-[10.5px] !border-brand/30 !bg-brand-soft !text-brand-deep">
+                    STEP {lesson.step} · {lesson.label}
+                  </span>
+                  <span class="academy-lesson-cards mono">
+                    {availableCount(lesson.cardSet) > 0 ? `카드 ${availableCount(lesson.cardSet)}장` : "카드 준비 중"}
+                  </span>
+                </span>
+                <span class="academy-lesson-title">{lesson.title}</span>
+                <span class="academy-lesson-hook">{lesson.hook}</span>
+                <span class="academy-lesson-nums">
+                  {lesson.keyNumbers.map((k) => (
+                    <span>
+                      <span class="academy-lesson-num-label">{k.label}</span>
+                      <span class="academy-lesson-num">{k.value}</span>
+                    </span>
+                  ))}
+                </span>
+                <span class="academy-lesson-go">
+                  카드뉴스부터 보기 <span aria-hidden="true">→</span>
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- ③ 강의 1개의 4종 세트 -->
   <section class="scene-white border-b border-line">
     <div class="wrap py-10 md:py-14">
       <div class="sec-head">
@@ -131,7 +174,7 @@ const jsonLd = graph([
         </div>
         <div class="sec-head-side">
           <p class="sec-desc">
-            길게 이어 보는 대신, 읽고 계산하고 손에 쥐고 원문을 확인하는 순서로 나눴습니다.<br />
+            길게 이어 보는 대신, 카드로 먼저 잡고 읽고 계산하고 원문을 확인하는 순서로 나눴습니다.<br />
             어느 강의든 같은 네 칸을 지나기 때문에, 끝났는지 스스로 확인할 수 있습니다.
           </p>
         </div>
@@ -162,7 +205,7 @@ const jsonLd = graph([
     </div>
   </section>
 
-  <!-- ③ 6 STEP 로드맵 -->
+  <!-- ④ 6 STEP 로드맵 -->
   <section class="scene-cream border-b border-line" id="roadmap">
     <div class="wrap py-10 md:py-14">
       <div class="sec-head">
@@ -182,6 +225,7 @@ const jsonLd = graph([
         {
           ACADEMY_STEPS.map((step) => {
             const open = step.status === "open";
+            const lessons = OPEN_LESSONS.filter((l) => l.step === step.no);
             return (
               <li class="academy-step" data-open={open ? "true" : "false"} id={`step-${step.no}`}>
                 <div class="academy-step-no" aria-hidden="true">
@@ -214,10 +258,17 @@ const jsonLd = graph([
                     <span class="font-semibold text-ink-soft">수료 기준</span> {step.deliverable}
                   </p>
                   {open && (
-                    <a href={withBase(pilotHref)} class="academy-step-link">
-                      {PILOT.label} {PILOT.shortTitle} — 지금 보기
-                      <span aria-hidden="true">→</span>
-                    </a>
+                    <ul class="academy-step-lessons">
+                      {lessons.map((lesson) => (
+                        <li>
+                          <a href={withBase(`/academy/${lesson.slug}/`)}>
+                            <span class="mono academy-step-lesson-no">{lesson.label}</span>
+                            <span class="academy-step-lesson-title">{lesson.shortTitle}</span>
+                            <span class="academy-step-lesson-go" aria-hidden="true">→</span>
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
                   )}
                 </div>
               </li>
@@ -228,7 +279,7 @@ const jsonLd = graph([
     </div>
   </section>
 
-  <!-- ④ 수강 경로 3가지 + 진단 3문항 -->
+  <!-- ⑤ 수강 경로 3가지 + 진단 3문항 -->
   <section class="scene-white border-b border-line" id="paths">
     <div class="wrap py-10 md:py-14">
       <div class="sec-head">
@@ -299,7 +350,7 @@ const jsonLd = graph([
           <div data-diagnosis-answer="starter" hidden>
             <p class="mt-1 text-[14px] font-bold text-ink">입문 경로 — STEP 1 → 2 (13강)</p>
             <p class="mt-1 text-[12.5px] leading-[1.65] text-ink-muted">
-              내 숫자 3개와 계좌 배치 한 장을 먼저 만듭니다.
+              지금은 STEP 1의 1-1강부터 열면 됩니다. 내 숫자 3개와 계좌 배치 한 장을 먼저 만듭니다.
             </p>
           </div>
           <div data-diagnosis-answer="builder" hidden>
@@ -312,7 +363,7 @@ const jsonLd = graph([
           <div data-diagnosis-answer="all" hidden>
             <p class="mt-1 text-[14px] font-bold text-ink">6단계 전체 — 41강</p>
             <p class="mt-1 text-[12.5px] leading-[1.65] text-ink-muted">
-              순서대로 6장의 문서를 남깁니다. 지금은 STEP 2의 파일럿 1강부터 열려 있습니다.
+              순서대로 6장의 문서를 남깁니다. 지금은 STEP 1·2의 {openLessonCount}강이 열려 있습니다.
             </p>
           </div>
           <noscript>
@@ -322,81 +373,6 @@ const jsonLd = graph([
           </noscript>
         </div>
       </div>
-    </div>
-  </section>
-
-  <!-- ⑤ 지금 열린 파일럿 1강 -->
-  <section class="scene-sky-band border-b border-line" id="pilot">
-    <div class="wrap py-10 md:py-14">
-      <div class="sec-head">
-        <div>
-          <p class="eyebrow">지금 열린 강의</p>
-          <h2 class="sec-title">파일럿 1강<br />{PILOT.shortTitle}</h2>
-        </div>
-        <div class="sec-head-side">
-          <p class="sec-desc">
-            STEP 2 「계좌 배치」의 2-3강입니다. 한 편으로 세액공제의 구조와 내 숫자 계산까지 끝냅니다.
-          </p>
-        </div>
-      </div>
-
-      <article class="card mt-5 overflow-hidden md:grid md:grid-cols-[minmax(0,1fr)_300px]">
-        <div class="p-5 md:p-7">
-          <div class="flex flex-wrap items-center gap-1.5">
-            <span class="chip !border-brand/30 !bg-brand-soft !text-brand-deep">STEP 2 · {PILOT.label}</span>
-            <span class="chip">5분 읽기</span>
-            <span class="chip">계산기 실습</span>
-            <span class="chip">카드 6장</span>
-          </div>
-          <h3 class="mt-3 text-[19px] font-bold leading-[1.45] tracking-[-0.03em] text-ink md:text-[22px]">
-            {PILOT.title}
-          </h3>
-          <p class="mt-2 text-[13.5px] leading-[1.75] text-ink-muted">{PILOT.hook}</p>
-          <dl class="academy-pilot-nums mt-4">
-            <div>
-              <dt>합산 한도</dt>
-              <dd>{PILOT.numbers.combinedLimit}</dd>
-            </div>
-            <div>
-              <dt>최대 세액공제</dt>
-              <dd class="text-brand-deep">{PILOT.numbers.maxCreditLabel}</dd>
-            </div>
-            <div>
-              <dt>중도해지 시</dt>
-              <dd>{PILOT.numbers.earlyRate}</dd>
-            </div>
-          </dl>
-          <div class="mt-5 flex flex-wrap gap-2">
-            <a href={withBase(pilotHref)} class="btn btn-primary min-h-[46px]">
-              {PILOT.label} 시작하기
-              <span aria-hidden="true" class="ml-1.5">→</span>
-            </a>
-            <a href={withBase("/apps/pension-tax/run")} class="btn btn-secondary min-h-[46px]">
-              계산기 먼저 열기
-            </a>
-          </div>
-        </div>
-        <div class="academy-pilot-side">
-          <p class="mono text-[11px] tracking-[0.04em] text-ink-faint">이 강의에서 채우는 칸</p>
-          <p class="mt-1 text-[15px] font-bold tracking-[-0.025em] text-ink">내 돈 운영표 · 2번 칸</p>
-          <p class="mt-1 text-[12px] leading-[1.65] text-ink-muted">
-            계좌 배치표의 첫 줄 — 연금저축과 IRP에 얼마를 넣고, 얼마를 돌려받는지 적습니다.
-          </p>
-          <ul class="academy-sheet-mini mt-3">
-            {
-              PILOT.sheet.slots.map((slot) => (
-                <li data-done={slot.no === 2 ? "true" : "false"}>
-                  <span class="mono">{slot.no}</span>
-                  <span>{slot.name}</span>
-                </li>
-              ))
-            }
-          </ul>
-          <p class="mt-3 text-[11.5px] leading-[1.6] text-ink-faint">
-            나머지 STEP은 순서대로 열립니다. 6장이 모이면 1년 운영표가 됩니다.
-          </p>
-        </div>
-      </article>
     </div>
   </section>
 
@@ -473,6 +449,115 @@ const jsonLd = graph([
     font-weight: 700;
   }
 
+  /* ---- 지금 열린 강의 카드 ---- */
+  .academy-lessons {
+    display: grid;
+    gap: 10px;
+  }
+
+  @media (min-width: 760px) {
+    .academy-lessons {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1120px) {
+    .academy-lessons {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  .academy-lesson {
+    min-width: 0;
+  }
+
+  .academy-lesson-link {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    height: 100%;
+    padding: 16px;
+    border: 1px solid var(--color-line);
+    border-radius: 16px;
+    background-color: #ffffff;
+    box-shadow: 0 16px 32px -30px rgb(18 51 184 / 0.5);
+    transition:
+      border-color 140ms var(--ease-out-soft),
+      transform 140ms var(--ease-out-soft);
+  }
+
+  .academy-lesson-link:hover {
+    border-color: rgb(26 79 253 / 0.42);
+    transform: translateY(-1px);
+  }
+
+  .academy-lesson-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .academy-lesson-cards {
+    font-size: 11px;
+    color: var(--color-ink-faint);
+  }
+
+  .academy-lesson-title {
+    margin-top: 2px;
+    font-size: 15.5px;
+    font-weight: 700;
+    line-height: 1.45;
+    letter-spacing: -0.028em;
+    color: var(--color-ink);
+    text-wrap: pretty;
+  }
+
+  .academy-lesson-hook {
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: var(--color-ink-muted);
+    text-wrap: pretty;
+  }
+
+  .academy-lesson-nums {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 2px;
+  }
+
+  .academy-lesson-nums > span {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 4px;
+    padding: 4px 8px;
+    border-radius: 9px;
+    background-color: var(--color-paper);
+  }
+
+  .academy-lesson-num-label {
+    font-size: 10.5px;
+    font-weight: 600;
+    color: var(--color-ink-faint);
+  }
+
+  .academy-lesson-num {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--color-brand-deep);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .academy-lesson-go {
+    margin-top: auto;
+    padding-top: 6px;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--color-brand-deep);
+  }
+
+  /* ---- 로드맵 ---- */
   .academy-steps {
     display: grid;
     gap: 10px;
@@ -567,21 +652,50 @@ const jsonLd = graph([
     }
   }
 
-  .academy-step-link {
-    display: inline-flex;
+  .academy-step-lessons {
+    display: grid;
+    gap: 2px;
+    margin-top: 8px;
+    padding-top: 6px;
+    border-top: 1px dashed var(--color-line);
+  }
+
+  .academy-step-lessons a {
+    display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     min-height: 44px;
-    margin-top: 6px;
-    font-size: 13px;
+    padding: 0 4px;
+    border-radius: 8px;
+  }
+
+  .academy-step-lessons a:hover {
+    background-color: var(--color-brand-soft);
+  }
+
+  .academy-step-lesson-no {
+    flex: none;
+    min-width: 42px;
+    font-size: 11.5px;
     font-weight: 700;
     color: var(--color-brand-deep);
   }
 
-  .academy-step-link:hover {
-    color: var(--color-brand);
+  .academy-step-lesson-title {
+    flex: 1;
+    min-width: 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-ink-soft);
   }
 
+  .academy-step-lesson-go {
+    flex: none;
+    font-size: 12px;
+    color: var(--color-ink-faint);
+  }
+
+  /* ---- 진단 ---- */
   .academy-diagnosis {
     display: grid;
     gap: 14px;
@@ -626,76 +740,5 @@ const jsonLd = graph([
     border-radius: 12px;
     background-color: #ffffff;
     border: 1px solid var(--color-line-soft);
-  }
-
-  .academy-pilot-nums {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 8px;
-  }
-
-  .academy-pilot-nums > div {
-    padding: 10px;
-    border-radius: 12px;
-    background-color: var(--color-paper);
-  }
-
-  .academy-pilot-nums dt {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--color-ink-faint);
-  }
-
-  .academy-pilot-nums dd {
-    margin: 2px 0 0;
-    font-size: 14.5px;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    color: var(--color-ink);
-  }
-
-  .academy-pilot-side {
-    padding: 20px;
-    border-top: 1px solid var(--color-line);
-    background-color: var(--color-paper);
-  }
-
-  @media (min-width: 768px) {
-    .academy-pilot-side {
-      border-top: 0;
-      border-left: 1px solid var(--color-line);
-      padding: 28px 22px;
-    }
-  }
-
-  .academy-sheet-mini {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 6px;
-  }
-
-  .academy-sheet-mini li {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    min-height: 34px;
-    padding: 0 8px;
-    border: 1px dashed var(--color-line);
-    border-radius: 10px;
-    background-color: #ffffff;
-    font-size: 11.5px;
-    color: var(--color-ink-faint);
-  }
-
-  .academy-sheet-mini li .mono {
-    font-size: 10.5px;
-  }
-
-  .academy-sheet-mini li[data-done="true"] {
-    border-style: solid;
-    border-color: rgb(26 79 253 / 0.35);
-    background-color: var(--color-brand-soft);
-    color: var(--color-brand-deep);
-    font-weight: 700;
   }
 </style>

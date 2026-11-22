@@ -1,0 +1,409 @@
+---
+/**
+ * 「내 돈 운영표」 1번 칸 — 비상금 줄 (1-2강).
+ *
+ * 생활비·매달 적립액·개월 수(3 또는 6)를 고르면 목표액과 도달 개월을 계산한다.
+ * 세후 이자는 '예시 금리 3%'로만 계산하며, 금리는 상품마다 달라 화면에서 가정임을 밝힌다.
+ * 입력값은 주소·서버·저장소에 남기지 않는다.
+ */
+import { withBase, site } from "@/config/site";
+import { INCOME_TAX, pct } from "@/data/tax-rules";
+
+interface Props {
+  slotNo?: number;
+  slotTitle?: string;
+  line?: string;
+}
+const { slotNo = 1, slotTitle = "현금흐름표", line = "" } = Astro.props;
+
+const living = [200, 250, 300];
+const monthly = [50, 75, 100];
+const months = [3, 6];
+const defaults = { living: 250, monthly: 75, months: 6 };
+const EXAMPLE_RATE = 0.03;
+---
+
+<section
+  class="sheet"
+  data-sheet
+  data-variant="emergency"
+  data-tax-rate={INCOME_TAX.dividendWithLocal}
+  data-example-rate={EXAMPLE_RATE}
+  aria-labelledby="sheet-heading"
+>
+  <div class="sheet-head">
+    <div>
+      <p class="eyebrow">STEP 완료 체크</p>
+      <h2 id="sheet-heading" class="sec-title">내 돈 운영표 · {slotNo}번 칸</h2>
+      <p class="mt-2 max-w-[54ch] text-[13px] leading-[1.7] text-ink-muted">
+        {slotTitle}의 비상금 줄입니다. {line || "생활비와 적립액을 넣어 목표액과 도달 개월을 적습니다."} 고른 값은 이
+        화면 안에서만 계산됩니다.
+      </p>
+    </div>
+    <p class="sheet-progress mono" data-sheet-progress>STEP 1 · 0 / 6칸</p>
+  </div>
+
+  <div class="sheet-body">
+    <div class="sheet-form">
+      <fieldset class="sheet-field">
+        <legend class="sheet-legend">월 생활비 <span class="mono">고정비 + 변동비</span></legend>
+        <div class="sheet-chips">
+          {
+            living.map((v) => (
+              <label class="sheet-chip sheet-chip--num">
+                <input type="radio" name="em-living" value={v} checked={v === defaults.living} data-sheet-input />
+                <span>{v}만</span>
+              </label>
+            ))
+          }
+        </div>
+      </fieldset>
+
+      <fieldset class="sheet-field">
+        <legend class="sheet-legend">매달 비상금으로 넣는 금액</legend>
+        <div class="sheet-chips">
+          {
+            monthly.map((v) => (
+              <label class="sheet-chip sheet-chip--num">
+                <input type="radio" name="em-monthly" value={v} checked={v === defaults.monthly} data-sheet-input />
+                <span>{v}만</span>
+              </label>
+            ))
+          }
+        </div>
+      </fieldset>
+
+      <fieldset class="sheet-field">
+        <legend class="sheet-legend">목표 개월 <span class="mono">소득이 한 곳이면 6개월</span></legend>
+        <div class="sheet-chips">
+          {
+            months.map((v) => (
+              <label class="sheet-chip sheet-chip--num">
+                <input type="radio" name="em-months" value={v} checked={v === defaults.months} data-sheet-input />
+                <span>{v}개월</span>
+              </label>
+            ))
+          }
+        </div>
+      </fieldset>
+
+      <div class="sheet-result">
+        <p class="text-[11.5px] font-semibold text-ink-faint">비상금 목표액</p>
+        <p class="mt-1 text-[24px] font-bold leading-none tracking-[-0.035em] text-brand-deep" data-sheet-out-goal>
+          1,500만원
+        </p>
+        <p class="mono mt-1.5 text-[11.5px] text-ink-faint" data-sheet-breakdown>
+          생활비 250만원 × 6개월
+        </p>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2">
+        <button type="button" class="btn btn-primary btn-sm min-h-[44px]" data-sheet-commit>이 칸 채우기</button>
+        <a href={withBase("/academy/#roadmap")} class="text-[12px] text-ink-faint underline underline-offset-2">
+          아카데미 로드맵
+        </a>
+      </div>
+
+      <p class="text-[11.5px] leading-[1.6] text-ink-faint">
+        이자 계산은 예시 금리 {pct(EXAMPLE_RATE, 0)}와 이자소득세 {pct(INCOME_TAX.dividendWithLocal)} 기준입니다. 실제
+        금리는 금융감독원 파인에서 확인하세요. 고른 값은 주소·서버·저장소에 남기지 않습니다. 기준일{" "}
+        {site.baseDateLabel}.
+      </p>
+    </div>
+
+    <div class="sheet-preview" data-sheet-preview>
+      <p class="mono text-[11px] tracking-[0.04em] text-ink-faint">내 돈 운영표 · 6칸 중 {slotNo}번</p>
+
+      <div class="sheet-empty" data-sheet-empty>
+        <p class="text-[13.5px] font-semibold text-ink">아직 빈칸입니다</p>
+        <p class="mt-1 text-[12px] leading-[1.65] text-ink-muted">
+          왼쪽에서 생활비와 적립액을 고른 뒤 <span class="font-semibold text-ink-soft">이 칸 채우기</span>를 누르면,
+          비상금 목표와 도달 시점이 한 줄로 남습니다.
+        </p>
+      </div>
+
+      <div class="sheet-filled" data-sheet-filled hidden>
+        <p class="text-[11px] font-bold tracking-[0.14em] text-brand-deep">칸 완성</p>
+        <p class="mt-1.5 text-[15px] font-bold tracking-[-0.025em] text-ink">{slotTitle} · 비상금 줄</p>
+        <dl class="sheet-filled-list mt-2">
+          <div>
+            <dt>생활비</dt>
+            <dd data-sheet-out-living>250만원</dd>
+          </div>
+          <div>
+            <dt>목표</dt>
+            <dd data-sheet-out-target>6개월 · 1,500만원</dd>
+          </div>
+          <div>
+            <dt>매달 적립</dt>
+            <dd data-sheet-out-monthly>75만원</dd>
+          </div>
+          <div>
+            <dt>도달</dt>
+            <dd data-sheet-out-reach>20개월</dd>
+          </div>
+          <div>
+            <dt>1년 이자(세후)</dt>
+            <dd data-sheet-out-interest>38만 700원</dd>
+          </div>
+        </dl>
+        <p class="mt-2 border-t border-dashed border-line pt-2 text-[11.5px] leading-[1.6] text-ink-faint">
+          기준일 {site.baseDateLabel} · 3~6개월은 자체 기준입니다 — 나머지 5칸은 다음 강의에서 채웁니다.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  const man = (value: number) => `${value.toLocaleString("ko-KR")}만원`;
+  const won = (value: number) => {
+    const m = Math.floor(value / 10000);
+    const rest = value % 10000;
+    if (rest === 0) return `${m.toLocaleString("ko-KR")}만원`;
+    return `${m.toLocaleString("ko-KR")}만 ${rest.toLocaleString("ko-KR")}원`;
+  };
+
+  document.querySelectorAll<HTMLElement>('[data-sheet][data-variant="emergency"]').forEach((root) => {
+    const inputs = [...root.querySelectorAll<HTMLInputElement>("[data-sheet-input]")];
+    const goalEl = root.querySelector<HTMLElement>("[data-sheet-out-goal]");
+    const breakdownEl = root.querySelector<HTMLElement>("[data-sheet-breakdown]");
+    const progressEl = root.querySelector<HTMLElement>("[data-sheet-progress]");
+    const empty = root.querySelector<HTMLElement>("[data-sheet-empty]");
+    const filled = root.querySelector<HTMLElement>("[data-sheet-filled]");
+    const out = {
+      living: root.querySelector<HTMLElement>("[data-sheet-out-living]"),
+      target: root.querySelector<HTMLElement>("[data-sheet-out-target]"),
+      monthly: root.querySelector<HTMLElement>("[data-sheet-out-monthly]"),
+      reach: root.querySelector<HTMLElement>("[data-sheet-out-reach]"),
+      interest: root.querySelector<HTMLElement>("[data-sheet-out-interest]"),
+    };
+    const commitBtn = root.querySelector<HTMLButtonElement>("[data-sheet-commit]");
+    const TAX = Number(root.dataset.taxRate ?? 0.154);
+    const RATE = Number(root.dataset.exampleRate ?? 0.03);
+
+    const picked = (name: string) => Number(inputs.find((i) => i.name === name && i.checked)?.value ?? 0);
+
+    const state = () => {
+      const living = picked("em-living");
+      const saving = picked("em-monthly");
+      const months = picked("em-months");
+      const goal = living * months;
+      const reach = saving > 0 ? Math.ceil(goal / saving) : 0;
+      const interest = Math.round(goal * 10000 * RATE);
+      const tax = Math.round(interest * TAX);
+      return { living, saving, months, goal, reach, interest, after: interest - tax };
+    };
+
+    let committed = false;
+
+    const paint = () => {
+      const s = state();
+      if (out.living) out.living.textContent = man(s.living);
+      if (out.target) out.target.textContent = `${s.months}개월 · ${man(s.goal)}`;
+      if (out.monthly) out.monthly.textContent = man(s.saving);
+      if (out.reach) out.reach.textContent = `${s.reach}개월`;
+      if (out.interest) out.interest.textContent = won(s.after);
+    };
+
+    const render = () => {
+      const s = state();
+      if (goalEl) goalEl.textContent = man(s.goal);
+      if (breakdownEl) breakdownEl.textContent = `생활비 ${man(s.living)} × ${s.months}개월`;
+      if (committed) paint();
+    };
+
+    inputs.forEach((i) => i.addEventListener("change", render));
+
+    commitBtn?.addEventListener("click", () => {
+      committed = true;
+      paint();
+      if (empty) empty.hidden = true;
+      if (filled) filled.hidden = false;
+      if (progressEl) progressEl.textContent = "STEP 1 · 1 / 6칸";
+      commitBtn.textContent = "값 바꿔서 다시 채우기";
+      filled?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    });
+
+    render();
+  });
+</script>
+
+<style>
+  .sheet {
+    padding: 20px;
+    border: 1px solid var(--color-line);
+    border-radius: 20px;
+    background-color: #ffffff;
+    box-shadow:
+      0 1px 2px rgb(11 27 41 / 0.04),
+      0 20px 44px -34px rgb(11 27 41 / 0.5);
+  }
+
+  @media (min-width: 768px) {
+    .sheet {
+      padding: 28px;
+    }
+  }
+
+  .sheet-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .sheet-progress {
+    display: inline-flex;
+    align-items: center;
+    min-height: 28px;
+    padding: 0 10px;
+    border-radius: 999px;
+    background-color: var(--color-brand-soft);
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--color-brand-deep);
+  }
+
+  .sheet-body {
+    display: grid;
+    gap: 18px;
+    margin-top: 18px;
+  }
+
+  @media (min-width: 900px) {
+    .sheet-body {
+      grid-template-columns: minmax(0, 1.18fr) minmax(0, 1fr);
+      gap: 24px;
+      align-items: start;
+    }
+  }
+
+  .sheet-form {
+    display: grid;
+    gap: 14px;
+    min-width: 0;
+  }
+
+  .sheet-field {
+    min-width: 0;
+  }
+
+  .sheet-legend {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 6px;
+    margin-bottom: 6px;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--color-ink-soft);
+  }
+
+  .sheet-legend .mono {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--color-ink-faint);
+  }
+
+  .sheet-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .sheet-chip {
+    display: inline-flex;
+    cursor: pointer;
+  }
+
+  .sheet-chip input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .sheet-chip span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 12px;
+    border: 1px solid var(--color-line);
+    border-radius: 12px;
+    background-color: #ffffff;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--color-ink-muted);
+    transition:
+      border-color 140ms var(--ease-out-soft),
+      background-color 140ms var(--ease-out-soft);
+  }
+
+  .sheet-chip--num span {
+    min-width: 62px;
+    justify-content: center;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .sheet-chip input:checked + span {
+    border-color: var(--color-brand);
+    background-color: var(--color-brand-soft);
+    color: var(--color-brand-deep);
+  }
+
+  .sheet-chip input:focus-visible + span {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 2px;
+  }
+
+  .sheet-result {
+    padding: 14px 16px;
+    border-radius: 14px;
+    background-color: var(--color-paper);
+    border: 1px solid var(--color-line-soft);
+  }
+
+  .sheet-preview {
+    padding: 16px;
+    border: 1px dashed var(--color-line);
+    border-radius: 16px;
+    background-color: var(--color-cream);
+  }
+
+  .sheet-filled {
+    margin-top: 10px;
+  }
+
+  .sheet-filled-list {
+    display: grid;
+    gap: 2px;
+  }
+
+  .sheet-filled-list > div {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 5px 0;
+    border-bottom: 1px solid var(--color-line-soft);
+  }
+
+  .sheet-filled-list dt {
+    flex: none;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-ink-faint);
+  }
+
+  .sheet-filled-list dd {
+    margin: 0;
+    text-align: right;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--color-ink);
+  }
+</style>

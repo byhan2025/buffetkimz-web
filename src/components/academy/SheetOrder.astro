@@ -1,0 +1,416 @@
+---
+/**
+ * 「내 돈 운영표」 2번 칸 — 1·2·3순위 배분 (2-1강).
+ *
+ * 월 여유자금과 총급여 구간을 고르면 연금저축 → IRP → ISA 순서로 배분하고 예상 세액공제를 계산한다.
+ * 한도·공제율은 tax-rules 상수를 data 속성으로 넘겨 화면에서 다시 적지 않는다.
+ * 입력값은 주소·서버·저장소에 남기지 않는다.
+ */
+import { withBase, site } from "@/config/site";
+import { PENSION_ACCOUNT, manLabel, pct, wonLabel } from "@/data/tax-rules";
+
+interface Props {
+  slotNo?: number;
+  slotTitle?: string;
+  line?: string;
+}
+const { slotNo = 2, slotTitle = "계좌 배치표", line = "" } = Astro.props;
+
+const monthly = [50, 75, 100, 150];
+const defaults = { monthly: 750 / 10 };
+const creditAt = (man: number, rate: number) => Math.round(man * 10000 * rate);
+---
+
+<section
+  class="sheet"
+  data-sheet
+  data-variant="order"
+  data-savings-limit={PENSION_ACCOUNT.savingsLimit}
+  data-combined-limit={PENSION_ACCOUNT.combinedLimit}
+  data-rate-low={PENSION_ACCOUNT.creditRateLow}
+  data-rate-high={PENSION_ACCOUNT.creditRateHigh}
+  aria-labelledby="sheet-heading"
+>
+  <div class="sheet-head">
+    <div>
+      <p class="eyebrow">STEP 완료 체크</p>
+      <h2 id="sheet-heading" class="sec-title">내 돈 운영표 · {slotNo}번 칸</h2>
+      <p class="mt-2 max-w-[54ch] text-[13px] leading-[1.7] text-ink-muted">
+        {slotTitle}의 첫 줄입니다. {line || "월 여유자금을 넣어 1·2·3순위로 얼마씩 가는지 적습니다."} 순서는 연금저축 →
+        IRP → ISA입니다.
+      </p>
+    </div>
+    <p class="sheet-progress mono" data-sheet-progress>STEP 2 · 0 / 7칸</p>
+  </div>
+
+  <div class="sheet-body">
+    <div class="sheet-form">
+      <fieldset class="sheet-field">
+        <legend class="sheet-legend">
+          월 여유자금 <span class="mono">생활비를 빼고 남는 돈</span>
+        </legend>
+        <div class="sheet-chips">
+          {
+            monthly.map((v) => (
+              <label class="sheet-chip sheet-chip--num">
+                <input
+                  type="radio"
+                  name="od-monthly"
+                  value={v}
+                  checked={v === 75}
+                  data-sheet-input
+                />
+                <span>{v}만</span>
+              </label>
+            ))
+          }
+        </div>
+      </fieldset>
+
+      <fieldset class="sheet-field">
+        <legend class="sheet-legend">
+          소득 구간 <span class="mono">공제율이 갈리는 경계 {manLabel(PENSION_ACCOUNT.salaryThreshold)}</span>
+        </legend>
+        <div class="sheet-chips">
+          <label class="sheet-chip">
+            <input type="radio" name="od-bracket" value="low" checked data-sheet-input />
+            <span>총급여 {manLabel(PENSION_ACCOUNT.salaryThreshold)} 이하 · {pct(PENSION_ACCOUNT.creditRateLow)}</span>
+          </label>
+          <label class="sheet-chip">
+            <input type="radio" name="od-bracket" value="high" data-sheet-input />
+            <span>{manLabel(PENSION_ACCOUNT.salaryThreshold)} 초과 · {pct(PENSION_ACCOUNT.creditRateHigh)}</span>
+          </label>
+        </div>
+      </fieldset>
+
+      <div class="sheet-result">
+        <p class="text-[11.5px] font-semibold text-ink-faint">올해 예상 세액공제 (한도 기준)</p>
+        <p class="mt-1 text-[24px] font-bold leading-none tracking-[-0.035em] text-brand-deep" data-sheet-out-credit>
+          {wonLabel(creditAt(PENSION_ACCOUNT.combinedLimit, PENSION_ACCOUNT.creditRateLow))}
+        </p>
+        <p class="mono mt-1.5 text-[11.5px] text-ink-faint" data-sheet-breakdown>
+          공제 대상 {manLabel(PENSION_ACCOUNT.combinedLimit)} × {pct(PENSION_ACCOUNT.creditRateLow)}
+        </p>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2">
+        <button type="button" class="btn btn-primary btn-sm min-h-[44px]" data-sheet-commit>이 칸 채우기</button>
+        <a href={withBase("/academy/#roadmap")} class="text-[12px] text-ink-faint underline underline-offset-2">
+          아카데미 로드맵
+        </a>
+      </div>
+
+      <p class="text-[11.5px] leading-[1.6] text-ink-faint">
+        배분은 연금저축 {manLabel(PENSION_ACCOUNT.savingsLimit)} → IRP {manLabel(
+          PENSION_ACCOUNT.combinedLimit - PENSION_ACCOUNT.savingsLimit,
+        )} → ISA 순서입니다. 고른 값은 이 화면 안에서만 계산하고 주소·서버·저장소에 남기지 않습니다. 기준일{" "}
+        {site.baseDateLabel}.
+      </p>
+    </div>
+
+    <div class="sheet-preview" data-sheet-preview>
+      <p class="mono text-[11px] tracking-[0.04em] text-ink-faint">내 돈 운영표 · 7칸 중 {slotNo}번</p>
+
+      <div class="sheet-empty" data-sheet-empty>
+        <p class="text-[13.5px] font-semibold text-ink">아직 빈칸입니다</p>
+        <p class="mt-1 text-[12px] leading-[1.65] text-ink-muted">
+          왼쪽에서 여유자금과 소득 구간을 고른 뒤 <span class="font-semibold text-ink-soft">이 칸 채우기</span>를
+          누르면, 1·2·3순위 배분이 한 줄로 남습니다.
+        </p>
+      </div>
+
+      <div class="sheet-filled" data-sheet-filled hidden>
+        <p class="text-[11px] font-bold tracking-[0.14em] text-brand-deep">칸 완성</p>
+        <p class="mt-1.5 text-[15px] font-bold tracking-[-0.025em] text-ink">{slotTitle} · 1·2·3순위</p>
+        <dl class="sheet-filled-list mt-2">
+          <div>
+            <dt>월 여유자금</dt>
+            <dd data-sheet-out-monthly>75만원</dd>
+          </div>
+          <div>
+            <dt>1순위 · 연금저축</dt>
+            <dd data-sheet-out-first>50만원</dd>
+          </div>
+          <div>
+            <dt>2순위 · IRP</dt>
+            <dd data-sheet-out-second>25만원</dd>
+          </div>
+          <div>
+            <dt>3순위 · ISA</dt>
+            <dd data-sheet-out-third>0원</dd>
+          </div>
+          <div>
+            <dt>예상 세액공제</dt>
+            <dd data-sheet-out-credit-list>148만 5,000원</dd>
+          </div>
+        </dl>
+        <p class="mt-2 border-t border-dashed border-line pt-2 text-[11.5px] leading-[1.6] text-ink-faint">
+          기준일 {site.baseDateLabel} · 소득세법 제59조의3 — 나머지 6칸은 다음 강의에서 채웁니다.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  const man = (value: number) => (value === 0 ? "0원" : `${value.toLocaleString("ko-KR")}만원`);
+  const won = (value: number) => {
+    const m = Math.floor(value / 10000);
+    const rest = value % 10000;
+    if (rest === 0) return `${m.toLocaleString("ko-KR")}만원`;
+    return `${m.toLocaleString("ko-KR")}만 ${rest.toLocaleString("ko-KR")}원`;
+  };
+  const pctLabel = (rate: number) => `${(rate * 100).toFixed(1).replace(/\.0$/, "")}%`;
+
+  document.querySelectorAll<HTMLElement>('[data-sheet][data-variant="order"]').forEach((root) => {
+    const inputs = [...root.querySelectorAll<HTMLInputElement>("[data-sheet-input]")];
+    const creditEl = root.querySelector<HTMLElement>("[data-sheet-out-credit]");
+    const breakdownEl = root.querySelector<HTMLElement>("[data-sheet-breakdown]");
+    const progressEl = root.querySelector<HTMLElement>("[data-sheet-progress]");
+    const empty = root.querySelector<HTMLElement>("[data-sheet-empty]");
+    const filled = root.querySelector<HTMLElement>("[data-sheet-filled]");
+    const out = {
+      monthly: root.querySelector<HTMLElement>("[data-sheet-out-monthly]"),
+      first: root.querySelector<HTMLElement>("[data-sheet-out-first]"),
+      second: root.querySelector<HTMLElement>("[data-sheet-out-second]"),
+      third: root.querySelector<HTMLElement>("[data-sheet-out-third]"),
+      credit: root.querySelector<HTMLElement>("[data-sheet-out-credit-list]"),
+    };
+    const commitBtn = root.querySelector<HTMLButtonElement>("[data-sheet-commit]");
+
+    const SAVINGS = Number(root.dataset.savingsLimit);
+    const COMBINED = Number(root.dataset.combinedLimit);
+    const RATE: Record<string, number> = {
+      low: Number(root.dataset.rateLow),
+      high: Number(root.dataset.rateHigh),
+    };
+
+    const picked = (name: string) => inputs.find((i) => i.name === name && i.checked)?.value ?? "0";
+
+    const state = () => {
+      const monthly = Number(picked("od-monthly"));
+      const bracket = picked("od-bracket") || "low";
+      const yearly = monthly * 12;
+      /* 1순위 연금저축(월 50만) → 2순위 IRP(월 25만) → 3순위 ISA */
+      const firstMan = Math.min(monthly, Math.round(SAVINGS / 12));
+      const secondMan = Math.min(monthly - firstMan, Math.round((COMBINED - SAVINGS) / 12));
+      const thirdMan = Math.max(monthly - firstMan - secondMan, 0);
+      const eligible =
+        Math.min(Math.min(monthly, SAVINGS / 12) * 12, SAVINGS) +
+        Math.min(Math.max(yearly - SAVINGS, 0), COMBINED - SAVINGS);
+      const rate = RATE[bracket] ?? RATE.low;
+      return { monthly, bracket, firstMan, secondMan, thirdMan, eligible, rate, credit: Math.round(eligible * 10000 * rate) };
+    };
+
+    let committed = false;
+
+    const paint = () => {
+      const s = state();
+      if (out.monthly) out.monthly.textContent = man(s.monthly);
+      if (out.first) out.first.textContent = man(s.firstMan);
+      if (out.second) out.second.textContent = man(s.secondMan);
+      if (out.third) out.third.textContent = man(s.thirdMan);
+      if (out.credit) out.credit.textContent = won(s.credit);
+    };
+
+    const render = () => {
+      const s = state();
+      if (creditEl) creditEl.textContent = won(s.credit);
+      if (breakdownEl) breakdownEl.textContent = `공제 대상 ${man(s.eligible)} × ${pctLabel(s.rate)}`;
+      if (committed) paint();
+    };
+
+    inputs.forEach((i) => i.addEventListener("change", render));
+
+    commitBtn?.addEventListener("click", () => {
+      committed = true;
+      paint();
+      if (empty) empty.hidden = true;
+      if (filled) filled.hidden = false;
+      if (progressEl) progressEl.textContent = "STEP 2 · 1 / 7칸";
+      commitBtn.textContent = "값 바꿔서 다시 채우기";
+      filled?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    });
+
+    render();
+  });
+</script>
+
+<style>
+  .sheet {
+    padding: 20px;
+    border: 1px solid var(--color-line);
+    border-radius: 20px;
+    background-color: #ffffff;
+    box-shadow:
+      0 1px 2px rgb(11 27 41 / 0.04),
+      0 20px 44px -34px rgb(11 27 41 / 0.5);
+  }
+
+  @media (min-width: 768px) {
+    .sheet {
+      padding: 28px;
+    }
+  }
+
+  .sheet-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .sheet-progress {
+    display: inline-flex;
+    align-items: center;
+    min-height: 28px;
+    padding: 0 10px;
+    border-radius: 999px;
+    background-color: var(--color-brand-soft);
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--color-brand-deep);
+  }
+
+  .sheet-body {
+    display: grid;
+    gap: 18px;
+    margin-top: 18px;
+  }
+
+  @media (min-width: 900px) {
+    .sheet-body {
+      grid-template-columns: minmax(0, 1.18fr) minmax(0, 1fr);
+      gap: 24px;
+      align-items: start;
+    }
+  }
+
+  .sheet-form {
+    display: grid;
+    gap: 14px;
+    min-width: 0;
+  }
+
+  .sheet-field {
+    min-width: 0;
+  }
+
+  .sheet-legend {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 6px;
+    margin-bottom: 6px;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--color-ink-soft);
+  }
+
+  .sheet-legend .mono {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--color-ink-faint);
+  }
+
+  .sheet-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .sheet-chip {
+    display: inline-flex;
+    cursor: pointer;
+  }
+
+  .sheet-chip input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .sheet-chip span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 12px;
+    border: 1px solid var(--color-line);
+    border-radius: 12px;
+    background-color: #ffffff;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--color-ink-muted);
+    transition:
+      border-color 140ms var(--ease-out-soft),
+      background-color 140ms var(--ease-out-soft);
+  }
+
+  .sheet-chip--num span {
+    min-width: 62px;
+    justify-content: center;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .sheet-chip input:checked + span {
+    border-color: var(--color-brand);
+    background-color: var(--color-brand-soft);
+    color: var(--color-brand-deep);
+  }
+
+  .sheet-chip input:focus-visible + span {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 2px;
+  }
+
+  .sheet-result {
+    padding: 14px 16px;
+    border-radius: 14px;
+    background-color: var(--color-paper);
+    border: 1px solid var(--color-line-soft);
+  }
+
+  .sheet-preview {
+    padding: 16px;
+    border: 1px dashed var(--color-line);
+    border-radius: 16px;
+    background-color: var(--color-cream);
+  }
+
+  .sheet-filled {
+    margin-top: 10px;
+  }
+
+  .sheet-filled-list {
+    display: grid;
+    gap: 2px;
+  }
+
+  .sheet-filled-list > div {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 5px 0;
+    border-bottom: 1px solid var(--color-line-soft);
+  }
+
+  .sheet-filled-list dt {
+    flex: none;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-ink-faint);
+  }
+
+  .sheet-filled-list dd {
+    margin: 0;
+    text-align: right;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--color-ink);
+  }
+</style>

@@ -123,6 +123,307 @@ const yearendSlides: GallerySlide[] = [
 
 export const galleryItems: GalleryItem[] = [
   /**
+   * v8.1.0 — 「한스푼 아카데미」 STEP 1·2 확장과 함께 온 2차 5세트(30장).
+   * C. 계좌 배치표 / E. 낙폭과 회복 / G. 퇴직연금 3층 / H. 보장 공백 5칸 / I. 12개월 금융 달력.
+   * 스타일은 3D 클레이가 아니라 **손글씨 + 형광펜 + 크림지**다. 파일 이름만 기존 경로 규칙(`3d-`)을 유지했고,
+   * 태그에 '손글씨 다이어그램'을 달아 3D 세트와 구분한다. 6장 연속 세트라 분류는 `carousel`이다.
+   * 원본: `tmp/gallery_batch2_20261122.json` · 렌더 `tmp/clay1222/render_hand.py` · 기준일 2026. 11. 22.
+   */
+  {
+    id: "account-order-hand",
+    title: "연봉 5,500만, 계좌 넣는 순서",
+    tagline: "손글씨 카드 6장 · 연금저축 600 → IRP 300 → ISA",
+    summary:
+      "남는 돈이 생겼을 때 아무 계좌에나 넣으면 세액공제도 유동성도 놓칩니다. 비상금 다음으로 연금저축 600만(16.5%·13.2%) → IRP 300만(합산 900만) → 3년 묶을 돈은 ISA(비과세 400·200만) 순서로 채우는 기준을 6장에 담았습니다.",
+    category: "carousel",
+    createdAt: "2026-11-22",
+    tags: ["카드뉴스", "손글씨 다이어그램", "계좌 순서", "연금저축", "IRP", "ISA", "세액공제"],
+    slides: [
+      {
+        src: "/gallery/3d-account-order-01.png",
+        width: W,
+        height: H,
+        alt: "표지 — 세 단 계단 위 동전 단지를 오르는 마스코트와 '남는 돈, 어디부터 넣어야 할까'",
+        caption: "표지 — 연봉 5,500만 원 기준 계좌 3순위 배치표",
+      },
+      {
+        src: "/gallery/3d-account-order-02.png",
+        width: W,
+        height: H,
+        alt: "오해 vs 팩트 — 왼쪽은 빈 단지 옆에 앉은 시무룩한 마스코트, 오른쪽은 세 단지에 동전을 나눠 담는 마스코트",
+        caption: "오해 vs 팩트 — 아무 계좌나 넣기 / 세액공제율·유동성 순서대로 채우기",
+      },
+      {
+        src: "/gallery/3d-account-order-03.png",
+        width: W,
+        height: H,
+        alt: "1순위 — 우산과 동전 단지, 저금통, 동전을 넣는 마스코트",
+        caption: "1순위 — 비상금 다음은 연금저축 600만 (16.5%·13.2%)",
+      },
+      {
+        src: "/gallery/3d-account-order-04.png",
+        width: W,
+        height: H,
+        alt: "2순위 — 나란한 두 단지를 잇는 작은 다리와 클립보드를 든 마스코트",
+        caption: "2순위 — IRP 300만 추가, 합산 900만 원 한도",
+      },
+      {
+        src: "/gallery/3d-account-order-05.png",
+        width: W,
+        height: H,
+        alt: "3순위 — 열린 보물상자와 기대어 놓은 달력, 동전을 든 마스코트",
+        caption: "3순위 — 3년 안 쓸 돈은 ISA (서민형 400만·일반형 200만)",
+      },
+      {
+        src: "/gallery/3d-account-order-06.png",
+        width: W,
+        height: H,
+        alt: "요약 — 클립보드 체크리스트를 든 마스코트와 3줄 배치표",
+        caption: "요약 — 내 상황이면 이 순서",
+      },
+    ],
+    basis:
+      "소득세법 제59조의3(연금계좌 세액공제), 조세특례제한법 제91조의18(ISA) · 기준일 2026. 11. 22. · 총급여 5,500만 원 이하 16.5%·초과 13.2%(지방소득세 포함) 가정, 한도·비율은 가입 조건에 따라 다름",
+    related: [
+      { label: "연금저축·IRP 세액공제 계산기", href: "/apps/pension-tax/run" },
+      { label: "3편 — 연말 연금저축 600·IRP 900·ISA 전환 300", href: "/posts/pension-master-03-yearend-900" },
+    ],
+  },
+  {
+    id: "drawdown-recovery-hand",
+    title: "반 토막이면 두 배 — 낙폭과 회복",
+    tagline: "손글씨 카드 6장 · −10%→+11.1%, −50%→+100%",
+    summary:
+      "−50%에서 본전이 되려면 +100%가 필요합니다. 낙폭과 회복은 크기가 다른 비대칭이고, 오를수록 기준점이 낮아져 회복은 더뎌집니다. 구간별 회복률과 변동성 끌림, 낙폭을 줄이는 두 장치를 6장으로 정리했습니다.",
+    category: "carousel",
+    createdAt: "2026-11-22",
+    tags: ["카드뉴스", "손글씨 다이어그램", "낙폭", "회복률", "변동성", "리스크 관리"],
+    slides: [
+      {
+        src: "/gallery/3d-drawdown-recovery-01.png",
+        width: W,
+        height: H,
+        alt: "표지 — V자 골짜기 아래에 선 마스코트와 반대편 언덕 위의 작은 깃발",
+        caption: "표지 — 낙폭과 회복의 비대칭",
+      },
+      {
+        src: "/gallery/3d-drawdown-recovery-02.png",
+        width: W,
+        height: H,
+        alt: "오해 vs 팩트 — 왼쪽은 금 간 동전을 든 걱정스러운 마스코트, 오른쪽은 깃발이 있는 긴 사다리를 오르는 마스코트",
+        caption: "오해 vs 팩트 — +50%면 본전? / 반 토막 뒤엔 +100%",
+      },
+      {
+        src: "/gallery/3d-drawdown-recovery-03.png",
+        width: W,
+        height: H,
+        alt: "구간별 회복률 — 동전이 담긴 네 개의 단지와 자, 네 줄 비교표",
+        caption: "구간별 회복률 — −10%→+11.1%, −20%→+25%, −30%→+42.9%, −50%→+100%",
+      },
+      {
+        src: "/gallery/3d-drawdown-recovery-04.png",
+        width: W,
+        height: H,
+        alt: "함정 — 울퉁불퉁한 길에서 동전을 떨어뜨리는 수레와 옆의 평평한 길",
+        caption: "함정 — 변동성 끌림, 오를수록 덜 오릅니다",
+      },
+      {
+        src: "/gallery/3d-drawdown-recovery-05.png",
+        width: W,
+        height: H,
+        alt: "두 장치 — 우산 두 개와 달걀 바구니, 동전 주머니를 든 마스코트",
+        caption: "낙폭을 줄이는 두 장치 — 분산과 현금 비중",
+      },
+      {
+        src: "/gallery/3d-drawdown-recovery-06.png",
+        width: W,
+        height: H,
+        alt: "원칙 — 방패와 클립보드를 든 마스코트와 3줄 체크리스트",
+        caption: "원칙 — 크게 잃지 않는 포트폴리오 규칙",
+      },
+    ],
+    basis:
+      "자체 정리 — 회복률 = 1 ÷ (1 − 낙폭) − 1 · 기준일 2026. 11. 22. · 회복률은 수익률 전망이 아니라 손실을 만회하는 데 필요한 산술 조건",
+    related: [
+      { label: "투자 복리·세후 수익률 계산기", href: "/apps/compound-return/run" },
+      { label: "적립식 투자, 흔들리지 않는 규칙", href: "/posts/invest-dca-rule" },
+    ],
+  },
+  {
+    id: "retirement-3tier-hand",
+    title: "퇴직연금 DB·DC·IRP, 어디에 담을까",
+    tagline: "손글씨 카드 6장 · 임금상승률 vs 운용수익률",
+    summary:
+      "퇴직금은 다 똑같지 않습니다. 임금상승률이 높고 오래 다니면 DB, 직접 굴리고 이직이 잦으면 DC, 받은 퇴직금과 추가 세액공제는 IRP로 갑니다. 수령할 때 연금으로 받으면 퇴직소득세 30~40%를 감면받는 것까지 6장으로 담았습니다.",
+    category: "carousel",
+    createdAt: "2026-11-22",
+    tags: ["카드뉴스", "손글씨 다이어그램", "퇴직연금", "DB", "DC", "IRP", "퇴직소득세"],
+    slides: [
+      {
+        src: "/gallery/3d-retirement-3tier-01.png",
+        width: W,
+        height: H,
+        alt: "표지 — 세 층으로 쌓은 블록과 동전, 맨 위층을 가리키는 마스코트",
+        caption: "표지 — 퇴직연금 DB·DC·IRP 한눈 비교",
+      },
+      {
+        src: "/gallery/3d-retirement-3tier-02.png",
+        width: W,
+        height: H,
+        alt: "오해 vs 팩트 — 왼쪽은 같은 동전 두 개를 든 갸우뚱한 마스코트, 오른쪽은 저울로 동전 더미를 비교하는 마스코트",
+        caption: "오해 vs 팩트 — 퇴직금은 다 똑같다 / 임금상승률 vs 운용수익률",
+      },
+      {
+        src: "/gallery/3d-retirement-3tier-03.png",
+        width: W,
+        height: H,
+        alt: "DB형 — 창문과 금고가 있는 회사 건물, 사다리를 오르는 마스코트",
+        caption: "DB형 — 임금상승률이 높고 오래 다닐 때",
+      },
+      {
+        src: "/gallery/3d-retirement-3tier-04.png",
+        width: W,
+        height: H,
+        alt: "DC형 — 동전을 돛으로 단 종이배를 조타하는 마스코트",
+        caption: "DC형 — 직접 굴릴 때, 이직이 잦을 때",
+      },
+      {
+        src: "/gallery/3d-retirement-3tier-05.png",
+        width: W,
+        height: H,
+        alt: "IRP — 문과 동전 투입구가 있는 단지에 서류 가방을 넣는 마스코트",
+        caption: "IRP — 퇴직금 받을 통장 + 세액공제 300만",
+      },
+      {
+        src: "/gallery/3d-retirement-3tier-06.png",
+        width: W,
+        height: H,
+        alt: "수령 체크 — 모래시계에서 동전이 손으로 떨어지고 달력과 단지가 놓인 장면",
+        caption: "수령 — 일시금 vs 연금, 퇴직소득세 30~40% 감면",
+      },
+    ],
+    basis:
+      "근로자퇴직급여 보장법(DB·DC·IRP), 소득세법 제59조의3(IRP 세액공제)·제55조의2(퇴직소득세), 국세청 연금수령 감면 안내 · 기준일 2026. 11. 22. · 감면율·요건은 국세청 원문에서 확인",
+    related: [{ label: "연금저축·IRP 세액공제 계산기", href: "/apps/pension-tax/run" }],
+  },
+  {
+    id: "coverage-gaps-hand",
+    title: "보장 공백 5칸 — 약관에서 갈리는 것",
+    tagline: "손글씨 카드 6장 · 면책·감액·지급 기준",
+    summary:
+      "같은 1억이라도 실제 수령액은 다릅니다. 실손 세대별 자기부담, 면책·감액기간, 유사암·경계성종양과 뇌혈관·허혈성 범위, 수술비 종수, 사적연금 1,500만 원과 건보료 피부양자까지 — 가입금액보다 먼저 볼 약관 5칸을 6장으로 정리했습니다.",
+    category: "carousel",
+    createdAt: "2026-11-22",
+    tags: ["카드뉴스", "손글씨 다이어그램", "보장 공백", "면책기간", "감액기간", "유사암", "수술비", "피부양자"],
+    slides: [
+      {
+        src: "/gallery/3d-coverage-gaps-01.png",
+        width: W,
+        height: H,
+        alt: "표지 — 다섯 칸 빈 종이 위의 돋보기와 들여다보는 마스코트",
+        caption: "표지 — 가입금액 전에 볼 약관 공백 5칸",
+      },
+      {
+        src: "/gallery/3d-coverage-gaps-02.png",
+        width: W,
+        height: H,
+        alt: "오해 vs 팩트 — 왼쪽은 금 간 방패와 큰 동전을 든 마스코트, 오른쪽은 돋보기로 계약서를 보는 마스코트",
+        caption: "오해 vs 팩트 — 진단비 크기만 크면 든든 / 면책·감액·지급 기준",
+      },
+      {
+        src: "/gallery/3d-coverage-gaps-03.png",
+        width: W,
+        height: H,
+        alt: "공백 1·2 — 서로 다른 색 종이 세 장과 청진기, 두 장을 비교하는 마스코트",
+        caption: "공백 ① ② — 실손 세대별 자기부담, 면책 90일·감액 1~2년",
+      },
+      {
+        src: "/gallery/3d-coverage-gaps-04.png",
+        width: W,
+        height: H,
+        alt: "공백 3 — 크기가 다른 세 원과 가장 작은 원을 돋보기로 보는 마스코트",
+        caption: "공백 ③ — 유사암·경계성종양은 일반암의 10~20%",
+      },
+      {
+        src: "/gallery/3d-coverage-gaps-05.png",
+        width: W,
+        height: H,
+        alt: "공백 4·5 — 병원과 저울, 서류 더미와 동전 주머니를 가리키는 마스코트",
+        caption: "공백 ④ ⑤ — 수술비 종수와 사적연금 2,000만 원(피부양자)",
+      },
+      {
+        src: "/gallery/3d-coverage-gaps-06.png",
+        width: W,
+        height: H,
+        alt: "점검 — 안경과 펜이 꽂힌 클립보드를 든 마스코트와 3줄 체크리스트",
+        caption: "점검 — 내 증권에서 확인할 3줄",
+      },
+    ],
+    basis:
+      "금융위원회 실손의료보험 제도 안내, 보험업감독규정 표준약관, 국민건강보험법 시행규칙 별표 1의2(피부양자 소득 요건) · 기준일 2026. 11. 22. · 세대·상품·약관에 따라 지급 기준이 다름",
+    related: [{ label: "내 실손 세대 비교", href: "/apps/silson-compare/run" }],
+  },
+  {
+    id: "finance-calendar-hand",
+    title: "12개월 금융 달력 — 놓치면 손해",
+    tagline: "손글씨 카드 6장 · 1월·2월·5월·11월·12월",
+    summary:
+      "연말정산은 12월 31일 하루에 끝나지 않습니다. 1월 15일 간소화 자료, 2월 환급과 4월 건보료 정산, 5월 종합소득세, 여름의 ISA 만기·리밸런싱, 11~12월 연금저축·IRP 900만 마감까지 — 1년에 다섯 번 챙길 달을 6장으로 정리했습니다.",
+    category: "carousel",
+    createdAt: "2026-11-22",
+    tags: ["카드뉴스", "손글씨 다이어그램", "연말정산", "종합소득세", "ISA 만기", "연금저축 900만", "금융 달력"],
+    slides: [
+      {
+        src: "/gallery/3d-finance-calendar-01.png",
+        width: W,
+        height: H,
+        alt: "표지 — 벽에 걸린 달력 격자와 동그라미 표시, 연필과 동전을 든 마스코트",
+        caption: "표지 — 12개월 금융 달력",
+      },
+      {
+        src: "/gallery/3d-finance-calendar-02.png",
+        width: W,
+        height: H,
+        alt: "오해 vs 팩트 — 왼쪽은 마지막 칸에 엑스 표시된 달력 앞에서 조는 마스코트, 오른쪽은 네 칸을 동그라미하는 마스코트",
+        caption: "오해 vs 팩트 — 12월 31일에만 챙긴다 / 다섯 번의 타이밍",
+      },
+      {
+        src: "/gallery/3d-finance-calendar-03.png",
+        width: W,
+        height: H,
+        alt: "1~3월 — 체크 표시한 달력과 영수증, 계산기, 동전을 든 마스코트",
+        caption: "1~3월 — 간소화 자료 1월 15일, 2월 환급·4월 건보료 정산",
+      },
+      {
+        src: "/gallery/3d-finance-calendar-04.png",
+        width: W,
+        height: H,
+        alt: "5~6월 — 서명란이 있는 서류와 달력, 봉투가 놓인 장면",
+        caption: "5~6월 — 종합소득세 5월 31일, 건보료·피부양자 확인",
+      },
+      {
+        src: "/gallery/3d-finance-calendar-05.png",
+        width: W,
+        height: H,
+        alt: "7~10월 — 톱니와 동전을 올린 저울을 조절하는 마스코트와 달력",
+        caption: "7~10월 — ISA 만기와 중간 리밸런싱",
+      },
+      {
+        src: "/gallery/3d-finance-calendar-06.png",
+        width: W,
+        height: H,
+        alt: "11~12월 — 동전 더미와 단지, 마지막 칸에 동그라미 친 달력, 엄지척 마스코트",
+        caption: "11~12월 — 연금저축·IRP 900만 원 마지막 점검",
+      },
+    ],
+    basis:
+      "국세청 연말정산·종합소득세 안내, 국민건강보험공단 보험료 정산 안내, 조세특례제한법 제91조의18(ISA), 소득세법 제59조의3(연금계좌) · 기준일 2026. 11. 22.",
+    related: [
+      { label: "연금저축·IRP 세액공제 계산기", href: "/apps/pension-tax/run" },
+      { label: "3편 — 연말 연금저축 600·IRP 900·ISA 전환 300", href: "/posts/pension-master-03-yearend-900" },
+    ],
+  },
+  /**
    * v8.0.0 — 「한스푼 아카데미」 STEP별 자료앨범 1차 4세트(24장) 추가.
    * A. 세 칸의 지도(월급 3통) / B. 세 순간(15.4%·16.5%·연금소득세) /
    * D. ETF 6개 숫자 / F. 사적연금 1,500만 원 경계선 — 아카데미 STEP 1·2·3·4와 짝을 이룬다.

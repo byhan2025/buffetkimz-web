@@ -1,0 +1,420 @@
+---
+/**
+ * 「내 돈 운영표」 2번 칸 — ISA 줄 (2-2강).
+ *
+ * 연 수익과 ISA 유형(일반형·서민형)을 고르면 비과세 한도, 초과분 세율, 일반계좌와의 차액을 계산한다.
+ * 만기 60일 전환(10%·최대 300만원)은 세액공제 계산에 더해 별도 줄로 보여 준다.
+ * 입력값은 주소·서버·저장소에 남기지 않는다.
+ */
+import { withBase, site } from "@/config/site";
+import { ISA, INCOME_TAX, PENSION_ACCOUNT, manLabel, pct } from "@/data/tax-rules";
+
+interface Props {
+  slotNo?: number;
+  slotTitle?: string;
+  line?: string;
+}
+const { slotNo = 2, slotTitle = "계좌 배치표", line = "" } = Astro.props;
+
+const profit = [100, 200, 400, 600];
+const defaultProfit = 200;
+const transferCredit = Math.round(
+  PENSION_ACCOUNT.isaTransferMax * 10000 * PENSION_ACCOUNT.creditRateLow,
+);
+---
+
+<section
+  class="sheet"
+  data-sheet
+  data-variant="isa"
+  data-exempt-general={ISA.exemptGeneral}
+  data-exempt-seomin={ISA.exemptSeomin}
+  data-isa-rate={ISA.taxRate}
+  data-dividend-rate={INCOME_TAX.dividendWithLocal}
+  data-transfer-credit={transferCredit}
+  aria-labelledby="sheet-heading"
+>
+  <div class="sheet-head">
+    <div>
+      <p class="eyebrow">STEP 완료 체크</p>
+      <h2 id="sheet-heading" class="sec-title">내 돈 운영표 · {slotNo}번 칸</h2>
+      <p class="mt-2 max-w-[54ch] text-[13px] leading-[1.7] text-ink-muted">
+        {slotTitle}의 ISA 줄입니다. {line || "연 수익을 넣어 일반형·서민형의 절세액과 전환 효과를 적습니다."} 고른 값은
+        이 화면 안에서만 계산됩니다.
+      </p>
+    </div>
+    <p class="sheet-progress mono" data-sheet-progress>STEP 2 · 0 / 7칸</p>
+  </div>
+
+  <div class="sheet-body">
+    <div class="sheet-form">
+      <fieldset class="sheet-field">
+        <legend class="sheet-legend">연 수익 <span class="mono">이자 + 배당 + 매매차익</span></legend>
+        <div class="sheet-chips">
+          {
+            profit.map((v) => (
+              <label class="sheet-chip sheet-chip--num">
+                <input
+                  type="radio"
+                  name="is-profit"
+                  value={v}
+                  checked={v === defaultProfit}
+                  data-sheet-input
+                />
+                <span>{v}만</span>
+              </label>
+            ))
+          }
+        </div>
+      </fieldset>
+
+      <fieldset class="sheet-field">
+        <legend class="sheet-legend">계좌 유형</legend>
+        <div class="sheet-chips">
+          <label class="sheet-chip">
+            <input type="radio" name="is-type" value="general" checked data-sheet-input />
+            <span>일반형 · 비과세 {manLabel(ISA.exemptGeneral)}</span>
+          </label>
+          <label class="sheet-chip">
+            <input type="radio" name="is-type" value="seomin" data-sheet-input />
+            <span>서민형 · 비과세 {manLabel(ISA.exemptSeomin)}</span>
+          </label>
+        </div>
+      </fieldset>
+
+      <div class="sheet-result">
+        <p class="text-[11.5px] font-semibold text-ink-faint">일반계좌보다 덜 내는 세금</p>
+        <p class="mt-1 text-[24px] font-bold leading-none tracking-[-0.035em] text-brand-deep" data-sheet-out-saving>
+          30만 8,000원
+        </p>
+        <p class="mono mt-1.5 text-[11.5px] text-ink-faint" data-sheet-breakdown>
+          일반계좌 15.4% − ISA 0% (비과세 한도 안)
+        </p>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2">
+        <button type="button" class="btn btn-primary btn-sm min-h-[44px]" data-sheet-commit>이 칸 채우기</button>
+        <a href={withBase("/academy/#roadmap")} class="text-[12px] text-ink-faint underline underline-offset-2">
+          아카데미 로드맵
+        </a>
+      </div>
+
+      <p class="text-[11.5px] leading-[1.6] text-ink-faint">
+        초과분은 {pct(ISA.taxRate)} 분리과세, 일반계좌는 {pct(INCOME_TAX.dividendWithLocal)}입니다. 전환 추가 공제는
+        이전액의 {pct(PENSION_ACCOUNT.isaTransferRate, 0)}·최대 {manLabel(PENSION_ACCOUNT.isaTransferMax)}을{" "}
+        {pct(PENSION_ACCOUNT.creditRateLow)}로 계산한 값입니다. 기준일 {site.baseDateLabel}.
+      </p>
+    </div>
+
+    <div class="sheet-preview" data-sheet-preview>
+      <p class="mono text-[11px] tracking-[0.04em] text-ink-faint">내 돈 운영표 · 7칸 중 {slotNo}번</p>
+
+      <div class="sheet-empty" data-sheet-empty>
+        <p class="text-[13.5px] font-semibold text-ink">아직 빈칸입니다</p>
+        <p class="mt-1 text-[12px] leading-[1.65] text-ink-muted">
+          왼쪽에서 연 수익과 유형을 고른 뒤 <span class="font-semibold text-ink-soft">이 칸 채우기</span>를 누르면,
+          ISA에서 남는 금액이 한 줄로 남습니다.
+        </p>
+      </div>
+
+      <div class="sheet-filled" data-sheet-filled hidden>
+        <p class="text-[11px] font-bold tracking-[0.14em] text-brand-deep">칸 완성</p>
+        <p class="mt-1.5 text-[15px] font-bold tracking-[-0.025em] text-ink">{slotTitle} · ISA 줄</p>
+        <dl class="sheet-filled-list mt-2">
+          <div>
+            <dt>연 수익</dt>
+            <dd data-sheet-out-profit>200만원</dd>
+          </div>
+          <div>
+            <dt>비과세 한도</dt>
+            <dd data-sheet-out-exempt>200만원</dd>
+          </div>
+          <div>
+            <dt>ISA에서 내는 세금</dt>
+            <dd data-sheet-out-isa-tax>0원</dd>
+          </div>
+          <div>
+            <dt>일반계좌라면</dt>
+            <dd data-sheet-out-general-tax>30만 8,000원</dd>
+          </div>
+          <div>
+            <dt>절세액</dt>
+            <dd data-sheet-out-saving-list>30만 8,000원</dd>
+          </div>
+          <div>
+            <dt>만기 전환 추가 공제</dt>
+            <dd data-sheet-out-transfer>49만 5,000원</dd>
+          </div>
+        </dl>
+        <p class="mt-2 border-t border-dashed border-line pt-2 text-[11.5px] leading-[1.6] text-ink-faint">
+          기준일 {site.baseDateLabel} · 조세특례제한법 제91조의18 — 나머지 6칸은 다음 강의에서 채웁니다.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  const won = (value: number) => {
+    if (value === 0) return "0원";
+    const m = Math.floor(value / 10000);
+    const rest = value % 10000;
+    if (rest === 0) return `${m.toLocaleString("ko-KR")}만원`;
+    return `${m.toLocaleString("ko-KR")}만 ${rest.toLocaleString("ko-KR")}원`;
+  };
+  const pctLabel = (rate: number) => `${(rate * 100).toFixed(1).replace(/\.0$/, "")}%`;
+
+  document.querySelectorAll<HTMLElement>('[data-sheet][data-variant="isa"]').forEach((root) => {
+    const inputs = [...root.querySelectorAll<HTMLInputElement>("[data-sheet-input]")];
+    const savingEl = root.querySelector<HTMLElement>("[data-sheet-out-saving]");
+    const breakdownEl = root.querySelector<HTMLElement>("[data-sheet-breakdown]");
+    const progressEl = root.querySelector<HTMLElement>("[data-sheet-progress]");
+    const empty = root.querySelector<HTMLElement>("[data-sheet-empty]");
+    const filled = root.querySelector<HTMLElement>("[data-sheet-filled]");
+    const out = {
+      profit: root.querySelector<HTMLElement>("[data-sheet-out-profit]"),
+      exempt: root.querySelector<HTMLElement>("[data-sheet-out-exempt]"),
+      isaTax: root.querySelector<HTMLElement>("[data-sheet-out-isa-tax]"),
+      generalTax: root.querySelector<HTMLElement>("[data-sheet-out-general-tax]"),
+      saving: root.querySelector<HTMLElement>("[data-sheet-out-saving-list]"),
+      transfer: root.querySelector<HTMLElement>("[data-sheet-out-transfer]"),
+    };
+    const commitBtn = root.querySelector<HTMLButtonElement>("[data-sheet-commit]");
+
+    const EXEMPT: Record<string, number> = {
+      general: Number(root.dataset.exemptGeneral),
+      seomin: Number(root.dataset.exemptSeomin),
+    };
+    const ISA_RATE = Number(root.dataset.isaRate);
+    const DIV_RATE = Number(root.dataset.dividendRate);
+    const TRANSFER = Number(root.dataset.transferCredit);
+
+    const picked = (name: string) => inputs.find((i) => i.name === name && i.checked)?.value ?? "";
+
+    const state = () => {
+      const profit = Number(picked("is-profit"));
+      const type = picked("is-type") || "general";
+      const exempt = EXEMPT[type] ?? EXEMPT.general;
+      const taxable = Math.max(profit - exempt, 0);
+      const isaTax = Math.round(taxable * 10000 * ISA_RATE);
+      const generalTax = Math.round(profit * 10000 * DIV_RATE);
+      return { profit, type, exempt, taxable, isaTax, generalTax, saving: generalTax - isaTax };
+    };
+
+    let committed = false;
+
+    const paint = () => {
+      const s = state();
+      if (out.profit) out.profit.textContent = won(s.profit * 10000);
+      if (out.exempt) out.exempt.textContent = won(s.exempt * 10000);
+      if (out.isaTax) out.isaTax.textContent = won(s.isaTax);
+      if (out.generalTax) out.generalTax.textContent = won(s.generalTax);
+      if (out.saving) out.saving.textContent = won(s.saving);
+      if (out.transfer) out.transfer.textContent = won(TRANSFER);
+    };
+
+    const render = () => {
+      const s = state();
+      if (savingEl) savingEl.textContent = won(s.saving);
+      if (breakdownEl)
+        breakdownEl.textContent =
+          s.taxable > 0
+            ? `일반계좌 ${pctLabel(DIV_RATE)} − ISA ${pctLabel(ISA_RATE)} (초과분 ${won(s.taxable * 10000)})`
+            : `일반계좌 ${pctLabel(DIV_RATE)} − ISA 0% (비과세 한도 안)`;
+      if (committed) paint();
+    };
+
+    inputs.forEach((i) => i.addEventListener("change", render));
+
+    commitBtn?.addEventListener("click", () => {
+      committed = true;
+      paint();
+      if (empty) empty.hidden = true;
+      if (filled) filled.hidden = false;
+      if (progressEl) progressEl.textContent = "STEP 2 · 1 / 7칸";
+      commitBtn.textContent = "값 바꿔서 다시 채우기";
+      filled?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    });
+
+    render();
+  });
+</script>
+
+<style>
+  .sheet {
+    padding: 20px;
+    border: 1px solid var(--color-line);
+    border-radius: 20px;
+    background-color: #ffffff;
+    box-shadow:
+      0 1px 2px rgb(11 27 41 / 0.04),
+      0 20px 44px -34px rgb(11 27 41 / 0.5);
+  }
+
+  @media (min-width: 768px) {
+    .sheet {
+      padding: 28px;
+    }
+  }
+
+  .sheet-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .sheet-progress {
+    display: inline-flex;
+    align-items: center;
+    min-height: 28px;
+    padding: 0 10px;
+    border-radius: 999px;
+    background-color: var(--color-brand-soft);
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--color-brand-deep);
+  }
+
+  .sheet-body {
+    display: grid;
+    gap: 18px;
+    margin-top: 18px;
+  }
+
+  @media (min-width: 900px) {
+    .sheet-body {
+      grid-template-columns: minmax(0, 1.18fr) minmax(0, 1fr);
+      gap: 24px;
+      align-items: start;
+    }
+  }
+
+  .sheet-form {
+    display: grid;
+    gap: 14px;
+    min-width: 0;
+  }
+
+  .sheet-field {
+    min-width: 0;
+  }
+
+  .sheet-legend {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 6px;
+    margin-bottom: 6px;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--color-ink-soft);
+  }
+
+  .sheet-legend .mono {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--color-ink-faint);
+  }
+
+  .sheet-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .sheet-chip {
+    display: inline-flex;
+    cursor: pointer;
+  }
+
+  .sheet-chip input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .sheet-chip span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 12px;
+    border: 1px solid var(--color-line);
+    border-radius: 12px;
+    background-color: #ffffff;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--color-ink-muted);
+    transition:
+      border-color 140ms var(--ease-out-soft),
+      background-color 140ms var(--ease-out-soft);
+  }
+
+  .sheet-chip--num span {
+    min-width: 62px;
+    justify-content: center;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .sheet-chip input:checked + span {
+    border-color: var(--color-brand);
+    background-color: var(--color-brand-soft);
+    color: var(--color-brand-deep);
+  }
+
+  .sheet-chip input:focus-visible + span {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 2px;
+  }
+
+  .sheet-result {
+    padding: 14px 16px;
+    border-radius: 14px;
+    background-color: var(--color-paper);
+    border: 1px solid var(--color-line-soft);
+  }
+
+  .sheet-preview {
+    padding: 16px;
+    border: 1px dashed var(--color-line);
+    border-radius: 16px;
+    background-color: var(--color-cream);
+  }
+
+  .sheet-filled {
+    margin-top: 10px;
+  }
+
+  .sheet-filled-list {
+    display: grid;
+    gap: 2px;
+  }
+
+  .sheet-filled-list > div {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 5px 0;
+    border-bottom: 1px solid var(--color-line-soft);
+  }
+
+  .sheet-filled-list dt {
+    flex: none;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-ink-faint);
+  }
+
+  .sheet-filled-list dd {
+    margin: 0;
+    text-align: right;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--color-ink);
+  }
+</style>

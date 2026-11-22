@@ -1,0 +1,408 @@
+---
+/**
+ * 「내 돈 운영표」 1번 칸 — 현금흐름표 (1-1강).
+ *
+ * 소득·고정비·변동비를 고르면 그 화면에서 남는 돈과 비상금 3·6개월 목표를 계산한다.
+ * 통 분배 비율은 50 : 20 : 30 (비상금 : 단기목표 : 장기투자) — 글 본문과 같은 값이다.
+ * 입력값은 주소·서버·저장소에 남기지 않는다.
+ */
+import { withBase, site } from "@/config/site";
+
+interface Props {
+  slotNo?: number;
+  slotTitle?: string;
+  line?: string;
+}
+const { slotNo = 1, slotTitle = "현금흐름표", line = "" } = Astro.props;
+
+const income = [300, 400, 500];
+const fixed = [120, 160, 200];
+const variable = [70, 90, 120];
+const defaults = { income: 400, fixed: 160, variable: 90 };
+const ratio = { a: 50, b: 20, c: 30 };
+---
+
+<section
+  class="sheet"
+  data-sheet
+  data-variant="cashflow"
+  data-ratio-a={ratio.a}
+  data-ratio-b={ratio.b}
+  data-ratio-c={ratio.c}
+  aria-labelledby="sheet-heading"
+>
+  <div class="sheet-head">
+    <div>
+      <p class="eyebrow">STEP 완료 체크</p>
+      <h2 id="sheet-heading" class="sec-title">내 돈 운영표 · {slotNo}번 칸</h2>
+      <p class="mt-2 max-w-[54ch] text-[13px] leading-[1.7] text-ink-muted">
+        {slotTitle}의 첫 줄입니다. {line || "소득과 지출을 넣어 남는 돈과 비상금 목표를 적습니다."} 고른 값은 이 화면
+        안에서만 계산됩니다.
+      </p>
+    </div>
+    <p class="sheet-progress mono" data-sheet-progress>STEP 1 · 0 / 6칸</p>
+  </div>
+
+  <div class="sheet-body">
+    <div class="sheet-form">
+      <fieldset class="sheet-field">
+        <legend class="sheet-legend">월 소득 <span class="mono">세전 기준</span></legend>
+        <div class="sheet-chips">
+          {
+            income.map((v) => (
+              <label class="sheet-chip sheet-chip--num">
+                <input type="radio" name="cf-income" value={v} checked={v === defaults.income} data-sheet-input />
+                <span>{v}만</span>
+              </label>
+            ))
+          }
+        </div>
+      </fieldset>
+
+      <fieldset class="sheet-field">
+        <legend class="sheet-legend">고정비 <span class="mono">월세·통신·보험료</span></legend>
+        <div class="sheet-chips">
+          {
+            fixed.map((v) => (
+              <label class="sheet-chip sheet-chip--num">
+                <input type="radio" name="cf-fixed" value={v} checked={v === defaults.fixed} data-sheet-input />
+                <span>{v}만</span>
+              </label>
+            ))
+          }
+        </div>
+      </fieldset>
+
+      <fieldset class="sheet-field">
+        <legend class="sheet-legend">변동비 <span class="mono">식비·교통·여가</span></legend>
+        <div class="sheet-chips">
+          {
+            variable.map((v) => (
+              <label class="sheet-chip sheet-chip--num">
+                <input type="radio" name="cf-variable" value={v} checked={v === defaults.variable} data-sheet-input />
+                <span>{v}만</span>
+              </label>
+            ))
+          }
+        </div>
+      </fieldset>
+
+      <div class="sheet-result">
+        <p class="text-[11.5px] font-semibold text-ink-faint">이번 달 남는 돈</p>
+        <p class="mt-1 text-[24px] font-bold leading-none tracking-[-0.035em] text-brand-deep" data-sheet-out-spare>
+          150만원
+        </p>
+        <p class="mono mt-1.5 text-[11.5px] text-ink-faint" data-sheet-breakdown>
+          소득 400만원 − 생활비 250만원
+        </p>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2">
+        <button type="button" class="btn btn-primary btn-sm min-h-[44px]" data-sheet-commit>이 칸 채우기</button>
+        <a href={withBase("/academy/#roadmap")} class="text-[12px] text-ink-faint underline underline-offset-2">
+          아카데미 로드맵
+        </a>
+      </div>
+
+      <p class="text-[11.5px] leading-[1.6] text-ink-faint">
+        고른 값은 이 화면 안에서만 계산하고, 주소·서버·저장소 어디에도 남기지 않습니다. 화면을 닫으면 사라집니다.
+        기준일 {site.baseDateLabel}.
+      </p>
+    </div>
+
+    <div class="sheet-preview" data-sheet-preview>
+      <p class="mono text-[11px] tracking-[0.04em] text-ink-faint">내 돈 운영표 · 6칸 중 {slotNo}번</p>
+
+      <div class="sheet-empty" data-sheet-empty>
+        <p class="text-[13.5px] font-semibold text-ink">아직 빈칸입니다</p>
+        <p class="mt-1 text-[12px] leading-[1.65] text-ink-muted">
+          왼쪽에서 소득과 지출을 고른 뒤 <span class="font-semibold text-ink-soft">이 칸 채우기</span>를 누르면,
+          남는 돈과 비상금 목표가 한 줄로 남습니다.
+        </p>
+      </div>
+
+      <div class="sheet-filled" data-sheet-filled hidden>
+        <p class="text-[11px] font-bold tracking-[0.14em] text-brand-deep">칸 완성</p>
+        <p class="mt-1.5 text-[15px] font-bold tracking-[-0.025em] text-ink">{slotTitle} · 첫 줄</p>
+        <dl class="sheet-filled-list mt-2">
+          <div>
+            <dt>월 소득</dt>
+            <dd data-sheet-out-income>400만원</dd>
+          </div>
+          <div>
+            <dt>생활비</dt>
+            <dd data-sheet-out-living>250만원</dd>
+          </div>
+          <div>
+            <dt>남는 돈</dt>
+            <dd data-sheet-out-spare-list>150만원</dd>
+          </div>
+          <div>
+            <dt>비상금 목표</dt>
+            <dd data-sheet-out-goal>3개월 750만원 · 6개월 1,500만원</dd>
+          </div>
+          <div>
+            <dt>통 분배</dt>
+            <dd data-sheet-out-split>① 75 · ② 30 · ③ 45 (만원)</dd>
+          </div>
+        </dl>
+        <p class="mt-2 border-t border-dashed border-line pt-2 text-[11.5px] leading-[1.6] text-ink-faint">
+          기준일 {site.baseDateLabel} · 3~6개월은 자체 기준입니다 — 나머지 5칸은 다음 강의에서 채웁니다.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  const label = (man: number) => `${man.toLocaleString("ko-KR")}만원`;
+
+  document.querySelectorAll<HTMLElement>('[data-sheet][data-variant="cashflow"]').forEach((root) => {
+    const inputs = [...root.querySelectorAll<HTMLInputElement>("[data-sheet-input]")];
+    const spareEl = root.querySelector<HTMLElement>("[data-sheet-out-spare]");
+    const breakdownEl = root.querySelector<HTMLElement>("[data-sheet-breakdown]");
+    const progressEl = root.querySelector<HTMLElement>("[data-sheet-progress]");
+    const empty = root.querySelector<HTMLElement>("[data-sheet-empty]");
+    const filled = root.querySelector<HTMLElement>("[data-sheet-filled]");
+    const out = {
+      income: root.querySelector<HTMLElement>("[data-sheet-out-income]"),
+      living: root.querySelector<HTMLElement>("[data-sheet-out-living]"),
+      spare: root.querySelector<HTMLElement>("[data-sheet-out-spare-list]"),
+      goal: root.querySelector<HTMLElement>("[data-sheet-out-goal]"),
+      split: root.querySelector<HTMLElement>("[data-sheet-out-split]"),
+    };
+    const commitBtn = root.querySelector<HTMLButtonElement>("[data-sheet-commit]");
+    const RATIO = {
+      a: Number(root.dataset.ratioA ?? 50),
+      b: Number(root.dataset.ratioB ?? 20),
+      c: Number(root.dataset.ratioC ?? 30),
+    };
+
+    const picked = (name: string) => Number(inputs.find((i) => i.name === name && i.checked)?.value ?? 0);
+
+    const state = () => {
+      const income = picked("cf-income");
+      const fixedCost = picked("cf-fixed");
+      const variableCost = picked("cf-variable");
+      const living = fixedCost + variableCost;
+      const spare = Math.max(income - living, 0);
+      const bucketA = Math.round((spare * RATIO.a) / 100);
+      const bucketB = Math.round((spare * RATIO.b) / 100);
+      const bucketC = spare - bucketA - bucketB;
+      return { income, living, spare, bucketA, bucketB, bucketC };
+    };
+
+    let committed = false;
+
+    const paint = () => {
+      const s = state();
+      if (out.income) out.income.textContent = label(s.income);
+      if (out.living) out.living.textContent = label(s.living);
+      if (out.spare) out.spare.textContent = label(s.spare);
+      if (out.goal)
+        out.goal.textContent = `3개월 ${label(s.living * 3)} · 6개월 ${label(s.living * 6)}`;
+      if (out.split)
+        out.split.textContent = `① ${s.bucketA} · ② ${s.bucketB} · ③ ${s.bucketC} (만원)`;
+    };
+
+    const render = () => {
+      const s = state();
+      if (spareEl) spareEl.textContent = label(s.spare);
+      if (breakdownEl) breakdownEl.textContent = `소득 ${label(s.income)} − 생활비 ${label(s.living)}`;
+      if (committed) paint();
+    };
+
+    inputs.forEach((i) => i.addEventListener("change", render));
+
+    commitBtn?.addEventListener("click", () => {
+      committed = true;
+      paint();
+      if (empty) empty.hidden = true;
+      if (filled) filled.hidden = false;
+      if (progressEl) progressEl.textContent = "STEP 1 · 1 / 6칸";
+      commitBtn.textContent = "값 바꿔서 다시 채우기";
+      filled?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    });
+
+    render();
+  });
+</script>
+
+<style>
+  .sheet {
+    padding: 20px;
+    border: 1px solid var(--color-line);
+    border-radius: 20px;
+    background-color: #ffffff;
+    box-shadow:
+      0 1px 2px rgb(11 27 41 / 0.04),
+      0 20px 44px -34px rgb(11 27 41 / 0.5);
+  }
+
+  @media (min-width: 768px) {
+    .sheet {
+      padding: 28px;
+    }
+  }
+
+  .sheet-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .sheet-progress {
+    display: inline-flex;
+    align-items: center;
+    min-height: 28px;
+    padding: 0 10px;
+    border-radius: 999px;
+    background-color: var(--color-brand-soft);
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--color-brand-deep);
+  }
+
+  .sheet-body {
+    display: grid;
+    gap: 18px;
+    margin-top: 18px;
+  }
+
+  @media (min-width: 900px) {
+    .sheet-body {
+      grid-template-columns: minmax(0, 1.18fr) minmax(0, 1fr);
+      gap: 24px;
+      align-items: start;
+    }
+  }
+
+  .sheet-form {
+    display: grid;
+    gap: 14px;
+    min-width: 0;
+  }
+
+  .sheet-field {
+    min-width: 0;
+  }
+
+  .sheet-legend {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 6px;
+    margin-bottom: 6px;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--color-ink-soft);
+  }
+
+  .sheet-legend .mono {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--color-ink-faint);
+  }
+
+  .sheet-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .sheet-chip {
+    display: inline-flex;
+    cursor: pointer;
+  }
+
+  .sheet-chip input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .sheet-chip span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 12px;
+    border: 1px solid var(--color-line);
+    border-radius: 12px;
+    background-color: #ffffff;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--color-ink-muted);
+    transition:
+      border-color 140ms var(--ease-out-soft),
+      background-color 140ms var(--ease-out-soft);
+  }
+
+  .sheet-chip--num span {
+    min-width: 62px;
+    justify-content: center;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .sheet-chip input:checked + span {
+    border-color: var(--color-brand);
+    background-color: var(--color-brand-soft);
+    color: var(--color-brand-deep);
+  }
+
+  .sheet-chip input:focus-visible + span {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 2px;
+  }
+
+  .sheet-result {
+    padding: 14px 16px;
+    border-radius: 14px;
+    background-color: var(--color-paper);
+    border: 1px solid var(--color-line-soft);
+  }
+
+  .sheet-preview {
+    padding: 16px;
+    border: 1px dashed var(--color-line);
+    border-radius: 16px;
+    background-color: var(--color-cream);
+  }
+
+  .sheet-filled {
+    margin-top: 10px;
+  }
+
+  .sheet-filled-list {
+    display: grid;
+    gap: 2px;
+  }
+
+  .sheet-filled-list > div {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 5px 0;
+    border-bottom: 1px solid var(--color-line-soft);
+  }
+
+  .sheet-filled-list dt {
+    flex: none;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-ink-faint);
+  }
+
+  .sheet-filled-list dd {
+    margin: 0;
+    text-align: right;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--color-ink);
+  }
+</style>

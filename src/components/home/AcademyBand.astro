@@ -1,16 +1,17 @@
 ---
 /**
- * 홈 — 「한스푼 아카데미」 진입 밴드 (v8.0 파일럿).
+ * 홈 — 「한스푼 아카데미」 진입 밴드 (v8.1.0 — STEP 1·2 개설).
  *
  * 포털 픽(읽고 열어 보기) 아래에 놓아, 글·도구를 본 사람이 '배우는 순서'로 넘어가게 한다.
+ * 대표 카드는 지금 열린 첫 강의(STEP 1 · 1-1강)를 보여 준다 — 개수와 순서는 data/academy.ts가 정한다.
  * 페이지당 하나인 단색 강조 카드(accent-card)는 신뢰 구역이 쓰므로 여기서는 쓰지 않는다.
- * 숫자는 data/academy.ts에서만 읽는다.
  */
 import { withBase } from "@/config/site";
-import { ACADEMY, ACADEMY_STEPS, PILOT, OPEN_LESSONS } from "@/data/academy";
+import { ACADEMY, OPEN_LESSONS } from "@/data/academy";
 
-const pilotHref = `/academy/${PILOT.slug}/`;
-const openSteps = ACADEMY_STEPS.filter((s) => s.status === "open");
+const featured = OPEN_LESSONS[0];
+const featuredHref = `/academy/${featured.slug}/`;
+const nums = featured.keyNumbers.slice(0, 2);
 ---
 
 <section class="scene-sky-soft border-b border-line" id="academy">
@@ -33,33 +34,33 @@ const openSteps = ACADEMY_STEPS.filter((s) => s.status === "open");
           <a href={withBase("/academy")} class="btn btn-secondary btn-sm min-h-[44px]">
             아카데미 전체 보기
           </a>
-          <a href={withBase(pilotHref)} class="btn btn-tertiary btn-sm min-h-[44px]">
-            파일럿 1강 — {PILOT.shortTitle}
+          <a href={withBase(featuredHref)} class="btn btn-tertiary btn-sm min-h-[44px]">
+            {featured.label} — {featured.shortTitle}
           </a>
         </div>
       </div>
 
-      <a href={withBase(pilotHref)} class="academy-band-card">
+      <a href={withBase(featuredHref)} class="academy-band-card">
         <span class="academy-band-card-head">
           <span class="mono text-[10.5px] tracking-[0.04em] text-brand-deep">
-            STEP {openSteps[0]?.no ?? PILOT.step} · {PILOT.label}
+            STEP {featured.step} · {featured.label}
           </span>
           <span class="academy-band-open">{`공개 ${OPEN_LESSONS.length}강`}</span>
         </span>
-        <span class="academy-band-card-title">{PILOT.title}</span>
-        <span class="academy-band-card-hook">{PILOT.hook}</span>
+        <span class="academy-band-card-title">{featured.title}</span>
+        <span class="academy-band-card-hook">{featured.hook}</span>
         <span class="academy-band-nums">
-          <span>
-            <span class="academy-band-num-label">합산 한도</span>
-            <span class="academy-band-num">{PILOT.numbers.combinedLimit}</span>
-          </span>
-          <span>
-            <span class="academy-band-num-label">최대 세액공제</span>
-            <span class="academy-band-num is-brand">{PILOT.numbers.maxCreditLabel}</span>
-          </span>
+          {
+            nums.map((k, i) => (
+              <span>
+                <span class="academy-band-num-label">{k.label}</span>
+                <span class={i === 1 ? "academy-band-num is-brand" : "academy-band-num"}>{k.value}</span>
+              </span>
+            ))
+          }
         </span>
         <span class="academy-band-go">
-          5분 읽기로 시작하기 <span aria-hidden="true">→</span>
+          카드뉴스 6장부터 보기 <span aria-hidden="true">→</span>
         </span>
       </a>
     </div>

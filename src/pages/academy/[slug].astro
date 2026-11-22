@@ -1,0 +1,22 @@
+---
+/**
+ * /academy/[slug] — 강의 상세 (v8.1.0).
+ *
+ * 강의 목록은 `data/academy-lessons.ts` 하나다. 주소는 강의 객체의 `slug`로만 만들고,
+ * 페이지의 뼈대는 `components/academy/LessonView.astro`가 그린다(강의마다 같은 4요소).
+ * v8.0의 `/academy/step2-pension-tax-limit/` 주소는 그대로 유지된다.
+ */
+import LessonView from "@/components/academy/LessonView.astro";
+import { ACADEMY_LESSONS } from "@/data/academy-lessons";
+
+export function getStaticPaths() {
+  return ACADEMY_LESSONS.map((lesson) => ({
+    params: { slug: lesson.slug },
+    props: { lesson },
+  }));
+}
+
+const { lesson } = Astro.props;
+---
+
+<LessonView lesson={lesson} />

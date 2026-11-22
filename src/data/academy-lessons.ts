@@ -1,0 +1,1089 @@
+/**
+ * 「한스푼 아카데미」 강의 데이터 — v8.1.0 확장(STEP 1·2 개설).
+ *
+ * 왜 이 파일인가
+ *  · v8.0 파일럿은 2-3강 하나를 `academy.ts` 안에 하드코딩했다. STEP 1·2로 강의가 다섯 개가 되면서
+ *    강의 1개 = 같은 4요소(① 손익 반전 훅 ② 5분 읽기 ③ 계산기 ④ 3D 카드+1차 출처 ⑤ 운영표 1칸)를
+ *    가진 데이터로 바꿨다. 허브(목록·개수)와 강의 페이지(본문)가 같은 배열을 읽는다.
+ *  · 금액·세율은 `data/tax-rules.ts`에서만 만든다. 이 파일은 금액을 손으로 적지 않고
+ *    한도 × 공제율로 계산해, 세율이 바뀌면 글·카드·계산기가 같이 따라오게 한다.
+ *
+ * 원칙
+ *  · 특정 상품·운용사를 권하지 않는다. 상품 이름 없이 '어떤 성질의 자리인지'만 말한다.
+ *  · 외부 채널·영상·시리즈 이름은 쓰지 않는다. 회차 표기는 `STEP-강`(예: 2-3강) 하나만 쓴다.
+ *  · 확인하지 못한 조문·숫자는 단정하지 않고 '요건은 원문에서 확인'으로 남긴다.
+ */
+import {
+  PENSION_ACCOUNT,
+  PRIVATE_PENSION_TAX,
+  ISA,
+  INCOME_TAX,
+  wonLabel,
+  manLabel,
+  pct,
+} from "./tax-rules";
+
+/** 만원 단위 금액 × 비율 → 원 단위 금액 */
+export const creditWon = (man: number, rate: number) => Math.round(man * 10000 * rate);
+
+/* ------------------------------------------------------------------
+   타입
+   ------------------------------------------------------------------ */
+export type ReadingSection = { h: string; ps: string[] };
+
+export type LessonForkSide = { tag: string; head: string; body: string; verdict: string };
+
+export type LessonCardSlide = {
+  /** public 기준 경로 — `/gallery/3d-…-01.png` */
+  src: string;
+  alt: string;
+  caption: string;
+};
+
+export type LessonCardSet = {
+  /** 자료앨범 세트 id (`gallery.ts`와 같은 값) */
+  id: string;
+  /** 자료앨범 세트 이름 */
+  title: string;
+  meta: string;
+  /** 자료앨범 전체보기 주소 */
+  href: string;
+  /** 인라인 뷰어가 처음 보여 줄 장 (0부터) */
+  startIndex: number;
+  slides: LessonCardSlide[];
+};
+
+export type LessonScenario = {
+  id: string;
+  label: string;
+  title: string;
+  settings: string[];
+  result: string;
+  expect: string;
+  /** 이 시나리오를 직접 확인할 곳 — 없으면 강의의 계산기 */
+  href?: string;
+  /** 버튼 문구 — 없으면 `계산기 이름 열기` */
+  cta?: string;
+};
+
+export type LessonSource = { label: string; what: string; url: string; host: string };
+
+export type SheetVariant = "pension" | "cashflow" | "emergency" | "order" | "isa";
+
+export type LessonSheet = {
+  variant: SheetVariant;
+  /** 내 돈 운영표에서 이 강의가 채우는 칸 번호(1~6) */
+  slotNo: number;
+  slotTitle: string;
+  /** 이 강의에서 적는 한 줄 */
+  line: string;
+};
+
+export type AcademyLesson = {
+  slug: string;
+  step: number;
+  no: number;
+  /** `1-1강` */
+  label: string;
+  /** 목록·카드에 쓰는 짧은 제목 */
+  shortTitle: string;
+  /** 강의 페이지 h1 — 조건이 붙은 질문 */
+  title: string;
+  /** 5분 읽기가 답하는 한 줄 질문 */
+  question: string;
+  /** 결론 상자 — 숫자가 들어간 한 문장(읽기 전에 답을 먼저 준다) */
+  thesis: string;
+  readingMinutes: number;
+  /** ① 손익 반전 훅 */
+  hook: string;
+  fork: { short: LessonForkSide; long: LessonForkSide };
+  /** 허브 카드에 보이는 대표 숫자 3개 */
+  keyNumbers: { label: string; value: string }[];
+  /** 본문이 읽는 표기 문자열 — 금액을 문장에 직접 적지 않는다 */
+  numbers: Record<string, string>;
+  /** ③ 계산기 실습 */
+  calculator: { name: string; href: string; note: string };
+  scenarios: LessonScenario[];
+  sources: LessonSource[];
+  cardSet: LessonCardSet;
+  /** ⑤ 내 돈 운영표 1칸 */
+  sheet: LessonSheet;
+  next: { label: string; title: string; body: string; href?: string; status?: string };
+  /** ② 5분 읽기 원고 */
+  reading: ReadingSection[];
+};
+
+/** 공백 제외 글자 수 — 1,200~1,500자 규격 검사에 쓴다. */
+export const readingChars = (reading: ReadingSection[]) =>
+  reading.reduce(
+    (n, s) => n + s.h.replace(/\s/g, "").length + s.ps.join("").replace(/\s/g, "").length,
+    0,
+  );
+
+/* ------------------------------------------------------------------
+   자료앨범 3D 세트 — 인라인 카드뉴스 뷰어가 읽는 6장
+   · 파일: public/gallery/3d-{prefix}-01..06.png
+   · 캡션은 자료앨범(gallery.ts)의 같은 세트와 어긋나지 않게 그대로 옮겨 적는다.
+   ------------------------------------------------------------------ */
+const CARD = { w: 1080, h: 1350 } as const;
+
+const card = (prefix: string, no: number, caption: string, alt: string): LessonCardSlide => ({
+  src: `/gallery/3d-${prefix}-${String(no).padStart(2, "0")}.png`,
+  alt,
+  caption,
+});
+
+/** A. 세 칸의 지도 — STEP 1 (1-1강 · 1-2강이 함께 봄) */
+const SET_THREE_BUCKETS: LessonCardSet = {
+  id: "three-buckets-3d",
+  title: "월급이 들어오면, 3개의 통",
+  meta: "3D 스토리 카드 6장 · 비상금 · 단기목표 · 장기투자",
+  href: "/gallery/?cat=carousel",
+  startIndex: 0,
+  slides: [
+    card("three-buckets", 1, "표지 — 월급이 들어오면 나뉘는 3개의 통", "세 칸으로 나뉜 나무 쟁반에 금화·작은 집·새싹이 담겨 있고, 양팔을 벌린 캐릭터"),
+    card("three-buckets", 2, "오해 vs 팩트 — 남는 돈 모으기 / 먼저 나누고 쓰기", "왼쪽은 거의 빈 단지 옆에 선 캐릭터, 오른쪽은 동전을 세 갈래로 나눠 담는 캐릭터"),
+    card("three-buckets", 3, "통 ① — 생활비 3~6개월, 바로 꺼낼 수 있게", "금화와 지폐가 든 유리병에 동전을 넣는 캐릭터와 작은 우산·방패"),
+    card("three-buckets", 4, "통 ② — 1~3년 안에 쓸 돈은 예·적금으로", "자물쇠와 깃발이 달린 저금함에 봉투를 넣는 캐릭터와 세 개의 달력 블록"),
+    card("three-buckets", 5, "통 ③ — 5년 이상 묶을 돈은 절세계좌에", "금화가 열매로 달린 작은 나무 화분에 물을 주는 캐릭터"),
+    card("three-buckets", 6, "오늘 할 일 — 자동이체 3줄 세팅", "세 개의 빈 체크 동그라미가 있는 클립보드를 든 캐릭터"),
+  ],
+};
+
+/** B. 세 순간 — STEP 2 (2-3강) */
+const SET_TAX_MOMENTS: LessonCardSet = {
+  id: "tax-moments-3d",
+  title: "모르면 16.5% 떼이는 세금 세 순간",
+  meta: "3D 스토리 카드 6장 · 이자·중도해지·연금수령",
+  href: "/gallery/?cat=carousel",
+  startIndex: 0,
+  slides: [
+    card("tax-moments", 1, "표지 — 모르면 16.5% 떼이는 세 순간", "나무 선반 위 세 개의 작은 알람시계와 걱정스러운 표정의 캐릭터"),
+    card("tax-moments", 2, "오해 vs 팩트 — 공제받았으니 이득 / 해지하면 16.5%", "환급 봉투를 안고 웃는 캐릭터와 밑이 깨진 금고에서 동전이 새는 장면"),
+    card("tax-moments", 3, "순간 1 — 이자·배당 15.4%, 이미 떼고 받습니다", "은행 모형으로 이어지는 동전 레일에서 집게가 동전을 집어 가는 장면"),
+    card("tax-moments", 4, "순간 2 — 중도해지 16.5% 기타소득세", "거대한 가위가 금고의 자물쇠를 자르고 경보 종이 울리는 장면"),
+    card("tax-moments", 5, "순간 3 — 연금으로 받으면 5.5%~3.3%", "수도꼭지에서 동전이 한 방울씩 떨어져 모래시계를 거쳐 쟁반으로 흐르는 장면"),
+    card("tax-moments", 6, "요약 — 꺼낼 돈과 묶을 돈, 먼저 나눠 두기", "열린 접시와 자물쇠가 달린 작은 궤짝 사이에 선 캐릭터"),
+  ],
+};
+
+/** C. 계좌 배치표 — STEP 2 (2-1강). v8.1.0에서 손글씨 6장이 들어와 실제 카드와 캡션을 맞췄다. */
+const SET_ACCOUNT_ORDER: LessonCardSet = {
+  id: "account-order-hand",
+  title: "연봉 5,500만, 계좌 넣는 순서",
+  meta: "손글씨 카드 6장 · 연금저축 · IRP · ISA",
+  href: "/gallery/?cat=carousel",
+  startIndex: 0,
+  slides: [
+    card("account-order", 1, "표지 — 연봉 5,500만 원 기준 계좌 3순위 배치표", "세 단 계단 위 동전 단지를 오르는 마스코트와 '남는 돈, 어디부터 넣어야 할까'"),
+    card("account-order", 2, "오해 vs 팩트 — 아무 계좌나 넣기 / 세액공제율·유동성 순서대로 채우기", "왼쪽은 빈 단지 옆에 앉은 시무룩한 마스코트, 오른쪽은 세 단지에 동전을 나눠 담는 마스코트"),
+    card("account-order", 3, "1순위 — 비상금 다음은 연금저축 600만 (16.5%·13.2%)", "우산과 동전 단지, 저금통, 동전을 넣는 마스코트"),
+    card("account-order", 4, "2순위 — IRP 300만 추가, 합산 900만 원 한도", "나란한 두 단지를 잇는 작은 다리와 클립보드를 든 마스코트"),
+    card("account-order", 5, "3순위 — 3년 안 쓸 돈은 ISA (서민형 400만·일반형 200만)", "열린 보물상자와 기대어 놓은 달력, 동전을 든 마스코트"),
+    card("account-order", 6, "요약 — 내 상황이면 이 순서", "클립보드 체크리스트를 든 마스코트와 3줄 배치표"),
+  ],
+};
+
+/** D. ISA 5분 정리 — STEP 2 (2-2강) */
+const SET_ISA_BASICS: LessonCardSet = {
+  id: "isa-basics-3d",
+  title: "ISA 5분 정리, 핵심 네 가지",
+  meta: "3D 스토리 카드 6장 · 비과세·손익통산·한도·전환",
+  href: "/gallery/?cat=carousel",
+  startIndex: 0,
+  slides: [
+    card("isa-basics", 1, "표지 — 이자 15.4%, 그냥 내시나요", "한 입 베인 동전 더미를 보는 캐릭터"),
+    card("isa-basics", 2, "핵심 1 — 비과세 400만·200만", "200과 400이 적힌 두 개의 상자를 나란히 든 캐릭터"),
+    card("isa-basics", 3, "핵심 2 — 손익통산", "이익과 손실이 적힌 두 저울이 하나의 접시로 합쳐지는 장면"),
+    card("isa-basics", 4, "핵심 3 — 연 2,000만·최대 1억", "큰 자와 작은 자로 금액을 재는 캐릭터"),
+    card("isa-basics", 5, "핵심 4 — 3년 후 연금 전환", "만기 표지판에서 연금 저금통으로 이어지는 다리"),
+    card("isa-basics", 6, "클로징 — 일반 계좌 전에 ISA", "두 갈래 길 앞에 선 캐릭터와 ISA 표지판"),
+  ],
+};
+
+export const cardSetById = (id: string): LessonCardSet | undefined =>
+  [SET_THREE_BUCKETS, SET_TAX_MOMENTS, SET_ACCOUNT_ORDER, SET_ISA_BASICS].find((s) => s.id === id);
+
+/* ------------------------------------------------------------------
+   1-1강 — 월급이 들어오면 가장 먼저 나눌 3개의 통장
+   ------------------------------------------------------------------ */
+const SPARE = 150; // 월 남는 돈(만원)
+const LIVING = 250; // 월 생활비(만원)
+const E3 = LIVING * 3; // 750
+const E6 = LIVING * 6; // 1500
+const BUCKET_A = Math.round(SPARE * 0.5); // 75
+const BUCKET_B = Math.round(SPARE * 0.2); // 30
+const BUCKET_C = SPARE - BUCKET_A - BUCKET_B; // 45
+
+const N11 = {
+  income: manLabel(400),
+  fixed: manLabel(160),
+  variable: manLabel(90),
+  living: manLabel(LIVING),
+  spare: manLabel(SPARE),
+  emergency3: manLabel(E3),
+  emergency6: manLabel(E6),
+  bucketA: manLabel(BUCKET_A),
+  bucketB: manLabel(BUCKET_B),
+  bucketC: manLabel(BUCKET_C),
+  months3: `${Math.ceil(E3 / BUCKET_A)}개월`,
+  months6: `${Math.ceil(E6 / BUCKET_A)}개월`,
+  yearlyC: manLabel(BUCKET_C * 12),
+  tenYearC: manLabel(BUCKET_C * 120),
+};
+
+const READING_11: ReadingSection[] = [
+  {
+    h: "월급날, 무엇부터 하나",
+    ps: [
+      `월급이 들어오면 무엇부터 해야 할까요? 결론은 '통장을 세 칸으로 나누고 그날 바로 옮긴다'입니다. 남는 돈을 세어 나누는 것이 아니라, 먼저 나눠 두고 남은 돈으로 사는 순서입니다. 순서가 바뀌면 같은 월급에서 남는 돈이 0원이 됩니다.`,
+      `세 칸은 이렇게 나뉩니다. ① 비상금은 일이 끊겨도 생활비 몇 달을 버티는 돈, ② 단기목표는 1~3년 안에 쓸 돈, ③ 장기투자는 5년 넘게 묶어 둘 돈입니다. ①이 비어 있으면 ③에 넣은 돈을 급할 때 깨게 되고, 그때는 세금과 손실이 함께 옵니다.`,
+      `통을 나누는 이유는 의지가 아니라 구조 때문입니다. 한 통에 다 들어 있으면 남는 돈은 마음에 따라 달라지지만, 통이 나뉘어 있으면 남는 돈은 이미 정해져 있습니다. 쓰는 사람의 결심이 아니라 계좌가 순서를 지켜 주는 쪽이 오래갑니다.`,
+    ],
+  },
+  {
+    h: "내 숫자로 계산하면",
+    ps: [
+      `월 소득 ${N11.income}, 고정비 ${N11.fixed}, 변동비 ${N11.variable}인 사람을 예로 듭니다. 생활비는 둘을 더한 ${N11.living}, 남는 돈은 ${N11.spare}입니다. 이 돈을 50%·20%·30%로 나누면 비상금 ${N11.bucketA}, 단기목표 ${N11.bucketB}, 장기투자 ${N11.bucketC}입니다.`,
+      `비상금 목표는 생활비의 3개월 ${N11.emergency3}, 6개월 ${N11.emergency6}입니다. 매달 ${N11.bucketA}씩 넣으면 3개월분은 ${N11.months3}, 6개월분은 ${N11.months6}이 걸립니다. 오래 걸린다고 실패가 아닙니다. 채울 때까지 ③을 0원으로 두는 것도 같은 계산 안의 선택입니다.`,
+    ],
+  },
+  {
+    h: "3~6개월은 법이 아니라 기준입니다",
+    ps: [
+      `3~6개월은 법으로 정해진 숫자가 아니라 통상 기준입니다. 소득이 한 곳이고 부양가족이 있으면 6개월, 맞벌이처럼 소득이 두 갈래면 3개월로 잡습니다. 어느 쪽이든 '내 숫자로 정해 두는 것'이 핵심입니다. 목표가 없으면 비상금은 영원히 모자랍니다.`,
+      `생활비에 무엇을 넣을지도 정해야 합니다. 월세·관리비·통신·보험료 같은 고정비와 식비·교통비 같은 변동비를 더한 값이 이 글의 ${N11.living}입니다. 카드 대금과 학원비처럼 달마다 달라지는 항목은 최근 3개월 평균으로 넣습니다. 넉넉하게 잡으면 비상금 목표가 커져 시작을 미루게 되고, 빡빡하게 잡으면 막상 급할 때 모자랍니다.`,
+      `자동이체를 세 줄로 걸어 두면 이 구조는 매달 반복됩니다. 월급날 다음 날 ① ${N11.bucketA}, ② ${N11.bucketB}, ③ ${N11.bucketC}이 각각 나가고, 통장에 남는 돈은 생활비와 여윳돈뿐입니다. 남는 돈을 세는 일이 사라집니다.`,
+    ],
+  },
+  {
+    h: "예외 — 순서가 뒤집히는 두 경우",
+    ps: [
+      `금리가 높은 빚이 남아 있다면 순서가 바뀝니다. 신용대출·카드 할부는 비상금보다 먼저 갚는 편이 낫습니다. 비상금을 쌓는 동안 빚에 붙는 이자가 더 크기 때문입니다. 반대로 전세자금처럼 날짜가 정해진 큰돈이 2년 안에 필요하면 ②를 ①보다 두껍게 잡아야 합니다.`,
+      `또 하나, ③에 넣는 돈은 5년 넘게 기다릴 수 있는 돈이어야 합니다. 1년 안에 쓸 돈을 ③에 넣으면 그 해 하락에서 손실을 확정하게 됩니다. ${N11.bucketC}을 1년 모으면 ${N11.yearlyC}, 10년이면 원금만 ${N11.tenYearC}입니다. 수익률은 넣지 않았습니다. 원금만 세어도 구조는 보입니다.`,
+      `마지막으로, 세 칸은 한 번 정하고 끝나지 않습니다. 이사·출산·이직처럼 생활비가 바뀌면 ①의 목표액부터 다시 계산합니다. 숫자를 고치지 않은 채 몇 년이 지나면, 비상금은 늘 모자라고 ③은 늘 부족한 상태가 됩니다.`,
+    ],
+  },
+  {
+    h: "출처와 기준일",
+    ps: [
+      `3~6개월이라는 기준은 자체 정리이고, 소득·지출 구조는 통계청 가계금융복지조사에서 확인할 수 있습니다. 숫자의 기준일은 2026. 11. 22.이며, 제도나 생활비가 바뀌면 이 글의 금액도 함께 달라집니다.`,
+    ],
+  },
+];
+
+/* ------------------------------------------------------------------
+   1-2강 — 비상금 3~6개월, 얼마를 어디에 둘까?
+   ------------------------------------------------------------------ */
+const DEPOSIT_RATE = 0.03; // 설명용 예시 금리
+const INTEREST = Math.round(E6 * 10000 * DEPOSIT_RATE); // 450,000
+const INTEREST_TAX = Math.round(INTEREST * INCOME_TAX.dividendWithLocal); // 69,300
+const INTEREST_AFTER = INTEREST - INTEREST_TAX;
+
+const N12 = {
+  living: manLabel(LIVING),
+  emergency3: manLabel(E3),
+  emergency6: manLabel(E6),
+  monthly: manLabel(BUCKET_A),
+  months3: `${Math.ceil(E3 / BUCKET_A)}개월`,
+  months6: `${Math.ceil(E6 / BUCKET_A)}개월`,
+  depositRate: pct(DEPOSIT_RATE, 0),
+  interest: wonLabel(INTEREST),
+  interestTax: wonLabel(INTEREST_TAX),
+  interestAfter: wonLabel(INTEREST_AFTER),
+  dividend: pct(INCOME_TAX.dividendWithLocal),
+  financialThreshold: manLabel(INCOME_TAX.financialIncomeThreshold),
+};
+
+const READING_12: ReadingSection[] = [
+  {
+    h: "몇 개월치를, 어디에 두나",
+    ps: [
+      `비상금은 몇 개월치를 어디에 두어야 할까요? 결론은 '생활비 3~6개월을, 하루 안에 꺼낼 수 있는 곳에'입니다. 비상금은 수익을 만드는 돈이 아니라, 수익을 계속 만들 수 있게 해 주는 돈입니다. 그래서 수익률보다 꺼내는 속도가 먼저입니다.`,
+      `생활비 ${N12.living}이면 3개월 ${N12.emergency3}, 6개월 ${N12.emergency6}입니다. 매달 ${N12.monthly}씩 모으면 각각 ${N12.months3}과 ${N12.months6}이 걸립니다. 여기서 흔한 실수가 금리가 조금 더 높은 상품을 찾아 1년 만기 상품에 넣는 것입니다. 만기 전에 꺼내면 약속한 이자를 받지 못합니다.`,
+    ],
+  },
+  {
+    h: "세금까지 계산하면",
+    ps: [
+      `${N12.emergency6}을 연 ${N12.depositRate} 예금에 1년 두면 이자는 ${N12.interest}입니다. 이자에는 ${N12.dividend}(소득세 14%와 지방소득세 1.4%)가 원천징수되어 ${N12.interestTax}이 빠지고, 손에 남는 것은 ${N12.interestAfter}입니다. ${N12.depositRate}는 설명을 위한 예시 금리이고, 실제 금리는 금융감독원 파인에서 확인해야 합니다.`,
+      `이자 ${N12.interest}은 금융소득 종합과세 기준(연 ${N12.financialThreshold})에 한참 못 미치므로 원천징수로 끝납니다. 비상금 규모에서는 세금이 결론을 바꾸지 않습니다. 세금을 줄이려고 만기를 늘리는 쪽이 오히려 손해입니다.`,
+      `금리를 비교할 때는 숫자 세 개를 같이 봅니다. 기본금리, 우대조건을 채웠을 때의 최고금리, 그리고 만기 전에 꺼낼 때 적용되는 중도해지이율입니다. 세 번째 숫자가 낮은 상품에 비상금을 넣으면, 급한 달에 이자를 거의 받지 못합니다.`,
+    ],
+  },
+  {
+    h: "한 통에 다 넣지 않습니다",
+    ps: [
+      `비상금은 세 층으로 나눠 두면 편합니다. ① 한 달치는 하루 안에 꺼낼 수 있는 통, ② 두 달치는 3개월 만기 상품, ③ 나머지는 6개월 만기 상품입니다. 급할 때 ①만 쓰고 ②③은 만기까지 두는 구조입니다. 상품 이름을 적지 않는 이유는 금리가 매달 바뀌고, 이름보다 '꺼내는 데 걸리는 날'이 중요하기 때문입니다.`,
+      `예금은 예금자보호 대상인지, 한도가 얼마인지도 함께 봅니다. 같은 금융회사에 몰아두면 한도에 걸릴 수 있으므로, 한도는 예금보험공사 안내에서 직접 확인합니다. 이 글은 특정 금융회사를 권하지 않습니다.`,
+      `나눠 두면 관리도 단순해집니다. 매달 자동이체로 ①에 정한 금액만 넣고, ①이 한 달치를 넘으면 초과분을 ②로 옮깁니다. ②가 가득 차면 ③으로 넘깁니다. 어느 칸이 가득 찼는지 세는 일만 남습니다.`,
+    ],
+  },
+  {
+    h: "예외 — 3개월로 줄여도 되는 경우",
+    ps: [
+      `소득이 두 갈래이고(맞벌이), 부양가족이 없고, 신용대출이 없다면 3개월이면 충분합니다. 줄인 ${manLabel(E6 - E3)}은 단기목표 칸으로 옮깁니다. 반대로 소득이 한 곳이거나 아이가 어리면 6개월을 권합니다. 병원비·이사·실직이 겹치는 시기를 버티는 힘이 비상금입니다.`,
+      `비상금을 다 채운 뒤에는 늘리지 않습니다. 6개월치를 넘겨 쌓아 두면 그 돈은 ③ 장기투자 칸에서 일할 수 있었던 돈입니다. 채우면 멈추고, 다음 칸으로 넘어가는 것이 이 구조의 규칙입니다.`,
+      `비상금을 쓴 달에는 다음 달에 다시 채우는 순서를 정해 둡니다. ①부터 채우고, ①이 차면 ②로 갑니다. 이 순서를 적어 두지 않으면 한 번 쓴 비상금은 몇 년째 비어 있게 됩니다.`,
+    ],
+  },
+  {
+    h: "출처와 기준일",
+    ps: [
+      `기준일 2026. 11. 22. · 이자 원천징수는 소득세법 제129조, 예금자보호는 예금보험공사 안내를 확인했습니다. 3~6개월이라는 개월 수는 자체 기준입니다.`,
+    ],
+  },
+];
+
+/* ------------------------------------------------------------------
+   2-1강 — 연봉 5,500만 원 기준, 계좌 채우는 1·2·3순위
+   ------------------------------------------------------------------ */
+const CREDIT_LOW = creditWon(PENSION_ACCOUNT.combinedLimit, PENSION_ACCOUNT.creditRateLow); // 1,485,000
+const CREDIT_HIGH = creditWon(PENSION_ACCOUNT.combinedLimit, PENSION_ACCOUNT.creditRateHigh); // 1,188,000
+const SAV = PENSION_ACCOUNT.savingsLimit;
+const COMBO = PENSION_ACCOUNT.combinedLimit;
+const IRP_EXTRA = COMBO - SAV; // 300
+
+const N21 = {
+  salary: manLabel(PENSION_ACCOUNT.salaryThreshold),
+  savingsLimit: manLabel(SAV),
+  irpLimit: manLabel(IRP_EXTRA),
+  combinedLimit: manLabel(COMBO),
+  credit: wonLabel(CREDIT_LOW),
+  creditHigh: wonLabel(CREDIT_HIGH),
+  creditGap: wonLabel(CREDIT_LOW - CREDIT_HIGH),
+  rateLow: pct(PENSION_ACCOUNT.creditRateLow),
+  rateHigh: pct(PENSION_ACCOUNT.creditRateHigh),
+  monthly: manLabel(Math.round(COMBO / 12)),
+  monthlySavings: manLabel(Math.round(SAV / 12)),
+  monthlyIrp: manLabel(Math.round(IRP_EXTRA / 12)),
+  isaExempt: manLabel(ISA.exemptGeneral),
+  isaExemptSeomin: manLabel(ISA.exemptSeomin),
+  isaRate: pct(ISA.taxRate),
+  isaYears: `${ISA.minYears}년`,
+  dividend: pct(INCOME_TAX.dividendWithLocal),
+};
+
+const READING_21: ReadingSection[] = [
+  {
+    h: "무엇부터 채우나",
+    ps: [
+      `연봉 ${N21.salary}, 계좌는 여러 개인데 무엇부터 채워야 할까요? 결론은 '비상금을 채운 뒤 연금저축 ${N21.savingsLimit} → IRP ${N21.irpLimit} → ISA → 일반계좌' 순서입니다. 앞의 두 계좌를 합쳐 ${N21.combinedLimit}을 넣으면 세금에서 ${N21.credit}이 돌아옵니다.`,
+      `순서의 근거는 '넣을 때 돌려받는 비율'입니다. 연금계좌는 총급여 ${N21.salary} 이하에서 ${N21.rateLow}를 돌려받습니다. ISA는 비과세 ${N21.isaExempt}(서민형 ${N21.isaExemptSeomin})을 넘는 수익에 ${N21.isaRate}만 냅니다. 일반계좌는 이자·배당에 ${N21.dividend}를 냅니다. 같은 돈이라도 이 순서대로 효율이 떨어집니다.`,
+    ],
+  },
+  {
+    h: "1순위 — 연금저축, 월 50만 원",
+    ps: [
+      `${N21.combinedLimit}을 12개월로 나누면 매달 ${N21.monthly}입니다. 연금저축 ${N21.monthlySavings}, IRP ${N21.monthlyIrp}입니다. 연금저축은 직장이 없어도 만들 수 있고, IRP는 퇴직금을 받는 그릇이기도 합니다. 두 계좌를 합쳐 ${N21.combinedLimit}까지 공제되므로 한쪽만 채우면 한도가 남습니다.`,
+      `이 순서 전에 비상금이 있습니다. 생활비 3~6개월이 비어 있으면 연금계좌에 넣은 돈을 급할 때 깨게 되고, 그때는 돌려받은 ${N21.credit}을 그대로 다시 냅니다. 그래서 비상금이 0순위, 연금저축이 1순위입니다.`,
+      `두 계좌의 인출 제약도 다릅니다. IRP는 법에서 정한 사유가 아니면 중간에 꺼낼 수 없고, 연금저축은 55세 전 인출에 세금이 붙지만 길이 열려 있습니다. 비슷해 보이는 두 계좌 중 제약이 큰 쪽을 나중에 두는 편이 안전합니다.`,
+    ],
+  },
+  {
+    h: "2·3순위 — IRP 다음 ISA, 그다음 일반계좌",
+    ps: [
+      `${N21.combinedLimit}을 채운 다음 돈이 ISA로 갑니다. ISA는 ${N21.isaYears} 동안 묶는 대신 비과세 ${N21.isaExempt}과 ${N21.isaRate} 분리과세를 줍니다. ${N21.isaYears}을 못 채우면 혜택이 줄어들므로, 2년 뒤 전세자금처럼 곧 쓸 돈은 ISA보다 예·적금이 낫습니다.`,
+      `마지막이 일반계좌입니다. 언제든 꺼낼 수 있지만 세금은 ${N21.dividend}로 가장 높습니다. 순서를 지키면 같은 1,000만원이라도 세금이 적게 떼이는 자리에 앉게 됩니다. 반대로 순서를 무시하면 세금을 한 번 더 내고, 한도를 놓친 해는 되돌릴 수 없습니다.`,
+    ],
+  },
+  {
+    h: "예외 — 순서가 흔들리는 세 경우",
+    ps: [
+      `총급여가 ${N21.salary}을 넘으면 공제율이 ${N21.rateHigh}로 내려가 ${N21.combinedLimit}을 채워도 ${N21.creditHigh}입니다. 차이는 ${N21.creditGap}이지만 0원보다는 크므로 순서는 그대로입니다. 2년 안에 큰돈이 필요하면 연금계좌는 1순위가 아닙니다. 세액공제는 낼 세금이 있어야 효과가 있습니다. 소득이 적은 해에는 돌려받는 금액도 작아집니다.`,
+      `그래서 계좌 순서는 '올해 내 소득'과 '이 돈을 언제 쓸 수 있는지' 두 가지로 정합니다. 순서를 외우는 것보다 이 두 질문에 답하는 편이 오래갑니다.`,
+      `마감도 함께 봅니다. 세액공제는 12월 31일까지 입금된 금액으로 계산하므로, 11월에 순서를 정해 두면 12월에 몰아 넣는 일이 줄어듭니다. 자동이체로 매달 ${N21.monthly}씩 나가면 마감일을 잊을 일도 없습니다. 한 해를 놓치면 그해 한도는 사라집니다. 다음 해에 자동이체 금액을 올려 채우는 편이 낫습니다.`,
+    ],
+  },
+  {
+    h: "출처와 기준일",
+    ps: [
+      `기준일 2026. 11. 22. · 연금계좌 세액공제는 소득세법 제${"59"}조의3, ISA는 조세특례제한법 제91조의18입니다. 한도와 세율이 바뀌면 이 글의 금액도 다시 계산합니다.`,
+    ],
+  },
+];
+
+/* ------------------------------------------------------------------
+   2-2강 — ISA 일반형·서민형, 3년 만기 전 꼭 볼 숫자
+   ------------------------------------------------------------------ */
+const ISA_SAVE_GENERAL = creditWon(ISA.exemptGeneral, INCOME_TAX.dividendWithLocal); // 308,000
+const ISA_SAVE_SEOMIN = creditWon(ISA.exemptSeomin, INCOME_TAX.dividendWithLocal); // 616,000
+const ISA_TRANSFER_CREDIT = creditWon(PENSION_ACCOUNT.isaTransferMax, PENSION_ACCOUNT.creditRateLow); // 495,000
+
+const N22 = {
+  exemptGeneral: manLabel(ISA.exemptGeneral),
+  exemptSeomin: manLabel(ISA.exemptSeomin),
+  isaRate: pct(ISA.taxRate),
+  dividend: pct(INCOME_TAX.dividendWithLocal),
+  years: `${ISA.minYears}년`,
+  saveGeneral: wonLabel(ISA_SAVE_GENERAL),
+  saveSeomin: wonLabel(ISA_SAVE_SEOMIN),
+  transferMax: manLabel(PENSION_ACCOUNT.isaTransferMax),
+  transferRate: pct(PENSION_ACCOUNT.isaTransferRate, 0),
+  transferCredit: wonLabel(ISA_TRANSFER_CREDIT),
+  combined: wonLabel(ISA_SAVE_GENERAL + ISA_TRANSFER_CREDIT),
+  creditRate: pct(PENSION_ACCOUNT.creditRateLow),
+  savingsLimit: manLabel(SAV),
+};
+
+const READING_22: ReadingSection[] = [
+  {
+    h: "ISA에서 봐야 할 세 숫자",
+    ps: [
+      `ISA는 무엇이 좋고, ${N22.years}을 못 채우면 무엇을 잃을까요? 결론은 '비과세 ${N22.exemptGeneral}(서민형 ${N22.exemptSeomin}), ${N22.isaRate} 분리과세, 만기 전 연금계좌 전환 ${N22.transferMax}' 세 가지입니다. 이 셋을 다 쓰면 같은 수익이라도 세금이 크게 줄어듭니다.`,
+      `일반계좌에서 ${N22.exemptGeneral} 수익이 나면 ${N22.dividend}인 ${N22.saveGeneral}을 냅니다. ISA 일반형은 이 금액이 비과세라 0원입니다. 서민형은 ${N22.exemptSeomin}까지 비과세이므로 ${N22.saveSeomin}이 남습니다. 넘는 수익에는 ${N22.isaRate}만 붙습니다.`,
+    ],
+  },
+  {
+    h: "손익통산이 막는 것",
+    ps: [
+      `ISA 안에서는 이익과 손실을 합쳐 순이익에만 과세합니다. 한 종목에서 300만원 벌고 다른 종목에서 200만원 잃었다면, 과세 대상은 500만원이 아니라 100만원입니다. 일반계좌라면 번 돈에만 세금이 붙고, 잃은 돈은 세금을 줄여 주지 않습니다. 손실이 난 해에 세금이 아프지 않은 이유입니다.`,
+      `수익이 비과세 한도 안에만 있으면 세금은 0원입니다. 한도를 넘길 때 이 장치가 실제로 돈을 지킵니다. 이익과 손실이 같은 해에 겹치는 사람에게 손익통산은 세금을 줄여 주는 유일한 장치입니다.`,
+      `납입한도도 함께 봅니다. ISA는 해마다 넣을 수 있는 금액과 계좌 전체에서 넣을 수 있는 금액이 따로 있습니다. 올해 남은 한도를 넘겨 넣으면 그 초과분은 혜택을 받지 못하므로, 연말에 한 번 확인합니다.`,
+    ],
+  },
+  {
+    h: "3년을 못 채우면",
+    ps: [
+      `의무가입 기간은 ${N22.years}입니다. 채우지 못하고 해지하면 비과세·분리과세 혜택이 사라지고, 그동안의 수익이 일반과세(${N22.dividend})로 돌아갑니다. 원금이 사라지는 것은 아니지만 받았어야 할 혜택을 반납하는 셈입니다. 그래서 2~3년 안에 쓸 돈은 ISA에 넣지 않습니다.`,
+      `서민형은 소득 요건을 함께 봅니다. 직전 과세기간 총급여가 5,000만원 이하이거나 종합소득금액이 3,800만원 이하이면 대상이 됩니다. 요건은 조문과 국세청 안내에서 확인해야 하고, 요건을 못 채우면 일반형 ${N22.exemptGeneral}으로 적용됩니다.`,
+    ],
+  },
+  {
+    h: "만기 60일, 연금계좌로 옮기면",
+    ps: [
+      `ISA 만기 자금을 60일 안에 연금저축으로 옮기면, 옮긴 금액의 ${N22.transferRate}·최대 ${N22.transferMax}을 그해 공제 대상 납입액에 더할 수 있습니다. ${N22.transferMax}을 더하면 ${N22.creditRate} 기준 ${N22.transferCredit}을 한 번 더 돌려받습니다. 비과세 ${N22.saveGeneral}과 합치면 ${N22.combined}입니다.`,
+      `이 전환은 한도가 아니라 '추가 한도'입니다. 연금저축 단독 한도 ${N22.savingsLimit}은 그대로 있고, 그 위에 만기 자금을 옮긴 만큼 더해집니다. 만기일을 모르고 지나가면 이 ${N22.transferCredit}은 사라집니다.`,
+      `ISA는 한 사람에 계좌 하나입니다. 이미 갖고 있다면 새로 만드는 것이 아니라 기존 계좌를 이어 가거나 옮기는 절차를 따릅니다. 갈아타기를 새 가입처럼 생각하면 의무가입 기간이 다시 시작될 수 있으니, 금융회사에 기간이 이어지는지 먼저 확인합니다.`,
+      `정리하면 ISA에서 볼 숫자는 비과세 한도, 초과분 세율, 의무가입 기간, 만기 뒤 60일입니다. 네 숫자가 내 소득과 내 일정에 맞을 때만 이 계좌가 이깁니다.`,
+    ],
+  },
+  {
+    h: "출처와 기준일",
+    ps: [
+      `기준일 2026. 11. 22. · ISA는 조세특례제한법 제91조의18, 연금계좌 전환은 소득세법 시행령 제118조의2입니다. 서민형 요건과 납입한도는 개정 논의가 있는 항목이므로 해마다 원문을 다시 확인합니다.`,
+    ],
+  },
+];
+
+/* ------------------------------------------------------------------
+   2-3강 — 연금저축 600·IRP 900 (v8.0 파일럿을 그대로 옮겨 온 강의)
+   ------------------------------------------------------------------ */
+const N23 = {
+  maxCredit: creditWon(COMBO, PENSION_ACCOUNT.creditRateLow),
+  maxCreditLabel: wonLabel(creditWon(COMBO, PENSION_ACCOUNT.creditRateLow)),
+  highCredit: creditWon(COMBO, PENSION_ACCOUNT.creditRateHigh),
+  highCreditLabel: wonLabel(creditWon(COMBO, PENSION_ACCOUNT.creditRateHigh)),
+  savingsOnly: creditWon(SAV, PENSION_ACCOUNT.creditRateLow),
+  savingsOnlyLabel: wonLabel(creditWon(SAV, PENSION_ACCOUNT.creditRateLow)),
+  irp200: creditWon(800, PENSION_ACCOUNT.creditRateLow),
+  irp200Label: wonLabel(creditWon(800, PENSION_ACCOUNT.creditRateLow)),
+  monthly30: creditWon(660, PENSION_ACCOUNT.creditRateLow),
+  monthly30Label: wonLabel(creditWon(660, PENSION_ACCOUNT.creditRateLow)),
+  clawbackLabel: wonLabel(creditWon(COMBO, PENSION_ACCOUNT.earlyWithdrawRateWithLocal)),
+  bracketGapLabel: wonLabel(
+    creditWon(COMBO, PENSION_ACCOUNT.creditRateLow) - creditWon(COMBO, PENSION_ACCOUNT.creditRateHigh),
+  ),
+  rateLow: pct(PENSION_ACCOUNT.creditRateLow),
+  rateHigh: pct(PENSION_ACCOUNT.creditRateHigh),
+  rateDrawUnder70: pct(PRIVATE_PENSION_TAX.rateUnder70),
+  rateDraw80: pct(PRIVATE_PENSION_TAX.rate80),
+  earlyRate: pct(PENSION_ACCOUNT.earlyWithdrawRateWithLocal),
+  savingsLimit: manLabel(SAV),
+  combinedLimit: manLabel(COMBO),
+};
+
+const READING_23: ReadingSection[] = [
+  {
+    h: "세 문이 있는 방",
+    ps: [
+      `연금저축 한 계좌만으로는 ${N23.savingsLimit}까지 공제 대상입니다. 여기에 IRP를 더하면 두 계좌 합계로 ${N23.combinedLimit}까지 늘어납니다. '세액공제'는 낸 세금에서 정해진 비율을 빼 주는 제도입니다. 통장에 현금이 들어오는 것이 아니라, 다음 연말정산에서 낼 세금이 그만큼 줄어듭니다.`,
+      `연금계좌는 문이 세 개인 방과 같습니다. 넣을 때는 공제를 받고, 굴릴 때는 세금을 미루고, 꺼낼 때 연금소득세를 냅니다. 넣을 때 받는 공제율은 ${N23.rateLow}, 70세 전에 연금으로 받을 때 내는 세율은 ${N23.rateDrawUnder70}입니다. 두 숫자가 다르다는 점이 이 구조의 핵심입니다.`,
+      `두 계좌의 쓰임도 다릅니다. 연금저축은 직장 없이도 만들 수 있고, IRP는 퇴직금을 받는 그릇이기도 합니다. 그래서 한도가 둘로 나뉘어 있습니다.`,
+    ],
+  },
+  {
+    h: "공제율은 소득에 따라 둘로 갈립니다",
+    ps: [
+      `공제율은 총급여 5,500만원을 경계로 갈립니다. 이하이면 ${N23.rateLow}, 넘으면 ${N23.rateHigh}입니다. 둘 다 지방소득세(소득세에 10%를 더 붙이는 지방세)를 포함한 숫자입니다. 그래서 같은 ${N23.combinedLimit}이라도 낮은 구간은 ${N23.maxCreditLabel}, 높은 구간은 ${N23.highCreditLabel}이 됩니다. 차이는 ${N23.bracketGapLabel}입니다.`,
+      `그래서 15%와 12%에 각각 1.5%포인트와 1.2%포인트가 붙은 것이 ${N23.rateLow}와 ${N23.rateHigh}입니다.`,
+      `공제액은 납입액에 비례합니다. 연금저축만 ${N23.savingsLimit}이면 ${N23.savingsOnlyLabel}, IRP 200만원을 더해 800만원이면 ${N23.irp200Label}입니다.`,
+    ],
+  },
+  {
+    h: "내 숫자로 바꾸면",
+    ps: [
+      `예를 들어 총급여 4,800만원인 사람이 연금저축 600만원, IRP 300만원을 넣으면 공제액은 ${N23.maxCreditLabel}입니다. 여기서 IRP를 200만원으로 줄이면 ${N23.irp200Label}으로 내려갑니다. 100만원을 덜 넣어 16만 5,000원을 포기하는 셈입니다.`,
+      `월 30만원을 연금저축에 넣으면 1년에 360만원입니다. 여기에 IRP 300만원을 더한 660만원이면 공제액은 ${N23.monthly30Label}입니다. 한도를 다 채우지 않아도 돌아오는 돈은 비례해서 늘어납니다.`,
+    ],
+  },
+  {
+    h: "받을 때는 세율이 내려갑니다",
+    ps: [
+      `55세 이후 연금으로 받으면 연금소득세는 70세 전 ${N23.rateDrawUnder70}, 80세 이상 ${N23.rateDraw80}입니다. 오래 들고 갈수록 세율이 낮아집니다. 연금으로 인정받으려면 55세 이후여야 하고, 연금저축은 가입 기간 5년도 채워야 합니다. 그래서 이 계좌는 세금을 안 내는 계좌가 아니라, 세금을 나중에 더 낮게 내는 계좌입니다.`,
+    ],
+  },
+  {
+    h: "예외 — 중간에 깨면 계산이 뒤집힙니다",
+    ps: [
+      `55세 전에 해지해 연금이 아닌 방식으로 찾으면, 공제받은 ${N23.combinedLimit}에 기타소득세 ${N23.earlyRate}가 다시 붙습니다. 돌려받은 ${N23.maxCreditLabel}을 그대로 다시 내는 셈입니다. 2년 뒤 전세 자금처럼 곧 쓸 돈은 연금계좌가 아니라 다른 계좌에 두어야 합니다.`,
+      `또 하나, 세액공제는 결정세액(한 해 낼 세금을 공제까지 반영해 최종 확정한 금액)을 넘을 수 없습니다. 소득이 적어 낼 세금이 작으면 돌려받는 금액도 그만큼 작아집니다. 한도는 목표가 아니라 상한입니다.`,
+      `한도를 넘겨 넣은 금액은 그해 공제되지 않습니다. 다음 해로 넘겨 공제받는 절차가 따로 있습니다.`,
+    ],
+  },
+  {
+    h: "출처와 기준일",
+    ps: [
+      `근거는 소득세법 제59조의3입니다. 숫자의 기준일은 2026. 11. 22.이고, 제도가 바뀌면 이 글의 금액도 함께 달라집니다. 아래 1차 출처에서 직접 확인해 보세요.`,
+    ],
+  },
+];
+
+/* ------------------------------------------------------------------
+   강의 목록 — 화면 순서가 곧 학습 순서다.
+   ------------------------------------------------------------------ */
+export const ACADEMY_LESSONS: AcademyLesson[] = [
+  {
+    slug: "step1-three-buckets",
+    thesis: `남는 돈 ${N11.spare}을 ① 비상금·② 단기목표·③ 장기투자 세 칸으로 먼저 나누면, 남는 돈을 세는 일 없이 매달 같은 구조가 반복됩니다.`,
+    step: 1,
+    no: 1,
+    label: "1-1강",
+    shortTitle: "월급날, 3개의 통",
+    title: "월급이 들어오면 가장 먼저 나눌 3개의 통장, 무엇부터 채울까?",
+    question: "남는 돈은 어디서 만들어질까",
+    readingMinutes: 5,
+    hook: `월 소득 ${N11.income}이 같아도, 비상금이 0원인 사람과 6개월치가 있는 사람은 같은 ${N11.bucketC}을 완전히 다르게 씁니다.`,
+    fork: {
+      short: {
+        tag: "비상금이 0원이다",
+        head: "오늘은 ① 비상금부터",
+        body: `생활비 ${N11.living}이면 3개월 ${N11.emergency3}이 먼저입니다. 비어 있는 채로 ③에 넣으면 급할 때 깨게 되고, 그때는 이자와 손실을 함께 냅니다.`,
+        verdict: "1년 동안은 ③을 0원으로 두어도 됩니다.",
+      },
+      long: {
+        tag: "비상금 6개월치가 있다",
+        head: "이제 ②③을 채울 차례",
+        body: `①이 ${N11.emergency6}을 넘으면 늘리지 않습니다. 넘긴 돈은 ② 단기목표와 ③ 장기투자로 옮겨야 그 돈이 일합니다.`,
+        verdict: "이 글의 주제입니다. 아래에서 내 숫자로 나눠 봅니다.",
+      },
+    },
+    keyNumbers: [
+      { label: "월 남는 돈", value: N11.spare },
+      { label: "비상금 3개월", value: N11.emergency3 },
+      { label: "통 ③ 매달", value: N11.bucketC },
+    ],
+    numbers: N11,
+    calculator: {
+      name: "투자 복리·세후 수익률 계산기",
+      href: "/apps/compound-return/run",
+      note: "통 ③에 넣는 돈이 10년 뒤 원금만 얼마인지 확인합니다(수익률은 넣지 않습니다).",
+    },
+    scenarios: [
+      {
+        id: "split",
+        label: "3통 나누기",
+        title: `남는 돈 ${N11.spare}을 50:20:30으로`,
+        settings: ["월 소득 400만원", "고정비 160만원 · 변동비 90만원", "남는 돈 150만원"],
+        result: `비상금 ${N11.bucketA} · 단기 ${N11.bucketB} · 장기 ${N11.bucketC}`,
+        expect: "자동이체 세 줄로 바꾸면 매달 반복됩니다.",
+        href: "#sheet",
+        cta: "운영표에서 이 값 채우기",
+      },
+      {
+        id: "long",
+        label: "통 ③ 10년",
+        title: `${N11.bucketC} × 12개월 × 10년 = 원금 ${N11.tenYearC}`,
+        settings: ["매달 45만원", "10년 납입", "수익률은 넣지 않음"],
+        result: `원금 ${N11.tenYearC}`,
+        expect: "계산기에서 수익률을 0%로 두면 원금만 남습니다. 수익률은 내가 넣는 가정입니다.",
+      },
+      {
+        id: "goal6",
+        label: "6개월 목표",
+        title: `생활비 ${N11.living} × 6 = ${N11.emergency6}`,
+        settings: ["생활비 250만원", "매달 비상금 75만원", "목표 1,500만원"],
+        result: `${N11.months6}에 도달`,
+        expect: "이 기간에는 ③을 0원으로 두는 선택이 계산에 맞습니다.",
+        href: "#sheet",
+        cta: "운영표에서 이 값 채우기",
+      },
+    ],
+    sources: [
+      {
+        label: "통계청 — 가계금융복지조사",
+        what: "가구의 소득·지출·자산·부채 분포를 보는 국가 통계(생활비 기준을 잡을 때)",
+        url: "https://kostat.go.kr/",
+        host: "kostat.go.kr",
+      },
+      {
+        label: "금융감독원 파인 — 예금·적금 금리 비교",
+        what: "비상금을 둘 자리의 금리를 상품명 없이 비교",
+        url: "https://fine.fss.or.kr/",
+        host: "fine.fss.or.kr",
+      },
+      {
+        label: "소득세법 제59조의3 — 연금계좌 세액공제",
+        what: "통 ③(5년 이상 묶는 돈)이 절세계좌로 가는 근거",
+        url: "https://www.law.go.kr/법령/소득세법",
+        host: "law.go.kr",
+      },
+    ],
+    cardSet: SET_THREE_BUCKETS,
+    sheet: {
+      variant: "cashflow",
+      slotNo: 1,
+      slotTitle: "현금흐름표",
+      line: "소득·고정비·변동비를 넣어 남는 돈과 비상금 목표를 적습니다.",
+    },
+    next: {
+      label: "다음 강",
+      title: "1-2강 · 비상금 3~6개월, 얼마를 어디에 둘까?",
+      body: "금액을 정했으니, 이제 그 돈을 둘 자리를 정합니다. 꺼내는 데 걸리는 날과 세후 이자까지 함께 봅니다.",
+      href: "/academy/step1-emergency-fund/",
+      status: "공개",
+    },
+    reading: READING_11,
+  },
+  {
+    slug: "step1-emergency-fund",
+    thesis: `비상금은 생활비 3개월 ${N12.emergency3}부터 6개월 ${N12.emergency6}까지를, 하루 안에 꺼낼 수 있는 곳에 나눠 두는 것이 기준입니다.`,
+    step: 1,
+    no: 2,
+    label: "1-2강",
+    shortTitle: "비상금 3~6개월",
+    title: "비상금 3~6개월, 얼마를 어디에 둘까?",
+    question: "비상금은 몇 개월치를 어디에 둘까",
+    readingMinutes: 5,
+    hook: `같은 ${N12.emergency6}이라도 1년 만기 상품에 넣은 사람과 하루 안에 꺼낼 수 있는 곳에 나눠 둔 사람은, 급한 달에 꺼내는 금액이 다릅니다.`,
+    fork: {
+      short: {
+        tag: "소득이 한 곳이다",
+        head: "6개월치를 목표로",
+        body: `외벌이이거나 부양가족이 있으면 생활비 6개월 ${N12.emergency6}을 기준으로 잡습니다. 실직·병원비가 겹치는 시기를 버티는 힘이 이 돈입니다.`,
+        verdict: "6개월 중 1개월은 하루 안에 꺼낼 수 있게 둡니다.",
+      },
+      long: {
+        tag: "맞벌이 · 소득이 두 갈래",
+        head: "3개월치로 줄여도 됩니다",
+        body: `소득이 두 곳이면 한쪽이 끊겨도 생활이 이어집니다. 3개월 ${N12.emergency3}으로 잡고, 줄어든 ${manLabel(E6 - E3)}은 단기목표 칸으로 옮깁니다.`,
+        verdict: "이 글의 주제입니다. 아래에서 세후 이자까지 계산합니다.",
+      },
+    },
+    keyNumbers: [
+      { label: "비상금 6개월", value: N12.emergency6 },
+      { label: "연 3% 이자", value: N12.interest },
+      { label: "세후 이자", value: N12.interestAfter },
+    ],
+    numbers: N12,
+    calculator: {
+      name: "비상금 목표 계산기",
+      href: "#sheet",
+      note: "이 페이지 아래 운영표가 계산기입니다. 생활비·적립액·목표 개월을 넣으면 목표액과 도달 개월, 세후 이자가 함께 나옵니다(입력값은 화면에만).",
+    },
+    scenarios: [
+      {
+        id: "six",
+        label: "6개월",
+        title: `생활비 ${N12.living} × 6 = ${N12.emergency6}`,
+        settings: ["생활비 250만원", "소득이 한 곳", "매달 75만원 적립"],
+        result: `${N12.months6}에 도달`,
+        expect: "1개월치는 하루 안에 꺼낼 수 있는 자리에 둡니다.",
+        href: "#sheet",
+        cta: "운영표에서 이 값 계산하기",
+      },
+      {
+        id: "three",
+        label: "3개월",
+        title: `생활비 ${N12.living} × 3 = ${N12.emergency3}`,
+        settings: ["생활비 250만원", "맞벌이", "매달 75만원 적립"],
+        result: `${N12.months3}에 도달`,
+        expect: "줄인 750만원은 단기목표 칸으로 옮깁니다.",
+        href: "#sheet",
+        cta: "운영표에서 이 값 계산하기",
+      },
+      {
+        id: "tax",
+        label: "세후 이자",
+        title: `${N12.emergency6} · 연 ${N12.depositRate} · 1년`,
+        settings: ["예치 1,500만원", "예시 금리 3%", "이자소득세 15.4%"],
+        result: `이자 ${N12.interest} → 세후 ${N12.interestAfter}`,
+        expect: `빠지는 세금은 ${N12.interestTax}입니다.`,
+        href: "#sheet",
+        cta: "운영표에서 이 값 계산하기",
+      },
+    ],
+    sources: [
+      {
+        label: "예금보험공사 — 예금자보호 안내",
+        what: "예금자보호 대상과 보호 한도(같은 금융회사에 몰아둘 때 걸리는 한도)",
+        url: "https://www.kdic.or.kr/",
+        host: "kdic.or.kr",
+      },
+      {
+        label: "금융감독원 파인 — 예금·적금 금리 비교",
+        what: "만기별 금리를 상품명 없이 비교",
+        url: "https://fine.fss.or.kr/",
+        host: "fine.fss.or.kr",
+      },
+      {
+        label: "소득세법 제129조 — 이자소득 원천징수",
+        what: "이자·배당 15.4%(소득세 14% + 지방소득세 1.4%)",
+        url: "https://www.law.go.kr/법령/소득세법",
+        host: "law.go.kr",
+      },
+      {
+        label: "통계청 — 소비자물가지수",
+        what: "비상금의 실질 가치가 물가로 얼마나 줄어드는지",
+        url: "https://kostat.go.kr/",
+        host: "kostat.go.kr",
+      },
+    ],
+    cardSet: { ...SET_THREE_BUCKETS, startIndex: 2 },
+    sheet: {
+      variant: "emergency",
+      slotNo: 1,
+      slotTitle: "현금흐름표",
+      line: "생활비와 적립액을 넣어 비상금 목표액과 도달 개월을 적습니다.",
+    },
+    next: {
+      label: "다음 STEP",
+      title: "STEP 2 · 2-1강 계좌 채우는 1·2·3순위",
+      body: "비상금이 준비되면, 남는 돈은 세금이 가장 적게 떼이는 계좌 순서로 채웁니다.",
+      href: "/academy/step2-account-order/",
+      status: "공개",
+    },
+    reading: READING_12,
+  },
+  {
+    slug: "step2-account-order",
+    thesis: `비상금을 채운 뒤 연금저축 ${N21.savingsLimit} → IRP ${N21.irpLimit} 순서로 합산 ${N21.combinedLimit}을 넣으면, 세금에서 ${N21.credit}이 돌아옵니다.`,
+    step: 2,
+    no: 1,
+    label: "2-1강",
+    shortTitle: "계좌 채우는 1·2·3순위",
+    title: "연봉 5,500만 원 기준, 계좌 채우는 1·2·3순위",
+    question: "남는 돈은 어느 계좌부터 채울까",
+    readingMinutes: 5,
+    hook: `2년 뒤 전세 자금이 필요한 사람과 5년 넘게 묶어 둘 수 있는 사람은, 같은 ${N21.monthly}을 완전히 다른 계좌에 넣습니다.`,
+    fork: {
+      short: {
+        tag: "2년 안에 쓸 돈이다",
+        head: "연금계좌가 1순위가 아닙니다",
+        body: `연금저축·IRP에 넣은 돈을 55세 전에 연금이 아닌 방식으로 찾으면, 돌려받은 공제액에 기타소득세 ${pct(
+          PENSION_ACCOUNT.earlyWithdrawRateWithLocal,
+        )}가 다시 붙습니다.`,
+        verdict: "이 경우는 비상금 다음이 예·적금, 그다음 ISA입니다.",
+      },
+      long: {
+        tag: "5년 넘게 묶어 둘 수 있다",
+        head: "연금저축 → IRP → ISA 순서",
+        body: `연금저축 ${N21.savingsLimit}과 IRP ${N21.irpLimit}을 합쳐 ${N21.combinedLimit}까지 넣으면 ${N21.credit}이 돌아옵니다. 그다음 돈이 ISA로 갑니다.`,
+        verdict: "이 글의 주제입니다. 아래에서 내 소득으로 확인합니다.",
+      },
+    },
+    keyNumbers: [
+      { label: "합산 한도", value: N21.combinedLimit },
+      { label: "최대 세액공제", value: N21.credit },
+      { label: "매달 채우는 금액", value: N21.monthly },
+    ],
+    numbers: N21,
+    calculator: {
+      name: "연금저축·IRP 세액공제 계산기",
+      href: "/apps/pension-tax/run",
+      note: "총급여 구간과 두 계좌 납입액을 넣어 1·2순위에서 돌려받는 금액을 확인합니다. 네 계좌를 나란히 비교하려면 아래 '4대 계좌 세후 비교'를 함께 보세요.",
+    },
+    scenarios: [
+      {
+        id: "order1",
+        label: "1순위",
+        title: `연금저축 ${N21.savingsLimit} · 총급여 ${N21.salary} 이하`,
+        settings: ["총급여 5,500만원", "연금저축 600만원", "공제율 16.5%"],
+        result: `세액공제 ${wonLabel(creditWon(SAV, PENSION_ACCOUNT.creditRateLow))}`,
+        expect: "직장이 없어도 만들 수 있는 계좌입니다.",
+      },
+      {
+        id: "order2",
+        label: "2순위",
+        title: `IRP ${N21.irpLimit} 추가 → 합산 ${N21.combinedLimit}`,
+        settings: ["연금저축 600만원", "IRP 300만원", "합산 한도 900만원"],
+        result: `세액공제 ${N21.credit}`,
+        expect: "두 계좌를 합쳐야 한도가 꽉 찹니다.",
+      },
+      {
+        id: "boundary",
+        label: "구간 경계",
+        title: `총급여 ${N21.salary} 초과 · 합산 ${N21.combinedLimit}`,
+        settings: ["총급여 5,500만원 초과", "공제율 13.2%", "연금저축 600 + IRP 300"],
+        result: `세액공제 ${N21.creditHigh}`,
+        expect: `같은 900만원인데 ${N21.creditGap} 차이가 납니다.`,
+      },
+    ],
+    sources: [
+      {
+        label: "소득세법 제59조의3 — 연금계좌세액공제",
+        what: "연금저축 600만원·합산 900만원, 공제율 15%·12%(지방소득세 포함 16.5%·13.2%)",
+        url: "https://www.law.go.kr/법령/소득세법",
+        host: "law.go.kr",
+      },
+      {
+        label: "조세특례제한법 제91조의18 — 개인종합자산관리계좌(ISA)",
+        what: "비과세 200만원·400만원, 초과분 9.9%, 의무가입 3년",
+        url: "https://www.law.go.kr/법령/조세특례제한법",
+        host: "law.go.kr",
+      },
+      {
+        label: "소득세법 시행령 제118조의2 — 연금계좌 납입한도와 ISA 전환",
+        what: "한도 초과 납입액의 다음 연도 전환, ISA 만기 자금 10%·최대 300만원 추가",
+        url: "https://www.law.go.kr/법령/소득세법시행령",
+        host: "law.go.kr",
+      },
+      {
+        label: "국세청 — 연말정산 안내: 연금계좌 세액공제",
+        what: "12월 31일 입금분까지 그해 공제 대상, 공제율 적용 방식",
+        url: "https://www.nts.go.kr/nts/cm/cntnts/cntntsView.do?cntntsId=7875&mi=2304",
+        host: "nts.go.kr",
+      },
+    ],
+    cardSet: SET_ACCOUNT_ORDER,
+    sheet: {
+      variant: "order",
+      slotNo: 2,
+      slotTitle: "계좌 배치표",
+      line: "월 여유자금을 넣어 1·2·3순위로 얼마씩 가는지 적습니다.",
+    },
+    next: {
+      label: "다음 강",
+      title: "2-2강 · ISA 일반형·서민형, 3년 만기 전 꼭 볼 숫자",
+      body: "3순위로 넘어간 ISA에서 3년을 못 채우면 무엇을 잃는지, 만기 60일에 무엇을 해야 하는지 정리합니다.",
+      href: "/academy/step2-isa-numbers/",
+      status: "공개",
+    },
+    reading: READING_21,
+  },
+  {
+    slug: "step2-isa-numbers",
+    thesis: `ISA는 비과세 ${N22.exemptGeneral}(서민형 ${N22.exemptSeomin})과 ${N22.isaRate} 분리과세, 만기 60일 연금계좌 전환 ${N22.transferMax} — 세 장치를 함께 볼 때 이깁니다.`,
+    step: 2,
+    no: 2,
+    label: "2-2강",
+    shortTitle: "ISA 3년 만기 전 숫자",
+    title: "ISA 일반형·서민형, 3년 만기 전 꼭 볼 숫자",
+    question: "ISA의 세 장치는 각각 무엇을 막을까",
+    readingMinutes: 5,
+    hook: `같은 ${N22.exemptGeneral} 수익이라도 일반계좌는 ${N22.saveGeneral}을 내고, ISA 일반형은 0원입니다. 3년을 못 채우면 그 차이가 다시 돌아옵니다.`,
+    fork: {
+      short: {
+        tag: "3년을 못 채울 것 같다",
+        head: "ISA보다 예·적금이 먼저",
+        body: `${N22.years}을 채우지 못하고 해지하면 비과세·분리과세 혜택이 사라지고 수익에 ${N22.dividend}가 붙습니다. 2년 안에 쓸 돈은 넣지 않습니다.`,
+        verdict: "만기가 정해진 자리에 두는 편이 계산에 맞습니다.",
+      },
+      long: {
+        tag: "3년 넘게 둘 수 있다",
+        head: "비과세 + 전환 300만 원",
+        body: `비과세 ${N22.exemptGeneral}(서민형 ${N22.exemptSeomin})과 ${N22.isaRate} 분리과세에, 만기 60일 안에 연금계좌로 옮기면 ${N22.transferMax} 추가 공제까지 붙습니다.`,
+        verdict: "이 글의 주제입니다. 아래에서 세 숫자를 계산합니다.",
+      },
+    },
+    keyNumbers: [
+      { label: "비과세(일반형)", value: N22.exemptGeneral },
+      { label: "초과분 세율", value: N22.isaRate },
+      { label: "전환 추가 공제", value: N22.transferCredit },
+    ],
+    numbers: N22,
+    calculator: {
+      name: "4대 계좌 세후 비교",
+      href: "/apps/account-tax-compare/run",
+      note: "같은 수익을 일반계좌와 ISA에 넣었을 때 세후 차이를 확인합니다.",
+    },
+    scenarios: [
+      {
+        id: "general",
+        label: "일반형",
+        title: `비과세 ${N22.exemptGeneral} · 일반형`,
+        settings: ["연 수익 200만원", "일반계좌 15.4%", "ISA 일반형 비과세"],
+        result: `절세 ${N22.saveGeneral}`,
+        expect: "한도 안의 수익이면 ISA는 0원입니다.",
+        href: "#sheet",
+        cta: "운영표에서 이 값 계산하기",
+      },
+      {
+        id: "seomin",
+        label: "서민형",
+        title: `비과세 ${N22.exemptSeomin} · 서민형`,
+        settings: ["연 수익 400만원", "소득 요건 충족 시", "초과분 9.9%"],
+        result: `절세 ${N22.saveSeomin}`,
+        expect: "요건은 조문과 국세청 안내에서 확인합니다.",
+        href: "#sheet",
+        cta: "운영표에서 이 값 계산하기",
+      },
+      {
+        id: "transfer",
+        label: "만기 전환",
+        title: `만기 60일 · ${N22.transferMax} 전환`,
+        settings: ["이전액의 10%", "최대 300만원", "공제율 16.5%"],
+        result: `추가 공제 ${N22.transferCredit}`,
+        expect: `비과세 ${N22.saveGeneral}과 합치면 ${N22.combined}입니다.`,
+        href: "#sheet",
+        cta: "운영표에서 이 값 확인하기",
+      },
+    ],
+    sources: [
+      {
+        label: "조세특례제한법 제91조의18 — 개인종합자산관리계좌",
+        what: "비과세 200만원(서민형·농어민형 400만원), 초과분 9.9% 분리과세, 의무가입 3년, 1인 1계좌",
+        url: "https://www.law.go.kr/법령/조세특례제한법",
+        host: "law.go.kr",
+      },
+      {
+        label: "소득세법 시행령 제118조의2 — ISA 만기 자금의 연금계좌 전환",
+        what: "전환액의 10%·최대 300만원을 공제 대상 납입액에 추가",
+        url: "https://www.law.go.kr/법령/소득세법시행령",
+        host: "law.go.kr",
+      },
+      {
+        label: "국세청 — ISA 안내",
+        what: "서민형 요건(직전 과세기간 총급여·종합소득), 가입·전환 절차",
+        url: "https://www.nts.go.kr/",
+        host: "nts.go.kr",
+      },
+    ],
+    cardSet: SET_ISA_BASICS,
+    sheet: {
+      variant: "isa",
+      slotNo: 2,
+      slotTitle: "계좌 배치표",
+      line: "연 수익을 넣어 일반형·서민형의 절세액과 전환 효과를 적습니다.",
+    },
+    next: {
+      label: "다음 강",
+      title: "2-3강 · 연금저축 600·IRP 900",
+      body: "ISA에서 넘어온 돈까지 합쳐, 연금계좌의 세 순간(넣기·굴리기·꺼내기)을 숫자로 확인합니다.",
+      href: "/academy/step2-pension-tax-limit/",
+      status: "공개",
+    },
+    reading: READING_22,
+  },
+  {
+    slug: "step2-pension-tax-limit",
+    thesis: `두 계좌를 합쳐 ${N23.combinedLimit}까지 넣으면, 총급여 5,500만원 이하인 사람은 세금에서 최대 ${N23.maxCreditLabel}이 줄어듭니다.`,
+    step: 2,
+    no: 3,
+    label: "2-3강",
+    shortTitle: "연금저축 600 · IRP 900",
+    title: `연금저축 ${manLabel(SAV)}·IRP ${manLabel(COMBO)}, 내 소득에서 얼마나 돌려받을까?`,
+    question: "세액공제는 어디서 얼마나 줄어드는 걸까",
+    readingMinutes: 5,
+    hook: `여윳돈 월 30만 원이 같아도, 2년 뒤 전세 자금이 필요한 사람과 아닌 사람은 계좌 배치가 완전히 다릅니다.`,
+    fork: {
+      short: {
+        tag: "2년 안에 쓸 돈",
+        head: "2년 뒤 전세 자금이 필요하다",
+        body: `연금계좌에 넣은 돈을 55세 전에 연금이 아닌 방식으로 찾으면, 공제받은 납입액에 기타소득세 ${N23.earlyRate}가 다시 붙습니다. 돌려받은 ${N23.maxCreditLabel}을 그대로 다시 내는 셈입니다.`,
+        verdict: "연금계좌 대신, 만기가 짧은 다른 계좌가 먼저입니다.",
+      },
+      long: {
+        tag: "5년 넘게 묶어 둘 돈",
+        head: "5년 넘게 묶어 둘 수 있다",
+        body: `연금저축 ${N23.savingsLimit}에 IRP ${manLabel(COMBO - SAV)}을 더하면 합산 ${N23.combinedLimit}이 공제 대상이 됩니다. 연말정산에서 ${N23.maxCreditLabel}이 줄어듭니다.`,
+        verdict: "이 글의 주제입니다. 아래 계산기에서 내 숫자로 확인합니다.",
+      },
+    },
+    keyNumbers: [
+      { label: "합산 한도", value: N23.combinedLimit },
+      { label: "최대 세액공제", value: N23.maxCreditLabel },
+      { label: "중도해지 시", value: N23.earlyRate },
+    ],
+    numbers: N23,
+    calculator: {
+      name: "연금저축·IRP 세액공제 계산기",
+      href: "/apps/pension-tax/run",
+      note: "총급여 구간과 두 계좌 납입액을 넣어 공제액이 계단으로 오르는 것을 확인합니다.",
+    },
+    scenarios: [
+      {
+        id: "base",
+        label: "기본",
+        title: "총급여 4,800만 원 · 연금저축 600 · IRP 300",
+        settings: ["소득 구간: 총급여 5,500만원 이하", "연금저축 납입액: 600만원", "IRP 납입액: 300만원"],
+        result: `예상 세액공제 ${N23.maxCreditLabel}`,
+        expect: "합산 한도 900만 원을 꽉 채운 경우입니다.",
+      },
+      {
+        id: "step",
+        label: "계단",
+        title: "IRP를 0 → 100 → 200 → 300으로",
+        settings: ["소득 구간: 총급여 5,500만원 이하", "연금저축 납입액: 600만원", "IRP 납입액: 0 · 100 · 200 · 300만원"],
+        result: `${N23.savingsOnlyLabel} → ${wonLabel(creditWon(700, PENSION_ACCOUNT.creditRateLow))} → ${N23.irp200Label} → ${N23.maxCreditLabel}`,
+        expect: "IRP 100만 원마다 16만 5,000원씩 계단처럼 오릅니다.",
+      },
+      {
+        id: "high",
+        label: "구간 경계",
+        title: "총급여 5,500만 원 초과 · 연금저축 600 · IRP 300",
+        settings: ["소득 구간: 5,500만원 초과", "연금저축 납입액: 600만원", "IRP 납입액: 300만원"],
+        result: `예상 세액공제 ${N23.highCreditLabel}`,
+        expect: `같은 900만 원인데 공제율이 ${N23.rateHigh}로 내려가 ${N23.bracketGapLabel} 차이가 납니다.`,
+      },
+    ],
+    sources: [
+      {
+        label: "소득세법 제59조의3 — 연금계좌세액공제",
+        what: "연금저축 600만 원, 연금저축·퇴직연금 합산 900만 원, 공제율 15%·12%(지방소득세 포함 16.5%·13.2%)",
+        url: "https://www.law.go.kr/법령/소득세법",
+        host: "law.go.kr",
+      },
+      {
+        label: "소득세법 시행령 제118조의2 — 연금계좌 납입한도와 ISA 전환",
+        what: "한도 초과 납입액의 다음 연도 전환, ISA 만기 자금의 10%·최대 300만 원 추가",
+        url: "https://www.law.go.kr/법령/소득세법시행령",
+        host: "law.go.kr",
+      },
+      {
+        label: "국세청 — 연말정산 안내: 연금계좌 세액공제",
+        what: "12월 31일 입금분까지 그해 공제 대상, 공제율 적용 방식",
+        url: "https://www.nts.go.kr/nts/cm/cntnts/cntntsView.do?cntntsId=7875&mi=2304",
+        host: "nts.go.kr",
+      },
+      {
+        label: "금융감독원 통합연금포털 — 내 연금 확인",
+        what: "공적연금·퇴직연금·개인연금 가입 내역을 한 번에 조회",
+        url: "https://100lifeplan.fss.or.kr/",
+        host: "fss.or.kr",
+      },
+    ],
+    cardSet: SET_TAX_MOMENTS,
+    sheet: {
+      variant: "pension",
+      slotNo: 2,
+      slotTitle: "계좌 배치표",
+      line: "연금저축·IRP에 얼마를 넣고 얼마를 돌려받는지 적습니다.",
+    },
+    next: {
+      label: "다음 강",
+      title: "2-4강 · ISA의 세 가지 장치",
+      body: "손익통산·비과세 200/400·3년 의무가입이 각각 무엇을 막는지, 연금계좌와 어떻게 이어지는지 정리합니다.",
+      status: "준비중",
+    },
+    reading: READING_23,
+  },
+];
+
+export const lessonBySlug = (slug: string) => ACADEMY_LESSONS.find((l) => l.slug === slug);
+export const lessonsOfStep = (step: number) => ACADEMY_LESSONS.filter((l) => l.step === step);
+export const firstLessonOfStep = (step: number) => lessonsOfStep(step)[0];
+
+/** 강의 페이지가 주소를 만들 때 쓰는 경로 */
+export const lessonHref = (lesson: AcademyLesson) => `/academy/${lesson.slug}/`;
+
+/** 원고 분량(공백 제외) — 규격 검사 결과를 강의별로 돌려준다. */
+export const LESSON_CHARS: Record<string, number> = Object.fromEntries(
+  ACADEMY_LESSONS.map((l) => [l.slug, readingChars(l.reading)]),
+);
+
+/** 강의 1개의 표준 4요소 규격 */
+export const LESSON_SPEC = { minChars: 1200, maxChars: 1500, cards: 6, minutes: 15 } as const;
+
+export type { ReadingSection as AcademyReadingSection };
+export { CARD };

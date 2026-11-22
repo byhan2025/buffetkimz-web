@@ -1,15 +1,17 @@
 #!/usr/bin/env python3
-"""v8.0 「한스푼 아카데미」 파일럿 — 실물 캡처·검증.
+"""v8.1 「한스푼 아카데미」 STEP 1·2 확장 — 실물 캡처·검증.
 
 무엇을 재는가
-  A. /academy/ · /academy/step2-pension-tax-limit/ — 1280·390 HTTP 200 · 콘솔 오류 0 · 가로 넘침 0
-  B. 헤더 — 1280·1024·390 에서 메뉴 가로 넘침 0 · '아카데미' 항목이 실제로 보이는가
+  A. 허브 + 강의 5개(1-1·1-2·2-1·2-2·2-3) × 1280·390 — HTTP 200 · 콘솔 오류 0 · 가로 넘침 0
+  B. 헤더 — 1280·1024 에서 메뉴 가로 넘침 0 · '아카데미' 항목이 실제로 보이는가
   C. 390 모바일 — 퀵 탭 6칸 유지 · 하위 드로어에 아카데미 진입
-  D. 강의 상호작용 — 진단 3문항 → 경로 전환 / 운영표 1칸 채우기 → 칸 완성 · 주소 불변
-  E. 캡처 — 1280·390 전체 화면 + 주요 구획
+  D. 허브 — 지금 열린 강의 5개 카드 · 로드맵 '공개 2강/3강' · 진단 3문항 → 경로 전환
+  E. 강의 — 카드뉴스 인라인 뷰어(넘기기·썸네일·크게 보기) · 5분 읽기 글자수 1,200~1,500
+       · 운영표 1칸(강의마다 계산기 모양이 다르다) · 입력값 저장 0건 · 주소 불변
+  F. 캡처 — 1280·390 전체 화면 + 주요 구획(카드뉴스·로드맵·운영표)
 
 사용: npm run build && python3 scripts/capture_academy_v80.py
-결과: /workspace/reports/buffetkimz-web/academy-pilot/
+결과: /workspace/reports/buffetkimz-web/academy-step12/
 """
 from __future__ import annotations
 
@@ -17,6 +19,7 @@ import http.server
 import json
 import os
 import pathlib
+import re
 import socketserver
 import threading
 
@@ -27,7 +30,7 @@ from playwright.sync_api import sync_playwright  # noqa: E402
 
 APP = pathlib.Path(__file__).resolve().parent.parent
 ROOT = APP / "dist"
-OUT = pathlib.Path("/workspace/reports/buffetkimz-web/academy-pilot")
+OUT = pathlib.Path("/workspace/reports/buffetkimz-web/academy-step12")
 OUT.mkdir(parents=True, exist_ok=True)
 CHROME = os.environ.get("PW_CHROME") or (
     "/workspace/.cache/ms-playwright/chromium_headless_shell-1255/chrome-headless-shell-linux64/chrome-headless-shell"
@@ -36,6 +39,14 @@ PORT = int(os.environ.get("ACADEMY_PORT", "8190"))
 BASE = f"http://127.0.0.1:{PORT}"
 
 CHECKS: list[dict] = []
+
+LESSONS = [
+    ("1-1", "/academy/step1-three-buckets/"),
+    ("1-2", "/academy/step1-emergency-fund/"),
+    ("2-1", "/academy/step2-account-order/"),
+    ("2-2", "/academy/step2-isa-numbers/"),
+    ("2-3", "/academy/step2-pension-tax-limit/"),
+]
 
 
 def check(name: str, ok: bool, detail: str = "") -> None:
@@ -55,10 +66,7 @@ socketserver.TCPServer.allow_reuse_address = True
 httpd = socketserver.TCPServer(("127.0.0.1", PORT), Handler)
 threading.Thread(target=httpd.serve_forever, daemon=True).start()
 
-PAGES = [
-    ("academy-hub", "/academy/"),
-    ("academy-lesson", "/academy/step2-pension-tax-limit/"),
-]
+PAGES = [("academy-hub", "/academy/")] + [(f"academy-{slug}", path) for slug, path in LESSONS]
 VIEWPORTS = {"1280": {"width": 1280, "height": 900}, "390": {"width": 390, "height": 844}}
 
 with sync_playwright() as p:
@@ -92,7 +100,7 @@ with sync_playwright() as p:
             pg.screenshot(path=str(OUT / f"{name}-{width}-full.png"), full_page=True)
             pg.screenshot(path=str(OUT / f"{name}-{width}-fold.png"))
             ctx.close()
-    check("A1 두 페이지 × 1280/390 HTTP 200", not bad, ", ".join(bad))
+    check("A1 허브·강의 5개 × 1280/390 HTTP 200", not bad, ", ".join(bad))
     check("A2 콘솔 오류 0", not console_errors, " | ".join(console_errors[:3]))
     check("A3 가로 넘침 0", not overflow, ", ".join(overflow[:4]))
 
@@ -116,7 +124,6 @@ with sync_playwright() as p:
                 academyRight: r ? Math.round(r.right) : null,
                 scrollW: document.documentElement.scrollWidth,
                 clientW: document.documentElement.clientWidth,
-                labels: [...document.querySelectorAll('.site-nav .nav-link')].map(a => a.textContent.trim()),
               };
             }"""
         )
@@ -137,7 +144,6 @@ with sync_playwright() as p:
         """() => ({
           tabs: [...document.querySelectorAll('.site-quick-link')].map(a => a.textContent.trim()),
           overflow: [...document.querySelectorAll('.site-quick-link')].some(a => a.scrollWidth > a.clientWidth + 1),
-          heights: [...document.querySelectorAll('.site-quick-link')].map(a => Math.round(a.getBoundingClientRect().height)),
         })"""
     )
     check(
@@ -154,14 +160,48 @@ with sync_playwright() as p:
           return { open: panel ? !panel.classList.contains('hidden') : false, labels };
         }"""
     )
-    check("C2 390 ≡ 드로어에 '아카데미'", drawer["open"] and "아카데미" in drawer["labels"], ", ".join(drawer["labels"]))
+    check("C2 390 ≡ 드로어에 '아카데미'", drawer["open"] and "아카데미" in drawer["labels"], ", ".join(drawer["labels"][:8]))
     pg.screenshot(path=str(OUT / "mobile-drawer-390.png"))
     ctx.close()
 
-    # ---------------------------------------------------------------- D 상호작용
+    # ---------------------------------------------------------------- D 허브
     ctx, pg, errors = page_at("1280")
     pg.goto(BASE + "/academy/", wait_until="networkidle")
     pg.wait_for_timeout(300)
+    hub = pg.evaluate(
+        """() => {
+          const cards = [...document.querySelectorAll('.academy-lesson')];
+          const links = cards.map(c => c.querySelector('a')?.getAttribute('href') ?? '');
+          const steps = [...document.querySelectorAll('.academy-step')].map(s => ({
+            no: s.id,
+            open: s.dataset.open,
+            status: s.querySelector('.academy-status')?.textContent.trim(),
+            lessons: [...s.querySelectorAll('.academy-step-lessons a')].map(a => a.getAttribute('href')),
+          }));
+          return {
+            count: cards.length,
+            links,
+            steps,
+            heroCta: document.querySelector('.btn-primary')?.getAttribute('href'),
+            firstTitle: cards[0]?.querySelector('.academy-lesson-title')?.textContent.trim(),
+          };
+        }"""
+    )
+    check(
+        "D1 허브 — 지금 열린 강의 5개 카드 · 각 강의 주소 연결",
+        hub["count"] == 5
+        and len([l for l in hub["links"] if l and "/academy/step" in l]) == 5
+        and hub["heroCta"] and "/academy/step1-three-buckets/" in hub["heroCta"],
+        f"{hub['count']} · {hub['links']} · cta {hub['heroCta']}",
+    )
+    check(
+        "D2 로드맵 — STEP 1 '공개 2강' · STEP 2 '공개 3강' · 나머지 준비중",
+        [s["status"] for s in hub["steps"]] == ["공개 2강", "공개 3강", "준비중", "준비중", "준비중", "준비중"]
+        and len(hub["steps"][0]["lessons"]) == 2
+        and len(hub["steps"][1]["lessons"]) == 3,
+        f"{[(s['no'], s['status'], len(s['lessons'])) for s in hub['steps']]}",
+    )
+
     diag = pg.evaluate(
         """() => {
           const box = document.querySelector('[data-diagnosis]');
@@ -177,19 +217,144 @@ with sync_playwright() as p:
         }"""
     )
     check(
-        "D1 진단 3문항 → 경로 전환(0·1·2·3개)",
+        "D3 진단 3문항 → 경로 전환(0·1·2·3개)",
         diag["steps"] == [["none"], ["starter"], ["builder"], ["all"]] and diag["count"] == "3개 체크",
         f"{diag['steps']} / {diag['count']}",
     )
+    ctx.close()
 
+    # ---------------------------------------------------------------- E 강의 5개
+    viewer_report, chars_report, sheet_report = [], [], []
+    for slug, path in LESSONS:
+        for width in ("1280", "390"):
+            ctx, pg, errors = page_at(width)
+            pg.goto(BASE + path, wait_until="networkidle")
+            pg.wait_for_timeout(400)
+
+            # 카드뉴스 인라인 뷰어
+            viewer = pg.evaluate(
+                """() => {
+                  const root = document.querySelector('#cardnews [data-cardnews]');
+                  if (!root) return { found: false };
+                  const thumbs = [...root.querySelectorAll('[data-cn-thumb]')];
+                  const counter = () => root.querySelector('[data-cn-counter]')?.textContent.trim();
+                  const src = () => root.querySelector('[data-cn-img]')?.getAttribute('src');
+                  const empty = !!root.querySelector('.cn-empty');
+                  const out = { found: true, empty, thumbs: thumbs.length, c0: counter(), s0: src() };
+                  if (empty) return out;
+                  root.querySelector('[data-cn-next]')?.click();
+                  out.c1 = counter();
+                  out.s1 = src();
+                  thumbs[thumbs.length - 1]?.click();
+                  out.cLast = counter();
+                  thumbs[0]?.click();
+                  out.cBack = counter();
+                  root.querySelector('[data-cn-open]')?.click();
+                  const dlg = root.querySelector('[data-cn-dialog]');
+                  out.dialog = !!dlg?.open;
+                  root.querySelector('[data-cn-dialog-next]')?.click();
+                  out.dialogCount = root.querySelector('[data-cn-dialog-count]')?.textContent.trim();
+                  dlg?.close();
+                  out.closed = !dlg?.open;
+                  out.galleryLink = root.querySelector('.cn-gallery-link')?.getAttribute('href');
+                  return out;
+                }"""
+            )
+            if width == "1280":
+                viewer_report.append((slug, viewer))
+                if viewer.get("empty"):
+                    check(
+                        f"E1 {slug} 카드뉴스 뷰어 — 이미지 준비 전 빈 상태(안내 + 캡션 목록)",
+                        viewer["thumbs"] == 0,
+                        "카드 PNG 없음 → 제작 안내 표시",
+                    )
+                else:
+                    total = viewer["thumbs"]
+                    start = int(str(viewer["c0"]).split("/")[0].strip())
+                    ok = (
+                        viewer["found"]
+                        and total >= 1
+                        and viewer["c1"] == f"{start % total + 1} / {total}"
+                        and viewer["s1"] != viewer["s0"]
+                        and viewer["cLast"] == f"{total} / {total}"
+                        and viewer["cBack"] == f"1 / {total}"
+                        and viewer["dialog"]
+                        and viewer["dialogCount"] == f"2 / {total}"
+                        and viewer["closed"]
+                        and "/gallery/" in (viewer["galleryLink"] or "")
+                    )
+                    check(
+                        f"E1 {slug} 카드뉴스 뷰어 — 넘기기·썸네일·크게 보기·자료앨범 링크",
+                        ok,
+                        f"{viewer}",
+                    )
+
+            # 5분 읽기 글자수
+            text = pg.inner_text("body")
+            m = re.search(r"([\d,]{3,5})자 \(공백 제외\)", text)
+            chars = int(m.group(1).replace(",", "")) if m else -1
+            if width == "1280":
+                chars_report.append((slug, chars))
+
+            # 운영표 1칸 — 각 fieldset에서 마지막 선택지를 고르고 '칸 채우기'
+            sheet = pg.evaluate(
+                """() => {
+                  const root = document.querySelector('[data-sheet]');
+                  if (!root) return { found: false };
+                  const before = root.querySelector('[data-sheet-progress]')?.textContent.trim();
+                  [...root.querySelectorAll('fieldset')].forEach(fs => {
+                    const inputs = [...fs.querySelectorAll('input')];
+                    const last = inputs[inputs.length - 1];
+                    if (last && !last.checked) { last.checked = true; last.dispatchEvent(new Event('change', { bubbles: true })); }
+                  });
+                  root.querySelector('[data-sheet-commit]')?.click();
+                  return {
+                    found: true,
+                    variant: root.dataset.variant,
+                    before,
+                    after: root.querySelector('[data-sheet-progress]')?.textContent.trim(),
+                    filled: !root.querySelector('[data-sheet-filled]')?.hidden,
+                    empty: root.querySelector('[data-sheet-empty]')?.hidden,
+                    rows: [...root.querySelectorAll('.sheet-filled-list dd')].map(d => d.textContent.trim()),
+                    stored: Object.keys(localStorage).length,
+                  };
+                }"""
+            )
+            if width == "1280":
+                sheet_report.append((slug, sheet))
+                check(
+                    f"E2 {slug} 운영표 1칸 — 채우면 완성({sheet.get('variant')}) · 저장 0건",
+                    sheet.get("found")
+                    and sheet.get("filled")
+                    and sheet.get("empty")
+                    and sheet.get("after", "").startswith(("STEP 1 · 1", "STEP 2 · 1"))
+                    and sheet.get("stored") == 0
+                    and pg.url == BASE + path,
+                    f"{sheet.get('before')} → {sheet.get('after')} · {sheet.get('rows')}",
+                )
+                el = pg.query_selector("#sheet")
+                if el:
+                    el.scroll_into_view_if_needed()
+                    pg.wait_for_timeout(250)
+                    pg.screenshot(path=str(OUT / f"lesson-{slug}-sheet-filled-{width}.png"))
+            ctx.close()
+
+    check(
+        "E3 5분 읽기 글자수 — 전 강의 1,200~1,500자(공백 제외)",
+        all(1200 <= c <= 1500 for _, c in chars_report),
+        ", ".join(f"{s}:{c}" for s, c in chars_report),
+    )
+
+    # 2-3강 운영표 숫자(파일럿 회귀) — 기본값 148만 5,000원
+    ctx, pg, _ = page_at("1280")
     pg.goto(BASE + "/academy/step2-pension-tax-limit/", wait_until="networkidle")
     pg.wait_for_timeout(300)
-    before_url = pg.url
-    sheet = pg.evaluate(
+    pilot = pg.evaluate(
         """() => {
           const root = document.querySelector('[data-sheet]');
           const pick = (name, value) => {
             const el = [...root.querySelectorAll(`input[name="${name}"]`)].find(i => i.value === String(value));
+            if (!el) return;
             el.checked = true; el.dispatchEvent(new Event('change', { bubbles: true }));
           };
           const credit0 = root.querySelector('[data-sheet-credit]')?.textContent.trim();
@@ -199,78 +364,45 @@ with sync_playwright() as p:
           pick('sheet-bracket', 'high');
           const creditHigh = root.querySelector('[data-sheet-credit]')?.textContent.trim();
           pick('sheet-bracket', 'low');
-          root.querySelector('[data-sheet-commit]')?.click();
-          return {
-            credit0, credit200, creditHigh,
-            filled: !root.querySelector('[data-sheet-filled]')?.hidden,
-            empty: root.querySelector('[data-sheet-empty]')?.hidden,
-            out: [...root.querySelectorAll('.sheet-filled-list dd')].map(d => d.textContent.trim()),
-            progress: root.querySelector('[data-sheet-progress]')?.textContent.trim(),
-            stored: Object.keys(localStorage).length,
-          };
+          pick('sheet-irp', 300);
+          return { credit0, credit200, creditHigh };
         }"""
     )
     check(
-        "D2 운영표 계산 148만 5,000 / 132만 / 118만 8,000",
-        sheet["credit0"] == "148만 5,000원"
-        and sheet["credit200"] == "132만원"
-        and sheet["creditHigh"] == "118만 8,000원",
-        f"{sheet['credit0']} · {sheet['credit200']} · {sheet['creditHigh']}",
+        "E4 2-3강 운영표 계산 148만 5,000 / 132만 / 118만 8,000 (v8.0 회귀)",
+        pilot["credit0"] == "148만 5,000원"
+        and pilot["credit200"] == "132만원"
+        and pilot["creditHigh"] == "118만 8,000원",
+        f"{pilot['credit0']} · {pilot['credit200']} · {pilot['creditHigh']}",
     )
-    check(
-        "D3 '이 칸 채우기' → 칸 완성(계좌 배치표 첫 줄)",
-        sheet["filled"] and sheet["empty"] and sheet["progress"] == "STEP 2 · 1 / 7칸",
-        f"{sheet['out']} / {sheet['progress']}",
-    )
-    check("D4 입력값 저장 0건(localStorage 비어 있음) · 주소 불변", sheet["stored"] == 0 and pg.url == before_url, pg.url)
-    pg.screenshot(path=str(OUT / "lesson-sheet-filled-1280.png"), clip={"x": 0, "y": 0, "width": 1280, "height": 900})
-    sheet_el = pg.query_selector("#sheet")
-    if sheet_el:
-        sheet_el.scroll_into_view_if_needed()
-        pg.wait_for_timeout(250)
-        pg.screenshot(path=str(OUT / "lesson-sheet-filled-1280.png"))
     ctx.close()
 
-    ctx, pg, _ = page_at("390")
-    pg.goto(BASE + "/academy/step2-pension-tax-limit/", wait_until="networkidle")
-    pg.wait_for_timeout(300)
-    pg.evaluate(
-        """() => {
-          const root = document.querySelector('[data-sheet]');
-          root.querySelector('[data-sheet-commit]')?.click();
-        }"""
-    )
-    sheet_el = pg.query_selector("#sheet")
-    if sheet_el:
-        sheet_el.scroll_into_view_if_needed()
-        pg.wait_for_timeout(250)
-        pg.screenshot(path=str(OUT / "lesson-sheet-filled-390.png"))
-    pg.goto(BASE + "/academy/", wait_until="networkidle")
-    pg.wait_for_timeout(300)
-    pg.evaluate("() => document.querySelector('#roadmap')?.scrollIntoView()")
-    pg.wait_for_timeout(300)
-    pg.screenshot(path=str(OUT / "hub-roadmap-390.png"))
-    ctx.close()
-
-    # ---------------------------------------------------------------- E 구획 캡처
+    # ---------------------------------------------------------------- F 구획 캡처
     for width in (1280, 390):
         ctx, pg, _ = page_at(str(width))
         pg.goto(BASE + "/academy/", wait_until="networkidle")
         pg.wait_for_timeout(300)
-        for sel, name in (("#roadmap", "hub-roadmap"), ("#paths", "hub-paths"), ("#pilot", "hub-pilot")):
+        for sel, name in (("#open", "hub-open"), ("#roadmap", "hub-roadmap"), ("#paths", "hub-paths")):
             el = pg.query_selector(sel)
             if el:
                 el.scroll_into_view_if_needed()
-                pg.wait_for_timeout(200)
+                pg.wait_for_timeout(250)
                 pg.screenshot(path=str(OUT / f"{name}-{width}.png"))
-        pg.goto(BASE + "/academy/step2-pension-tax-limit/", wait_until="networkidle")
-        pg.wait_for_timeout(300)
-        for sel, name in (("[data-hook]", "lesson-hook"), ("#calc", "lesson-calc"), ("#cards", "lesson-cards")):
-            el = pg.query_selector(sel)
-            if el:
-                el.scroll_into_view_if_needed()
-                pg.wait_for_timeout(200)
-                pg.screenshot(path=str(OUT / f"{name}-{width}.png"))
+
+        for slug, path in LESSONS:
+            pg.goto(BASE + path, wait_until="networkidle")
+            pg.wait_for_timeout(300)
+            for sel, name in (
+                ("#cardnews", f"lesson-{slug}-cardnews"),
+                ("[data-hook]", f"lesson-{slug}-hook"),
+                ("#calc", f"lesson-{slug}-calc"),
+                ("#sources", f"lesson-{slug}-sources"),
+            ):
+                el = pg.query_selector(sel)
+                if el:
+                    el.scroll_into_view_if_needed()
+                    pg.wait_for_timeout(200)
+                    pg.screenshot(path=str(OUT / f"{name}-{width}.png"))
         ctx.close()
 
     browser.close()
@@ -284,6 +416,7 @@ result = {
     "passed": len(CHECKS) - len(failed),
     "failed": len(failed),
     "nav": {str(k): v for k, v in nav_report.items()},
+    "shared": {"viewer": viewer_report, "chars": chars_report, "sheet": sheet_report},
     "checks": CHECKS,
 }
 (OUT / "verify-academy-v80.json").write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
