@@ -13,7 +13,7 @@ series:
   name: "연금·퇴직 마스터 가이드"
   no: 1
 app: "account-tax-compare"
-tags: ["연금저축", "IRP", "ISA", "과세이연"]
+tags: ["연금저축", "IRP", "ISA"]
 compare:
   title: "연금저축 vs IRP — 같은 세액공제, 다른 자유도"
   asOfLabel: "소득세법 제59조의3 · 근로자퇴직급여 보장법 시행령 제18조 · 기준 2026. 11. 21."

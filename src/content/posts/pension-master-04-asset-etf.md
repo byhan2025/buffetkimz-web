@@ -13,7 +13,7 @@ series:
   name: "연금·퇴직 마스터 가이드"
   no: 4
 app: "account-tax-compare"
-tags: ["ETF", "IRP 70%", "과세이연", "자산배치"]
+tags: ["ETF", "IRP 70%", "자산배치"]
 compare:
   title: "국내주식형 ETF vs 해외·채권형 ETF — 일반계좌에서"
   asOfLabel: "소득세법 제17조·제94조 · 기준 2026. 11. 21."

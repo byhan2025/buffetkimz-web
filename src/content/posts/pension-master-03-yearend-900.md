@@ -13,7 +13,7 @@ series:
   name: "연금·퇴직 마스터 가이드"
   no: 3
 app: "pension-tax"
-tags: ["세액공제", "연금저축", "IRP", "ISA 전환"]
+tags: ["세액공제", "연금저축", "ISA 전환"]
 compare:
   title: "결정세액이 남아 있을 때 vs 거의 없을 때"
   asOfLabel: "소득세법 제59조의3 · 시행령 제118조의3 · 기준 2026. 11. 21."

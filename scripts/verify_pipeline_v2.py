@@ -155,6 +155,45 @@ HEADER_JS = """
 """
 
 
+ATTR_SIZE_TOL = 0.02  # width/height 속성↔실제 크기 종횡비 허용 오차(2%)
+
+
+def size_ok(attr: list[int] | None, natural: list[int] | None, broken: bool = False) -> tuple[bool, str]:
+    """이미지 width/height 속성이 실제 로드 크기와 맞는가.
+
+    픽셀 완전일치 대신 **종횡비 2% 이내**로 판정한다. 로고처럼 `srcset`+`sizes`의
+    밀도 보정으로 브라우저가 고른 후보 파일의 자연 크기가 속성값과 픽셀 단위로
+    같지 않을 수 있기 때문이다(예: 3342×883 속성 ↔ 960×254 로드 → 0.14%).
+
+    · 속성(width/height)이 없으면 검사 대상이 아니다 → 통과
+    · 완료됐는데 자연 폭이 0이면 깨진 이미지 → 실패
+    · 아직 로드 전(lazy)이라 자연 크기를 모르면 판정 보류 → 통과
+    · 종횡비가 2% 넘게 벌어지면 왜곡으로 본다 → 실패
+    """
+    if not attr:
+        return True, "속성 없음"
+    try:
+        aw, ah = int(attr[0]), int(attr[1])
+    except (TypeError, ValueError, IndexError):
+        return True, f"속성 해석 불가 {attr}"
+    if aw <= 0 or ah <= 0:
+        return False, f"속성값 0 이하 {attr}"
+    if broken:
+        return False, "로드 실패(깨진 이미지, naturalWidth=0)"
+    if not natural:
+        return True, "자연 크기 미로드 — 판정 보류"
+    try:
+        nw, nh = int(natural[0]), int(natural[1])
+    except (TypeError, ValueError, IndexError):
+        return True, f"자연 크기 해석 불가 {natural}"
+    if nw <= 0 or nh <= 0:
+        return False, f"자연 크기 0 {natural} — 로드 실패"
+    drift = abs((aw / ah) - (nw / nh)) / (aw / ah)
+    if drift > ATTR_SIZE_TOL:
+        return False, f"종횡비 {drift * 100:.1f}% 차이 {attr} vs {natural}"
+    return True, f"종횡비 {drift * 100:.2f}% 이내 {attr} vs {natural}"
+
+
 def alpha_of(value: str | None) -> float:
     """computed backgroundColor에서 알파를 읽는다 — rgb·rgba·oklab(color-mix) 모두."""
     if not value:
@@ -191,6 +230,8 @@ ALT_JS = """
       decorative: !!img.closest('[aria-hidden="true"]'),
       attrSize: w && h ? [Number(w), Number(h)] : null,
       naturalSize: img.naturalWidth ? [img.naturalWidth, img.naturalHeight] : null,
+      complete: img.complete,
+      broken: img.complete && img.naturalWidth === 0,
     };
   });
 }
@@ -344,8 +385,8 @@ def main() -> int:
                     for img in entry["postAlt"][slug]:
                         check(img["hasAltAttr"] and (img["alt"] or "").strip() != "",
                               f"[{label}] {slug}: 본문 이미지 alt 누락: {img['src']}")
-                        check(img["attrSize"] is None or img["naturalSize"] is None or img["attrSize"] == img["naturalSize"],
-                              f"[{label}] {slug}: 이미지 width/height 속성이 실제 크기와 다릅니다 {img['attrSize']} vs {img['naturalSize']}")
+                        size_pass, size_note = size_ok(img["attrSize"], img["naturalSize"], img.get("broken", False))
+                        check(size_pass, f"[{label}] {slug}: 이미지 width/height 속성이 실제 크기와 다릅니다 — {size_note} ({img['src']})")
                     cells = page.evaluate(TABLE_ORPHAN_JS)
                     entry.setdefault("tableCells", {})[slug] = cells
                     orphans = [c for c in cells if c["orphan"]]
@@ -459,7 +500,8 @@ def main() -> int:
     missing_attr = [i for i in imgs if not i["hasAltAttr"]]
     empty_attr = [i for i in imgs if i["hasAltAttr"] and not (i.get("alt") or "").strip()]
     empty_content = [i for i in empty_attr if not i.get("decorative")]
-    size_mismatch = [i for i in imgs if i["attrSize"] and i["naturalSize"] and i["attrSize"] != i["naturalSize"]]
+    size_checked = [(i, *size_ok(i["attrSize"], i["naturalSize"], i.get("broken", False))) for i in imgs]
+    size_mismatch = [i for i, ok, _ in size_checked if not ok]
     alt_audit = {
         "generatedAt": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
         "scope": ["/posts/", "/posts/silson-switch-2026/", "/posts/isa-pension-300/", "/letters/", "/letters/2026-11-21/"],
@@ -469,14 +511,18 @@ def main() -> int:
         "emptyAlt": len(empty_attr),
         "emptyAltInContent": len(empty_content),
         "attrSizeMismatch": len(size_mismatch),
+        "attrSizeRule": f"width/height 속성 ↔ 자연 크기 종횡비 ±{ATTR_SIZE_TOL * 100:.0f}% 이내 + 자연 크기 0 아님",
         "verdict": "PASS" if not missing_attr and not empty_content and not size_mismatch else "FAIL",
-        "images": imgs,
+        "images": [
+            {**i, "attrSizeVerdict": note}
+            for i, _ok, note in size_checked
+        ],
         "problems": (missing_attr + empty_content + size_mismatch)[:10],
     }
     (OUT / "alt-audit.json").write_text(json.dumps(alt_audit, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     check(not missing_attr, f"alt 속성 누락 {len(missing_attr)}건")
     check(not empty_content, f"본문·목록 이미지 alt 빈값 {len(empty_content)}건")
-    check(not size_mismatch, f"이미지 width/height 속성 불일치 {len(size_mismatch)}건")
+    check(not size_mismatch, f"이미지 width/height 속성 불일치 {len(size_mismatch)}건 — {[size_ok(i['attrSize'], i['naturalSize'], i.get('broken', False))[1] for i in size_mismatch][:3]}")
     report["altAudit"] = {k: v for k, v in alt_audit.items() if k != "images"}
 
     verdict = "PASS" if not failures else "FAIL"

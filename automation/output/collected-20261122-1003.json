@@ -1,0 +1,597 @@
+{
+  "generated_at": "2026-11-22T10:03:14+09:00",
+  "generator": "scripts/collect_sources_sample.py",
+  "catalog": "automation/sources-catalog.json",
+  "freshness_window_days": 1,
+  "sources_selected": 15,
+  "sources_ok": 15,
+  "sources_failed": 0,
+  "items_total": 38,
+  "items_fresh": 29,
+  "sources": [
+    {
+      "source_id": "ai-tech-001",
+      "source_name": "arXiv API(cs.AI)",
+      "category": "⑦AI·테크 1차 연구·오픈소스",
+      "method": "API",
+      "url": "http://export.arxiv.org/api/query?search_query=cat:cs.AI&sortBy=submittedDate&sortOrder=descending&max_results=20",
+      "ok": true,
+      "elapsed_ms": 68,
+      "total_items": 20,
+      "fresh_items": 0,
+      "items": [
+        {
+          "title": "PlayCraft: Designing Engaging Games from Agent Play Experience",
+          "url": "https://arxiv.org/abs/2611.26624v1",
+          "published": "2026-11-19T18:59:34Z",
+          "summary": "Recent AI agents can generate playable games, but these games are not necessarily engaging. Mastery is a key source of engagement, yet designing for it requires extensive human play and tuning. We propose PlayCraft, an automated framework that uses a vision-based agent to play games and draws on its detailed play exper",
+          "published_iso": "2026-11-19T18:59:34+00:00",
+          "source_id": "ai-tech-001",
+          "source_name": "arXiv API(cs.AI)",
+          "domain_category": "⑦AI·테크 1차 연구·오픈소스",
+          "stale": true
+        }
+      ]
+    },
+    {
+      "source_id": "ai-tech-006",
+      "source_name": "OpenAI 뉴스 RSS",
+      "category": "⑦AI·테크 1차 연구·오픈소스",
+      "method": "RSS",
+      "url": "https://openai.com/news/rss.xml",
+      "ok": true,
+      "elapsed_ms": 130,
+      "total_items": 1421,
+      "fresh_items": 0,
+      "items": [
+        {
+          "title": "Combatting adversarial distillation",
+          "url": "https://openai.com/index/combatting-adversarial-distillation",
+          "published": "Fri, 20 Nov 2026 10:00:00 GMT",
+          "summary": "OpenAI’s layered approach to adversarial distillation combines model training, safeguards, detection, and enforcement to protect against capability extraction.",
+          "published_iso": "2026-11-20T10:00:00+00:00",
+          "source_id": "ai-tech-006",
+          "source_name": "OpenAI 뉴스 RSS",
+          "domain_category": "⑦AI·테크 1차 연구·오픈소스",
+          "stale": true
+        }
+      ]
+    },
+    {
+      "source_id": "ai-tech-010",
+      "source_name": "Google AI 블로그 RSS",
+      "category": "⑦AI·테크 1차 연구·오픈소스",
+      "method": "RSS",
+      "url": "https://blog.google/technology/ai/rss/",
+      "ok": true,
+      "elapsed_ms": 324,
+      "total_items": 20,
+      "fresh_items": 0,
+      "items": [
+        {
+          "title": "Introducing Tool Retrieval in the Gemini API",
+          "url": "https://blog.google/innovation-and-ai/technology/developers-tools/gemini-api-tool-retrieval/",
+          "published": "Thu, 19 Nov 2026 18:00:00 +0000",
+          "summary": "Give your agents access to hundreds of tools while using fewer tokens with Tool Retrieval, now in preview in the Gemini API.",
+          "published_iso": "2026-11-19T18:00:00+00:00",
+          "source_id": "ai-tech-010",
+          "source_name": "Google AI 블로그 RSS",
+          "domain_category": "⑦AI·테크 1차 연구·오픈소스",
+          "stale": true
+        }
+      ]
+    },
+    {
+      "source_id": "ai-tech-012",
+      "source_name": "Microsoft Research 블로그 RSS",
+      "category": "⑦AI·테크 1차 연구·오픈소스",
+      "method": "RSS",
+      "url": "https://www.microsoft.com/en-us/research/feed/",
+      "ok": true,
+      "elapsed_ms": 2581,
+      "total_items": 10,
+      "fresh_items": 0,
+      "items": [
+        {
+          "title": "Can AI help build a healthier future?",
+          "url": "https://www.microsoft.com/en-us/research/podcast/can-ai-help-build-a-healthier-future/",
+          "published": "Tue, 17 Nov 2026 16:52:17 +0000",
+          "summary": "What can AI enable in medicine, and how do we get there? Microsoft Research lead Doug Burger, Microsoft Principal Research Manager Ava Amini, Microsoft Chief Scientific Officer Eric Horvitz, and physician-scientist Eric Topol of Scripps Research explore these questions and more. The post Can AI help build a healthier f",
+          "published_iso": "2026-11-17T16:52:17+00:00",
+          "source_id": "ai-tech-012",
+          "source_name": "Microsoft Research 블로그 RSS",
+          "domain_category": "⑦AI·테크 1차 연구·오픈소스",
+          "stale": true
+        }
+      ]
+    },
+    {
+      "source_id": "ai-tech-013",
+      "source_name": "Hugging Face 블로그 RSS",
+      "category": "⑦AI·테크 1차 연구·오픈소스",
+      "method": "RSS",
+      "url": "https://huggingface.co/blog/feed.xml",
+      "ok": true,
+      "elapsed_ms": 199,
+      "total_items": 915,
+      "fresh_items": 0,
+      "items": [
+        {
+          "title": "Welcome Inkling 2 Mini, Cutting-edge Performance for your Local Setup",
+          "url": "https://huggingface.co/blog/inkling2mini",
+          "published": "Fri, 20 Nov 2026 00:00:00 GMT",
+          "summary": "",
+          "published_iso": "2026-11-20T00:00:00+00:00",
+          "source_id": "ai-tech-013",
+          "source_name": "Hugging Face 블로그 RSS",
+          "domain_category": "⑦AI·테크 1차 연구·오픈소스",
+          "stale": true
+        }
+      ]
+    },
+    {
+      "source_id": "ai-tech-031",
+      "source_name": "TechCrunch AI RSS",
+      "category": "⑦AI·테크 1차 연구·오픈소스",
+      "method": "RSS",
+      "url": "https://techcrunch.com/category/artificial-intelligence/feed/",
+      "ok": true,
+      "elapsed_ms": 40,
+      "total_items": 20,
+      "fresh_items": 4,
+      "items": [
+        {
+          "title": "Signal restricts mobile screenshots as it confronts ‘existential threat’ of AI surveillance",
+          "url": "https://techcrunch.com/2026/11/21/signal-restricts-mobile-screenshots-as-it-confronts-existential-threat-of-ai-surveillance/",
+          "published": "Sat, 21 Nov 2026 21:37:10 +0000",
+          "summary": "Signal is limiting users' ability to take screenshots in both its Android and iOS apps.",
+          "published_iso": "2026-11-21T21:37:10+00:00",
+          "source_id": "ai-tech-031",
+          "source_name": "TechCrunch AI RSS",
+          "domain_category": "⑦AI·테크 1차 연구·오픈소스"
+        },
+        {
+          "title": "A tale of two Nvidias",
+          "url": "https://techcrunch.com/2026/11/21/a-tale-of-two-nvidias/",
+          "published": "Sat, 21 Nov 2026 21:07:42 +0000",
+          "summary": "We got two very different pictures of Nvidia — the company’s latest earnings report vs. the tech executives loudly calling for Jensen Huang’s return.",
+          "published_iso": "2026-11-21T21:07:42+00:00",
+          "source_id": "ai-tech-031",
+          "source_name": "TechCrunch AI RSS",
+          "domain_category": "⑦AI·테크 1차 연구·오픈소스"
+        },
+        {
+          "title": "Here are the top AI agents that can live in your text messages",
+          "url": "https://techcrunch.com/2026/11/21/all-the-ai-agents-that-can-live-in-your-text-messages/",
+          "published": "Sat, 21 Nov 2026 17:00:00 +0000",
+          "summary": "We created a list of the most notable AI agents that can live in your text messages, from general assistants to agents designed for families, travel, and work.",
+          "published_iso": "2026-11-21T17:00:00+00:00",
+          "source_id": "ai-tech-031",
+          "source_name": "TechCrunch AI RSS",
+          "domain_category": "⑦AI·테크 1차 연구·오픈소스"
+        },
+        {
+          "title": "Is selling an AI version of your face to this microdrama startup the future of Hollywood?",
+          "url": "https://techcrunch.com/2026/11/21/is-selling-an-ai-version-of-your-face-to-this-microdrama-startup-the-future-of-hollywood/",
+          "published": "Sat, 21 Nov 2026 16:00:00 +0000",
+          "summary": "An actor has licensed his face to a microdrama startup — in a trend that's already popular in China. Experts question the long-term consequences if this becomes a trend in Hollywood, too.",
+          "published_iso": "2026-11-21T16:00:00+00:00",
+          "source_id": "ai-tech-031",
+          "source_name": "TechCrunch AI RSS",
+          "domain_category": "⑦AI·테크 1차 연구·오픈소스"
+        }
+      ]
+    },
+    {
+      "source_id": "ai-tech-036",
+      "source_name": "Cloudflare 블로그 RSS",
+      "category": "⑦AI·테크 1차 연구·오픈소스",
+      "method": "RSS",
+      "url": "https://blog.cloudflare.com/rss/",
+      "ok": true,
+      "elapsed_ms": 83,
+      "total_items": 20,
+      "fresh_items": 0,
+      "items": [
+        {
+          "title": "How Cloudflare WAF protects against ruby2shell (CVE-2026-132825)",
+          "url": "https://blog.cloudflare.com/ruby2shell-waf-protection/",
+          "published": "Fri, 20 Nov 2026 20:24:38 GMT",
+          "summary": "ruby2shell lets attackers corrupt memory in default Rails and Sinatra apps without logging in. Cloudflare WAF blocks it for every customer, including Free plans. Upgrade Ruby now, and use the WAF to cover the gap.",
+          "published_iso": "2026-11-20T20:24:38+00:00",
+          "source_id": "ai-tech-036",
+          "source_name": "Cloudflare 블로그 RSS",
+          "domain_category": "⑦AI·테크 1차 연구·오픈소스",
+          "stale": true
+        }
+      ]
+    },
+    {
+      "source_id": "content-hook-002",
+      "source_name": "박종훈의 지식한방 RSS",
+      "category": "⑧콘텐츠 훅·스토리텔링 벤치마킹",
+      "method": "RSS",
+      "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCOB62fKRT7b73X7tRxMuN2g",
+      "ok": true,
+      "elapsed_ms": 430,
+      "total_items": 15,
+      "fresh_items": 1,
+      "items": [
+        {
+          "title": "다들 바닥이라더니 주가는 왜 또 폭락했나? (박종훈의 지식한방)",
+          "url": "https://www.youtube.com/watch?v=Q0bSxAG_pTI",
+          "published": "2026-11-21T06:45:30+00:00",
+          "summary": "",
+          "published_iso": "2026-11-21T06:45:30+00:00",
+          "source_id": "content-hook-002",
+          "source_name": "박종훈의 지식한방 RSS",
+          "domain_category": "⑧콘텐츠 훅·스토리텔링 벤치마킹"
+        }
+      ]
+    },
+    {
+      "source_id": "content-hook-004",
+      "source_name": "박곰희TV RSS",
+      "category": "⑧콘텐츠 훅·스토리텔링 벤치마킹",
+      "method": "RSS",
+      "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCr7XsrSrvAn_WcU4kF99bbQ",
+      "ok": true,
+      "elapsed_ms": 43,
+      "total_items": 15,
+      "fresh_items": 0,
+      "items": [
+        {
+          "title": "💸 2027년부터 달라지는 복지제도",
+          "url": "https://www.youtube.com/shorts/fE5fUQi24kQ",
+          "published": "2026-11-20T09:00:24+00:00",
+          "summary": "",
+          "published_iso": "2026-11-20T09:00:24+00:00",
+          "source_id": "content-hook-004",
+          "source_name": "박곰희TV RSS",
+          "domain_category": "⑧콘텐츠 훅·스토리텔링 벤치마킹",
+          "stale": true
+        }
+      ]
+    },
+    {
+      "source_id": "content-hook-008",
+      "source_name": "지식인사이드 RSS",
+      "category": "⑧콘텐츠 훅·스토리텔링 벤치마킹",
+      "method": "RSS",
+      "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCA_hgsFzmynpv1zkvA5A7jA",
+      "ok": true,
+      "elapsed_ms": 70,
+      "total_items": 15,
+      "fresh_items": 0,
+      "items": [
+        {
+          "title": "러·우 전쟁 5년차, 푸틴이 끝까지 포기하지 않을 ‘3가지’ㅣ지식인초대석: 합석 EP.25 (이문영 X 채승병)",
+          "url": "https://www.youtube.com/watch?v=1vsDIthuCVQ",
+          "published": "2026-11-21T01:00:23+00:00",
+          "summary": "",
+          "published_iso": "2026-11-21T01:00:23+00:00",
+          "source_id": "content-hook-008",
+          "source_name": "지식인사이드 RSS",
+          "domain_category": "⑧콘텐츠 훅·스토리텔링 벤치마킹",
+          "stale": true
+        }
+      ]
+    },
+    {
+      "source_id": "content-hook-019",
+      "source_name": "연합뉴스 RSS",
+      "category": "⑧콘텐츠 훅·스토리텔링 벤치마킹",
+      "method": "RSS",
+      "url": "https://www.yna.co.kr/rss/news.xml",
+      "ok": true,
+      "elapsed_ms": 989,
+      "total_items": 120,
+      "fresh_items": 120,
+      "items": [
+        {
+          "title": "철인3종경기 중 참가자 익사…안전책임자 등 5명 2심도 무죄",
+          "url": "https://www.yna.co.kr/view/AKR20261120123300061",
+          "published": "Sun, 22 Nov 2026 10:00:04 +0900",
+          "summary": "(수원=연합뉴스) 김솔 기자 = 전국 철인3종경기 중 참가자가 물에 빠져 숨진 사고와 관련해 안전관리 책임을 다하지 않은 혐의로 기소된 대회 안...",
+          "published_iso": "2026-11-22T10:00:04+09:00",
+          "source_id": "content-hook-019",
+          "source_name": "연합뉴스 RSS",
+          "domain_category": "⑧콘텐츠 훅·스토리텔링 벤치마킹"
+        },
+        {
+          "title": "면접고사 앞둔 부산 대학가, AI 부정행위 방지대책 마련 분주",
+          "url": "https://www.yna.co.kr/view/AKR20261120134700051",
+          "published": "Sun, 22 Nov 2026 10:00:03 +0900",
+          "summary": "(부산=연합뉴스) 민영규 기자 = 부산지역 대학들이 이번 주부터 본격적으로 진행되는 수시모집 면접 고사 등을 앞두고 인공지능(AI)을 활용한 시...",
+          "published_iso": "2026-11-22T10:00:03+09:00",
+          "source_id": "content-hook-019",
+          "source_name": "연합뉴스 RSS",
+          "domain_category": "⑧콘텐츠 훅·스토리텔링 벤치마킹"
+        },
+        {
+          "title": "이동목욕차서 내린 휠체어 넘어져 80대 사망…관계자들 집행유예",
+          "url": "https://www.yna.co.kr/view/AKR20261120144800065",
+          "published": "Sun, 22 Nov 2026 10:00:03 +0900",
+          "summary": "(인천=연합뉴스) 최은지 기자 = 이동식 목욕 차량에서 내린 80대 치매 노인이 휠체어와 함께 넘어져 숨진 사고와 관련해 재판에 넘겨진 요양보호...",
+          "published_iso": "2026-11-22T10:00:03+09:00",
+          "source_id": "content-hook-019",
+          "source_name": "연합뉴스 RSS",
+          "domain_category": "⑧콘텐츠 훅·스토리텔링 벤치마킹"
+        },
+        {
+          "title": "타인 주민번호 도용해 마약 성분 수면제 처방받은 30대 실형",
+          "url": "https://www.yna.co.kr/view/AKR20261120143200064",
+          "published": "Sun, 22 Nov 2026 10:00:02 +0900",
+          "summary": "(청주=연합뉴스) 박건영 기자 = 다른 사람의 주민등록번호를 도용해 마약 성분이 든 수면제를 처방받은 30대가 실형을 선고받았다.",
+          "published_iso": "2026-11-22T10:00:02+09:00",
+          "source_id": "content-hook-019",
+          "source_name": "연합뉴스 RSS",
+          "domain_category": "⑧콘텐츠 훅·스토리텔링 벤치마킹"
+        },
+        {
+          "title": "12월 제조업 경기 '흐림'…ICT 부문 올해 처음 기준치 하회",
+          "url": "https://www.yna.co.kr/view/AKR20261122010600003",
+          "published": "Sun, 22 Nov 2026 10:00:01 +0900",
+          "summary": "(서울=연합뉴스) 장보인 기자 = 다음달 국내 제조업 업황 전망이 악화할 수 있다는 전망이 나왔다.",
+          "published_iso": "2026-11-22T10:00:01+09:00",
+          "source_id": "content-hook-019",
+          "source_name": "연합뉴스 RSS",
+          "domain_category": "⑧콘텐츠 훅·스토리텔링 벤치마킹"
+        },
+        {
+          "title": "LG전자 류재철 \"협력사 공동 제조혁신으로 미래 성장기회 창출\"",
+          "url": "https://www.yna.co.kr/view/AKR20261122011400003",
+          "published": "Sun, 22 Nov 2026 10:00:00 +0900",
+          "summary": "(서울=연합뉴스) 조성흠 기자 = LG전자 경영진과 협력사 대표들이 한자리에 모여 공정 자동화와 신기술·신공법 도입 등 제조 경쟁력을 높이기 위...",
+          "published_iso": "2026-11-22T10:00:00+09:00",
+          "source_id": "content-hook-019",
+          "source_name": "연합뉴스 RSS",
+          "domain_category": "⑧콘텐츠 훅·스토리텔링 벤치마킹"
+        }
+      ]
+    },
+    {
+      "source_id": "content-hook-021",
+      "source_name": "매일경제 RSS",
+      "category": "⑧콘텐츠 훅·스토리텔링 벤치마킹",
+      "method": "RSS",
+      "url": "https://www.mk.co.kr/rss/30000001/",
+      "ok": true,
+      "elapsed_ms": 179,
+      "total_items": 50,
+      "fresh_items": 50,
+      "items": [
+        {
+          "title": "“내 집에 혼자 삽니다, 돈은 없습니다”…1인 주택 소유 270만9000가구 역대 최대",
+          "url": "https://www.mk.co.kr/news/realestate/12215423",
+          "published": "Sun, 22 Nov 2026 10:02:07 +09:00",
+          "summary": "주택 가진 가구 5곳 중 1곳이 ‘나홀로’ 전년대비 증가분 4분의 3이 60세 이상 혼자 남은 노년층 늘어난 인구구조 영향집을 가진 가구 2곳 중 1곳 이상은 1인 또는 2인 가구..",
+          "published_iso": "2026-11-22T10:02:07+00:00",
+          "source_id": "content-hook-021",
+          "source_name": "매일경제 RSS",
+          "domain_category": "⑧콘텐츠 훅·스토리텔링 벤치마킹"
+        },
+        {
+          "title": "“중간고사 평균 96점, 기말고사는 48점”…시험방식 바꿨더니 벌어진 일",
+          "url": "https://www.mk.co.kr/news/society/12215421",
+          "published": "Sun, 22 Nov 2026 09:39:49 +09:00",
+          "summary": "美 아이비리그 브라운대서 파문 재택 중간고사 평균 96점 기록 대면 기말고사는 48.6점 그쳐 27명 수업 포기하거나 시험 불참미국의 한 명문대 교수가 학생들의 시험 성적표를 받아..",
+          "published_iso": "2026-11-22T09:39:49+00:00",
+          "source_id": "content-hook-021",
+          "source_name": "매일경제 RSS",
+          "domain_category": "⑧콘텐츠 훅·스토리텔링 벤치마킹"
+        },
+        {
+          "title": "송파구 풍납동 신성노바빌아파트 84.96㎡ 16억 4천만원… 최근 3년 신고가 [MAI부동산]",
+          "url": "https://www.mk.co.kr/news/realestate/12215419",
+          "published": "Sun, 22 Nov 2026 09:37:38 +09:00",
+          "summary": "MAI 부동산 2026년 11월 21일 국토부 실거래가 시스템에 신규 등록된 서울 송파구 풍납동 신성노바빌아파트 전용 84.96㎡가 16억 4,000만 원에 거래되며 최근 3년 내..",
+          "published_iso": "2026-11-22T09:37:38+00:00",
+          "source_id": "content-hook-021",
+          "source_name": "매일경제 RSS",
+          "domain_category": "⑧콘텐츠 훅·스토리텔링 벤치마킹"
+        },
+        {
+          "title": "강동구 롯데캐슬퍼스트 84.81㎡ 19억 7500만원… 최근 3년 신고가 [MAI부동산]",
+          "url": "https://www.mk.co.kr/news/realestate/12215420",
+          "published": "Sun, 22 Nov 2026 09:37:38 +09:00",
+          "summary": "MAI 부동산 2026년 11월 21일 국토부 실거래가 시스템에 신규 등록된 서울 강동구 암사동 롯데캐슬퍼스트 전용 84.81㎡가 19억 7,500만 원에 거래되며 동일 면적 기준..",
+          "published_iso": "2026-11-22T09:37:38+00:00",
+          "source_id": "content-hook-021",
+          "source_name": "매일경제 RSS",
+          "domain_category": "⑧콘텐츠 훅·스토리텔링 벤치마킹"
+        },
+        {
+          "title": "송파구 위례24단지(꿈에그린) 84.93㎡ 22억 7천만원… 최근 3년 신고가 [MAI부동산]",
+          "url": "https://www.mk.co.kr/news/realestate/12215418",
+          "published": "Sun, 22 Nov 2026 09:37:38 +09:00",
+          "summary": "MAI 부동산 2026년 11월 21일 국토부 실거래가 시스템에 신규 등록된 서울 송파구 장지동 위례24단지(꿈에그린) 전용 84.93㎡가 22억 7천만원에 거래되며 최근 3년 신..",
+          "published_iso": "2026-11-22T09:37:38+00:00",
+          "source_id": "content-hook-021",
+          "source_name": "매일경제 RSS",
+          "domain_category": "⑧콘텐츠 훅·스토리텔링 벤치마킹"
+        },
+        {
+          "title": "양천구 래미안목동아델리체 59.82㎡ 16억 8천만원… 최근 3년 신고가 [MAI부동산]",
+          "url": "https://www.mk.co.kr/news/realestate/12215417",
+          "published": "Sun, 22 Nov 2026 09:37:37 +09:00",
+          "summary": "MAI 부동산 2026년 11월 21일 국토부 실거래가 시스템에 신규 등록된 서울 양천구 신정동 래미안목동아델리체(101동~118동) 전용 59.82㎡가 16억 8,000만 원에 ..",
+          "published_iso": "2026-11-22T09:37:37+00:00",
+          "source_id": "content-hook-021",
+          "source_name": "매일경제 RSS",
+          "domain_category": "⑧콘텐츠 훅·스토리텔링 벤치마킹"
+        }
+      ]
+    },
+    {
+      "source_id": "global-market-015",
+      "source_name": "CNBC 최신뉴스 RSS",
+      "category": "③미국·글로벌 증시·기업공시",
+      "method": "RSS",
+      "url": "https://www.cnbc.com/id/100003114/device/rss/rss.html",
+      "ok": true,
+      "elapsed_ms": 122,
+      "total_items": 30,
+      "fresh_items": 14,
+      "items": [
+        {
+          "title": "Anthropic’s record IPO collides with tech’s worst week on Wall Street since 2020",
+          "url": "https://www.cnbc.com/2026/11/21/anthropic-ipo-tech-selloff.html",
+          "published": "Sat, 21 Nov 2026 16:40:05 GMT",
+          "summary": "Anthropic held its historic Nasdaq debut a day before Nvidia's stock closed out its longest weekly losing streak since 2008.",
+          "published_iso": "2026-11-21T16:40:05+00:00",
+          "source_id": "global-market-015",
+          "source_name": "CNBC 최신뉴스 RSS",
+          "domain_category": "③미국·글로벌 증시·기업공시"
+        },
+        {
+          "title": "Trump says there could be a 'positive spin' from the latest FBI database hack",
+          "url": "https://www.cnbc.com/2026/11/21/trump-fbi-database-hack.html",
+          "published": "Sat, 21 Nov 2026 16:57:34 GMT",
+          "summary": "This would make the second recent intrusion into the FBI system.",
+          "published_iso": "2026-11-21T16:57:34+00:00",
+          "source_id": "global-market-015",
+          "source_name": "CNBC 최신뉴스 RSS",
+          "domain_category": "③미국·글로벌 증시·기업공시"
+        },
+        {
+          "title": "Tech outages are fueling a new doomsday economy",
+          "url": "https://www.cnbc.com/2026/11/21/emergency-prep-spending-tech-outages.html",
+          "published": "Sat, 21 Nov 2026 15:04:56 GMT",
+          "summary": "Recent technology outages have left some worried about AI cyberattacks and the U.S. electricity grid. The doomsday economy is heating up as a result.",
+          "published_iso": "2026-11-21T15:04:56+00:00",
+          "source_id": "global-market-015",
+          "source_name": "CNBC 최신뉴스 RSS",
+          "domain_category": "③미국·글로벌 증시·기업공시"
+        },
+        {
+          "title": "State and federal battle over prediction markets regulation heats up after midterms",
+          "url": "https://www.cnbc.com/2026/11/21/prediction-market-regulation-kalshi-cftc.html",
+          "published": "Sat, 21 Nov 2026 13:12:41 GMT",
+          "summary": "States, Congress and the CFTC are escalating the fight over prediction market regulation after the midterms.",
+          "published_iso": "2026-11-21T13:12:41+00:00",
+          "source_id": "global-market-015",
+          "source_name": "CNBC 최신뉴스 RSS",
+          "domain_category": "③미국·글로벌 증시·기업공시"
+        },
+        {
+          "title": "International first class is over for U.S. airlines. Enter the mega business-class cabin",
+          "url": "https://www.cnbc.com/2026/11/21/us-airlines-first-class-business-class.html",
+          "published": "Sat, 21 Nov 2026 12:00:01 GMT",
+          "summary": "Airlines are opting to build giant business-class cabins with ever-more luxurious suites.",
+          "published_iso": "2026-11-21T12:00:01+00:00",
+          "source_id": "global-market-015",
+          "source_name": "CNBC 최신뉴스 RSS",
+          "domain_category": "③미국·글로벌 증시·기업공시"
+        },
+        {
+          "title": "Warren Buffett quadruples Thanksgiving gifts: A breakdown of how much wealth he's giving away",
+          "url": "https://www.cnbc.com/2026/11/21/warren-buffett-quadruples-thanksgiving-gifts.html",
+          "published": "Sat, 21 Nov 2026 13:01:44 GMT",
+          "summary": "Warren Buffett more than quadrupled his Thanksgiving donations to four family foundations this year to $5.5 billion.",
+          "published_iso": "2026-11-21T13:01:44+00:00",
+          "source_id": "global-market-015",
+          "source_name": "CNBC 최신뉴스 RSS",
+          "domain_category": "③미국·글로벌 증시·기업공시"
+        }
+      ]
+    },
+    {
+      "source_id": "global-market-022",
+      "source_name": "MarketWatch Top Stories RSS",
+      "category": "③미국·글로벌 증시·기업공시",
+      "method": "RSS",
+      "url": "https://feeds.content.dowjones.io/public/rss/mw_topstories",
+      "ok": true,
+      "elapsed_ms": 36,
+      "total_items": 10,
+      "fresh_items": 10,
+      "items": [
+        {
+          "title": "My wife is bankrolling her family’s trips to New York and it’s draining our savings. Should I ask her to stop?",
+          "url": "https://www.marketwatch.com/story/my-wife-pays-thousands-of-dollars-for-her-family-to-visit-from-argentina-how-can-i-convince-her-to-stop-9381351c?mod=mw_rss_topstories",
+          "published": "Sun, 22 Nov 2026 00:03:00 GMT",
+          "summary": "“Hotel rooms can cost as much as $400 per night.”",
+          "published_iso": "2026-11-22T00:03:00+00:00",
+          "source_id": "global-market-022",
+          "source_name": "MarketWatch Top Stories RSS",
+          "domain_category": "③미국·글로벌 증시·기업공시"
+        },
+        {
+          "title": "I’m in my 40s. Should I accept a lower pension in exchange for naming my husband or child as a beneficiary?",
+          "url": "https://www.marketwatch.com/story/im-in-my-40s-should-i-accept-a-lower-pension-in-exchange-for-naming-my-husband-or-child-as-a-beneficiary-b2352059?mod=mw_rss_topstories",
+          "published": "Sat, 21 Nov 2026 23:05:00 GMT",
+          "summary": "“If I die before my husband, he will receive a lifetime pension equal to 50%–66% of my monthly benefit.”",
+          "published_iso": "2026-11-21T23:05:00+00:00",
+          "source_id": "global-market-022",
+          "source_name": "MarketWatch Top Stories RSS",
+          "domain_category": "③미국·글로벌 증시·기업공시"
+        },
+        {
+          "title": "‘It’s downright dirty’: My brother moved in with our ailing mother and closed her bank account. What can I do?",
+          "url": "https://www.marketwatch.com/story/it-is-heartbreaking-exhausting-and-downright-dirty-my-brother-took-over-our-ailing-mothers-life-and-finances-what-can-i-do-b4d48817?mod=mw_rss_topstories",
+          "published": "Sat, 21 Nov 2026 20:15:00 GMT",
+          "summary": "“It is devastating when the people you should be able to trust become the very people you have to protect yourself from.”",
+          "published_iso": "2026-11-21T20:15:00+00:00",
+          "source_id": "global-market-022",
+          "source_name": "MarketWatch Top Stories RSS",
+          "domain_category": "③미국·글로벌 증시·기업공시"
+        },
+        {
+          "title": "‘I’ve been a stay-at-home mom’: I’m 50 and have a chronic illness. My husband lost his job. Should he raid his 401(k)?",
+          "url": "https://www.marketwatch.com/story/ive-been-a-stay-at-home-mom-im-50-and-have-a-chronic-illness-my-husband-lost-his-job-should-he-raid-his-401-k-63e59123?mod=mw_rss_topstories",
+          "published": "Sat, 21 Nov 2026 19:45:00 GMT",
+          "summary": "“Our financial and healthcare situation has become increasingly concerning.”",
+          "published_iso": "2026-11-21T19:45:00+00:00",
+          "source_id": "global-market-022",
+          "source_name": "MarketWatch Top Stories RSS",
+          "domain_category": "③미국·글로벌 증시·기업공시"
+        },
+        {
+          "title": "‘Buyers are out for blood’: With home sales at a record low, buyers are calling the shots",
+          "url": "https://www.marketwatch.com/story/buyers-are-out-for-blood-as-housing-market-finally-hits-rock-bottom-fa5093a6?mod=mw_rss_topstories",
+          "published": "Sat, 21 Nov 2026 19:45:00 GMT",
+          "summary": "The few buyers left in the market braving record-high home prices and 7% mortgage rates are starting to call the shots, real-estate agents say.",
+          "published_iso": "2026-11-21T19:45:00+00:00",
+          "source_id": "global-market-022",
+          "source_name": "MarketWatch Top Stories RSS",
+          "domain_category": "③미국·글로벌 증시·기업공시"
+        },
+        {
+          "title": "My husband is happily retired at 64 and thinks I should keep working. Is he being fair?",
+          "url": "https://www.marketwatch.com/story/my-husband-is-happily-retired-at-64-and-thinks-i-should-keep-working-is-he-being-fair-325c5f38?mod=mw_rss_topstories",
+          "published": "Sat, 21 Nov 2026 19:23:00 GMT",
+          "summary": "“I’m exhausted. My alarm goes off at 6 a.m., and I have a 50-minute commute.”",
+          "published_iso": "2026-11-21T19:23:00+00:00",
+          "source_id": "global-market-022",
+          "source_name": "MarketWatch Top Stories RSS",
+          "domain_category": "③미국·글로벌 증시·기업공시"
+        }
+      ]
+    },
+    {
+      "source_id": "macro-013",
+      "source_name": "미국 연준 보도자료 RSS",
+      "category": "①거시경제·중앙은행·금리·환율",
+      "method": "RSS",
+      "url": "https://www.federalreserve.gov/feeds/press_all.xml",
+      "ok": true,
+      "elapsed_ms": 74,
+      "total_items": 20,
+      "fresh_items": 0,
+      "items": [
+        {
+          "title": "Federal Reserve announces College Fed Challenge winners",
+          "url": "https://www.federalreserve.gov/newsevents/pressreleases/other20261120b.htm",
+          "published": "Fri, 20 Nov 2026 21:15:00 GMT",
+          "summary": "Federal Reserve announces College Fed Challenge winners",
+          "published_iso": "2026-11-20T21:15:00+00:00",
+          "source_id": "macro-013",
+          "source_name": "미국 연준 보도자료 RSS",
+          "domain_category": "①거시경제·중앙은행·금리·환율",
+          "stale": true
+        }
+      ]
+    }
+  ]
+}

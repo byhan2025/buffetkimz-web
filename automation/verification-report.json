@@ -1,0 +1,157 @@
+{
+  "checked_at": "2026-11-22T10:03:55+09:00",
+  "total_in_catalog": 336,
+  "total_checked": 336,
+  "checked_this_run": 0,
+  "counts": {
+    "OK": 282,
+    "KEY/차단": 36,
+    "ENV(환경제약)": 14,
+    "REDIRECT": 4
+  },
+  "by_category": {
+    "①거시경제·중앙은행·금리·환율": {
+      "OK": 32,
+      "KEY/차단": 7,
+      "ENV(환경제약)": 2
+    },
+    "②국내 증시·공시·ETF": {
+      "OK": 25,
+      "KEY/차단": 5,
+      "ENV(환경제약)": 5
+    },
+    "③미국·글로벌 증시·기업공시": {
+      "KEY/차단": 16,
+      "OK": 34
+    },
+    "④세법·연금·절세·노동": {
+      "OK": 33,
+      "KEY/차단": 1,
+      "ENV(환경제약)": 2
+    },
+    "⑤보험·건강·복지": {
+      "OK": 43,
+      "REDIRECT": 1,
+      "KEY/차단": 1,
+      "ENV(환경제약)": 2
+    },
+    "⑥부동산·청약·주거": {
+      "REDIRECT": 2,
+      "ENV(환경제약)": 3,
+      "OK": 27,
+      "KEY/차단": 1
+    },
+    "⑦AI·테크 1차 연구·오픈소스": {
+      "OK": 50,
+      "KEY/차단": 3
+    },
+    "⑧콘텐츠 훅·스토리텔링 벤치마킹": {
+      "OK": 38,
+      "KEY/차단": 2,
+      "REDIRECT": 1
+    }
+  },
+  "missing": [],
+  "errors": [],
+  "env_limited": [
+    {
+      "id": "macro-015",
+      "name": "FRED 10년물 국채금리 시계열",
+      "url": "https://fred.stlouisfed.org/series/DGS10",
+      "status": null,
+      "error": "TimeoutError: The read operation timed out | DNS는 해석됨(주소는 존재, 이 실행환경에서 접속 차단)"
+    },
+    {
+      "id": "macro-016",
+      "name": "FRED ALFRED 빈티지 데이터",
+      "url": "https://alfred.stlouisfed.org/",
+      "status": null,
+      "error": "TimeoutError: The read operation timed out | DNS는 해석됨(주소는 존재, 이 실행환경에서 접속 차단)"
+    },
+    {
+      "id": "kr-market-018",
+      "name": "KB자산운용 RISE ETF",
+      "url": "https://www.riseetf.co.kr/",
+      "status": null,
+      "error": "URLError: <urlopen error timed out> | DNS는 해석됨(주소는 존재, 이 실행환경에서 접속 차단)"
+    },
+    {
+      "id": "kr-market-019",
+      "name": "한화자산운용 PLUS ETF",
+      "url": "https://www.plusetf.co.kr/",
+      "status": null,
+      "error": "URLError: <urlopen error timed out> | DNS는 해석됨(주소는 존재, 이 실행환경에서 접속 차단)"
+    },
+    {
+      "id": "kr-market-024",
+      "name": "한국기업평가",
+      "url": "https://www.korearating.com/",
+      "status": null,
+      "error": "DNS: URLError: <urlopen error [Errno -2] Name or service not known> | 도메인 존재 확인(간헐 DNS·해외 IP 접속 차단), 국내망에서 재확인 필요"
+    },
+    {
+      "id": "kr-market-026",
+      "name": "한국IR협의회",
+      "url": "https://www.kirs.or.kr/",
+      "status": null,
+      "error": "URLError: <urlopen error timed out> | DNS는 해석됨(주소는 존재, 이 실행환경에서 접속 차단)"
+    },
+    {
+      "id": "kr-market-027",
+      "name": "코스닥협회",
+      "url": "https://www.kosdaqca.or.kr/",
+      "status": null,
+      "error": "URLError: <urlopen error timed out> | DNS는 해석됨(주소는 존재, 이 실행환경에서 접속 차단)"
+    },
+    {
+      "id": "tax-pension-labor-032",
+      "name": "워크넷",
+      "url": "https://www.work.go.kr/",
+      "status": null,
+      "error": "URLError: <urlopen error timed out> | DNS는 해석됨(주소는 존재, 이 실행환경에서 접속 차단)"
+    },
+    {
+      "id": "tax-pension-labor-035",
+      "name": "한국재정학회",
+      "url": "https://www.kafa.or.kr/",
+      "status": null,
+      "error": "URLError: <urlopen error timed out> | DNS는 해석됨(주소는 존재, 이 실행환경에서 접속 차단)"
+    },
+    {
+      "id": "insurance-health-042",
+      "name": "보험연수원",
+      "url": "https://www.insure.or.kr/",
+      "status": null,
+      "error": "DNS: URLError: <urlopen error [Errno -2] Name or service not known> | 도메인 존재 확인(간헐 DNS·해외 IP 접속 차단), 국내망에서 재확인 필요"
+    },
+    {
+      "id": "insurance-health-045",
+      "name": "대한의사협회",
+      "url": "https://www.kma.org/",
+      "status": null,
+      "error": "URLError: <urlopen error timed out> | DNS는 해석됨(주소는 존재, 이 실행환경에서 접속 차단)"
+    },
+    {
+      "id": "real-estate-002",
+      "name": "국토교통부 실거래가 공공데이터 API",
+      "url": "https://openapi.molit.go.kr/OpenAPI_ToolInstallPage.do",
+      "status": null,
+      "error": "URLError: <urlopen error [Errno 111] Connection refused> | DNS는 해석됨(주소는 존재, 이 실행환경에서 접속 차단)"
+    },
+    {
+      "id": "real-estate-027",
+      "name": "한국공인중개사협회",
+      "url": "https://www.kar.or.kr/",
+      "status": null,
+      "error": "URLError: <urlopen error timed out> | DNS는 해석됨(주소는 존재, 이 실행환경에서 접속 차단)"
+    },
+    {
+      "id": "real-estate-030",
+      "name": "마이홈 주거복지포털",
+      "url": "https://www.myhome.go.kr/",
+      "status": null,
+      "error": "URLError: <urlopen error timed out> | DNS는 해석됨(주소는 존재, 이 실행환경에서 접속 차단)"
+    }
+  ],
+  "dns_missing": []
+}
