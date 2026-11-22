@@ -4,6 +4,7 @@ import Seo from "@/components/Seo.astro";
 import Header from "@/components/Header.astro";
 import Footer from "@/components/Footer.astro";
 import { absolute, site, withBase } from "@/config/site";
+import { analytics, analyticsEnabled } from "@/config/analytics";
 
 interface Props {
   title: string;
@@ -179,5 +180,18 @@ const naverVerification = envOf("NAVER_SITE_VERIFICATION");
         items.forEach((el) => io.observe(el));
       }
     </script>
+    <!--
+      무쿠키 익명 통계 — Cloudflare Web Analytics.
+      `analyticsEnabled`(빌드 환경변수 PUBLIC_CF_ANALYTICS_TOKEN)가 false 면 이 자리에 아무것도
+      출력되지 않는다. 설정·켜는 방법은 src/config/analytics.ts 한 곳에 적어 두었다.
+    -->
+    {analyticsEnabled && analytics.provider === "cloudflare" && (
+      <script
+        is:inline
+        defer
+        src="https://static.cloudflareinsights.com/beacon.min.js"
+        data-cf-beacon={JSON.stringify({ token: analytics.token })}
+      ></script>
+    )}
   </body>
 </html>

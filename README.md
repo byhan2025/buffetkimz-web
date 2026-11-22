@@ -897,6 +897,13 @@ Node 22.12 이상.
   복사한다. (현재 GitHub 앱 연결에 `workflows` 권한이 없어 저장소에 워크플로 파일을 올릴 수 없어
   `gh-pages` 방식으로 배포했다. 권한이 생기면 Actions 방식으로 전환할 수 있다.)
 
+## 무쿠키 익명 통계 (Cloudflare Web Analytics)
+
+- 스위치는 `src/config/analytics.ts` 한 곳. 기본은 OFF(토큰 빈 문자열) — 빌드 HTML에 비콘 태그가 **0건**이다.
+- 도메인 오픈 뒤 Cloudflare Web Analytics에 사이트를 추가해 토큰을 받고, `PUBLIC_CF_ANALYTICS_TOKEN=<토큰> npm run build:domain`으로 빌드·배포하면 바로 집계된다.
+- 쿠키 0개·개인정보 0건 — 페이지뷰·유입 경로·기기 비율·강의로 넘어가는 이동만 집계하므로 쿠키 동의 배너가 필요 없다.
+- 2주 시범 운영에서는 "어떤 글을 읽은 사람이 강의로 가는가"만 본다. 개인 식별·재방문자 추적은 쓰지 않는다.
+
 ## 1페이지 필름 조작
 
 | 요소 | 하는 일 |
@@ -912,6 +919,7 @@ Node 22.12 이상.
 ```text
 src/
 ├── config/site.ts            # 브랜드·기준일·3원칙 (값이 바뀌면 여기만)
+├── config/analytics.ts       # 무쿠키 익명 통계 스위치(토큰 없으면 OFF)
 ├── content/posts/*.md        # 블로그 글 (에이전트가 파일만 추가하면 자동 반영)
 ├── content.config.ts         # 글 스키마(카테고리·태그·출처·연결 앱)
 ├── data/
