@@ -1,1 +1,0 @@
-export{t as default}from"./SearchApp.DNtfzR0S.js";
