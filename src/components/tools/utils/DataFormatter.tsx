@@ -19,7 +19,7 @@ const JSON_SAMPLE = `{
     { "name": "단기 국채", "weight": 0.2, "fee": 0.001 }
   ],
   "rebalance": { "cycle": "분기", "band": 0.05 },
-  "checkedOn": "2026-11-21",
+  "checkedOn": "2026-11-22",
   "note": null
 }`;
 

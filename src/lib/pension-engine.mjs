@@ -101,7 +101,7 @@ export const ELIGIBLE_SCOPE = Object.freeze({
 export const TAX_CONFIG = Object.freeze({
   id: "kr-pension-tax-2026.7.1",
   effectiveFrom: "2026-07-01",
-  checkedOn: "2026-11-21",
+  checkedOn: "2026-11-22",
   source: LAW_VERSION,
   values: LAW,
   scope: ELIGIBLE_SCOPE,
