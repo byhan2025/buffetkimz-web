@@ -220,8 +220,16 @@ with sync_playwright() as p:
         f"{hub['count']} · {hub['links']} · cta {hub['heroCta']}",
     )
     check(
-        "D2 로드맵 — STEP 1~6 모두 공개(2·3·2·1·1·1강) · 강의 링크 10개",
-        [s["status"] for s in hub["steps"]] == ["공개 2강", "공개 3강", "공개 2강", "공개 1강", "공개 1강", "공개 1강"]
+        "D2 로드맵 — STEP 1~6 모두 공개(2·3·2·1·1·1강) · 공개/계획 강수 병기 · 강의 링크 10개",
+        [s["status"] for s in hub["steps"]]
+        == [
+            "공개 2강 / 계획 6강",
+            "공개 3강 / 계획 7강",
+            "공개 2강 / 계획 8강",
+            "공개 1강 / 계획 8강",
+            "공개 1강 / 계획 6강",
+            "공개 1강 / 계획 6강",
+        ]
         and [len(s["lessons"]) for s in hub["steps"]] == [2, 3, 2, 1, 1, 1],
         f"{[(s['no'], s['status'], len(s['lessons'])) for s in hub['steps']]}",
     )

@@ -62,7 +62,7 @@ export default function AccountTaxCompare({ compact = false }: { compact?: boole
   const checks = [
     `적용 세율은 자산 유형과 인출 방식에서 갈립니다. 일반계좌 ${general.rateLabel}, ISA ${isa.rateLabel}, 연금계좌 ${pension.rateLabel}입니다.`,
     payout === "pension"
-      ? `연금계좌는 연 ${Math.round(result.annualPension).toLocaleString("ko-KR")}만원씩 받는 것으로 계산했습니다. 연 1,500만원을 넘으면 그 금액 전체가 종합과세 또는 16.5% 분리과세로 갑니다.`
+      ? `연금계좌는 연 ${Math.round(result.annualPension).toLocaleString("ko-KR")}만원씩 받는 것으로 계산했고, 연금소득공제 ${Math.round(result.annualDeduction).toLocaleString("ko-KR")}만원을 뺀 ${Math.round(result.annualTaxable).toLocaleString("ko-KR")}만원에 세율을 적용했습니다. 연 1,500만원을 넘으면 그 금액 전체가 종합과세 또는 16.5% 분리과세로 갑니다.`
       : "연금계좌를 연금 외로 꺼내면 세액공제 받은 납입금과 운용수익에 기타소득세 16.5%가 붙습니다. 세액공제를 받지 않은 원금은 과세되지 않습니다.",
     creditOn
       ? `세액공제는 연금저축 연 ${CREDIT_LIMIT.pension}만원, IRP 연 ${CREDIT_LIMIT.irp}만원 한도로 ${creditRate}%를 반영했습니다. 실제 환급액은 결정세액을 넘을 수 없습니다.`
@@ -325,6 +325,7 @@ export default function AccountTaxCompare({ compact = false }: { compact?: boole
 
       <p className="mt-2 rounded-lg border border-line bg-paper-deep/70 px-3 py-2 text-[12px] leading-[1.6] text-ink-muted" data-acc-assumptions>
         적용 가정: 연 {pct(rate)} 고정 수익률 · 연 {pct(distYield)} 배당·분배금 · {ASSET_LABEL[asset]} · {payoutLabel} ·
+        연금계좌는 세액공제 받은 납입금·운용수익 전액이 과세대상이라 보고 연금소득공제만 반영 ·
         수수료·세금 이외 비용 미반영 · 물가상승 미반영 · 기준일 {site.baseDateLabel}
       </p>
 

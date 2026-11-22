@@ -13,8 +13,8 @@ import { AmountField, CaveatBox, Line, num, TableScroll } from "./fields-c";
  *  · 건강보험 7.19%(근로자 3.595%) — 2026년 건정심 의결·건강보험법 시행령 제44조.
  *  · 장기요양 0.9448%(근로자 0.4724%) — 건강보험료의 13.14%.
  *  · 고용보험 실업급여 1.8%(근로자 0.9%) — 고용산재보험료징수법 시행령 제12조.
- *  · 소득세: 소득세법 제47조·제55조·제59조의 근로소득공제·기본세율·근로소득세액공제를
- *    연 단위로 계산해 12로 나눈 근사값. 간이세액표를 그대로 옮긴 값은 아니다.
+ *  · 소득세: 소득세법 제47조·제52조①·제55조·제59조의 근로소득공제·연금보험료공제·건강·장기요양·고용보험료
+ *    공제·기본세율·근로소득세액공제를 연 단위로 계산해 12로 나눈 근사값. 간이세액표를 그대로 옮긴 값은 아니다.
  */
 
 const MAN = 10000;
@@ -83,8 +83,10 @@ export default function SalaryNetCalc({ compact = false }: { compact?: boolean }
     const deduction = earnedIncomeDeduction(taxableAnnual);
     const earnedIncome = taxableAnnual - deduction;
     const personal = 150 * MAN * Math.max(1, family);
+    /* 소득세법 제52조① — 근로자가 부담한 국민연금·건강·장기요양·고용보험료는 전액 공제된다. */
     const pensionDeduction = pension * 12;
-    const taxBaseRaw = Math.max(0, earnedIncome - personal - pensionDeduction);
+    const insuranceDeduction = (health + care + employ) * 12;
+    const taxBaseRaw = Math.max(0, earnedIncome - personal - pensionDeduction - insuranceDeduction);
     const taxBase = Math.floor(taxBaseRaw / 1000) * 1000;
 
     const computed = Math.max(0, basicTax(taxBase));
@@ -113,6 +115,7 @@ export default function SalaryNetCalc({ compact = false }: { compact?: boolean }
       earnedIncome,
       personal,
       pensionDeduction,
+      insuranceDeduction,
       taxBase,
       computed,
       credit,
@@ -133,7 +136,7 @@ export default function SalaryNetCalc({ compact = false }: { compact?: boolean }
     <RunnerShell
       title="세전 연봉 → 월 실수령액"
       subtitle="2026년 4대보험 요율과 근로소득세를 연 단위로 계산해 월 실수령액을 냅니다."
-      example="연봉과 부양가족 수, 비과세 식대를 바꿔 보세요. 요율은 2026년 1월 1일 시행 기준입니다."
+      example="연봉과 부양가족 수, 비과세 식대를 바꿔 보세요. 요율은 2026년 1월 1일 시행, 국민연금 기준소득월액 41만~659만원은 2026년 7월~2027년 6월 기준입니다."
     >
       <Segmented
         label="입력 기준"
@@ -278,6 +281,7 @@ export default function SalaryNetCalc({ compact = false }: { compact?: boolean }
               <Line label="근로소득금액" value={formatKrw(calc.earnedIncome)} />
               <Line label={`인적공제 (${family}명 × 150만)`} value={`− ${formatKrw(calc.personal)}`} />
               <Line label="연금보험료공제" value={`− ${formatKrw(calc.pensionDeduction)}`} />
+              <Line label="건강·장기요양·고용보험료 공제" value={`− ${formatKrw(calc.insuranceDeduction)}`} />
               <Line label="과세표준" value={formatKrw(calc.taxBase)} strong />
               <Line label="산출세액" value={formatKrw(calc.computed)} />
               <Line label="근로소득세액공제" value={`− ${formatKrw(calc.credit)}`} />
@@ -289,6 +293,7 @@ export default function SalaryNetCalc({ compact = false }: { compact?: boolean }
           <CaveatBox
             items={[
               "소득세는 연말정산을 연 단위로 미리 계산해 12로 나눈 근사값입니다. 실제 급여명세서의 간이세액은 회사가 신고한 부양가족·비과세 항목에 따라 다릅니다.",
+              "국민연금·건강·장기요양·고용보험료는 근로자 부담분 전액을 소득공제(소득세법 제52조①)에 넣었습니다.",
               "자녀세액공제, 연금계좌·월세액·보험료 세액공제, 의료비·교육비 공제는 반영하지 않았습니다. 연말정산에서 돌려받는 금액이 생길 수 있습니다.",
               "국민연금 기준소득월액은 41만~659만원으로 잘립니다(2026. 7.~2027. 6.). 월급이 659만원을 넘어도 국민연금은 659만원 기준입니다.",
               "산재보험과 고용안정·직업능력개발 보험료는 사업주가 전액 부담하므로 근로자 공제에서 빠집니다.",
@@ -324,7 +329,7 @@ export default function SalaryNetCalc({ compact = false }: { compact?: boolean }
                 const e = floor10(taxMonthly * EMPLOY_RATE);
                 const taxBaseV = Math.max(
                   0,
-                  (g - 20 * MAN * 12) - earnedIncomeDeduction(g - 20 * MAN * 12) - 150 * MAN - p * 12,
+                  (g - 20 * MAN * 12) - earnedIncomeDeduction(g - 20 * MAN * 12) - 150 * MAN - p * 12 - (h + c + e) * 12,
                 );
                 const comp = Math.max(0, basicTax(Math.floor(taxBaseV / 1000) * 1000));
                 const cr = Math.min(

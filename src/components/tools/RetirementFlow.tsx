@@ -26,6 +26,9 @@ export default function RetirementFlow({ compact = false }: { compact?: boolean 
   const [target, setTarget] = useState(RETIREMENT_EXAMPLE.targetMonthly);
   const [inflation, setInflation] = useState(RETIREMENT_EXAMPLE.inflation * 100);
   const [rate, setRate] = useState(RETIREMENT_EXAMPLE.returnRate * 100);
+  /* 건보 피부양자 판정은 '소득 합계'(공적연금 + 이자·배당·근로 등) 2,000만원 기준이다.
+   * 다른 소득을 입력받지 않고 공적연금만으로 판정하면 기준을 넘는 경우를 놓친다. */
+  const [otherIncome, setOtherIncome] = useState(0); // 만원/년
 
   /* 은퇴 나이는 현재 나이 뒤, 기대 수명은 은퇴 나이 뒤로 자동으로 맞춘다. */
   const safeRetire = Math.max(retireAge, currentAge + 1);
@@ -61,7 +64,9 @@ export default function RetirementFlow({ compact = false }: { compact?: boolean 
   const privateAnnual = (nominal.dc + nominal.personal) * 12;
   const overPrivate = privateAnnual > PRIVATE_PENSION_TAX.annualThreshold;
   const publicAnnual = nominal.nps * 12;
-  const overPublic = publicAnnual > PUBLIC_PENSION_HEALTH_LIMIT;
+  /* 사적연금은 공단이 2026-11 현재 보험료를 부과하지 않으므로 합계에서 뺀다(법령 문언은 포함). */
+  const healthIncome = publicAnnual + otherIncome;
+  const overPublic = healthIncome > PUBLIC_PENSION_HEALTH_LIMIT;
 
   /* 판정하지 않는다 — '예시 가정 기준 점검 · 추가 확인 필요' 톤으로만 적는다. */
   const verdict = `예시 가정 기준, ${safeLife}세까지 매달 ${manLabel(
@@ -137,6 +142,15 @@ export default function RetirementFlow({ compact = false }: { compact?: boolean 
           <MoneySlider label="목표 월 생활비" value={target} onChange={setTarget} min={100} max={600} step={10} hint="오늘 가치" />
           <MoneySlider label="퇴직연금 적립금" value={dc} onChange={setDc} min={0} max={30000} step={100} />
           <MoneySlider label="개인연금 적립금" value={personal} onChange={setPersonal} min={0} max={30000} step={100} hint="연금저축·IRP" />
+          <MoneySlider
+            label="그 밖의 연 소득"
+            value={otherIncome}
+            onChange={setOtherIncome}
+            min={0}
+            max={3000}
+            step={50}
+            hint="이자·배당·근로 — 건보 소득 합계에 합산"
+          />
           <MoneySlider label="연평균 물가상승률" value={inflation} onChange={setInflation} min={0} max={5} step={0.1} format={pctPoint} hint="기본 2.5%" />
           <MoneySlider label="기대 수익률" value={rate} onChange={setRate} min={0} max={8} step={0.1} format={pctPoint} hint="기본 4.0%" />
         </div>
@@ -246,9 +260,11 @@ export default function RetirementFlow({ compact = false }: { compact?: boolean 
                 : "이 값 기준으로는 기준 이하입니다."}
             </li>
             <li>
-              · <strong className="font-semibold text-ink">건강보험 피부양자</strong> — 공적연금 소득이 연{" "}
-              {PUBLIC_PENSION_HEALTH_LIMIT.toLocaleString("ko-KR")}만원을 넘으면 피부양자 자격을 잃을 수 있습니다(소득·
-              재산 요건 함께 적용). 이 계산의 공적연금은 연 {manLabel(publicAnnual)}입니다.
+              · <strong className="font-semibold text-ink">건강보험 피부양자</strong> — 소득 합계(공적연금 + 이자·배당·근로소득)가 연{" "}
+              {PUBLIC_PENSION_HEALTH_LIMIT.toLocaleString("ko-KR")}만원을 넘으면 피부양자 자격을 잃을 수 있습니다(소득·재산
+              요건 함께 적용). 이 계산의 공적연금은 연 {manLabel(publicAnnual)}, 그 밖의 소득은 연{" "}
+              {manLabel(otherIncome)} — 합계 연 {manLabel(healthIncome)}입니다. 사적연금은 공단이 2026년 11월 현재
+              보험료를 부과하지 않아 합계에 넣지 않았습니다(법령 문언은 포함 — 공단 확인).
               {overPublic ? " 기준을 넘습니다 — 지역가입자 전환을 확인하세요." : " 기준 이하입니다."}
             </li>
             <li>· 이 시뮬레이션은 위 세금·건강보험료를 반영하지 않았습니다.</li>

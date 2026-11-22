@@ -93,7 +93,7 @@ const stepBase = [
     lessons: 7,
     cards: "B. 세 순간 · C. 계좌 배치표",
     time: "2시간",
-    deliverable: "세액공제액·ISA 납입액·건보료 경계를 적은 배치표 1장",
+    deliverable: "세액공제액·ISA(비과세 절세 계좌) 납입액·건보료 경계를 적은 배치표 1장",
   },
   {
     no: 3,
@@ -103,7 +103,7 @@ const stepBase = [
     lessons: 8,
     cards: "D. ETF 6개 숫자 · E. 낙폭과 회복",
     time: "2시간 20분",
-    deliverable: "목표·3층 비율·리밸런싱 밴드를 적은 투자정책서 1장",
+    deliverable: "목표·3층 비율·리밸런싱(목표 비중 되돌리기) 밴드를 적은 투자정책서 1장",
   },
   {
     no: 4,

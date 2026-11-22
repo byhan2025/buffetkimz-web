@@ -6,7 +6,7 @@
  *   silson     5-1강 · 보장 빈칸표   세대·보험료·선택 → 3년 비용과 3년 뒤 월 보험료
  *   rebalance  6-1강 · 12개월 달력   총자산·목표 비중·현재 비중 → 덜기/채우기 금액과 밴드
  *   assetplan  학교 자산형성 1강 · 분산 점검표  총액·비중·하락률 → 전체 손실률
- *   pensionmap 학교 은퇴 1강 · 연금 지도      세 층 월 수령액 → 연 사적연금·소득 합계와 두 선
+ *   pensionmap 학교 은퇴 1강 · 연금 지도      세 층 월 수령액 → 연 사적연금·공적연금과 두 선
  *
  * 공통 원칙: 입력값은 화면 안에서만 계산하고 주소·서버·저장소 어디에도 남기지 않는다.
  * 금액은 강의 본문과 같은 식(해마다 초 인출 후 수익률 적용, 전체 손실률 = 손실 ÷ 총액)에서 나온다.
@@ -40,7 +40,7 @@ const RB_GAP = [12, 0, -8];
 const AS_TOTAL = [50, 100, 200];
 const AS_SHARE = [50, 70, 80];
 const AS_DROP = [20, 30, 50];
-const RT_NATIONAL = [80, 100, 120];
+const RT_NATIONAL = [120, 150, 170];
 const RT_RETIRE = [30, 50, 80];
 const RT_PERSONAL = [20, 30, 50];
 
@@ -56,7 +56,7 @@ const defaults = {
   asTotal: 100,
   asShare: 70,
   asDrop: 30,
-  rtNational: 100,
+  rtNational: 170,
   rtRetire: 50,
   rtPersonal: 30,
 };
@@ -513,16 +513,21 @@ const outLabel =
         const personal = num("rt-personal");
         const month = national + retire + personal;
         const privateYear = (retire + personal) * 12;
-        const incomeYear = month * 12;
+        /* 건보 반영
+         *  · 공단 운영(2026-11): 사적연금 미부과 → 공적연금 + 기타 소득으로 판정
+         *  · 법령 문언(시행령 제41조①5호): 연금소득 전체 → 사적연금 포함
+         *  이 표는 입력에 기타 소득이 없으므로 공단 운영 기준으로만 판정하고, 법령 문언도 넘는지는 따로 적는다. */
+        const healthIncome = national * 12; // 공단 운영상 건보 소득(공적연금)
+        const healthIncomeStrict = month * 12; // 법령 문언상 소득 합계(사적연금 포함)
         return {
           out: `월 ${fmtMan(month)}`,
           state: "ok",
-          breakdown: `연 사적연금 ${fmtMan(privateYear)} · 소득 합계 ${fmtMan(incomeYear)}`,
+          breakdown: `연 사적연금 ${fmtMan(privateYear)} · 공적연금 ${fmtMan(healthIncome)}`,
           rows: {
             a: `국민 ${fmtMan(national)} · 퇴직 ${fmtMan(retire)} · 개인 ${fmtMan(personal)}`,
             b: `월 ${fmtMan(month)}`,
             c: `연 사적연금 ${fmtMan(privateYear)} — ${privateYear <= 1500 ? "1,500만원 이하" : "1,500만원 초과"}`,
-            d: `소득 합계 ${fmtMan(incomeYear)} — ${incomeYear <= 2000 ? "2,000만원 이하" : "2,000만원 초과"}`,
+            d: `공적연금 ${fmtMan(healthIncome)} — 2,000만원 ${healthIncome <= 2000 ? "이하" : "초과"} (사적연금 미부과 · 법령 문언으로는 ${fmtMan(healthIncomeStrict)})`,
             e: "비는 구간 길이 확인 · 공단에 자격 문의",
           },
         };

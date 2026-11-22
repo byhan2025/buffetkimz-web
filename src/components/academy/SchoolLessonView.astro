@@ -20,7 +20,7 @@ import { ACADEMY, TRACK_LABEL } from "@/data/academy";
 import { SCHOOL_LESSON_CHARS, SCHOOL_LESSONS } from "@/data/academy-school-lessons";
 import { SCHOOL_WEEKS } from "@/data/academy-school";
 import { LESSON_SPEC, type AcademyLesson } from "@/data/academy-lessons";
-import { availableCount } from "@/lib/card-assets";
+import { availableCount, availableSlides } from "@/lib/card-assets";
 import { breadcrumbList, graph } from "@/lib/schema";
 
 interface Props {
@@ -32,6 +32,8 @@ const track = lesson.track ?? "elementary";
 const path = `/academy/${lesson.slug}`;
 const chars = SCHOOL_LESSON_CHARS[lesson.slug] ?? 0;
 const cardCount = availableCount(lesson.cardSet);
+/** og:image — 강의마다 연결된 카드뉴스 01번 표지(없으면 공용 og.png로 떨어진다) */
+const ogSlide = availableSlides(lesson.cardSet)[0];
 const weeks = SCHOOL_WEEKS.filter((w) => w.lessonSlug === lesson.slug);
 const trackName = TRACK_LABEL[track];
 /** 트랙 안에서 몇 번째 강의인지 — 2강부터도 '첫 강의'로 박히지 않게 차수를 적는다 */
@@ -95,6 +97,10 @@ const jsonLd = graph([
   path={path}
   type="article"
   publishedTime={site.baseDate}
+  image={ogSlide?.src}
+  imageAlt={ogSlide ? `${lesson.shortTitle} — ${ogSlide.caption}` : undefined}
+  imageWidth={ogSlide ? 1080 : undefined}
+  imageHeight={ogSlide ? 1350 : undefined}
   jsonLd={jsonLd}
 >
   <div class="school" data-school-lesson>
@@ -114,7 +120,7 @@ const jsonLd = graph([
 
         <div class="mt-5 max-w-[68ch]">
           <ul class="flex flex-wrap items-center gap-2">
-            <li class="chip is-brand">{trackName} · {lesson.label}</li>
+            <li class="chip is-brand">{trackName} 트랙 · {lesson.no}강</li>
             {weeks.map((w) => (
               <li class="chip mono">{w.id} · {w.week}주</li>
             ))}
@@ -366,7 +372,7 @@ const jsonLd = graph([
             </div>
 
             <p class="mt-8 border-t border-line pt-4 text-[16px] leading-[1.7] text-ink-faint">
-              {ACADEMY.name} · {trackName} {lesson.label} · 기준일 {site.baseDateLabel} · 숫자는 제도 변경에 따라
+              {ACADEMY.name} · {lesson.label} · 기준일 {site.baseDateLabel} · 숫자는 제도 변경에 따라
               달라질 수 있습니다.
             </p>
           </div>

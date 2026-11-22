@@ -76,6 +76,13 @@ const posts = defineCollection({
     toolTitle: z.string().optional(),
     /** 그 도구가 무엇을 확인·계산하는지 한 줄 (앱이 아닌 도구에 붙인다) */
     toolWhat: z.string().optional(),
+    /**
+     * 이 글이 같은 주제의 다른 글보다 나은 점 — 글 머리에 '이 글에서 달라지는 것' 카드로 붙는다.
+     * (v8.6.0 이전에는 스키마에 없어 zod가 조용히 버렸다.)
+     */
+    gain: z.string().optional(),
+    /** gain의 종류 — 카드 라벨을 가른다 */
+    gainType: z.enum(["clearer-answer", "original-data", "stronger-opinion"]).optional(),
     tags: z.array(z.string()).default([]),
     sources: z
       .array(

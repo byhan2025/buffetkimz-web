@@ -17,6 +17,7 @@ import {
   ISA,
   PENSION_ACCOUNT,
   PRIVATE_PENSION_TAX,
+  pensionIncomeDeductionMan,
 } from "@/data/tax-rules";
 
 /* 아래 값은 모두 `data/tax-rules.ts`에서 온다 — 화면·계산·설명이 같은 숫자를 말하게. */
@@ -98,6 +99,10 @@ export type AccountCompareResult = {
   principal: number;
   gain: number;
   annualPension: number;
+  /** 연금소득공제(연, 제47조의2) */
+  annualDeduction: number;
+  /** 과세대상 연금소득금액(연) */
+  annualTaxable: number;
   rows: AccountResult[];
   /** 세후 1위 계좌 키 */
   best: AccountResult["key"];
@@ -125,11 +130,17 @@ export function compareAccounts(input: AccountInput): AccountCompareResult {
   const isaExempt = ISA_EXEMPT[input.isaType];
   const isaTax = Math.max(0, gain - isaExempt) * ISA_TAX;
 
-  /* 연금계좌 — 인출 방식과 나이로 세율이 갈린다 */
+  /* 연금계좌 — 인출 방식과 나이로 세율이 갈린다.
+   * 3.3~5.5%는 수령액 전액이 아니라 연금소득금액(수령액 − 연금소득공제, 제47조의2)에 붙는다. */
   const annualPension = input.payout === "pension" ? value / Math.max(1, input.payoutYears) : 0;
+  const annualDeduction = pensionIncomeDeductionMan(annualPension);
+  const annualTaxable = Math.max(0, annualPension - annualDeduction);
   const overLimit = input.payout === "pension" && annualPension > PENSION_ANNUAL_LIMIT;
   const ageRate = overLimit ? PENSION_LUMP_TAX : AGE_RATE[input.age].rate;
-  const pensionTax = input.payout === "lump" ? value * PENSION_LUMP_TAX : value * ageRate;
+  const pensionTax =
+    input.payout === "lump"
+      ? value * PENSION_LUMP_TAX
+      : annualTaxable * ageRate * Math.max(1, input.payoutYears);
 
   /* 세액공제 — 계좌별 연 한도 × 납입 연수(원금을 연수로 나눠 낸 것으로 본다) */
   const creditOf = (key: "pension" | "irp") => {
@@ -189,7 +200,7 @@ export function compareAccounts(input: AccountInput): AccountCompareResult {
           ? "세액공제 받은 납입금과 운용수익에 기타소득세 16.5%"
           : overLimit
             ? `연 ${Math.round(annualPension).toLocaleString("ko-KR")}만원 수령으로 1,500만원 기준 초과 — 종합과세와 16.5% 중 큰 쪽을 가정`
-            : `연 ${Math.round(annualPension).toLocaleString("ko-KR")}만원 수령(1,500만원 이하) · ${AGE_RATE[input.age].label}`,
+            : `연 ${Math.round(annualPension).toLocaleString("ko-KR")}만원 수령(1,500만원 이하) · 연금소득공제 ${fine(annualDeduction).toLocaleString("ko-KR")}만원을 뺀 ${Math.round(annualTaxable).toLocaleString("ko-KR")}만원 과세 · ${AGE_RATE[input.age].label}`,
       tax: pensionTax,
       credit: creditOf("pension"),
       net: value - pensionTax + creditOf("pension"),
@@ -208,7 +219,7 @@ export function compareAccounts(input: AccountInput): AccountCompareResult {
             ? "1,500만원 초과 · 16.5% 분리과세 가정"
             : `연금소득세 ${AGE_RATE[input.age].label}`,
       rateDetail:
-        "위험자산 70% 한도 · 중도인출은 법정 사유에만 가능" +
+        "위험자산 70% 한도 · 중도인출은 법정 사유에만 가능 · 계좌 평가액(세액공제 받은 납입금·운용수익) 전액을 과세대상으로 가정" +
         (input.creditOn ? " · 세액공제 900만원까지" : " · 세액공제 미반영"),
       tax: pensionTax,
       credit: creditOf("irp"),
@@ -226,6 +237,8 @@ export function compareAccounts(input: AccountInput): AccountCompareResult {
     principal,
     gain,
     annualPension: fine(annualPension),
+    annualDeduction: fine(annualDeduction),
+    annualTaxable: fine(annualTaxable),
     rows,
     best,
     bestByTax,

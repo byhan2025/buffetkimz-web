@@ -19,7 +19,7 @@ import CardNewsViewer from "@/components/academy/CardNewsViewer.astro";
 import { withBase, site } from "@/config/site";
 import { ACADEMY, stepByNo, openLessonsOfStep } from "@/data/academy";
 import { LESSON_CHARS, LESSON_SPEC, type AcademyLesson } from "@/data/academy-lessons";
-import { availableCount } from "@/lib/card-assets";
+import { availableCount, availableSlides } from "@/lib/card-assets";
 import { breadcrumbList, graph } from "@/lib/schema";
 
 interface Props {
@@ -31,6 +31,8 @@ const step = stepByNo(lesson.step)!;
 const path = `/academy/${lesson.slug}`;
 const chars = LESSON_CHARS[lesson.slug];
 const cardCount = availableCount(lesson.cardSet);
+/** og:image — 강의마다 연결된 카드뉴스 01번 표지(없으면 공용 og.png로 떨어진다) */
+const ogSlide = availableSlides(lesson.cardSet)[0];
 
 /** 원고 분량이 규격(1,200~1,500자)을 벗어나면 빌드에서 바로 알린다. */
 if (chars < LESSON_SPEC.minChars || chars > LESSON_SPEC.maxChars) {
@@ -88,6 +90,10 @@ const jsonLd = graph([
   path={path}
   type="article"
   publishedTime={site.baseDate}
+  image={ogSlide?.src}
+  imageAlt={ogSlide ? `${lesson.shortTitle} — ${ogSlide.caption}` : undefined}
+  imageWidth={ogSlide ? 1080 : undefined}
+  imageHeight={ogSlide ? 1350 : undefined}
   jsonLd={jsonLd}
 >
   <!-- 히어로 + ① 조건별 손익 반전 훅 -->

@@ -233,7 +233,7 @@ export const childrenOf = (match: string): NavChild[] | undefined =>
   nav.find((item) => item.match === match)?.children;
 
 export const quickTabs: QuickTab[] = [
-  { href: "/", label: "홈", match: "/", weight: 1 },
+  { href: "/", label: "홈", match: "/", weight: 3 },
   { href: "/posts", label: "자산리포트", match: "/posts", weight: 5, children: childrenOf("/posts") },
   { href: "/apps", label: "앱스토어", match: "/apps", weight: 4, children: childrenOf("/apps") },
   { href: "/calendar", label: "골든타임", match: "/calendar", weight: 4, children: childrenOf("/calendar") },
@@ -241,5 +241,9 @@ export const quickTabs: QuickTab[] = [
   { href: "/about", label: "버핏킴즈", match: "/about", weight: 4, children: childrenOf("/about") },
 ];
 
-/** 모바일 퀵 탭 그리드 비율 문자열 (`1fr 1.1fr …`) */
-export const quickTabColumns = quickTabs.map((t) => `${t.weight}fr`).join(" ");
+/** 모바일 퀵 탭 그리드 비율 문자열 (`minmax(44px, 3fr) 5fr …`)
+ * 첫 칸('홈')은 라벨이 짧아 1fr로 두면 390px에서 17px까지 줄어 알약이 글자를 잘랐다.
+ * `minmax(44px, …)`로 터치 목표 44px을 바닥으로 두고, 나머지 칸은 남는 폭을 나눠 가진다. */
+export const quickTabColumns = quickTabs
+  .map((t, i) => (i === 0 ? `minmax(44px, ${t.weight}fr)` : `${t.weight}fr`))
+  .join(" ");

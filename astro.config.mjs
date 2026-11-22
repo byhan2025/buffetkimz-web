@@ -56,7 +56,7 @@ export default defineConfig({
         !page.includes('/tools') &&
         !page.includes('/topics'),
       changefreq: 'weekly',
-      lastmod: new Date('2026-11-21'),
+      lastmod: new Date('2026-11-22'),
     }),
   ],
   markdown: {

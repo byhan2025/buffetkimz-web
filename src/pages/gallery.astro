@@ -333,13 +333,13 @@ const jsonLd = graph([
     </div>
     <div class="gallery-lb-body">
       <button type="button" class="gallery-lb-nav is-prev" data-lb-prev aria-label="이전 장">‹</button>
-      <img src="" alt="" data-lb-img />
+      <img alt="" data-lb-img hidden />
       <button type="button" class="gallery-lb-nav is-next" data-lb-next aria-label="다음 장">›</button>
     </div>
     <div class="gallery-lb-foot">
       <p class="text-[12.5px] text-[#d7dbe7]" data-lb-caption></p>
       <div class="flex flex-wrap items-center gap-2">
-        <a href="" download class="btn btn-primary btn-xs" data-lb-download>현재 장 내려받기</a>
+        <a download class="btn btn-primary btn-xs" data-lb-download hidden>현재 장 내려받기</a>
         <div class="gallery-lb-thumbs" data-lb-thumbs></div>
       </div>
     </div>
@@ -502,12 +502,14 @@ const jsonLd = graph([
       const slide = item.slides[lbIndex];
       lbImg.src = slide.src;
       lbImg.alt = slide.alt;
+      lbImg.hidden = false;
       if (lbTitle) lbTitle.textContent = item.title;
       if (lbCount) lbCount.textContent = `${lbIndex + 1} / ${item.slides.length}`;
       if (lbCaption) lbCaption.textContent = `${slide.caption} — ${item.basis}`;
       if (lbDl) {
         lbDl.href = slide.src;
         lbDl.setAttribute("download", slide.name);
+        lbDl.hidden = false;
       }
       if (lbThumbs) {
         lbThumbs.innerHTML = "";

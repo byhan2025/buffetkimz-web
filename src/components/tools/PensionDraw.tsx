@@ -224,7 +224,7 @@ export default function PensionDraw({ compact = false }: { compact?: boolean }) 
                 min={0}
                 max={6000}
                 step={50}
-                guess={{ value: 1200, label: "잘 모르겠어요 — 연 1,200만원으로 보기" }}
+                guess={{ value: 1000, label: "잘 모르겠어요 — 연 1,000만원으로 보기" }}
               />
               <Field
                 label="③ 국민연금 등 공적연금"

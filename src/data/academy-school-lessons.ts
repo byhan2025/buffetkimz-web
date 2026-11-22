@@ -114,7 +114,7 @@ const SET_COVERAGE: LessonCardSet = {
     card("coverage-gaps", 2, "오해 vs 팩트 — 진단비 크기만 크면 든든 / 면책·감액·지급 기준", "왼쪽은 금 간 방패와 큰 동전을 든 마스코트, 오른쪽은 돋보기로 계약서를 보는 마스코트"),
     card("coverage-gaps", 3, "공백 ① ② — 실손 세대별 자기부담, 면책 90일·감액 1~2년", "서로 다른 색 종이 세 장과 청진기, 두 장을 비교하는 마스코트"),
     card("coverage-gaps", 4, "공백 ③ — 유사암·경계성종양은 일반암의 10~20%", "크기가 다른 세 원과 가장 작은 원을 돋보기로 보는 마스코트"),
-    card("coverage-gaps", 5, "공백 ④ ⑤ — 수술비 종수와 사적연금 2,000만 원(피부양자)", "병원과 저울, 서류 더미와 동전 주머니를 가리키는 마스코트"),
+    card("coverage-gaps", 5, "공백 ④ ⑤ — 수술비 종수와 공적연금 포함 소득 합계 2,000만 원(피부양자)", "병원과 저울, 서류 더미와 동전 주머니를 가리키는 마스코트"),
     card("coverage-gaps", 6, "점검 — 내 증권에서 확인할 3줄", "안경과 펜이 꽂힌 클립보드를 든 마스코트와 3줄 체크리스트"),
   ],
 };
@@ -148,7 +148,7 @@ const SET_RETIRE_3TIER: LessonCardSet = {
     card("retirement-3tier", 3, "DB형 — 임금상승률이 높고 오래 다닐 때", "창문과 금고가 있는 회사 건물, 사다리를 오르는 마스코트"),
     card("retirement-3tier", 4, "DC형 — 직접 굴릴 때, 이직이 잦을 때", "동전을 돛으로 단 종이배를 조타하는 마스코트"),
     card("retirement-3tier", 5, "IRP — 퇴직금 받을 통장 + 세액공제 300만", "문과 동전 투입구가 있는 단지에 서류 가방을 넣는 마스코트"),
-    card("retirement-3tier", 6, "수령 — 일시금 vs 연금, 퇴직소득세 30~40% 감면", "모래시계에서 동전이 손으로 떨어지고 달력과 단지가 놓인 장면"),
+    card("retirement-3tier", 6, "수령 — 일시금 vs 연금, 퇴직소득세 30~50% 감면(1~10년 30%·11~20년 40%·21년~ 50%)", "모래시계에서 동전이 손으로 떨어지고 달력과 단지가 놓인 장면"),
   ],
 };
 
@@ -828,12 +828,12 @@ const QUIZ_ASSET: LessonQuizItem[] = [
    · 세 층의 월 수령액을 합쳐 연 사적연금과 소득 합계를 따로 센다.
    · 1,500만 원(세금)과 2,000만 원(건보료)은 다른 제도다.
    ------------------------------------------------------------------ */
-const RT_NATIONAL = 100; // 국민연금 월(만원)
+const RT_NATIONAL = 170; // 국민연금 월(만원) — 공적연금만으로 건보 기준(2,000만)을 넘는 예시
 const RT_RETIRE = 50; // 퇴직연금 월(만원)
 const RT_PERSONAL = 30; // 개인연금 월(만원)
-const RT_MONTH = RT_NATIONAL + RT_RETIRE + RT_PERSONAL; // 180만
+const RT_MONTH = RT_NATIONAL + RT_RETIRE + RT_PERSONAL; // 250만
 const RT_PRIVATE_YEAR = (RT_RETIRE + RT_PERSONAL) * 12; // 960만
-const RT_INCOME_YEAR = RT_MONTH * 12; // 2,160만
+const RT_PUBLIC_YEAR = RT_NATIONAL * 12; // 2,040만 — 공단 운영상 건보 소득(사적연금 미부과)
 
 const N_RETIRE = {
   national: manwon(RT_NATIONAL),
@@ -841,10 +841,10 @@ const N_RETIRE = {
   personal: manwon(RT_PERSONAL),
   month: manwon(RT_MONTH),
   privateYear: manwon(RT_PRIVATE_YEAR),
-  incomeYear: manwon(RT_INCOME_YEAR),
+  publicYear: manwon(RT_PUBLIC_YEAR),
   privateLimit: `연 ${manwon(1500)}`,
   healthLimit: `연 ${manwon(2000)}`,
-  earlyCut: pct(0.05, 0),
+  earlyCut: pct(0.06, 0),
   earlyMax: pct(0.3, 0),
   laterAdd: pct(0.072),
   openAge: "61~65세",
@@ -860,14 +860,14 @@ const READING_RETIRE: ReadingSection[] = [
     h: "한 문장으로 답하면",
     ps: [
       `연금은 한 곳에서 나오지 않습니다. 나라가 운영하는 국민연금(공적), 회사를 통해 쌓는 퇴직연금, 내가 따로 넣는 개인연금까지 세 층입니다.`,
-      `국민연금 ${N_RETIRE.national}, 퇴직연금 ${N_RETIRE.retire}, 개인연금 ${N_RETIRE.personal}을 받으면 한 달 ${N_RETIRE.month}입니다. 연으로 바꾸면 사적연금(퇴직·개인) ${N_RETIRE.privateYear}, 소득 합계 ${N_RETIRE.incomeYear}입니다.`,
+      `국민연금 ${N_RETIRE.national}, 퇴직연금 ${N_RETIRE.retire}, 개인연금 ${N_RETIRE.personal}을 받으면 한 달 ${N_RETIRE.month}입니다. 연으로 바꾸면 사적연금(퇴직·개인) ${N_RETIRE.privateYear}, 공적연금(국민) ${N_RETIRE.publicYear}입니다.`,
       `금액은 사람마다 다르지만, 세 층을 나눠 세는 방식은 같습니다. 세 층을 한 장에 그려 두면 어디가 비어 있는지 눈으로 보입니다.`,
     ],
   },
   {
     h: "세 층은 시작 시점이 다르다",
     ps: [
-      `국민연금은 출생연도에 따라 ${N_RETIRE.openAge} 사이에서 열립니다. 일찍 받으면 1년마다 ${N_RETIRE.earlyCut}씩 최대 ${N_RETIRE.earlyMax}까지 줄고, 늦추면 1년마다 ${N_RETIRE.laterAdd}씩 늘어납니다.`,
+      `국민연금은 출생연도에 따라 ${N_RETIRE.openAge} 사이에서 열립니다. 일찍 받으면 1년마다 ${N_RETIRE.earlyCut}(월 0.5%)씩 최대 ${N_RETIRE.earlyMax}까지 줄고, 늦추면 1년마다 ${N_RETIRE.laterAdd}씩 늘어납니다.`,
       `퇴직연금과 개인연금은 ${N_RETIRE.irpAge}부터, 가입 기간 ${N_RETIRE.irpYears}을 채우면 연금으로 받을 수 있습니다. 회사를 그만두면 퇴직연금은 IRP로 이어받습니다.`,
       `퇴직연금은 회사가 굴리는 DB와 내가 굴리는 DC로 나뉩니다. 어느 쪽이든 받을 때는 IRP로 모아 연금으로 받는 방식이 일반적입니다.`,
       `그래서 퇴직 뒤 국민연금이 열리기 전까지 몇 년은 비는 구간이 생깁니다. 이 구간을 무엇으로 메울지가 첫 번째 질문입니다.`,
@@ -877,8 +877,8 @@ const READING_RETIRE: ReadingSection[] = [
     h: "받는 순서와 세금",
     ps: [
       `비는 구간은 사적연금에서 먼저 꺼내 씁니다. 사적연금은 연 ${N_RETIRE.privateLimit}까지 연금소득세로 끝나고, 55~69세는 ${N_RETIRE.taxLow}, 70~79세는 ${N_RETIRE.tax70}입니다.`,
-      `이 선을 넘으면 다음 해에 종합과세되거나 ${N_RETIRE.separate} 분리과세를 고를 수 있습니다. 어느 쪽이 나은지는 다른 소득에 따라 달라집니다.`,
-      `그래서 인출 금액을 해마다 같은 선에서 나눠 받는 방식이 많이 쓰입니다.`,
+      `이 선을 넘으면 다음 해에 종합과세되거나 ${N_RETIRE.separate} 분리과세(다른 소득과 합치지 않고 정해진 세율로 끝내는 과세)를 고를 수 있습니다. 어느 쪽이 나은지는 다른 소득에 따라 달라집니다.`,
+      `그래서 인출(연금계좌에서 생활비로 꺼내는 것) 금액을 해마다 같은 선에서 나눠 받는 방식이 많이 쓰입니다.`,
       `비는 구간이 길수록 사적연금을 꺼내는 속도가 빨라집니다. 그만큼 나중에 받을 돈이 줄어들므로, 구간 길이와 인출 속도를 함께 적어 두고 시작합니다.`,
     ],
   },
@@ -886,7 +886,8 @@ const READING_RETIRE: ReadingSection[] = [
     h: "두 개의 선을 섞지 않기",
     ps: [
       `사적연금 ${N_RETIRE.privateLimit}은 세금 기준이고, 소득 합계 ${N_RETIRE.healthLimit}은 건강보험 피부양자 자격 기준입니다. 두 제도는 목적도 계산도 다릅니다.`,
-      `위 예시는 사적연금이 ${N_RETIRE.privateYear}이라 세금 기준 아래지만, 소득 합계는 ${N_RETIRE.incomeYear}이라 건보 기준 위입니다. 세금은 연금소득세로 끝나도 건보 자격은 따로 확인해야 합니다.`,
+      `위 예시는 사적연금이 ${N_RETIRE.privateYear}이라 세금 기준 아래지만, 공적연금만으로도 ${N_RETIRE.publicYear}이라 건보 기준 위입니다. 공단은 2026년 11월 현재 사적연금에 보험료를 부과하지 않으므로, 사적연금을 넣든 빼든 소득 요건은 넘습니다.`,
+      `다만 법령 문언(국민건강보험법 시행령 제41조①5호)은 연금소득 전체를 가리켜 사적연금도 포함됩니다. 판정은 공단에 내 소득 자료로 확인합니다.`,
       `자격은 소득뿐 아니라 재산도 함께 봅니다. 정확한 판단은 국민건강보험공단에 내 소득 자료로 확인합니다. 두 기준선은 해마다 같은 자리에서 다시 확인합니다.`,
     ],
   },
@@ -1017,8 +1018,8 @@ export const SCHOOL_LESSONS: AcademyLesson[] = [
       {
         label: "금융감독원 e-금융교육센터",
         what: "초등·청소년 금융교육 자료(용돈 관리·저축의 기본)",
-        url: "https://edu.fss.or.kr/",
-        host: "edu.fss.or.kr",
+        url: "https://www.fss.or.kr/edu/main/main.do",
+        host: "fss.or.kr",
       },
       {
         label: "통계청 — 소비자물가지수",
@@ -1124,8 +1125,8 @@ export const SCHOOL_LESSONS: AcademyLesson[] = [
       {
         label: "금융감독원 불법금융신고센터 — 1332",
         what: "보이스피싱·불법 대출·송금 요청을 신고하는 공식 창구",
-        url: "https://1332.fss.or.kr/",
-        host: "1332.fss.or.kr",
+        url: "https://www.fss.or.kr/s1332/",
+        host: "fss.or.kr",
       },
       {
         label: "경찰청 — 112",
@@ -1563,8 +1564,8 @@ export const SCHOOL_LESSONS: AcademyLesson[] = [
       {
         label: "금융감독원 e-금융교육센터",
         what: "분산과 위험의 관계를 예시로 설명한 공식 교육 자료",
-        url: "https://edu.fss.or.kr/",
-        host: "edu.fss.or.kr",
+        url: "https://www.fss.or.kr/edu/main/main.do",
+        host: "fss.or.kr",
       },
       {
         label: "금융투자협회 전자공시 — 펀드·ETF 구성",
@@ -1599,7 +1600,7 @@ export const SCHOOL_LESSONS: AcademyLesson[] = [
   {
     slug: "school-retire-3tier-order",
     track: "retire",
-    thesis: `국민연금 ${N_RETIRE.national}·퇴직연금 ${N_RETIRE.retire}·개인연금 ${N_RETIRE.personal}을 받으면 월 ${N_RETIRE.month}, 연 사적연금 ${N_RETIRE.privateYear}·소득 합계 ${N_RETIRE.incomeYear}입니다. ${N_RETIRE.privateLimit}(세금)과 ${N_RETIRE.healthLimit}(건보료) 두 선을 따로 봅니다.`,
+    thesis: `국민연금 ${N_RETIRE.national}·퇴직연금 ${N_RETIRE.retire}·개인연금 ${N_RETIRE.personal}을 받으면 월 ${N_RETIRE.month}, 연 사적연금 ${N_RETIRE.privateYear}·공적연금 ${N_RETIRE.publicYear}입니다. ${N_RETIRE.privateLimit}(세금)과 ${N_RETIRE.healthLimit}(건보료) 두 선을 따로 봅니다.`,
     step: 0,
     no: 1,
     label: "은퇴 1강",
@@ -1625,7 +1626,7 @@ export const SCHOOL_LESSONS: AcademyLesson[] = [
     keyNumbers: [
       { label: "월 합계", value: N_RETIRE.month },
       { label: "연 사적연금", value: N_RETIRE.privateYear },
-      { label: "연 소득 합계", value: N_RETIRE.incomeYear },
+      { label: "연 공적연금", value: N_RETIRE.publicYear },
     ],
     numbers: N_RETIRE,
     calculator: {
@@ -1639,7 +1640,7 @@ export const SCHOOL_LESSONS: AcademyLesson[] = [
         id: "sum",
         label: "세 층 합계",
         title: `${N_RETIRE.national} + ${N_RETIRE.retire} + ${N_RETIRE.personal} = 월 ${N_RETIRE.month}`,
-        settings: ["국민연금 월 100만원", "퇴직연금 월 50만원", "개인연금 월 30만원"],
+        settings: ["국민연금 월 170만원", "퇴직연금 월 50만원", "개인연금 월 30만원"],
         result: `월 ${N_RETIRE.month}`,
         expect: "금액은 가상 예시입니다.",
         href: "#sheet",
@@ -1658,8 +1659,8 @@ export const SCHOOL_LESSONS: AcademyLesson[] = [
       {
         id: "health",
         label: "건보 기준",
-        title: `${N_RETIRE.month} × 12개월 = ${N_RETIRE.incomeYear}`,
-        settings: ["세 층 합계 월 180만원", "소득 합계 연 2,000만원 기준", "재산도 함께 봄"],
+        title: `${N_RETIRE.national} × 12개월 = ${N_RETIRE.publicYear}`,
+        settings: ["국민연금 월 170만원", "공적연금만 건보 소득으로 봄(사적연금 미부과)", "소득 합계 연 2,000만원 기준"],
         result: `${N_RETIRE.healthLimit} 위`,
         expect: "세금이 끝나도 건보 자격은 따로 확인합니다.",
         href: "#sheet",

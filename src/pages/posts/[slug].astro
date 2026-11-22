@@ -50,6 +50,14 @@ const thumb = thumbOf(post);
 const thumbAlt = thumbAltOf(post);
 const thumbDim = thumbSize(thumb);
 
+/** gainType → 카드 라벨 — 같은 '차별점' 카드라도 무엇이 나은지 먼저 말한다 */
+const GAIN_LABEL: Record<string, string> = {
+  "clearer-answer": "더 분명한 답",
+  "original-data": "직접 계산한 숫자",
+  "stronger-opinion": "근거 있는 판단",
+};
+const gainLabel = post.data.gain ? (GAIN_LABEL[post.data.gainType ?? "clearer-answer"] ?? "이 글의 차이") : "";
+
 /**
  * 결론 앵커의 둘째 문장 — 이 글을 읽은 사람이 자기 계약·재무에서 대조할 지점.
  * 특정 상품의 가입·전환을 단정하지 않고, 확인할 항목만 가리킨다.
@@ -254,6 +262,13 @@ const jsonLd = graph([
             <span>{post.data.sources.length}곳에서 확인</span>
           </figcaption>
         </figure>
+
+        {post.data.gain && (
+          <div class="mx-auto mt-4 max-w-[66ch] rounded-xl border border-line bg-paper-deep/60 px-4 py-3" data-post-gain>
+            <p class="text-[11px] font-bold tracking-[0.14em] text-ink-faint">이 글에서 달라지는 것 · {gainLabel}</p>
+            <p class="mt-1.5 text-[12.5px] leading-[1.7] text-ink-soft">{post.data.gain}</p>
+          </div>
+        )}
 
         {/* A vs B 2칸 비교 — 우열 판정 없이 조건만 나란히 (frontmatter.compare) */}
         {post.data.compare && (

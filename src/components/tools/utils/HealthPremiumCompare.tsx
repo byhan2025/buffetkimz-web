@@ -9,6 +9,7 @@ import { AmountField, CaveatBox, Line, TableScroll, num } from "./fields-c";
  *  · 건강보험료율 7.19%(직장·지역 동일). 직장가입자는 가입자·사용자 각 50%(3.595%).
  *  · 장기요양보험료율 0.9448%(보수월액 대비) = 건강보험료의 13.14%.
  *  · 지역가입자 = 소득월액 × 7.19% + 재산보험료부과점수 × 211.5원.
+ *  · 소득월액 = 연간 소득 합계 ÷ 12, 다만 **연금·근로소득은 50%만 반영**(시행령 제44조③).
  *  · 재산점수: 재산세 과세표준 − 1억원 → 시행령 별표 4의 60등급 점수.
  *  · 임의계속가입: 퇴직 전 18개월 중 1년 이상 직장가입자, 최대 36개월, 보험료 100% 본인 부담.
  */
@@ -42,7 +43,8 @@ function propertyScore(baseWon: number) {
 
 export default function HealthPremiumCompare({ compact = false }: { compact?: boolean }) {
   const [salary, setSalary] = useState(5000000);
-  const [retireIncome, setRetireIncome] = useState(3600); // 만원/년
+  const [retireIncome, setRetireIncome] = useState(3600); // 사업·이자·배당 등 (만원/년)
+  const [pensionIncome, setPensionIncome] = useState(1200); // 연금·근로소득 (만원/년)
   const [propertyBase, setPropertyBase] = useState(45000); // 만원
 
   const calc = useMemo(() => {
@@ -53,8 +55,10 @@ export default function HealthPremiumCompare({ compact = false }: { compact?: bo
     const workTotal = workSelf + workLtc;
     const companyTotal = workHealth / 2 + (workHealth / 2) * LTC_RATIO;
 
-    // 지역
-    const incomeMonth = (retireIncome * 10000) / 12;
+    // 지역 — 연금·근로소득은 50%만 반영(시행령 제44조③)
+    const businessMonth = (retireIncome * 10000) / 12;
+    const pensionMonth = ((pensionIncome * 10000) / 12) * 0.5;
+    const incomeMonth = businessMonth + pensionMonth;
     const incomePart = incomeMonth * RATE;
     const ps = propertyScore(propertyBase * 10000);
     const propertyPart = ps.score * POINT_WON;
@@ -72,6 +76,8 @@ export default function HealthPremiumCompare({ compact = false }: { compact?: bo
       workTotal,
       companyTotal,
       incomeMonth,
+      businessMonth,
+      pensionMonth,
       incomePart,
       ps,
       propertyPart,
@@ -81,7 +87,7 @@ export default function HealthPremiumCompare({ compact = false }: { compact?: bo
       diff,
       optional,
     };
-  }, [salary, retireIncome, propertyBase]);
+  }, [salary, retireIncome, pensionIncome, propertyBase]);
 
   return (
     <UtilShell
@@ -116,7 +122,17 @@ export default function HealthPremiumCompare({ compact = false }: { compact?: bo
           max={30000}
           step={100}
           unit="만원"
-          hint="사업·이자·배당 등 종합소득 합계"
+          hint="사업·이자·배당 등 종합소득(100% 반영)"
+        />
+        <AmountField
+          label="퇴직 후 연금·근로소득"
+          value={pensionIncome}
+          onChange={setPensionIncome}
+          min={0}
+          max={30000}
+          step={100}
+          unit="만원"
+          hint="공적·사적연금·근로 — 소득월액에 50%만 반영"
         />
         <AmountField
           label="재산세 과세표준 합계"
@@ -162,7 +178,7 @@ export default function HealthPremiumCompare({ compact = false }: { compact?: bo
         <Line label="직장 본인 부담(50%)" value={won(calc.workSelf)} />
         <Line label="직장 장기요양(본인)" value={won(calc.workLtc)} sub="건강보험료 × 13.14%" />
         <Line label="회사 부담분" value={won(calc.companyTotal)} sub="본인과 같은 금액" />
-        <Line label="지역 소득월액" value={won(calc.incomeMonth)} sub={`연 ${num(retireIncome)}만원 ÷ 12`} />
+        <Line label="지역 소득월액" value={won(calc.incomeMonth)} sub={`사업·이자·배당 ${num(retireIncome)}만원 ÷ 12 + 연금·근로 ${num(pensionIncome)}만원 ÷ 12 × 50%`} />
         <Line label="지역 재산등급" value={calc.ps.grade ? `${calc.ps.grade}등급 · ${num(calc.ps.score)}점` : "0점(공제 후 없음)"} sub={`공제 후 ${num(Math.round(calc.ps.after))}만원`} />
         <Line label="지역 재산보험료" value={won(calc.propertyPart)} sub={`${num(calc.ps.score)}점 × 211.5원`} />
         <Line label="지역 장기요양" value={won(calc.regionLtc)} />
@@ -225,6 +241,7 @@ export default function HealthPremiumCompare({ compact = false }: { compact?: bo
         <CaveatBox
           title="계산에 넣지 않은 것"
           items={[
+            "지역가입자 소득월액은 연금·근로소득에 50%만 적용했습니다(시행령 제44조③). 사업·이자·배당은 100% 반영합니다.",
             "주택금융부채 공제(최대 5천만원), 임차 보증금 평가액, 경감률은 반영하지 않았습니다.",
             "지역가입자 최저·상한 보험료와 피부양자 등록 가능성은 계산하지 않습니다.",
             "보수 외 소득(이자·배당) 2,000만원 초과에 따른 추가 보험료는 별도입니다.",

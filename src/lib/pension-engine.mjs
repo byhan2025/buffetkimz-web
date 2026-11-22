@@ -155,6 +155,22 @@ export function pensionIncomeDeduction(totalPension) {
 }
 
 /**
+ * 원천징수 대상 금액 — 사적연금에서 연금소득공제(제47조의2)를 뺀 금액.
+ * 3.3~5.5% 원천징수는 수령액 전액이 아니라 '연금소득금액'(수령액 − 연금소득공제)에 붙는다.
+ * 공적연금이 함께 있으면 공제는 총연금액 기준으로 계산하고, 사적연금 몫만 비례로 나눈다.
+ * @param {number} privatePension 연간 사적연금 수령액
+ * @param {number} [publicPension] 연간 공적연금 수령액
+ */
+export function withholdingTaxableAmount(privatePension, publicPension = 0) {
+  const p = atLeastZero(privatePension);
+  const total = p + atLeastZero(publicPension);
+  if (total === 0) return 0;
+  const deduction = pensionIncomeDeduction(total);
+  const share = (deduction * p) / total;
+  return won(atLeastZero(p - share));
+}
+
+/**
  * 종합소득 산출세액 — 소득세법 제55조①.
  * @param {number} taxBase 종합소득 과세표준
  */
@@ -255,13 +271,19 @@ export function compareRoutes({
 
   const options = [];
   if (belowThreshold) {
-    const w = won(P * rate.totalRate);
+    const taxableWithheld = withholdingTaxableAmount(P, publicPension);
+    const w = won(taxableWithheld * rate.totalRate);
     options.push({
       key: "withholding",
       label: `연금소득세 ${(rate.totalRate * 100).toFixed(1)}%로 종결`,
       tax: w,
       basis: "제129조①5호의2 원천징수 — 다른 소득과 합산하지 않음",
-      detail: { rate: rate.totalRate, rateLabel: rate.label },
+      detail: {
+        rate: rate.totalRate,
+        rateLabel: rate.label,
+        pensionIncomeDeduction: pensionIncomeDeduction(P + atLeastZero(publicPension)),
+        taxableAmount: taxableWithheld,
+      },
     });
     options.push({
       key: "comprehensive",
@@ -308,8 +330,8 @@ export function compareRoutes({
     winner: winner.key,
     winnerLabel: winner.label,
     difference: loser.tax - winner.tax,
-    /** 원천징수로 이미 낸 세금(1,500만원 이하 구간의 기준선) */
-    withheld: won(P * rate.totalRate),
+    /** 원천징수로 이미 낸 세금(1,500만원 이하 구간의 기준선) — 과세대상 = 수령액 − 연금소득공제 */
+    withheld: won(withholdingTaxableAmount(P, publicPension) * rate.totalRate),
     rate: rate.totalRate,
     rateLabel: rate.label,
     comprehensiveDelta,
@@ -481,7 +503,8 @@ export function simulateWithdrawalOrder({
     }
 
     const taxable = won(fromTaxCredited + fromEarnings);
-    const pensionTax = won(taxable * rate.totalRate);
+    /* 3.3~5.5%는 수령액이 아니라 연금소득금액(수령액 − 연금소득공제)에 붙는다 */
+    const pensionTax = won(withholdingTaxableAmount(taxable) * rate.totalRate);
     const deferredTax = won(fromDeferred * (i > 20 ? LAW.deferredRetirementRate.over20y : i > 10 ? LAW.deferredRetirementRate.over10y : LAW.deferredRetirementRate.default));
 
     // 한도 초과분 = 연금외수령 → 기타소득 15% (+지방 1.5%). 과세제외·퇴직소득 몫은 별도 처리.
@@ -786,6 +809,7 @@ export default {
   ELIGIBLE_SCOPE,
   withholdingRate,
   pensionIncomeDeduction,
+  withholdingTaxableAmount,
   progressiveIncomeTax,
   comprehensivePensionTax,
   compareRoutes,

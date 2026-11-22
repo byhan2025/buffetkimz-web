@@ -15,6 +15,8 @@ import { AmountField, CaveatBox, Line, TableScroll } from "./fields-c";
 const MAN = 10000;
 const THRESHOLD = 2000; // 만원
 const RATE = INCOME_TAX.dividendWithLocal;
+/** 지방소득세 10% — 초과분 추가 부담을 원천징수율(15.4%, 지방세 포함)과 같은 기준으로 맞출 때 곱한다 */
+const LOCAL = 1.1;
 
 export default function DividendTaxCalc({ compact = false }: { compact?: boolean }) {
   const [interest, setInterest] = useState(500); // 만원
@@ -32,7 +34,10 @@ export default function DividendTaxCalc({ compact = false }: { compact?: boolean
     const over = Math.max(0, total - THRESHOLD);
     const room = Math.max(0, THRESHOLD - total);
     const marginalRate = Number(marginal);
-    const extraRate = Math.max(0, marginalRate - RATE * 100);
+    /* 비교과세 ①(2,000만×14% + 초과분×한계세율) − ②(전액×14%) = 초과분×(한계세율−14%).
+     * 원천징수율 15.4%는 지방소득세를 포함한 값이므로, 한계세율에도 1.1을 곱해 같은 기준으로 맞춘다.
+     * 한계세율이 6%처럼 낮으면 ①이 ②보다 작아져 추가 부담은 0원이다. */
+    const extraRate = Math.max(0, marginalRate * LOCAL - RATE * 100);
     const extraTax = Math.round(over * MAN * (extraRate / 100));
     const afterTax = total * MAN - withheld;
     const effectiveRate = total > 0 ? withheld / (total * MAN) : 0;
@@ -178,15 +183,17 @@ export default function DividendTaxCalc({ compact = false }: { compact?: boolean
               value={marginal}
               onChange={setMarginal}
               options={[
+                { value: "6", label: "6%" },
                 { value: "15", label: "15%" },
                 { value: "24", label: "24%" },
                 { value: "35", label: "35%" },
                 { value: "38", label: "38%" },
+                { value: "42", label: "42%" },
               ]}
               hint="근로소득과 합산될 때 적용될 구간입니다. 모르면 24%로 두고 보세요."
             />
             <Line label="기준 초과액" value={`${calc.over.toLocaleString("ko-KR")}만원`} tone={calc.over > 0 ? "clay" : "default"} />
-            <Line label="한계세율 − 원천징수율" value={`${calc.extraRate.toFixed(1)}%p`} />
+            <Line label="한계세율(지방세 포함) − 원천징수율" value={`${calc.extraRate.toFixed(1)}%p`} />
             <Line
               label="초과분 추가 부담 (간이)"
               value={formatKrw(calc.extraTax)}
@@ -195,7 +202,9 @@ export default function DividendTaxCalc({ compact = false }: { compact?: boolean
             />
             <p className="mt-2 text-[12px] leading-relaxed text-ink-faint">
               실제 종합과세는 금융소득 전액을 다른 소득과 합산해 누진세율로 계산하고, 이미 낸 15.4%를
-              기납부세액으로 빼는 방식입니다. 위 금액은 초과분만 가지고 계산한 어림값입니다.
+              기납부세액으로 빼는 방식입니다. 위 금액은 초과분만 가지고 계산한 어림값이며, 한계세율에는
+              지방소득세 10%를 곱해 원천징수율과 같은 기준으로 맞추었습니다(한계세율 24% → 26.4% − 15.4% =
+              11.0%p, 초과분 1,000만원이면 110만원).
             </p>
           </div>
 

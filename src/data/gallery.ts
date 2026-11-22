@@ -633,7 +633,7 @@ export const galleryItems: GalleryItem[] = [
     title: "퇴직연금 DB·DC·IRP, 어디에 담을까",
     tagline: "손글씨 카드 6장 · 임금상승률 vs 운용수익률",
     summary:
-      "퇴직금은 다 똑같지 않습니다. 임금상승률이 높고 오래 다니면 DB, 직접 굴리고 이직이 잦으면 DC, 받은 퇴직금과 추가 세액공제는 IRP로 갑니다. 수령할 때 연금으로 받으면 퇴직소득세 30~40%를 감면받는 것까지 6장으로 담았습니다.",
+      "퇴직금은 다 똑같지 않습니다. 임금상승률이 높고 오래 다니면 DB, 직접 굴리고 이직이 잦으면 DC, 받은 퇴직금과 추가 세액공제는 IRP로 갑니다. 수령할 때 연금으로 나눠 받으면 퇴직소득세를 30~50% 감면받는 것(1~10년 30%·11~20년 40%·21년~ 50%)까지 6장으로 담았습니다.",
     category: "carousel",
     createdAt: "2026-11-22",
     tags: ["카드뉴스", "손글씨 다이어그램", "퇴직연금", "DB", "DC", "IRP", "퇴직소득세"],
@@ -678,7 +678,7 @@ export const galleryItems: GalleryItem[] = [
         width: W,
         height: H,
         alt: "수령 체크 — 모래시계에서 동전이 손으로 떨어지고 달력과 단지가 놓인 장면",
-        caption: "수령 — 일시금 vs 연금, 퇴직소득세 30~40% 감면",
+        caption: "수령 — 일시금 vs 연금, 퇴직소득세 30~50% 감면(1~10년 30%·11~20년 40%·21년~ 50%)",
       },
     ],
     basis:
@@ -728,7 +728,7 @@ export const galleryItems: GalleryItem[] = [
         width: W,
         height: H,
         alt: "공백 4·5 — 병원과 저울, 서류 더미와 동전 주머니를 가리키는 마스코트",
-        caption: "공백 ④ ⑤ — 수술비 종수와 사적연금 2,000만 원(피부양자)",
+        caption: "공백 ④ ⑤ — 수술비 종수와 공적연금 포함 소득 합계 2,000만 원(피부양자)",
       },
       {
         src: "/gallery/3d-coverage-gaps-06.png",
@@ -1030,7 +1030,7 @@ export const galleryItems: GalleryItem[] = [
         width: W,
         height: H,
         alt: "1,500만 원 초과 — 금빛 아치문과 크림색 아치문 사이에서 금화와 원반을 양손에 들고 저울질하는 캐릭터",
-        caption: "초과 시 — 16.5% 분리과세 vs 종합과세",
+        caption: "초과 시 — 16.5% 분리과세 vs 종합과세, 다른 소득이 적으면 종합과세가 유리할 수도",
       },
       {
         src: "/gallery/3d-pension-1500-06.png",
@@ -1184,7 +1184,7 @@ export const galleryItems: GalleryItem[] = [
     summary:
       "같은 월급인데 환급액이 달라지는 이유를 6장의 3D 스토리로 따라갑니다. 연금저축 600만 원 → IRP 300만 원 → 16.5% 환급 → 해지 주의 → 12월 31일 마감 순서입니다.",
     category: "carousel",
-    createdAt: "2026-11-21",
+    createdAt: "2026-11-22",
     tags: ["연말정산", "연금저축", "IRP", "세액공제", "3D 카드"],
     slides: [
       {
@@ -1231,7 +1231,7 @@ export const galleryItems: GalleryItem[] = [
       },
     ],
     basis:
-      "소득세법 제59조의3·제21조, 국세청 연말정산·연금계좌 세액공제 안내 · 기준 2026. 11. 21. · 총급여 5,500만 원 이하 16.5%(지방소득세 포함) 가정",
+      "소득세법 제59조의3·제21조, 국세청 연말정산·연금계좌 세액공제 안내 · 기준 2026. 11. 22. · 총급여 5,500만 원 이하 16.5%(지방소득세 포함) 가정",
     related: [
       { label: "3편 — 연말 연금저축 600·IRP 900·ISA 전환 300", href: "/posts/pension-master-03-yearend-900" },
       { label: "연금저축·IRP 세액공제 계산기", href: "/apps/pension-tax/run" },
@@ -1244,7 +1244,7 @@ export const galleryItems: GalleryItem[] = [
     summary:
       "이자·배당에 붙는 15.4%를 그냥 내지 않으려면 ISA부터 봅니다. 비과세 한도 → 손익통산 → 납입한도 → 연금계좌 전환까지 6장으로 정리했습니다.",
     category: "carousel",
-    createdAt: "2026-11-21",
+    createdAt: "2026-11-22",
     tags: ["ISA", "비과세", "손익통산", "납입한도", "연금전환", "3D 카드"],
     slides: [
       {
@@ -1291,7 +1291,7 @@ export const galleryItems: GalleryItem[] = [
       },
     ],
     basis:
-      "조세특례제한법 제91조의18, 소득세법 제129조·제59조의3 · 기준 2026. 11. 21. · 일반형·서민형 비과세 한도와 9.9% 분리과세 기준",
+      "조세특례제한법 제91조의18, 소득세법 제129조·제59조의3 · 기준 2026. 11. 22. · 일반형·서민형 비과세 한도와 9.9% 분리과세 기준",
     related: [
       { label: "ISA 만기 자금, 60일 안에 옮길 때", href: "/posts/isa-pension-300" },
       { label: "4대 계좌 세후 비교 시뮬레이터", href: "/apps/account-tax-compare/run" },
@@ -1304,10 +1304,10 @@ export const galleryItems: GalleryItem[] = [
     summary:
       "같은 5,000만원 수익이 네 계좌에서 얼마씩 남는지 4장으로 정리했습니다. 계좌별 세금 시점 → 세후 숫자 → 비교할 때의 조건 순서로, 한 장에 한 가지만 담았습니다.",
     category: "carousel",
-    createdAt: "2026-11-21",
+    createdAt: "2026-11-22",
     tags: ["4대 계좌", "ISA", "연금저축", "IRP", "세후 비교"],
     slides: accountsSlides,
-    basis: "소득세법 제17조·제129조, 조세특례제한법 제91조의18 · 기준 2026. 11. 21. · 과세대상 이익 5,000만원 가정",
+    basis: "소득세법 제17조·제129조, 조세특례제한법 제91조의18 · 기준 2026. 11. 22. · 과세대상 이익 5,000만원 가정",
     related: [
       { label: "2편 — 5,000만원 수익 시 4계좌 세후 차이", href: "/posts/pension-master-02-tax-compare" },
       { label: "4대 계좌 세후 비교 시뮬레이터", href: "/apps/account-tax-compare/run" },
@@ -1320,10 +1320,10 @@ export const galleryItems: GalleryItem[] = [
     summary:
       "연말정산 전에 확인할 세 숫자를 3장으로 끊었습니다. 600과 900은 공제대상 납입액, 300은 ISA에서 옮겼을 때 늘어나는 공제대상 한도입니다.",
     category: "cardnews",
-    createdAt: "2026-11-21",
+    createdAt: "2026-11-22",
     tags: ["세액공제", "연금저축", "IRP", "ISA 전환", "연말정산"],
     slides: yearendSlides,
-    basis: "소득세법 제59조의3·시행령 제118조의2·제118조의3 · 기준 2026. 11. 21.",
+    basis: "소득세법 제59조의3·시행령 제118조의2·제118조의3 · 기준 2026. 11. 22.",
     related: [
       { label: "3편 — 연말 연금저축 600·IRP 900·ISA 전환 300", href: "/posts/pension-master-03-yearend-900" },
       { label: "연금저축·IRP 세액공제 계산기", href: "/apps/pension-tax/run" },
@@ -1336,7 +1336,7 @@ export const galleryItems: GalleryItem[] = [
     summary:
       "연금계좌에서 돈이 나오는 순서를 한 장에 담았습니다. 세액공제 안 받은 원금 → 퇴직금 → 공제받은 원금 → 운용수익 순서와, 각 단계의 과세 방식을 함께 봅니다.",
     category: "infographic",
-    createdAt: "2026-11-21",
+    createdAt: "2026-11-22",
     tags: ["연금 인출", "인출 순서", "1,500만원", "연금소득세"],
     slides: [
       {
@@ -1347,7 +1347,7 @@ export const galleryItems: GalleryItem[] = [
         caption: "인출 순서 4단계와 단계별 세율",
       },
     ],
-    basis: "소득세법 제20조의3·제129조, 시행령 제40조의2 · 기준 2026. 11. 21.",
+    basis: "소득세법 제20조의3·제129조, 시행령 제40조의2 · 기준 2026. 11. 22.",
     related: [
       { label: "5편 — 인출 순서 4단계와 연 1,500만원", href: "/posts/pension-master-05-draw-1500" },
       { label: "연금 인출·세금 시뮬레이터", href: "/apps/pension-draw/run" },
@@ -1360,7 +1360,7 @@ export const galleryItems: GalleryItem[] = [
     summary:
       "은퇴 5~10년 전에 확인할 일곱 가지를 체크리스트 한 장으로 묶었습니다. 55세·5년 요건부터 건보료 기준, IRP 중도인출 사유까지 순서대로 확인합니다.",
     category: "checklist",
-    createdAt: "2026-11-21",
+    createdAt: "2026-11-22",
     tags: ["은퇴 점검", "건강보험료", "IRP 중도인출", "체크리스트"],
     slides: [
       {
@@ -1371,7 +1371,7 @@ export const galleryItems: GalleryItem[] = [
         caption: "은퇴 전 확인 7항목",
       },
     ],
-    basis: "국민건강보험법 시행규칙 별표 1의2, 근로자퇴직급여 보장법 시행령 제18조 · 기준 2026. 11. 21.",
+    basis: "국민건강보험법 시행규칙 별표 1의2, 근로자퇴직급여 보장법 시행령 제18조 · 기준 2026. 11. 22.",
     related: [
       { label: "6편 — 은퇴 전후 건보료·중도인출 체크리스트", href: "/posts/pension-master-06-healthcheck" },
     ],

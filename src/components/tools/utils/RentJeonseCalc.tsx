@@ -24,7 +24,8 @@ export default function RentJeonseCalc({ compact = false }: { compact?: boolean 
   const [baseRate, setBaseRate] = useState(2.5);
 
   const calc = useMemo(() => {
-    const gap = jeonse - deposit; // 만원
+    const invalid = deposit > jeonse; // 월세보증금이 전세보증금보다 큰 비현실 입력
+    const gap = Math.max(0, jeonse - deposit); // 만원
     const conversion = gap > 0 ? ((rent * 12) / gap) * 100 : 0;
     const equivalentJeonse = marketRate > 0 ? deposit + (rent * 12) / (marketRate / 100) : jeonse;
 
@@ -44,6 +45,7 @@ export default function RentJeonseCalc({ compact = false }: { compact?: boolean 
 
     return {
       gap,
+      invalid,
       conversion,
       equivalentJeonse,
       loanAmount,
@@ -70,6 +72,15 @@ export default function RentJeonseCalc({ compact = false }: { compact?: boolean 
       subtitle="전월세 전환율을 계산하고, 대출이자와 예금이자 기회비용까지 넣어 연간 주거비를 비교합니다."
       example="전세 3억·월세보증금 3,000만·월세 60만원으로 시작합니다. 보증금과 월세를 바꾸면 전환율이 즉시 바뀝니다."
     >
+      {calc.invalid && (
+        <p
+          className="mt-2 rounded-lg border border-clay/40 bg-[#fdf3ee] px-3 py-2 text-[12.5px] leading-[1.65] text-clay"
+          data-rent-invalid
+        >
+          월세보증금({formatMan(deposit)})이 전세보증금({formatMan(jeonse)})보다 큽니다. 전환율은 보증금 차액으로
+          계산하므로 차액을 0으로 두었습니다 — 두 보증금을 서로 바꿔 입력하세요.
+        </p>
+      )}
       <div className="grid gap-1 md:grid-cols-2 md:gap-x-8">
         <AmountField
           label="전세보증금"
