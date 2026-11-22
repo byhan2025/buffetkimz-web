@@ -5,8 +5,88 @@
     <link>https://byhan2025.github.io/buffetkimz-web/</link>
     <description>금융·투자·연금·노후·재무를 하나의 기준으로 읽는 금융 포털. 시장 지표와 오늘의 브리핑, 직접 계산해 보는 금융 도구, 앱스토어, 투자백서를 한곳에 모았습니다. 모든 글과 도구에 기준일과 출처를 붙입니다.</description>
     <language>ko</language>
-    <lastBuildDate>Sun, 22 Nov 2026 08:36:29 GMT</lastBuildDate>
+    <lastBuildDate>Sun, 22 Nov 2026 08:58:54 GMT</lastBuildDate>
     <atom:link href="https://byhan2025.github.io/buffetkimz-web/rss.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>청약통장에 25만 원씩 — 넣는 돈과 인정되는 돈이 다르다</title>
+      <link>https://byhan2025.github.io/buffetkimz-web/posts/economy-subscription-25/</link>
+      <guid isPermaLink="true">https://byhan2025.github.io/buffetkimz-web/posts/economy-subscription-25/</guid>
+      <category>경제</category>
+      <pubDate>Sun, 22 Nov 2026 00:00:00 GMT</pubDate>
+      <description>주택청약종합저축은 월 2만~50만 원을 넣을 수 있지만, 순위를 가르는 저축총액에는 월 25만원까지만 인정됩니다. 25만원씩 10년이면 3,000만원, 10만원씩이면 1,200만원입니다.</description>
+    </item>
+    <item>
+      <title>이자·배당이 2,000만 원을 넘을 때 — 전액이 아니라 초과분부터 세율이 오른다</title>
+      <link>https://byhan2025.github.io/buffetkimz-web/posts/finance-financial-income-2000/</link>
+      <guid isPermaLink="true">https://byhan2025.github.io/buffetkimz-web/posts/finance-financial-income-2000/</guid>
+      <category>금융</category>
+      <pubDate>Sun, 22 Nov 2026 00:00:00 GMT</pubDate>
+      <description>금융소득 2,000만원을 넘기면 전액에 누진세율이 붙는다고 오해하기 쉽습니다. 실제로는 2,000만원까지 14%로 계산하고, 초과분에 내 한계세율과 14%의 차이만큼만 더 붙는 비교과세 구조입니다.</description>
+    </item>
+    <item>
+      <title>부모님이 준 5,000만 원, 10년 공제는 부모 합쳐 한 번이다</title>
+      <link>https://byhan2025.github.io/buffetkimz-web/posts/finance-gift-10year-limit/</link>
+      <guid isPermaLink="true">https://byhan2025.github.io/buffetkimz-web/posts/finance-gift-10year-limit/</guid>
+      <category>금융</category>
+      <pubDate>Sun, 22 Nov 2026 00:00:00 GMT</pubDate>
+      <description>성인 자녀가 부모님에게 10년 동안 증여세 없이 받을 수 있는 금액은 5,000만원입니다. 아버지와 어머니에게 각각 받아 1억원이 된다는 설명은 공제 기준을 증여자 개인이 아니라 관계 묶음으로 보기 때문에 틀립니다.</description>
+    </item>
+    <item>
+      <title>부모님 건보료 피부양자, 11월에 바뀌는 이유와 지역가입자 계산</title>
+      <link>https://byhan2025.github.io/buffetkimz-web/posts/finance-health-dependent/</link>
+      <guid isPermaLink="true">https://byhan2025.github.io/buffetkimz-web/posts/finance-health-dependent/</guid>
+      <category>금융</category>
+      <pubDate>Sun, 22 Nov 2026 00:00:00 GMT</pubDate>
+      <description>피부양자는 소득 합계 연 2,000만원과 재산세 과세표준 5억 4천만원을 모두 채워야 유지됩니다. 11월에 전년도 소득과 6월 1일 재산 자료가 새로 반영되므로 탈락 통지도 그때 몰립니다.</description>
+    </item>
+    <item>
+      <title>버팀목 전세대출 연 2.5~3.5%, 한도 1억 2,000만 원의 조건</title>
+      <link>https://byhan2025.github.io/buffetkimz-web/posts/finance-jeonse-buttimok/</link>
+      <guid isPermaLink="true">https://byhan2025.github.io/buffetkimz-web/posts/finance-jeonse-buttimok/</guid>
+      <category>금융</category>
+      <pubDate>Sun, 22 Nov 2026 00:00:00 GMT</pubDate>
+      <description>버팀목 전세자금대출은 부부합산 소득과 임차보증금에 따라 연 2.5~3.5%가 적용되고, 일반가구 한도는 수도권 1억 2,000만 원입니다. 소득·순자산·보증금 상한과 시중은행과 비교할 지점을 정리했습니다.</description>
+    </item>
+    <item>
+      <title>금리 1%p 오르면 채권 가격은 얼마나 빠지나 — 듀레이션 5년이면 5%</title>
+      <link>https://byhan2025.github.io/buffetkimz-web/posts/invest-bond-duration/</link>
+      <guid isPermaLink="true">https://byhan2025.github.io/buffetkimz-web/posts/invest-bond-duration/</guid>
+      <category>투자</category>
+      <pubDate>Sun, 22 Nov 2026 00:00:00 GMT</pubDate>
+      <description>듀레이션이 5년인 채권은 시장금리가 1%포인트 오르면 가격이 약 5% 떨어집니다. 만기가 아니라 현금흐름의 평균 회수기간으로 계산한 민감도이고, 같은 채권이라도 이자와 매매차익의 세금이 다릅니다.</description>
+    </item>
+    <item>
+      <title>환헤지 ETF의 연 2%p 비용 — 20년이면 최종 금액이 30% 줄어든다</title>
+      <link>https://byhan2025.github.io/buffetkimz-web/posts/invest-fx-hedge-cost/</link>
+      <guid isPermaLink="true">https://byhan2025.github.io/buffetkimz-web/posts/invest-fx-hedge-cost/</guid>
+      <category>투자</category>
+      <pubDate>Sun, 22 Nov 2026 00:00:00 GMT</pubDate>
+      <description>같은 S&amp;P500을 담아도 환헤지형과 환노출형의 1년 수익률은 5%포인트 넘게 벌어집니다. 헤지 비용은 두 나라 금리 차이에서 나오고 매년 다시 걸리기 때문에, 장기 적립에서는 조용히 쌓입니다.</description>
+    </item>
+    <item>
+      <title>해외주식 250만 원 공제, 12월 31일에 팔면 다음 해로 넘어간다</title>
+      <link>https://byhan2025.github.io/buffetkimz-web/posts/invest-overseas-stock-tax/</link>
+      <guid isPermaLink="true">https://byhan2025.github.io/buffetkimz-web/posts/invest-overseas-stock-tax/</guid>
+      <category>투자</category>
+      <pubDate>Sun, 22 Nov 2026 00:00:00 GMT</pubDate>
+      <description>해외주식은 소액 투자자도 과세 대상이고, 같은 해 이익과 손실을 합쳐 250만 원을 넘는 금액에 22%를 냅니다. 어느 해 소득인지는 체결일이 아니라 결제일로 정해져 연말 매도 계획이 달라집니다.</description>
+    </item>
+    <item>
+      <title>연금저축 중도해지, 16.5% vs 3.3~5.5% — 갈리는 여섯 가지 사유</title>
+      <link>https://byhan2025.github.io/buffetkimz-web/posts/pension-early-withdrawal-165/</link>
+      <guid isPermaLink="true">https://byhan2025.github.io/buffetkimz-web/posts/pension-early-withdrawal-165/</guid>
+      <category>연금</category>
+      <pubDate>Sun, 22 Nov 2026 00:00:00 GMT</pubDate>
+      <description>연금저축을 55세 전에 깨면 세액공제 받은 납입금과 운용수익에 기타소득세 16.5%가 붙습니다. 같은 돈도 법이 정한 부득이한 사유면 3.3~5.5%로 줄어, 1,000만원 기준 110만원이 갈립니다.</description>
+    </item>
+    <item>
+      <title>퇴직금 1억, 근속 20년이면 세금 123만 원 — DB·DC·IRP가 가르는 것</title>
+      <link>https://byhan2025.github.io/buffetkimz-web/posts/retire-severance-db-dc/</link>
+      <guid isPermaLink="true">https://byhan2025.github.io/buffetkimz-web/posts/retire-severance-db-dc/</guid>
+      <category>노후준비</category>
+      <pubDate>Sun, 22 Nov 2026 00:00:00 GMT</pubDate>
+      <description>같은 1억 원이라도 근속 3년이면 퇴직소득세가 1,599만 원, 20년이면 123만 원입니다. 근속연수로 나눠 1년치로 환산해 세율을 매기는 구조와 DB·DC·IRP에서 갈리는 지점을 정리했습니다.</description>
+    </item>
     <item>
       <title>ISA 만기 자금, 60일 안에 옮길 때 늘어나는 한도</title>
       <link>https://byhan2025.github.io/buffetkimz-web/posts/isa-pension-300/</link>
