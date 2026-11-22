@@ -1,16 +1,16 @@
 [
   {
-    "slug": "pension-master-02-tax-compare",
-    "out": "public/thumbs/pension-master-02-tax-compare.webp",
-    "bytes": 52100,
+    "slug": "economy-seoul-redev-supply",
+    "out": "public/thumbs/economy-seoul-redev-supply.webp",
+    "bytes": 48268,
     "lines": [
       {
-        "text": "같은 5,000만원",
+        "text": "서울 52만 가구",
         "size": 64,
         "overflow": false
       },
       {
-        "text": "남는 돈은 다르다",
+        "text": "착공까지 14.2년",
         "size": 64,
         "overflow": false
       }

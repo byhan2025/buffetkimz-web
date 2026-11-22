@@ -8,6 +8,24 @@
   },
   "items": [
     {
+      "slug": "economy-seoul-redev-supply",
+      "out": "public/thumbs/economy-seoul-redev-supply.webp",
+      "art": "downloads/thumbs-raw/economy-seoul-redev-supply.png",
+      "badge": [
+        "경제 · 주택",
+        "2026.11"
+      ],
+      "accent": "#F2D08C",
+      "headline": [
+        "서울 52만 가구",
+        "착공까지 14.2년"
+      ],
+      "accentLine": 1,
+      "sub": "계획과 입주 사이, 단계로 읽는 공급 시간표",
+      "date": "2026.11.23",
+      "alt": "어두운 서재 책상 위의 아파트 모형과 타워크레인, 말린 도면 — 서울 정비사업 단계와 착공까지 걸리는 시간"
+    },
+    {
       "slug": "silson-switch-2026",
       "out": "public/thumbs/silson-switch-2026.webp",
       "art": "downloads/thumbs-raw/silson-switch-2026.png",

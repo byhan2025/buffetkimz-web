@@ -1,0 +1,139 @@
+{
+  "slug": "economy-seoul-redev-supply",
+  "reviewedDraftHash": "sha256:faccb46cfc2dc986c55c82a5f5f978f180552e34ff5cca7d586f4a10f5d9b98b",
+  "hashAlgo": "sha256",
+  "hashSource": "draft-file",
+  "draftPath": "/workspace/apps/buffetkimz-web/drafts/2026-11-23-economy-seoul-redev-supply.md",
+  "scores": {
+    "content": 27,
+    "evidence": 23,
+    "search": 18,
+    "ai": 13,
+    "tech": 9
+  },
+  "total": 90,
+  "p0": [],
+  "blocking": false,
+  "reviewer": "보반과장 + 뮤즈대리",
+  "reviewedAt": "2026-11-23T05:41:12+09:00",
+  "rubric": {
+    "content": 30,
+    "evidence": 25,
+    "search": 20,
+    "ai": 15,
+    "tech": 10
+  },
+  "minTotal": 90,
+  "merge": "per-category-min",
+  "keys": [
+    {
+      "reviewer": "보반과장",
+      "key": 1,
+      "role": "수치·법령·1차 출처·4연동·빌드 (1-Key)",
+      "scope": [
+        "서울 열린데이터광장 OA-22856 원자료 496행 직접 재계산 대조",
+        "법령 시행일(도시 및 주거환경정비법, 시행 2026-07-01) 확인",
+        "1차 출처 URL 5건 중 3건 공공·법령 원문 확인",
+        "비중(80:20)·금지어·Answer-First·Information-Gain 게이트 dry-run 통과 확인",
+        "4연동 대상 판정(글 생성 / 계산기·일정·카드 해당 없음 사유 기록)"
+      ],
+      "scores": {
+        "content": 28,
+        "evidence": 24,
+        "search": 18,
+        "ai": 13,
+        "tech": 9
+      },
+      "total": 92,
+      "p0": [],
+      "blocking": false,
+      "notes": [
+        "표·본문 21개 수치를 원자료 재계산값과 1:1 대조 — 불일치 0건(증적: reports/buffetkimz-web/s5-20261123/verification.md)",
+        "496개 구역·52만970세대·착공 62곳 4만4,726세대(8.6%)·구역지정→착공 중앙값 14.2년 모두 원자료에서 재현",
+        "단계 전이 중앙값 합 12.6년과 전체 중앙값 14.2년이 다른 이유를 본문에 명시 — 모순으로 읽히지 않게 처리",
+        "1~7월 인허가 82.8%는 서울시 원자료를 직접 확보하지 못해 본문에서 제외(2차 인용만으로 수치를 싣지 않음) — 근거 -1",
+        "도시정비법 시행일·법률번호 표기, 폐지 법령 아님을 국가법령정보센터로 확인",
+        "4연동은 글 1곳만 생성 — 계산기·일정·카드 해당 없음 사유를 plan.json과 verification.md에 기록(억지 변경 없음) — 근거·구조 감점 반영",
+        "개별 구역 사례·지역명 없이 시 전체 집계로만 서술 — 내용 감점 -2",
+        "dry-run 결과 오류는 리뷰 파일 부재 1건뿐, 문체·금지어·비중·출처 게이트 오류 0"
+      ],
+      "reviewedAt": "2026-11-23T05:52:00+09:00"
+    },
+    {
+      "reviewer": "뮤즈대리",
+      "key": 2,
+      "role": "시각·카드·390px 실물 UX·문체 (2-Key)",
+      "scope": [
+        "390px 실측 기준선(reports/buffetkimz-web/pipeline-v2/mobile-390.json, failures 0·가로 넘침 0)",
+        "4열 표의 모바일 카드 전환(.table-stack, ≤639px) 적용 대상 확인",
+        "대표이미지 1200×630 렌더·문안 대비 실측(8.94:1)",
+        "문체·호흡·금지어·초보자 눈높이 검토"
+      ],
+      "scores": {
+        "content": 27,
+        "evidence": 23,
+        "search": 18,
+        "ai": 13,
+        "tech": 9
+      },
+      "total": 90,
+      "p0": [],
+      "blocking": false,
+      "notes": [
+        "표는 4열이라 390px에서 행이 카드로 펼쳐짐(Base.astro가 data-label을 붙이고 .table-stack 적용). 가로 스크롤 의존 없음",
+        "직전 390px 전수 실측(2026-11-22 21:03) failures 0 · 가로 넘침 0px · 본문 16.5px/행간 1.72 기준선 위에서 작성",
+        "표 셀 값이 모두 5~10자 이내(4만4,726·17만7,830)라 카드 전환 시 줄바꿈 과다 없음",
+        "대표이미지: 어두운 서재·아파트 모형·크레인, 헤드라인 2줄 12자 이내, 강조색 1줄, 텍스트 대비 8.94:1 — 브랜드 톤 유지",
+        "문체: 첫 문단에서 답(8.6%)을 먼저 주고 표→해석→확인 순서로 진행. 금지어·과장·영업 표현 0",
+        "초보자 눈높이: '중앙값'이 처음 나올 때 뜻을 풀지 않음 — 본문 흐름상 숫자 예시로 이해되나, 설명 한 줄이 있으면 더 좋음(감점 -1)",
+        "제목·소제목에 검색어(서울 정비사업·착공·52만 가구) 포함, 태그 3개 — 목록 카드에서 주제가 즉시 읽힘"
+      ],
+      "reviewedAt": "2026-11-23T05:54:00+09:00"
+    }
+  ],
+  "keyTotals": {
+    "보반과장": 92,
+    "뮤즈대리": 90
+  },
+  "gate95": {
+    "reviewers": [
+      "보반과장",
+      "뮤즈대리"
+    ],
+    "scores": {
+      "numbers": 25,
+      "law": 20,
+      "sources": 15,
+      "osmu": 12,
+      "style": 15,
+      "mobile": 10
+    },
+    "total": 97,
+    "zeroItems": [],
+    "minTotal": 95,
+    "notes": [
+      "수치 25/25 — 원자료 재계산과 21개 항목 전수 일치, 불일치 0",
+      "법령·시행일 20/20 — 도시정비법 법률 제21447호 시행 2026-07-01 표기, 데이터 기준일 2026-06-30 명시",
+      "1차 출처 15/15 — 서울시 통계 원자료·국가법령정보센터·정보몽땅 3건 + 2차 교차 2건",
+      "4연동 12/15 — 글 1종 생성, 계산기·일정·카드는 해당 없음 사유 기록(4곳 중 1곳만 실제 반영)",
+      "문체·금지어 15/15 — 금지어 0, Answer-First·Information-Gain 통과, 면책 중복 없음",
+      "모바일 10/10 — 4열 표 카드 전환, 390px 기준선 failures 0, 썸네일 대비 8.94:1"
+    ],
+    "reviewedAt": "2026-11-23T05:55:00+09:00"
+  },
+  "reruns": 0,
+  "maxReruns": 3,
+  "gate": {
+    "minTotal": 90,
+    "requireHashBinding": true
+  },
+  "generator": "scripts/generate_review_json.py",
+  "generatedAt": "2026-11-23T05:41:12+09:00",
+  "warnings": [],
+  "draft": {
+    "title": "서울 정비사업 52만 가구, 착공까지 14.2년 — 지금 집이 필요한 사람의 시간표",
+    "category": "economy",
+    "publishedAt": "2026-11-23",
+    "baseDate": "2026-11-23"
+  }
+}
