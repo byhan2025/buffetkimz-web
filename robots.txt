@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+
+Disallow: /buffetkimz-web/search-index.json
+
+Sitemap: https://byhan2025.github.io/buffetkimz-web/sitemap-index.xml
