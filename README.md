@@ -49,7 +49,11 @@ v3: 20개 대표 사이트 벤치마킹(보고서 `reports/buffetkimz-web/benchm
   `capture_academy_v80.py` **32/32**(허브·8강 × 1280/390, D4 52칸·7트랙 탭·열린 7주, E5 학교 트랙 16px/44px/
   한 화면 한 질문/글자+아이콘 피드백) · `audit_dist_links.py` 페이지 **270** · 링크·이미지 **0/0**.
 - **캡처** — `reports/buffetkimz-web/academy-v820/`(허브·8강 × 1280·390, 트랙 탭, 학교 운영표·퀴즈),
-  `reports/buffetkimz-web/v82-live/`(라이브 4주소 × 1280·390, `?v=820`).
+  `reports/buffetkimz-web/v82-live/`(라이브 5주소 × 1280·390 + 학교 퀴즈·운영표 구획, `?v=820`).
+- **라이브** — `main` `c9ba47b` · `gh-pages` `336b432` → https://byhan2025.github.io/buffetkimz-web/ .
+  GitHub Pages `built` 확인 후 `scripts/capture_live_v82.py` **8/8**: 5주소 × 1280·390 HTTP 200 · 콘솔 오류 0 ·
+  가로 넘침 0 · 허브 52칸·7탭·8강·열린 7주 · 학교 3강 카드 6장 로드·한 화면 한 질문·저장 0건 ·
+  자료앨범 20세트 105장(새 18장 로드).
 
 ### v8.1.0 — 아카데미 STEP 1·2 다섯 강 + 손글씨 카드뉴스 5세트(30장) + 인라인 카드뉴스 뷰어
 
