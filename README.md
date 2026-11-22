@@ -40,7 +40,12 @@ v3: 20개 대표 사이트 벤치마킹(보고서 `reports/buffetkimz-web/benchm
   `scripts/capture_live_v85.py --local` **16/16**(8주소 × 1280·390 HTTP 200 · 콘솔 오류 0 · 가로 넘침 0 · 저장소 0건,
   허브 30편·신규 10제목 전부, 상세 3편 대표이미지 1200px·비교카드 2칸·태그 3·도구 링크·og:image 일치·본문 2,500자,
   홈·분야 페이지 노출, 썸네일 10장 200).
-- **캡처** — `reports/buffetkimz-web/v85-live/`(8주소 × 1280·390 fold·full **32장** + 비교 카드 3장 + `verify-v85*.json`).
+- **캡처** — `reports/buffetkimz-web/v85-live/`(8주소 × 1280·390 fold·full **32장** + 비교 카드 3장 + `verify-v85-local.json`·`verify-v85.json`).
+- **라이브** — `main` `1b04caa` · `gh-pages` `cbdd3e4` → https://byhan2025.github.io/buffetkimz-web/posts/?v=850 .
+  GitHub Pages `built`(cbdd3e4) 확인 후 `scripts/capture_live_v85.py` **16/16**(8주소 × 1280·390 HTTP 200 · 콘솔 오류 0 ·
+  가로 넘침 0 · 저장소 0건 · 허브 30편·신규 10제목 · 상세 3편 대표이미지 1200px·비교카드·og:image · 썸네일 10장 image/webp).
+  같은 시각 `/posts/?v=850` 142KB · 신규 글 84~88KB · `/thumbs/*.webp` image/webp · `/rss.xml`·`/sitemap-0.xml`·
+  `/search-index.json` 200(신규 slug 포함) 확인.
 - **빌드 메모** — 이 환경에서 `RAYON_NUM_THREADS=2 NODE_OPTIONS=--max-old-space-size=900`은 `Aborted`로 죽었다.
   `RAYON_NUM_THREADS=1 TOKIO_WORKER_THREADS=1 UV_THREADPOOL_SIZE=1 NODE_OPTIONS=--max-old-space-size=768`로
   **299페이지** 빌드가 27초에 끝났다. 썸네일 렌더는 playwright가 `libnspr4.so`를 못 찾으므로
