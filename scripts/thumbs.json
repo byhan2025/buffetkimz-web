@@ -510,6 +510,186 @@
       "out": "public/thumbs/pension-master-06-healthcheck.webp",
       "art": "downloads/thumbs-raw/pension-master-06.png",
       "date": "2026.11.21"
+    },
+    {
+      "slug": "finance-financial-income-2000",
+      "badge": [
+        "금융 · 세금",
+        "2026.11"
+      ],
+      "accent": "#8FE9CB",
+      "headline": [
+        "2,000만 원 넘으면",
+        "초과분부터"
+      ],
+      "accentLine": 1,
+      "sub": "전액에 누진세율이 붙지 않습니다",
+      "alt": "동전 더미와 황동 자 — 금융소득 2,000만 원 경계에서 달라지는 세율",
+      "out": "public/thumbs/finance-financial-income-2000.webp",
+      "art": "downloads/thumbs-raw/finance-financial-income-2000.png",
+      "date": "2026.11.22"
+    },
+    {
+      "slug": "finance-health-dependent",
+      "badge": [
+        "금융 · 건강보험",
+        "2026.11"
+      ],
+      "accent": "#8FE9CB",
+      "headline": [
+        "피부양자, 11월에",
+        "바뀌는 이유"
+      ],
+      "accentLine": 1,
+      "sub": "소득 2,000만 원 · 재산 5억 4,000만 원",
+      "alt": "펼친 장부 위의 안경과 찻잔 — 부모님 피부양자 자격을 확인하는 서류",
+      "out": "public/thumbs/finance-health-dependent.webp",
+      "art": "downloads/thumbs-raw/finance-health-dependent.png",
+      "date": "2026.11.22"
+    },
+    {
+      "slug": "retire-severance-db-dc",
+      "badge": [
+        "노후 · 퇴직",
+        "2026.11"
+      ],
+      "accent": "#E6C9A3",
+      "headline": [
+        "퇴직금 1억,",
+        "세금 123만 원"
+      ],
+      "accentLine": 1,
+      "sub": "근속 3년과 20년이 가르는 것",
+      "alt": "어두운 탁자 위의 낡은 가죽 서류가방과 열쇠 — 퇴직금과 근속연수",
+      "out": "public/thumbs/retire-severance-db-dc.webp",
+      "art": "downloads/thumbs-raw/retire-severance-db-dc.png",
+      "date": "2026.11.22"
+    },
+    {
+      "slug": "invest-bond-duration",
+      "badge": [
+        "투자 · 채권",
+        "2026.11"
+      ],
+      "accent": "#8FE9CB",
+      "headline": [
+        "금리 1%p에",
+        "채권 가격 5%"
+      ],
+      "accentLine": 1,
+      "sub": "만기가 아니라 듀레이션이 재는 민감도",
+      "alt": "돌 탁자 위의 황동 저울과 추 — 채권 가격이 금리에 반응하는 폭",
+      "out": "public/thumbs/invest-bond-duration.webp",
+      "art": "downloads/thumbs-raw/invest-bond-duration.png",
+      "date": "2026.11.22"
+    },
+    {
+      "slug": "invest-fx-hedge-cost",
+      "badge": [
+        "투자 · ETF",
+        "2026.11"
+      ],
+      "accent": "#8FE9CB",
+      "headline": [
+        "환헤지 비용",
+        "20년이면 30%"
+      ],
+      "accentLine": 1,
+      "sub": "매년 다시 걸리는 두 나라 금리차",
+      "alt": "나무 탁자 위의 황동 나침반 두 개와 밧줄 — 환헤지와 환노출의 방향",
+      "out": "public/thumbs/invest-fx-hedge-cost.webp",
+      "art": "downloads/thumbs-raw/invest-fx-hedge-cost.png",
+      "date": "2026.11.22"
+    },
+    {
+      "slug": "economy-subscription-25",
+      "badge": [
+        "경제 · 청약",
+        "2026.11"
+      ],
+      "accent": "#F5C877",
+      "headline": [
+        "청약통장,",
+        "무엇을 채우나"
+      ],
+      "accentLine": 1,
+      "sub": "월 25만 원 인정 · 공공은 총액, 민영은 예치금",
+      "alt": "창가 테이블 위의 도자기 저금통과 봉투 — 청약통장 월 납입 인정액",
+      "out": "public/thumbs/economy-subscription-25.webp",
+      "art": "downloads/thumbs-raw/economy-subscription-25.png",
+      "date": "2026.11.22"
+    },
+    {
+      "slug": "pension-early-withdrawal-165",
+      "badge": [
+        "연금 · 세금",
+        "2026.11"
+      ],
+      "accent": "#F2D08C",
+      "headline": [
+        "중도해지 16.5%",
+        "사유가 가른다"
+      ],
+      "accentLine": 1,
+      "sub": "부득이한 사유면 3.3~5.5%",
+      "alt": "자물쇠가 채워진 나무 상자와 황동 열쇠 — 연금저축 중도해지의 조건",
+      "out": "public/thumbs/pension-early-withdrawal-165.webp",
+      "art": "downloads/thumbs-raw/pension-early-withdrawal-165.png",
+      "date": "2026.11.22"
+    },
+    {
+      "slug": "finance-gift-10year-limit",
+      "badge": [
+        "금융 · 증여",
+        "2026.11"
+      ],
+      "accent": "#8FE9CB",
+      "headline": [
+        "부모 합쳐",
+        "5,000만 원"
+      ],
+      "accentLine": 1,
+      "sub": "10년 공제는 관계 묶음별로 한 번",
+      "alt": "밀랍으로 봉한 봉투와 그릇 — 부모님에게 받는 증여재산공제 10년 한도",
+      "out": "public/thumbs/finance-gift-10year-limit.webp",
+      "art": "downloads/thumbs-raw/finance-gift-10year-limit.png",
+      "date": "2026.11.22"
+    },
+    {
+      "slug": "finance-jeonse-buttimok",
+      "badge": [
+        "금융 · 대출",
+        "2026.11"
+      ],
+      "accent": "#8FE9CB",
+      "headline": [
+        "버팀목 전세대출",
+        "얼마까지 되나"
+      ],
+      "accentLine": 1,
+      "sub": "연 2.5~3.5% · 한도 1억 2,000만 원",
+      "alt": "남색 탁자 위의 작은 목조 주택과 설계도, 황동 열쇠 — 버팀목 전세대출 조건",
+      "out": "public/thumbs/finance-jeonse-buttimok.webp",
+      "art": "downloads/thumbs-raw/finance-jeonse-buttimok.png",
+      "date": "2026.11.22"
+    },
+    {
+      "slug": "invest-overseas-stock-tax",
+      "badge": [
+        "투자 · 세금",
+        "2026.11"
+      ],
+      "accent": "#8FE9CB",
+      "headline": [
+        "해외주식 250만 원",
+        "12월 31일의 함정"
+      ],
+      "accentLine": 1,
+      "sub": "결제일이 귀속연도를 가릅니다",
+      "alt": "어두운 책상 위의 황동 지구의와 회중시계 — 해외주식 양도소득세의 기준일",
+      "out": "public/thumbs/invest-overseas-stock-tax.webp",
+      "art": "downloads/thumbs-raw/invest-overseas-stock-tax.png",
+      "date": "2026.11.22"
     }
   ]
 }

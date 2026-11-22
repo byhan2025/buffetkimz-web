@@ -12,6 +12,41 @@ v3: 20개 대표 사이트 벤치마킹(보고서 `reports/buffetkimz-web/benchm
 도구 미리보기 카드와 하단 강조 구간에만, 행동은 브랜드 블루(`#1A4FFD`)로. 홈은 4장면 리듬
 (화이트블루 → 크림 기록 → 화이트 도구 → 네이비 제도·채널 → 크림 푸터)입니다.
 
+### v8.5.0 — 자산리포트(블로그 읽을거리) 신규 10편 + 글별 썸네일 10장
+
+자산리포트가 **30편**이 됐다(기존 20 + 신규 10). 신규 10편은 금융 4 · 투자 3 · 연금 1 · 노후 1 · 경제 1로
+**보험 0편**이고, 최근 10편 슬라이딩 윈도우는 메인 100% · 보험 0%(상한 20%)다. 글마다 1200×630
+에디토리얼 썸네일을 새로 만들어 분야 기본이미지로 비어 있던 카드를 채웠다.
+
+- **신규 10편** — `finance-financial-income-2000`(금융소득 2,000만 원 비교과세) · `finance-health-dependent`
+  (11월 피부양자·지역가입자 7.19%) · `retire-severance-db-dc`(퇴직금 1억·근속 20년 123만 원) ·
+  `invest-bond-duration`(듀레이션 5년=금리 1%p에 5%) · `invest-fx-hedge-cost`(헤지 2%p·20년 30%) ·
+  `economy-subscription-25`(청약 월 25만 원 인정) · `pension-early-withdrawal-165`(16.5% vs 3.3~5.5%) ·
+  `finance-gift-10year-limit`(직계존속 10년 5,000만 원) · `finance-jeonse-buttimok`(버팀목 2.5~3.5%·1억 2,000만 원) ·
+  `invest-overseas-stock-tax`(250만 원 공제·결제일 기준 귀속연도). 글당 본문 1,400~1,600자 · 6분 읽기 ·
+  태그 3개 · 1차 출처(국세청·법제처·금감원·주택도시기금·자본시장연구원)만 frontmatter에 두고 본문 외부 링크 0건.
+- **비교 카드 4편 보강** — 원고에 없던 `compare`(A vs B)를 4편에 새로 썼다: 직접 산 채권 vs 채권형 ETF,
+  환헤지형(H) vs 환노출형, 부모에게 각각 5,000만 원 vs 합쳐 5,000만 원, 국내 상장주식(소액주주) vs 해외주식.
+  `verify_v77` J5(전 글 `summary`·`thumbAlt`·`baseDate`·`compare`)를 30편 전수에서 통과시키기 위한 것이고,
+  J5 문구도 `글 30편`으로 계산값을 쓰게 고쳤다(하드코딩 20 제거).
+- **썸네일 10장** — `scripts/thumbs.json`에 10항목 추가(누적 38) → `scripts/render_thumbs.py`로 1200×630 WebP
+  **30~73KB**(10장 합 **463KB**, dist 95→97MB) · 실측 대비 **6.3~11.0:1** · 문안은 글의 결론 한 줄(예: 「금리 1%p에 / 채권
+  가격 5%」). 배경 아트는 `images` CLI로 16:9(1672×941) 다크 스틸라이프 10장을 새로 만들었고(글자 0),
+  글 frontmatter에 `thumb`·`thumbAlt`를 채워 분야 기본이미지 자동 매핑 경고 10건을 없앴다.
+- **게이트** — `publish_pipeline.py validate` **오류 0** · 경고 85 · 정보 39(신규 10편은 글당 경고 1건 =
+  100점 리뷰 리포트 미생성뿐) · `ratio` 통과(전체 메인 24편 80.0% · 보험 3편 10.0% · 최근 10편 메인 100%·보험 0%).
+- **검증** — `verify:tax` **22/22** · `verify_v77` **32/32**(J5 글 **30편 메타 100%**) · `verify_v79` **41/41** ·
+  `capture_academy_v80.py` **54/54** · `audit_dist_links.py` 페이지 **299** · 링크·이미지 **0/0** ·
+  `scripts/capture_live_v85.py --local` **16/16**(8주소 × 1280·390 HTTP 200 · 콘솔 오류 0 · 가로 넘침 0 · 저장소 0건,
+  허브 30편·신규 10제목 전부, 상세 3편 대표이미지 1200px·비교카드 2칸·태그 3·도구 링크·og:image 일치·본문 2,500자,
+  홈·분야 페이지 노출, 썸네일 10장 200).
+- **캡처** — `reports/buffetkimz-web/v85-live/`(8주소 × 1280·390 fold·full **32장** + 비교 카드 3장 + `verify-v85*.json`).
+- **빌드 메모** — 이 환경에서 `RAYON_NUM_THREADS=2 NODE_OPTIONS=--max-old-space-size=900`은 `Aborted`로 죽었다.
+  `RAYON_NUM_THREADS=1 TOKIO_WORKER_THREADS=1 UV_THREADPOOL_SIZE=1 NODE_OPTIONS=--max-old-space-size=768`로
+  **299페이지** 빌드가 27초에 끝났다. 썸네일 렌더는 playwright가 `libnspr4.so`를 못 찾으므로
+  `LD_LIBRARY_PATH=/workspace/.pwlibs/root/usr/lib/x86_64-linux-gnu:/workspace/.local/lib`와
+  `PK_CHROME=…/chromium_headless_shell-1255/…/chrome-headless-shell`을 함께 준다.
+
 ### v8.4.0 — 금융생활학교 STEP 4~6(은퇴 인출·실손 전환·리밸런싱) + 자산형성·은퇴 2강 + 손글씨 카드 2세트(12장)
 
 성인 실전을 STEP 3에서 STEP 4·5·6으로 넓히고, 52주 편성의 자산형성·은퇴 트랙에 각 1강을 열었다.

@@ -402,7 +402,7 @@ with sync_playwright() as p:
         for key in ("summary:", "thumbAlt:", "baseDate:", "compare:"):
             if key not in fm:
                 missing.append(f"{f.name}:{key}")
-    check("J5 글 20편 메타 100%", not missing, ", ".join(missing[:4]))
+    check(f"J5 글 {len(sorted(posts_dir.glob('*.md')))}편 메타 100%", not missing, ", ".join(missing[:4]))
     ctx.close()
 
     browser.close()

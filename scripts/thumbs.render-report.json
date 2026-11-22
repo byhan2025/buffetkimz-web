@@ -1,16 +1,152 @@
 [
   {
-    "slug": "pension-master-03-yearend-900",
-    "out": "public/thumbs/pension-master-03-yearend-900.webp",
-    "bytes": 51808,
+    "slug": "finance-health-dependent",
+    "out": "public/thumbs/finance-health-dependent.webp",
+    "bytes": 36448,
     "lines": [
       {
-        "text": "600 · 900 · 300",
+        "text": "피부양자, 11월에",
         "size": 64,
         "overflow": false
       },
       {
-        "text": "12월의 세 숫자",
+        "text": "바뀌는 이유",
+        "size": 64,
+        "overflow": false
+      }
+    ]
+  },
+  {
+    "slug": "retire-severance-db-dc",
+    "out": "public/thumbs/retire-severance-db-dc.webp",
+    "bytes": 47168,
+    "lines": [
+      {
+        "text": "퇴직금 1억,",
+        "size": 64,
+        "overflow": false
+      },
+      {
+        "text": "세금 123만 원",
+        "size": 64,
+        "overflow": false
+      }
+    ]
+  },
+  {
+    "slug": "invest-bond-duration",
+    "out": "public/thumbs/invest-bond-duration.webp",
+    "bytes": 34538,
+    "lines": [
+      {
+        "text": "금리 1%p에",
+        "size": 64,
+        "overflow": false
+      },
+      {
+        "text": "채권 가격 5%",
+        "size": 64,
+        "overflow": false
+      }
+    ]
+  },
+  {
+    "slug": "invest-fx-hedge-cost",
+    "out": "public/thumbs/invest-fx-hedge-cost.webp",
+    "bytes": 75234,
+    "lines": [
+      {
+        "text": "환헤지 비용",
+        "size": 64,
+        "overflow": false
+      },
+      {
+        "text": "20년이면 30%",
+        "size": 64,
+        "overflow": false
+      }
+    ]
+  },
+  {
+    "slug": "economy-subscription-25",
+    "out": "public/thumbs/economy-subscription-25.webp",
+    "bytes": 31186,
+    "lines": [
+      {
+        "text": "청약통장,",
+        "size": 64,
+        "overflow": false
+      },
+      {
+        "text": "무엇을 채우나",
+        "size": 64,
+        "overflow": false
+      }
+    ]
+  },
+  {
+    "slug": "pension-early-withdrawal-165",
+    "out": "public/thumbs/pension-early-withdrawal-165.webp",
+    "bytes": 53678,
+    "lines": [
+      {
+        "text": "중도해지 16.5%",
+        "size": 64,
+        "overflow": false
+      },
+      {
+        "text": "사유가 가른다",
+        "size": 64,
+        "overflow": false
+      }
+    ]
+  },
+  {
+    "slug": "finance-gift-10year-limit",
+    "out": "public/thumbs/finance-gift-10year-limit.webp",
+    "bytes": 40382,
+    "lines": [
+      {
+        "text": "부모 합쳐",
+        "size": 64,
+        "overflow": false
+      },
+      {
+        "text": "5,000만 원",
+        "size": 64,
+        "overflow": false
+      }
+    ]
+  },
+  {
+    "slug": "finance-jeonse-buttimok",
+    "out": "public/thumbs/finance-jeonse-buttimok.webp",
+    "bytes": 50510,
+    "lines": [
+      {
+        "text": "버팀목 전세대출",
+        "size": 64,
+        "overflow": false
+      },
+      {
+        "text": "얼마까지 되나",
+        "size": 64,
+        "overflow": false
+      }
+    ]
+  },
+  {
+    "slug": "invest-overseas-stock-tax",
+    "out": "public/thumbs/invest-overseas-stock-tax.webp",
+    "bytes": 69330,
+    "lines": [
+      {
+        "text": "해외주식 250만 원",
+        "size": 64,
+        "overflow": false
+      },
+      {
+        "text": "12월 31일의 함정",
         "size": 64,
         "overflow": false
       }
