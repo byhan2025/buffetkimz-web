@@ -1,6 +1,7 @@
 import { defineCollection } from "astro:content";
 import { glob } from "astro/loaders";
 import { z } from "astro/zod";
+import { TRACK_IDS } from "./data/tracks";
 
 /**
  * 자산리포트 시리즈 4종 — v5.9.
@@ -85,10 +86,29 @@ const posts = defineCollection({
     gainType: z.enum(["clearer-answer", "original-data", "stronger-opinion"]).optional(),
     tags: z.array(z.string()).default([]),
     /**
-     * v8.9.0 — 이 글의 카드 세트 id(`src/data/gallery.ts`). 글↔카드는 본문 이미지가 아니라 링크 1줄이다.
+     * v9.0.0 학습순환 P0 — 이 글의 카드 세트 id(`src/data/gallery.ts`). 글↔카드는 본문 이미지가 아니라 링크 1줄이다.
      * 카드 쪽 `post`와 짝을 이루며, 한쪽만 적혀 있으면 `src/lib/gallery.ts`의 검사가 빌드를 세운다.
      */
     cards: z.array(z.string()).default([]),
+    /**
+     * v9.0.0 학습순환 P0 — 이 글이 속한 학습 트랙(`src/data/tracks.ts`의 id).
+     * 순서·단계 도구·보조 카드·배지는 트랙이 정하고, 글은 **소속 한 줄**만 적는다.
+     * 트랙의 `posts`에 없는 글에 이 값을 달면 `lib/tracks.ts`의 `validateTracks()`가 빌드를 세운다.
+     * P0에서는 스키마만 열어 둔다 — 값은 S2~S6 발행 파이프라인이 채운다.
+     */
+    track: z.enum([...TRACK_IDS]).optional(),
+    /**
+     * v9.0.0 학습순환 P0 — 글에 붙는 배지 묶음.
+     *   market: `src/data/today.ts` 지표 id(값·기준 시각이 있는 것만 그려진다)
+     *   rules:  `src/data/metric-badges.ts` 제도 배지 id(법·요율)
+     * 없는 id를 적으면 `lib/metrics.ts`의 `validateBadgeRefs()`가 빌드를 세운다.
+     */
+    metrics: z
+      .object({
+        market: z.array(z.string()).default([]),
+        rules: z.array(z.string()).default([]),
+      })
+      .optional(),
     sources: z
       .array(
         z.object({

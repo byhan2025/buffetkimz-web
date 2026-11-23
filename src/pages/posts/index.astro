@@ -9,8 +9,17 @@ import { appBySlug } from "@/data/apps";
 import { allPosts, postPath, formatDate, sourceOrgLine, toolOf, seriesTotalOf } from "@/lib/posts";
 import { thumbOf, thumbAltOf, thumbSize } from "@/lib/thumbs";
 import { breadcrumbList, graph, pageUrl, partOfWebsite } from "@/lib/schema";
+import { validateTracks } from "@/lib/tracks";
+import { validateBadgeRefs } from "@/lib/metrics";
 
 const posts = await allPosts();
+/**
+ * v9.0.0 학습순환 P0 — 트랙·배지 계약 검사 (글↔카드 짝 `validatePairs`와 같은 자리).
+ * 없는 글·도구·카드·배지 id를 가리키면 이 목록 페이지의 빌드가 선다 — 링크가 아니라 '가는 곳 없는 칸'을 막는다.
+ * 순서상 `posts`를 먼저 읽고, 화면을 그리기 전에 검사한다.
+ */
+validateTracks(posts);
+validateBadgeRefs(posts);
 const feature = posts[0];
 const rest = posts.slice(1);
 /** 목록 머리의 기준일 — 가장 최근 글의 확인 기준일을 쓴다 */

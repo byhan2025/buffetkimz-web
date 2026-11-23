@@ -3,7 +3,23 @@
  * CSS·JS·링크·검색 인덱스가 깨지지 않도록 BASE_URL을 한 곳에서만 읽는다.
  * 커스텀 도메인(buffetkimz.com)으로 옮길 때는 BASE_PATH 없이 빌드하면 "/"로 돌아온다.
  */
-const rawBase = import.meta.env.BASE_URL ?? "/";
+import { today as todayHub } from "../data/today.ts";
+
+/**
+ * 'YYYY-MM-DDTHH:mm:ss+09:00' → 그 한국 날짜의 UTC 자정 Date.
+ * 날짜만 쓰는 화면(달력 월·D-Day·푸터 연도·날짜 계산기 기본값)이 서버 시간대에 흔들리지 않게 한다.
+ */
+function kstDate(iso: string): Date {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Seoul",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(new Date(iso));
+  const get = (type: string) => Number(parts.find((p) => p.type === type)?.value ?? 0);
+  return new Date(Date.UTC(get("year"), get("month") - 1, get("day")));
+}
+const rawBase = import.meta.env?.BASE_URL ?? "/";
 export const basePath = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
 const basePrefix = basePath.replace(/\/$/, "");
 
@@ -25,7 +41,7 @@ export function stripBase(pathname: string): string {
   return p.replace(/\/$/, "") || "/";
 }
 
-const origin = (import.meta.env.SITE ?? "https://buffetkimz.com").replace(/\/+$/, "");
+const origin = (import.meta.env?.SITE ?? "https://buffetkimz.com").replace(/\/+$/, "");
 
 /** canonical·OG·RSS·JSON-LD에 쓰는 절대 주소 (배포 접두 포함) */
 export function absolute(path: string): string {
@@ -55,10 +71,20 @@ export const site = {
   baseDateLabel: "2026. 11. 22.",
   /**
    * D-Day·달력 초기 월·도구 기본값이 쓰는 **오늘** — 콘텐츠 기준일(`baseDate`)과 다를 수 있다.
+   *
    * v8.7.0(2026-11-23): 하루 지난 채로 두면 11월 23일이 기한인 실손 전환이 'D-1'로 보였다.
-   * 콘텐츠 기준일은 글이 확인된 날(11. 22.)이고, '오늘'은 화면을 만든 날이다.
+   * v9.0.0(2026-11-23, 학습순환 P0): 손으로 박아 둔 상수(`new Date("2026-11-23T09:00:00+09:00")`)를 지우고
+   *   **`today.ts`의 `asOf`(허브가 마지막으로 값을 확인한 시각)에서 파생**한다.
+   *   손으로 고치는 값이면 하루 네 번 빌드해도 '오늘'이 늙지 않아 D-Day·달력이 뒤처진다.
+   *   이제 배지·D-Day·달력이 같은 시계를 쓴다 — 허브를 갱신하면 '오늘'도 함께 움직인다.
+   *
+   * 날짜만 쓰는 값이므로 **KST 날짜의 UTC 자정**으로 고정한다. 빌드 서버 시간대가 UTC여도
+   * `getMonth()`·`toISOString()`이 한국 날짜와 어긋나지 않는다(06:00 갱신은 UTC로 전날 21:00이다).
+   *
+   * 안전장치: 이 값과 `today.asOf`의 날짜 차가 1일을 넘으면 `npm run verify:tracks`가 실패한다
+   * (`scripts/verify_tracks.py`의 S3). 파이프라인이 허브 갱신을 건너뛰면 그 자리에서 드러난다.
    */
-  today: new Date("2026-11-23T09:00:00+09:00"),
+  today: kstDate(todayHub.asOf),
   /**
    * 1:1 상담문의 — 이 값 하나로 홈·푸터·소개의 링크가 함께 살아난다.
    * http://pf.kakao.com/_UxkVxnn/chat 은 HTTPS로 308 리다이렉트되므로 https 주소를 쓴다(2026-11-19 확인).
