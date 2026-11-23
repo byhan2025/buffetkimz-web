@@ -5,8 +5,16 @@
     <link>https://byhan2025.github.io/buffetkimz-web/</link>
     <description>금융·투자·연금·노후·재무를 하나의 기준으로 읽는 금융 포털. 시장 지표와 오늘의 브리핑, 직접 계산해 보는 금융 도구, 앱스토어, 투자백서를 한곳에 모았습니다. 모든 글과 도구에 기준일과 출처를 붙입니다.</description>
     <language>ko</language>
-    <lastBuildDate>Mon, 23 Nov 2026 11:05:25 GMT</lastBuildDate>
+    <lastBuildDate>Mon, 23 Nov 2026 11:45:11 GMT</lastBuildDate>
     <atom:link href="https://byhan2025.github.io/buffetkimz-web/rss.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>금리·환율이 오르면 내 고정비 3곳이 먼저 오른다</title>
+      <link>https://byhan2025.github.io/buffetkimz-web/posts/economy-fixed-cost-check/</link>
+      <guid isPermaLink="true">https://byhan2025.github.io/buffetkimz-web/posts/economy-fixed-cost-check/</guid>
+      <category>경제</category>
+      <pubDate>Mon, 23 Nov 2026 00:00:00 GMT</pubDate>
+      <description>기준금리가 멈춘 10월에도 신규취급액 COFIX는 3.62%로 올랐습니다. 대출 약정서, 카드 할부 명세서, 외화·구독 결제 — 세 장의 서류에서 무엇을 어떤 순서로 확인해야 하는지 정리했습니다.</description>
+    </item>
     <item>
       <title>서울 정비사업 52만 가구, 착공까지 14.2년 — 지금 집이 필요한 사람의 시간표</title>
       <link>https://byhan2025.github.io/buffetkimz-web/posts/economy-seoul-redev-supply/</link>
@@ -14,6 +22,14 @@
       <category>경제</category>
       <pubDate>Mon, 23 Nov 2026 00:00:00 GMT</pubDate>
       <description>서울 정비사업은 496개 구역·52만970가구입니다. 착공 단계는 62개 구역 4만4,726가구로 8.6%뿐이고, 구역 지정에서 착공까지 중앙값은 14.2년입니다. 단계별로 남은 시간을 서울시 통계 원자료로 다시 계산했습니다.</description>
+    </item>
+    <item>
+      <title>국민연금 조기·연기, 손익분기 나이를 계산하는 순서</title>
+      <link>https://byhan2025.github.io/buffetkimz-web/posts/retire-pension-timing/</link>
+      <guid isPermaLink="true">https://byhan2025.github.io/buffetkimz-web/posts/retire-pension-timing/</guid>
+      <category>노후준비</category>
+      <pubDate>Mon, 23 Nov 2026 00:00:00 GMT</pubDate>
+      <description>조기 5년은 30% 깎이고 연기 5년은 36% 붙습니다. 두 숫자를 같은 저울에 올리려면 '몇 살에 누적액이 다시 같아지는가'로 바꿔야 합니다. 출생연도별 개시연령 확인부터 손익분기 계산까지 순서대로 정리했습니다.</description>
     </item>
     <item>
       <title>청약통장에 25만 원씩 — 넣는 돈과 인정되는 돈이 다르다</title>
@@ -230,22 +246,6 @@
       <category>보험</category>
       <pubDate>Fri, 13 Nov 2026 00:00:00 GMT</pubDate>
       <description>암 진단비 1,000만원과 5,000만원은 같은 이름의 담보지만 역할이 다릅니다. 5대 담보를 볼 때 실제로 확인해야 할 조건을 정리했습니다.</description>
-    </item>
-    <item>
-      <title>노후 파산은 큰 병보다 매달 나가는 고정비에서 시작된다</title>
-      <link>https://byhan2025.github.io/buffetkimz-web/posts/retire-fixed-cost/</link>
-      <guid isPermaLink="true">https://byhan2025.github.io/buffetkimz-web/posts/retire-fixed-cost/</guid>
-      <category>노후준비</category>
-      <pubDate>Thu, 12 Nov 2026 00:00:00 GMT</pubDate>
-      <description>은퇴 후 30년을 버티게 하는 것은 목돈이 아니라 매달 나가는 돈의 구조입니다. 건강보험료, 갱신 보험료, 간병비를 순서대로 정리했습니다.</description>
-    </item>
-    <item>
-      <title>연금저축 900만원보다 먼저 계산해야 할 것</title>
-      <link>https://byhan2025.github.io/buffetkimz-web/posts/pension-tax-order/</link>
-      <guid isPermaLink="true">https://byhan2025.github.io/buffetkimz-web/posts/pension-tax-order/</guid>
-      <category>연금</category>
-      <pubDate>Wed, 11 Nov 2026 00:00:00 GMT</pubDate>
-      <description>세액공제 한도는 900만원이지만, 순서를 바꾸면 절감액이 달라집니다. 12월 31일 전에 확인할 네 단계를 정리했습니다.</description>
     </item>
   </channel>
 </rss>
