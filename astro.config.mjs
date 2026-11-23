@@ -24,6 +24,13 @@ if (!BASE.endsWith('/')) BASE = `${BASE}/`;
  * 보관함(비노출) 도구의 페이지 경로 — 사이트맵에서만 뺀다.
  * 값은 `src/data/apps.ts`에서 `archived: true`로 둔 8종과 같다(그쪽을 고치면 여기도 함께 고친다).
  */
+/**
+ * 리다이렉트 목적지에 배포 접두를 붙인다 — Astro의 `redirects`는 값을 그대로 쓰기 때문에,
+ * 서브패스 배포(gh-pages `/buffetkimz-web/`)에서는 접두가 없으면 404로 간다.
+ * 루트 배포(BASE='/')에서는 접두가 빈 문자열이라 주소가 그대로다.
+ */
+const redirectTo = (path) => `${BASE.replace(/\/$/, '')}${path}`;
+
 const ARCHIVED_PATHS = [
   '/apps/json-csv-formatter',
   '/apps/diff-checker',
@@ -65,49 +72,49 @@ export default defineConfig({
    * 정적 빌드에서는 Astro가 meta refresh + JS 이동 HTML을 만들어 준다.
    */
   redirects: {
-    '/apps/korean-age-pension': '/apps/pension-draw?mode=age',
-    '/apps/korean-age-pension/run': '/apps/pension-draw/run?mode=age',
-    '/tools/korean-age-pension': '/apps/pension-draw?mode=age',
+    '/apps/korean-age-pension': redirectTo('/apps/pension-draw?mode=age'),
+    '/apps/korean-age-pension/run': redirectTo('/apps/pension-draw/run?mode=age'),
+    '/tools/korean-age-pension': redirectTo('/apps/pension-draw?mode=age'),
 
-    '/apps/deposit-savings': '/apps/compound-return?mode=deposit',
-    '/apps/deposit-savings/run': '/apps/compound-return/run?mode=deposit',
-    '/tools/deposit-savings': '/apps/compound-return?mode=deposit',
+    '/apps/deposit-savings': redirectTo('/apps/compound-return?mode=deposit'),
+    '/apps/deposit-savings/run': redirectTo('/apps/compound-return/run?mode=deposit'),
+    '/tools/deposit-savings': redirectTo('/apps/compound-return?mode=deposit'),
 
-    '/apps/bojang-counsel-guide': '/apps/coverage-check',
-    '/apps/bojang-counsel-guide/run': '/apps/coverage-check/run',
-    '/tools/bojang-counsel-guide': '/apps/coverage-check',
+    '/apps/bojang-counsel-guide': redirectTo('/apps/coverage-check'),
+    '/apps/bojang-counsel-guide/run': redirectTo('/apps/coverage-check/run'),
+    '/tools/bojang-counsel-guide': redirectTo('/apps/coverage-check'),
 
-    '/apps/hourly-wage': '/apps/salary-net?mode=hourly',
-    '/apps/hourly-wage/run': '/apps/salary-net/run?mode=hourly',
-    '/tools/hourly-wage': '/apps/salary-net?mode=hourly',
+    '/apps/hourly-wage': redirectTo('/apps/salary-net?mode=hourly'),
+    '/apps/hourly-wage/run': redirectTo('/apps/salary-net/run?mode=hourly'),
+    '/tools/hourly-wage': redirectTo('/apps/salary-net?mode=hourly'),
 
-    '/apps/freelancer-tax': '/apps/vat-margin?mode=freelance',
-    '/apps/freelancer-tax/run': '/apps/vat-margin/run?mode=freelance',
-    '/tools/freelancer-tax': '/apps/vat-margin?mode=freelance',
+    '/apps/freelancer-tax': redirectTo('/apps/vat-margin?mode=freelance'),
+    '/apps/freelancer-tax/run': redirectTo('/apps/vat-margin/run?mode=freelance'),
+    '/tools/freelancer-tax': redirectTo('/apps/vat-margin?mode=freelance'),
 
-    '/apps/image-resize': '/apps/image-compress?mode=resize',
-    '/apps/image-resize/run': '/apps/image-compress/run?mode=resize',
-    '/tools/image-resize': '/apps/image-compress?mode=resize',
+    '/apps/image-resize': redirectTo('/apps/image-compress?mode=resize'),
+    '/apps/image-resize/run': redirectTo('/apps/image-compress/run?mode=resize'),
+    '/tools/image-resize': redirectTo('/apps/image-compress?mode=resize'),
 
-    '/apps/image-upscale': '/apps/image-compress?mode=upscale',
-    '/apps/image-upscale/run': '/apps/image-compress/run?mode=upscale',
-    '/tools/image-upscale': '/apps/image-compress?mode=upscale',
+    '/apps/image-upscale': redirectTo('/apps/image-compress?mode=upscale'),
+    '/apps/image-upscale/run': redirectTo('/apps/image-compress/run?mode=upscale'),
+    '/tools/image-upscale': redirectTo('/apps/image-compress?mode=upscale'),
 
-    '/apps/watermark': '/apps/image-compress?mode=watermark',
-    '/apps/watermark/run': '/apps/image-compress/run?mode=watermark',
-    '/tools/watermark': '/apps/image-compress?mode=watermark',
+    '/apps/watermark': redirectTo('/apps/image-compress?mode=watermark'),
+    '/apps/watermark/run': redirectTo('/apps/image-compress/run?mode=watermark'),
+    '/tools/watermark': redirectTo('/apps/image-compress?mode=watermark'),
 
-    '/apps/exif-mosaic': '/apps/image-compress?mode=exif',
-    '/apps/exif-mosaic/run': '/apps/image-compress/run?mode=exif',
-    '/tools/exif-mosaic': '/apps/image-compress?mode=exif',
+    '/apps/exif-mosaic': redirectTo('/apps/image-compress?mode=exif'),
+    '/apps/exif-mosaic/run': redirectTo('/apps/image-compress/run?mode=exif'),
+    '/tools/exif-mosaic': redirectTo('/apps/image-compress?mode=exif'),
 
-    '/apps/pdf-merge-split': '/apps/pdf-image?mode=merge',
-    '/apps/pdf-merge-split/run': '/apps/pdf-image/run?mode=merge',
-    '/tools/pdf-merge-split': '/apps/pdf-image?mode=merge',
+    '/apps/pdf-merge-split': redirectTo('/apps/pdf-image?mode=merge'),
+    '/apps/pdf-merge-split/run': redirectTo('/apps/pdf-image/run?mode=merge'),
+    '/tools/pdf-merge-split': redirectTo('/apps/pdf-image?mode=merge'),
 
-    '/apps/moving-dday': '/apps/unit-date-calc?mode=moving',
-    '/apps/moving-dday/run': '/apps/unit-date-calc/run?mode=moving',
-    '/tools/moving-dday': '/apps/unit-date-calc?mode=moving',
+    '/apps/moving-dday': redirectTo('/apps/unit-date-calc?mode=moving'),
+    '/apps/moving-dday/run': redirectTo('/apps/unit-date-calc/run?mode=moving'),
+    '/tools/moving-dday': redirectTo('/apps/unit-date-calc?mode=moving'),
   },
   build: {
     inlineStylesheets: 'auto',
