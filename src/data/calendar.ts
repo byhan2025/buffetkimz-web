@@ -35,8 +35,8 @@ export const calendar: CalendarItem[] = [
     kind: "변경",
     body: "해마다 1월부터 그해 건강보험료율이 적용됩니다. 2026년 보험료율은 7.19%로, 2025년 8월 건강보험정책심의위원회에서 확정됐습니다.",
     action: "1월 급여명세서의 건강보험료가 전년 12월과 달라졌는지 확인합니다.",
-    source: "보건복지부·건강보험정책심의위원회 (2025-08-28 확정 보도)",
-    sourceUrl: "https://www.sedaily.com/article/14110337",
+    source: "보건복지부·건강보험정책심의위원회 (2025-08-28 결정 보도자료)",
+    sourceUrl: "https://www.mohw.go.kr/board.es?act=view&bid=0027&list_no=1487279&mid=a10503000000",
     key: true,
   },
   {
@@ -47,7 +47,8 @@ export const calendar: CalendarItem[] = [
     kind: "점검",
     body: "국세청 홈택스(손택스)에서 보험료·연금저축 납입증명서를 조회할 수 있게 됩니다. 회사에 제출할 서류를 이때 확보합니다.",
     action: "보장성보험료 납입증명서, 연금저축·IRP 납입증명서를 내려받아 보관합니다.",
-    source: "국세청 연말정산 간소화 서비스",
+    source: "국세청 보도참고자료 (2026-01-14)",
+    sourceUrl: "https://www.nts.go.kr/nts/na/ntt/selectNttInfo.do?mi=2201&nttSn=1347979",
   },
   {
     month: 1,
@@ -83,6 +84,7 @@ export const calendar: CalendarItem[] = [
     body: "연말정산 결과가 2월 급여에 반영됩니다. 환급이면 더해지고, 부족하면 추가로 징수됩니다.",
     action: "결정세액과 공제 내역을 확인하고, 빠진 공제가 있으면 경정청구(5년 이내)를 검토합니다.",
     source: "국세청 연말정산 안내",
+    sourceUrl: "https://www.nts.go.kr/nts/cm/cntnts/cntntsView.do?cntntsId=7706&mi=2304",
   },
   {
     month: 2,
@@ -93,6 +95,7 @@ export const calendar: CalendarItem[] = [
     body: "퇴직금은 IRP로 받으면 퇴직소득세가 바로 과세되지 않고 이연됩니다. IRP로 받은 퇴직금은 세액공제 대상 납입액과 구분됩니다.",
     action: "퇴직소득세 이연 여부와 IRP 계좌 수수료를 확인합니다.",
     source: "근로자퇴직급여 보장법·소득세법",
+    sourceUrl: "https://www.law.go.kr/%EB%B2%95%EB%A0%B9/%EA%B7%BC%EB%A1%9C%EC%9E%90%ED%87%B4%EC%A7%81%EA%B8%89%EC%97%AC%EB%B3%B4%EC%9E%A5%EB%B2%95",
   },
   {
     month: 2,
@@ -102,7 +105,8 @@ export const calendar: CalendarItem[] = [
     kind: "점검",
     body: "직장가입자(비사무직 제외)는 출생연도 홀·짝과 무관하게 매년, 지역가입자는 출생연도 기준으로 격년 대상이 됩니다. 대상 여부는 공단 조회로 확정됩니다.",
     action: "국민건강보험공단 앱에서 올해 검진 대상인지 확인합니다.",
-    source: "국민건강보험공단 건강검진 안내",
+    source: "국민건강보험공단 일반건강검진 안내",
+    sourceUrl: "https://www.nhis.or.kr/nhis/healthin/wbhaca04500m01.do",
   },
 
   // 3월
@@ -114,7 +118,8 @@ export const calendar: CalendarItem[] = [
     kind: "마감",
     body: "회사는 전년도 보수총액을 신고하고, 그 결과로 4월 보험료가 정산됩니다. 신고가 늦거나 누락되면 4월에 추가 징수가 발생할 수 있습니다.",
     action: "직장가입자라면 4월 급여명세서의 건강보험료 정산 항목을 확인합니다.",
-    source: "국민건강보험공단 보수월액 신고 안내",
+    source: "국민건강보험공단 직장보험료 보수총액 신고 안내",
+    sourceUrl: "https://www.nhis.or.kr/nhis/minwon/wbhapa01000m01.do?articleNo=10946882&mode=view",
   },
   {
     month: 3,
@@ -125,6 +130,7 @@ export const calendar: CalendarItem[] = [
     body: "퇴직연금은 방치하면 원리금보장형에 머무는 경우가 많습니다. 위험자산 투자 비중은 법으로 정해져 있고(총 적립금의 70% 이내), 상품별 규제는 다릅니다.",
     action: "연 1회 이상 적립금의 운용 상품과 수수료를 확인합니다.",
     source: "근로자퇴직급여 보장법 시행령",
+    sourceUrl: "https://www.law.go.kr/%EB%B2%95%EB%A0%B9/%EA%B7%BC%EB%A1%9C%EC%9E%90%ED%87%B4%EC%A7%81%EA%B8%89%EC%97%AC%EB%B3%B4%EC%9E%A5%EB%B2%95%20%EC%8B%9C%ED%96%89%EB%A0%B9",
   },
   {
     month: 3,
@@ -134,7 +140,8 @@ export const calendar: CalendarItem[] = [
     kind: "점검",
     body: "3월은 신학기·이사로 차량 등록이 몰리는 구간입니다. 만기일은 계약마다 달라 5월·12월 만기 차량도 많으니, 갱신 때 할인·할증 특약(마일리지, 블랙박스, 자녀 할인)이 작년과 같은지 확인합니다.",
     action: "갱신 견적에서 특약 구성이 작년과 같은지 비교합니다.",
-    source: "손해보험사 자동차보험 안내",
+    source: "손해보험협회 자동차보험 종합포털",
+    sourceUrl: "https://carinfo.knia.or.kr/lmxsrv/main/main.do",
   },
   {
     month: 3,
@@ -145,6 +152,7 @@ export const calendar: CalendarItem[] = [
     body: "사업소득·기타소득을 지급한 개인사업자는 전년도 지급명세서를 3월 10일까지 제출합니다. 원천징수한 세금도 함께 정산됩니다.",
     action: "홈택스에서 제출 여부와 원천징수 이행상황 신고서를 확인합니다.",
     source: "소득세법 제164조",
+    sourceUrl: "https://www.law.go.kr/%EB%B2%95%EB%A0%B9/%EC%86%8C%EB%93%9D%EC%84%B8%EB%B2%95",
     dueDate: "2026-03-10",
   },
   {
@@ -155,7 +163,8 @@ export const calendar: CalendarItem[] = [
     kind: "점검",
     body: "사업소득·프리랜서는 5월 종합소득세 신고 때 1년치 증빙이 필요합니다. 3월에 1분기를 정리해 두면 5월에 몰리지 않습니다.",
     action: "현금영수증·세금계산서·적격증빙을 월별 폴더로 정리합니다.",
-    source: "국세청 종합소득세 신고 안내",
+    source: "국세청 장부 기장의무·증빙서류 보관 안내",
+    sourceUrl: "https://www.nts.go.kr/nts/cm/cntnts/cntntsView.do?cntntsId=7802",
   },
 
   // 4월
@@ -167,7 +176,8 @@ export const calendar: CalendarItem[] = [
     kind: "변경",
     body: "3월에 신고된 보수총액을 기준으로 4월 보험료가 정산됩니다. 연봉이 오른 해에는 4월에 한 번에 더 빠져나갈 수 있습니다.",
     action: "정산 금액이 예상과 다르면 회사 담당자에게 산정 근거를 요청합니다.",
-    source: "국민건강보험공단 보험료 정산 안내",
+    source: "국민건강보험법 시행령(보수월액보험료의 정산)",
+    sourceUrl: "https://www.law.go.kr/%EB%B2%95%EB%A0%B9/%EA%B5%AD%EB%AF%BC%EA%B1%B4%EA%B0%95%EB%B3%B4%ED%97%98%EB%B2%95%20%EC%8B%9C%ED%96%89%EB%A0%B9",
     key: true,
   },
   {
@@ -178,7 +188,8 @@ export const calendar: CalendarItem[] = [
     kind: "점검",
     body: "실손은 계약이 만기되는 시점에 갱신·재가입 여부를 결정합니다. 4·5월에 만기가 몰리는 계약이 많습니다. 갱신형은 보험료가 오르고, 재가입형은 심사를 다시 받습니다.",
     action: "갱신 안내서에서 '갱신형/재가입형', 자기부담률, 특약 구성을 확인합니다.",
-    source: "보험업감독규정·각 보험사 갱신 안내",
+    source: "손해보험협회 실손의료보험 FAQ(갱신·재가입)",
+    sourceUrl: "https://kpub.knia.or.kr/productDisc/lostHealth/lostHealthFaq.do",
   },
   {
     month: 4,
@@ -188,7 +199,8 @@ export const calendar: CalendarItem[] = [
     kind: "점검",
     body: "놓친 공제가 있었다면 5년 이내에 경정청구를 할 수 있습니다. 의료비·보험료·연금계좌 공제 누락이 대표적입니다.",
     action: "최근 5년치 원천징수영수증을 모아 누락 항목을 확인합니다.",
-    source: "국세청 경정청구 안내",
+    source: "국세기본법 제45조의2(경정청구)",
+    sourceUrl: "https://www.law.go.kr/%EB%B2%95%EB%A0%B9/%EA%B5%AD%EC%84%B8%EA%B8%B0%EB%B3%B8%EB%B2%95",
   },
   {
     month: 4,
@@ -199,6 +211,7 @@ export const calendar: CalendarItem[] = [
     body: "실손 청구는 진료일로부터 3년이 지나면 청구할 수 없습니다. 분기마다 모아 두면 서류를 다시 떼는 번거로움을 줄일 수 있습니다.",
     action: "진료비 영수증·세부내역서를 청구 단위로 묶어 둡니다.",
     source: "상법 제662조(보험금 청구권 소멸시효 3년)",
+    sourceUrl: "https://www.law.go.kr/%EB%B2%95%EB%A0%B9/%EC%83%81%EB%B2%95",
   },
 
   // 5월
@@ -211,6 +224,7 @@ export const calendar: CalendarItem[] = [
     body: "사업소득·근로 외 소득이 있는 경우 5월에 종합소득세를 신고합니다. 연금저축·IRP 세액공제도 이 신고에서 반영됩니다.",
     action: "신고 전에 연금계좌 납입증명서와 보장성보험료 납입증명서를 확인합니다.",
     source: "국세청 종합소득세 신고 안내",
+    sourceUrl: "https://www.nts.go.kr/nts/cm/cntnts/cntntsView.do?cntntsId=7664&mi=2224",
     dueDate: "2026-05-31",
     key: true,
   },
@@ -223,6 +237,7 @@ export const calendar: CalendarItem[] = [
     body: "사업소득자가 낸 보장성보험료도 세액공제 대상입니다. 다만 피보험자가 본인·배우자·부양가족이어야 하고, 이미 회사에서 공제받은 금액은 제외됩니다.",
     action: "가족 명의 계약의 피보험자 관계를 증빙으로 확인합니다.",
     source: "소득세법 제59조의4",
+    sourceUrl: "https://www.law.go.kr/%EB%B2%95%EB%A0%B9/%EC%86%8C%EB%93%9D%EC%84%B8%EB%B2%95",
   },
   {
     month: 5,
@@ -232,7 +247,8 @@ export const calendar: CalendarItem[] = [
     kind: "점검",
     body: "자녀 보험은 태아 때 가입할 수 있는 상품과 출생 후 가입 상품의 보장 구조가 다릅니다. 이미 가입했다면 중복 특약과 불필요한 갱신형을 확인합니다.",
     action: "자녀 계약의 특약 목록을 뽑아 중복 담보를 표시합니다.",
-    source: "보험업계 상품 안내(상품별 상이)",
+    source: "금융감독원 보험 가입 전 주요 체크사항",
+    sourceUrl: "https://www.fss.or.kr/main/prc/is/sub/is003.jsp?menuNo=900390",
   },
 
   // 6월
@@ -245,6 +261,7 @@ export const calendar: CalendarItem[] = [
     body: "연금저축·IRP 한도를 연말에 몰아 채우면 자금 부담이 커집니다. 6월에 상반기 납입액을 확인하면 남은 6개월 계획이 섭니다.",
     action: "연금저축 600만원, 합산 900만원 한도 대비 납입률을 계산합니다.",
     source: "소득세법 제59조의3",
+    sourceUrl: "https://www.law.go.kr/%EB%B2%95%EB%A0%B9/%EC%86%8C%EB%93%9D%EC%84%B8%EB%B2%95",
   },
   {
     month: 6,
@@ -254,7 +271,8 @@ export const calendar: CalendarItem[] = [
     kind: "점검",
     body: "침수·누수 피해는 자동차보험(자기차량손해)과 주택화재보험의 담보에 따라 보상 범위가 달라집니다. 자연재해 특약 가입 여부를 확인할 시점입니다.",
     action: "증권에서 '자연재해', '수해', '누수' 특약 가입 여부를 확인합니다.",
-    source: "손해보험 약관(상품별 상이)",
+    source: "금융감독원 보험 표준약관(화재·자동차 등)",
+    sourceUrl: "https://www.fss.or.kr/fss/bbs/B0000115/view.do?menuNo=200504&nttId=21943",
   },
   {
     month: 6,
@@ -264,7 +282,8 @@ export const calendar: CalendarItem[] = [
     kind: "점검",
     body: "소득이 없는 기간에는 임의가입(월 9만원~)이나 추납으로 가입 기간을 채울 수 있습니다. 추납은 사유와 기간 제한이 있습니다.",
     action: "국민연금공단 '내 연금 알아보기'에서 예상 수령액과 가입 이력을 확인합니다.",
-    source: "국민연금공단",
+    source: "국민연금공단 가입·보험료·추납 안내",
+    sourceUrl: "https://nps.or.kr/pnsinfo/ntpsklg/getOHAF0095M0.do",
   },
   {
     month: 6,
@@ -274,7 +293,8 @@ export const calendar: CalendarItem[] = [
     kind: "점검",
     body: "병원 서류는 시간이 지나면 발급 비용과 번거로움이 커집니다. 반기마다 청구하지 않은 건을 정리합니다.",
     action: "보험사 앱에서 청구 이력과 미청구 진료 내역을 대조합니다.",
-    source: "각 보험사 청구 안내",
+    source: "상법 제662조(보험금 청구권 소멸시효 3년)",
+    sourceUrl: "https://www.law.go.kr/%EB%B2%95%EB%A0%B9/%EC%83%81%EB%B2%95",
   },
 
   // 7월
@@ -299,7 +319,8 @@ export const calendar: CalendarItem[] = [
     kind: "변경",
     body: "직장가입자는 보수월액, 지역가입자는 소득·재산 점수 변동이 7월 보험료에 반영됩니다. 연금 기준소득월액 변경과 시기가 겹칩니다.",
     action: "7월 급여명세서에서 건강보험료와 연금보험료를 나눠 확인합니다.",
-    source: "국민건강보험공단",
+    source: "국민건강보험공단 지역가입자 보험료 부과체계",
+    sourceUrl: "https://www.nhis.or.kr/static/html/wbma/b/wbmab0101.html",
   },
   {
     month: 7,
@@ -309,8 +330,8 @@ export const calendar: CalendarItem[] = [
     kind: "점검",
     body: "5세대 특약2는 도수치료 등 근골격계 물리치료·체외충격파·비급여 주사제를 보장 제외(중증 산정특례 대상은 별도 약관 확인). 그 밖의 보장대상 비중증 비급여는 자기부담률 50%",
     action: "진료 전에 내 계약의 비급여 자기부담률과 보장 제외 항목을 확인합니다.",
-    source: "금융위원회 5세대 실손 보도자료 (2026-05-06)",
-    sourceUrl: "https://fsc.go.kr/no010101/86831",
+    source: "손해보험협회 실손의료보험(5세대) 공시",
+    sourceUrl: "https://kpub.knia.or.kr/productDisc/lostHealth/lostHealthInfo.do",
   },
   {
     month: 7,
@@ -321,6 +342,7 @@ export const calendar: CalendarItem[] = [
     body: "상반기 부가세를 신고·납부하는 기간입니다. 사업소득이 있으면 연금계좌 납입 여력과 함께 현금흐름을 봐야 합니다.",
     action: "신고 후 남는 현금으로 연금저축 하반기 납입 계획을 세웁니다.",
     source: "국세청 부가가치세 신고 안내",
+    sourceUrl: "https://www.nts.go.kr/nts/cm/cntnts/cntntsView.do?cntntsId=7694&mi=2272",
     dueDate: "2026-07-25",
   },
 
@@ -334,7 +356,7 @@ export const calendar: CalendarItem[] = [
     body: "건강보험정책심의위원회가 다음 연도 보험료율을 결정합니다. 2026년 적용된 7.19%도 2025년 8월에 확정됐습니다.",
     action: "발표된 인상률로 내년 1월 급여의 건보료 변화를 미리 계산합니다.",
     source: "보건복지부 건강보험정책심의위원회",
-    sourceUrl: "https://www.sedaily.com/article/14110337",
+    sourceUrl: "https://mohw.go.kr/menu.es?mid=a10705010600",
     key: true,
   },
   {
@@ -345,7 +367,8 @@ export const calendar: CalendarItem[] = [
     kind: "발표",
     body: "최저임금위원회가 결정한 다음 연도 최저임금이 8월 5일까지 고시됩니다. 지역가입자·임의가입자의 보험료 기준에도 영향을 줍니다.",
     action: "소득이 최저임금 근처라면 내년 보험료·연금 기준을 함께 봅니다.",
-    source: "최저임금위원회·최저임금법",
+    source: "최저임금위원회·고용노동부 고시 제2026-60호 (2026-08-05)",
+    sourceUrl: "https://www.minimumwage.go.kr/customer/notice/view.do?bultnId=4774",
   },
   {
     month: 8,
@@ -355,8 +378,8 @@ export const calendar: CalendarItem[] = [
     kind: "변경",
     body: "국민연금 보험료율은 2026년부터 매년 0.5%p씩 올라 2033년 13%가 됩니다. 2026년은 9.5% 수준입니다.",
     action: "직장가입자라면 급여명세서의 연금보험료율이 바뀌었는지 확인합니다.",
-    source: "보건복지부 국민연금 제도 안내",
-    sourceUrl: "https://www.mohw.go.kr/menu.es?mid=a10714010100",
+    source: "국민연금공단 가입·보험료 안내",
+    sourceUrl: "https://nps.or.kr/pnsinfo/ntpsklg/getOHAF0095M0.do",
   },
   {
     month: 8,
@@ -366,7 +389,8 @@ export const calendar: CalendarItem[] = [
     kind: "점검",
     body: "자연재해로 인한 차량 침수·시설 파손은 담보 가입 여부에 따라 보상이 갈립니다. 여름철에는 청구 사례가 늘어 처리도 늦어집니다.",
     action: "사고 전에 보상 담보와 자기부담금을 확인하고 사진을 남겨 둡니다.",
-    source: "손해보험 약관(상품별 상이)",
+    source: "금융감독원 보험 표준약관(화재·자동차 등)",
+    sourceUrl: "https://www.fss.or.kr/fss/bbs/B0000115/view.do?menuNo=200504&nttId=21943",
   },
 
   // 9월
@@ -379,6 +403,7 @@ export const calendar: CalendarItem[] = [
     body: "12월 31일 납입분까지 그해 세액공제 대상입니다. 9월에 남은 한도를 계산하면 10~12월에 나눠 넣을 수 있습니다.",
     action: "900만원 한도에서 지금까지 납입액을 빼 남은 금액을 확인합니다.",
     source: "소득세법 제59조의3",
+    sourceUrl: "https://www.law.go.kr/%EB%B2%95%EB%A0%B9/%EC%86%8C%EB%93%9D%EC%84%B8%EB%B2%95",
   },
   {
     month: 9,
@@ -388,7 +413,8 @@ export const calendar: CalendarItem[] = [
     kind: "점검",
     body: "연휴에는 병원 서류 발급과 보험사 심사가 함께 늦어집니다. 청구 예정 건이 있으면 연휴 전에 서류를 확보합니다.",
     action: "진단서·입퇴원확인서·수술확인서 발급 일정을 미리 잡습니다.",
-    source: "각 보험사 청구 안내",
+    source: "상법 제662조(보험금 청구권 소멸시효 3년)",
+    sourceUrl: "https://www.law.go.kr/%EB%B2%95%EB%A0%B9/%EC%83%81%EB%B2%95",
   },
   {
     month: 9,
@@ -399,6 +425,7 @@ export const calendar: CalendarItem[] = [
     body: "영유아 건강검진과 국가예방접종은 시기가 정해져 있습니다. 학기 초에 일정을 잡으면 학원·학교 일정과 겹치지 않습니다.",
     action: "공단 앱에서 자녀의 검진·접종 차수를 확인합니다.",
     source: "국민건강보험공단 영유아 건강검진 안내",
+    sourceUrl: "https://www.nhis.or.kr/nhis/healthin/wbhaca04800m01.do",
   },
   {
     month: 9,
@@ -409,6 +436,7 @@ export const calendar: CalendarItem[] = [
     body: "이혼·사망·성년이 되면서 피보험자와 수익자 관계가 바뀌는 경우가 있습니다. 정리되지 않은 계약은 청구 단계에서 문제가 됩니다.",
     action: "가족 계약의 피보험자·보험수익자가 현재 관계와 맞는지 확인합니다.",
     source: "상법 보험편·각 보험사 계약 변경 안내",
+    sourceUrl: "https://www.law.go.kr/%EB%B2%95%EB%A0%B9/%EC%83%81%EB%B2%95",
   },
 
   // 10월
@@ -421,6 +449,7 @@ export const calendar: CalendarItem[] = [
     body: "직전 과세기간 납부세액이 일정 기준을 넘으면 예정신고 대상입니다. 고지서가 나온 경우 납부 기한을 지켜야 가산세가 없습니다.",
     action: "홈택스에서 예정신고 대상 여부와 고지 금액을 확인합니다.",
     source: "국세청 부가가치세 신고 안내",
+    sourceUrl: "https://www.nts.go.kr/nts/cm/cntnts/cntntsView.do?cntntsId=7694&mi=2272",
     dueDate: "2026-10-25",
   },
 
@@ -433,7 +462,8 @@ export const calendar: CalendarItem[] = [
     kind: "점검",
     body: "국세청이 올해 예상 세액을 미리 계산해 주는 서비스를 엽니다. 남은 두 달 동안 조정할 수 있는 마지막 구간입니다.",
     action: "예상 결정세액을 확인하고 연금계좌·보험료 공제 누락을 점검합니다.",
-    source: "국세청 연말정산 미리보기",
+    source: "국세청 소식지 제1184호 (2026-10-26)",
+    sourceUrl: "https://www.nts.go.kr/nts/na/ntt/selectNttInfo.do?bbsId=1022&mi=2209&nttSn=1355698",
     key: true,
   },
   {
@@ -456,8 +486,8 @@ export const calendar: CalendarItem[] = [
     kind: "발표",
     body: "보험사들이 내년 갱신 계약의 인상률을 공시·안내하기 시작합니다. 실손·간병·암보험의 갱신 보험료는 이 시점에 대략적인 방향이 잡히고, 정확한 금액은 회사별 상품공시에서 확인합니다.",
     action: "내 갱신월이 내년 상반기라면 보험다모아·협회 공시에서 같은 조건의 갱신 보험료를 조회해 유지·감액·전환을 검토합니다.",
-    source: "보험개발원 참조순보험료율 · 생·손보협회 비교공시(보험다모아)",
-    sourceUrl: "https://e-insmarket.or.kr/m/index.knia",
+    source: "손해보험협회 보험료 인상률·손해율 공시·보험다모아",
+    sourceUrl: "https://kpub.knia.or.kr/productDisc/lostHealth/lostHealthIncreaseRate.do",
   },
   {
     month: 11,
@@ -468,6 +498,7 @@ export const calendar: CalendarItem[] = [
     body: "개인사업자는 상반기 실적을 기준으로 종합소득세 중간예납을 11월 30일까지 납부합니다. 고지서가 나온 경우 기한을 넘기면 가산세가 붙습니다.",
     action: "홈택스에서 고지 여부와 납부 금액을 확인하고, 연금계좌 납입과 현금흐름을 함께 봅니다.",
     source: "소득세법 제65조",
+    sourceUrl: "https://www.nts.go.kr/nts/cm/cntnts/cntntsView.do?cntntsId=7673&mi=2236",
     dueDate: "2026-11-30",
   },
 
@@ -481,6 +512,7 @@ export const calendar: CalendarItem[] = [
     body: "그해 12월 31일까지 입금된 금액만 그해 공제 대상입니다. 연금저축 600만원, IRP 합산 900만원이 한도입니다.",
     action: "12월 31일 이전에 이체를 완료하고, 다음 해 1월에 납입증명서를 확인합니다.",
     source: "소득세법 제59조의3",
+    sourceUrl: "https://www.law.go.kr/%EB%B2%95%EB%A0%B9/%EC%86%8C%EB%93%9D%EC%84%B8%EB%B2%95",
     dueDate: "2026-12-31",
     key: true,
     toolHref: "/apps/pension-draw/run",
@@ -495,6 +527,7 @@ export const calendar: CalendarItem[] = [
     body: "보장성보험료 100만원 한도도 12월 31일에 마감됩니다. 자동이체일이 1월 초라면 한 해가 밀릴 수 있습니다.",
     action: "12월 자동이체 출금일을 확인하고, 부족분은 직접 납입으로 채웁니다.",
     source: "소득세법 제59조의4",
+    sourceUrl: "https://www.law.go.kr/%EB%B2%95%EB%A0%B9/%EC%86%8C%EB%93%9D%EC%84%B8%EB%B2%95",
     dueDate: "2026-12-31",
   },
   {
@@ -506,6 +539,7 @@ export const calendar: CalendarItem[] = [
     body: "1월부터 적용될 국민연금 급여액 인상, 건강보험료율, 기준소득월액 일정이 이 시점에 정리됩니다.",
     action: "내년 예상 보험료와 연금액을 올해와 나란히 표로 만들어 둡니다.",
     source: "보건복지부·국민연금공단·국민건강보험공단",
+    sourceUrl: "https://www.mohw.go.kr/menu.es?mid=a10714010100",
   },
 ];
 
