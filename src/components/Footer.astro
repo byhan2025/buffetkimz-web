@@ -11,7 +11,8 @@ import { calendar } from "@/data/calendar";
 import BrandLockup from "@/components/BrandLockup.astro";
 
 const year = site.today.getFullYear();
-const internalApps = apps.filter((a) => a.internal);
+/* v8.8.0 — 보관함(archived) 도구는 푸터 색인에서도 뺀다. 코드·주소만 남기고 노출하지 않는다. */
+const internalApps = apps.filter((a) => a.internal && !a.archived);
 const mainLinks = [
   { href: "/posts", label: "자산리포트 전체" },
   { href: "/apps", label: "앱스토어" },
