@@ -1,14 +1,18 @@
 ---
 /**
- * 데일리 브리프 게시판 — `/board/` (v9.2.0, 2026-11-24 신설).
+ * 데일리 브리프 게시판 — `/board/` (v9.3.0, 2026-11-24 3코너 개편).
  *
  * 무엇을 담나
  *  · 하루 세 번(06:00 · 13:00 · 19:00) 자료를 확인하면서 남은 메모 중, 정식 글로 키우기엔 짧고
  *    '오늘 확인 허브'(/ 홈)에 자리를 내주기엔 아까운 것을 회차·분류·출처와 함께 쌓는다.
  *    데이터는 `src/data/board.ts` 한 파일 — 화면은 그 값만 그린다(숫자를 손으로 적지 않는다).
  *
+ * 세 코너
+ *  · 📊 금융·시장 브리프(시황·제도·보험·AI·실무) / 📖 오늘의 스토리·썰(스토리·썰) /
+ *    🔥 SNS 인기 콘텐츠(SNS 화제). 코너 카드를 누르면 그 코너 글만 남고, 분류 알약으로 더 좁힌다.
+ *  · 코너 이름·설명은 독자용이다. 내부 봇·회의실 이름은 화면에 쓰지 않는다.
+ *
  * 읽는 방식
- *  · 분류 알약(전체 / 시황 / 제도·보험 / AI·실무 / 트렌드)으로 거르고, 그날 회차별로 위에서 아래로 읽는다.
  *  · 모든 카드에 확인 날짜·회차·출처 링크·정리 주체가 붙는다. 출처가 없으면 카드도 없다.
  *  · '실시간'·'속보'·'긴급'은 쓰지 않는다(데이터 검사가 빌드에서 막는다). 영업성 CTA도 두지 않는다.
  */
@@ -17,7 +21,10 @@ import HomePill from "@/components/HomePill.astro";
 import { withBase, site } from "@/config/site";
 import {
   BOARD_CATEGORIES,
+  BOARD_CORNERS,
   boardByDate,
+  boardCornerOf,
+  boardCornerStats,
   boardCountByCategory,
   boardDateLabel,
   boardEntries,
@@ -29,14 +36,19 @@ validateBoard(boardEntries);
 
 const groups = boardByDate(boardEntries);
 const counts = boardCountByCategory(boardEntries);
+const cornerStats = boardCornerStats(boardEntries);
 const latestDate = boardEntries[0]?.date ?? site.baseDate;
 
-/** 분류 색 — 카드 좌측 띠와 알약이 같은 값을 쓴다(data-cat 속성 → 페이지 <style>) */
+/** 코너 필터가 쓰는 분류 목록 — 화면 스크립트에 JSON으로 넘긴다 */
+const cornerMap = Object.fromEntries(BOARD_CORNERS.map((c) => [c.key, [...c.categories]]));
+
+/** 분류 키 — 카드 좌측 띠·알약·코너 색이 같은 값을 쓴다(data-cat·data-tone 속성 → 페이지 <style>) */
 const catKey: Record<string, string> = {
   시황: "market",
   "제도·보험": "system",
   "AI·실무": "ai",
-  트렌드: "trend",
+  "스토리·썰": "story",
+  "SNS 화제": "sns",
 };
 
 const jsonLd = graph([
@@ -45,7 +57,7 @@ const jsonLd = graph([
     "@id": `${pageUrl("/board")}#webpage`,
     name: "데일리 브리프 게시판 — buffetkimz",
     description:
-      "하루 세 번(06:00·13:00·19:00) 확인한 시황·제도·보험·AI 메모를 회차와 출처를 붙여 쌓는 게시판.",
+      "하루 세 번(06:00·13:00·19:00) 확인한 금융·시장 브리프, 오늘의 스토리·썰, SNS 인기 콘텐츠를 회차와 출처를 붙여 쌓는 게시판.",
     url: pageUrl("/board"),
     inLanguage: "ko-KR",
     isPartOf: partOfWebsite,
@@ -68,8 +80,8 @@ const jsonLd = graph([
 ---
 
 <Base
-  title="데일리 브리프 게시판 — 하루 세 번 확인한 시황·제도·AI 메모"
-  description={`시황·제도·보험·AI를 하루 세 번(06:00·13:00·19:00) 확인하고, 그중 글과 오늘 허브에 담지 못한 것을 회차·출처와 함께 쌓습니다. 현재 ${boardEntries.length}건.`}
+  title="데일리 브리프 게시판 — 금융·시장 브리프 · 오늘의 스토리 · SNS 인기 콘텐츠"
+  description={`금융·시장 브리프, 오늘의 스토리·썰, SNS 인기 콘텐츠 세 코너로 하루 세 번(06:00·13:00·19:00) 확인한 기록을 회차·출처와 함께 쌓습니다. 현재 ${boardEntries.length}건.`}
   path="/board"
   jsonLd={jsonLd}
 >
@@ -91,13 +103,14 @@ const jsonLd = graph([
         <p class="mono text-[11.5px] font-semibold tracking-[0.18em] text-brand">BOARD · 데일리 브리프</p>
         <h1 class="h-display mt-2 text-ink">하루 세 번,<br />확인한 것만 쌓습니다</h1>
         <p class="lede mt-4 max-w-[56ch]">
-          아침 6시, 낮 1시, 저녁 7시에 시장과 제도, 도구 소식을 확인합니다. 정식 리포트로 키우기엔 짧고
-          오늘 허브에 다 담지 못한 메모를, 확인한 날짜와 회차, 원문 링크와 함께 이곳에 남깁니다.
+          아침 6시, 낮 1시, 저녁 7시에 시장과 제도, SNS에서 그날 화제가 된 것을 확인합니다. 정식 리포트로
+          키우기엔 짧고 오늘 허브에 다 담지 못한 메모를, 확인한 날짜와 회차, 원문 링크와 함께 세 코너로
+          나눠 남깁니다.
         </p>
 
         <ul class="mt-5 flex flex-wrap gap-2">
           <li class="chip">확인 기록 {boardEntries.length}건</li>
-          <li class="chip">매일 3회 · 06:00 · 13:00 · 19:00</li>
+          <li class="chip">세 코너 · 금융·시장 / 스토리 / SNS</li>
           <li class="chip">최근 확인 {boardDateLabel(latestDate)}</li>
           <li class="chip">카드마다 원문 출처</li>
         </ul>
@@ -107,53 +120,85 @@ const jsonLd = graph([
         <p class="shrink-0 text-[12px] font-bold text-ink">읽는 법</p>
         <p class="text-[12.5px] leading-[1.7] text-ink-muted">
           한 카드는 한 가지 확인 사항입니다. 제목 아래 요약과 핵심 포인트 2~3줄을 먼저 읽고, 판단이 필요한
-          숫자는 카드 하단 원문 링크에서 대조해 주세요. 확인 시점이 지난 내용은 그대로 두고, 새 회차를
-          위에 더합니다.
+          숫자는 카드 하단 원문 링크에서 대조해 주세요. 스토리 코너는 X에 올라온 1인칭 글을 줄거리만 옮긴
+          것이라, 사실 확인된 사건이 아닙니다.
         </p>
       </div>
     </div>
   </section>
 
-  <!-- ② 분류 필터 -->
+  <!-- ② 세 코너 -->
+  <section class="scene-white border-b border-line" aria-labelledby="board-corners-title">
+    <div class="wrap py-6 md:py-8">
+      <div class="flex flex-wrap items-end justify-between gap-2">
+        <h2 id="board-corners-title" class="br-corners-title">세 개의 코너</h2>
+        <p class="text-[12px] text-ink-faint">코너를 누르면 그 코너 글만 남습니다 · 다시 누르면 전체</p>
+      </div>
+
+      <ul class="br-corners" role="group" aria-label="코너 선택">
+        {
+          cornerStats.map(({ corner, count, latest }) => (
+            <li>
+              <button
+                type="button"
+                class="br-corner"
+                data-board-corner={corner.key}
+                data-tone={corner.tone}
+                aria-pressed="false"
+                aria-controls="board-list"
+              >
+                <span class="br-corner-emoji" aria-hidden="true">{corner.emoji}</span>
+                <span class="br-corner-body">
+                  <span class="br-corner-name">{corner.title}</span>
+                  <span class="br-corner-tagline">{corner.tagline}</span>
+                  <span class="br-corner-blurb">{corner.blurb}</span>
+                  <span class="br-corner-meta mono">
+                    {count}건{latest ? ` · 최근 ${latest}` : ""}
+                  </span>
+                </span>
+              </button>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- ③ 분류 필터 -->
   <section class="scene-white border-b border-line">
     <div class="wrap py-4 md:py-5">
       <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div class="flex flex-wrap items-center gap-1.5" role="group" aria-label="분류 필터" data-board-tabs>
-            <button
-              type="button"
-              class="tab"
-              data-board-tab="all"
-              aria-pressed="true"
-              aria-controls="board-list"
-            >
-              전체
-              <span class="mono ml-1.5 text-[12px] text-ink-faint">{boardEntries.length}</span>
-            </button>
-            {
-              BOARD_CATEGORIES.map((c) => (
-                <button
-                  type="button"
-                  class="tab"
-                  data-board-tab={c}
-                  aria-pressed="false"
-                  aria-controls="board-list"
-                >
-                  {c}
-                  <span class="mono ml-1.5 text-[12px] text-ink-faint">{counts.get(c) ?? 0}</span>
-                </button>
-              ))
-            }
+          <button type="button" class="tab" data-board-tab="all" aria-pressed="true" aria-controls="board-list">
+            전체
+            <span class="mono ml-1.5 text-[12px] text-ink-faint">{boardEntries.length}</span>
+          </button>
+          {
+            BOARD_CATEGORIES.map((c) => (
+              <button
+                type="button"
+                class="tab"
+                data-board-tab={c}
+                data-tone={boardCornerOf(c).tone}
+                aria-pressed="false"
+                aria-controls="board-list"
+              >
+                {c}
+                <span class="mono ml-1.5 text-[12px] text-ink-faint">{counts.get(c) ?? 0}</span>
+              </button>
+            ))
+          }
         </div>
 
         <p class="text-[12px] text-ink-faint" aria-live="polite">
           <span class="mono font-semibold text-ink" data-board-count>{boardEntries.length}</span>건 표시 중 ·
-          분류를 눌러 걸러 봅니다
+          코너·분류를 눌러 걸러 봅니다
         </p>
       </div>
     </div>
   </section>
 
-  <!-- ③ 날짜 · 회차별 목록 -->
+  <!-- ④ 날짜 · 회차별 목록 -->
   <section class="scene-cream">
     <div class="wrap py-8 md:py-12" id="board-list">
       {
@@ -171,11 +216,20 @@ const jsonLd = graph([
 
             <ol class="br-list">
               {g.items.map((e) => (
-                <li class="br-item" data-board-entry data-category={e.category} id={e.id}>
+                <li
+                  class="br-item"
+                  data-board-entry
+                  data-category={e.category}
+                  data-tone={boardCornerOf(e.category).tone}
+                  id={e.id}
+                >
                   <article class="br-card" aria-labelledby={`${e.id}-title`}>
                     <div class="br-head">
                       <span class="br-cat" data-cat={catKey[e.category]}>
                         {e.category}
+                      </span>
+                      <span class="br-corner-tag mono" data-tone={boardCornerOf(e.category).tone}>
+                        {boardCornerOf(e.category).emoji} {boardCornerOf(e.category).title}
                       </span>
                       <span class="br-slot mono">
                         <time datetime={`${e.date}T${e.slot}:00+09:00`}>
@@ -236,6 +290,10 @@ const jsonLd = graph([
             남아야 나중에 검증할 수 있습니다.
           </li>
           <li>
+            <b>이야기와 사실을 섞지 않습니다.</b> 스토리·썰 코너는 누군가 쓴 1인칭 글의 줄거리입니다. 사건의
+            진위와 무관하게 '그런 글이 있었다'까지만 적고, 원문 링크로 보냅니다.
+          </li>
+          <li>
             <b>권하지 않습니다.</b> 이곳에는 가입·상담·매수를 부르는 문구를 두지 않습니다. 기록과 원문 링크만
             놓습니다.
           </li>
@@ -251,19 +309,33 @@ const jsonLd = graph([
     </div>
   </section>
 
+  <script type="application/json" id="board-corner-map" set:html={JSON.stringify(cornerMap)}></script>
   <script>
     const buttons = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-board-tab]"));
+    const cornerButtons = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-board-corner]"));
     const cards = Array.from(document.querySelectorAll<HTMLElement>("[data-board-entry]"));
     const days = Array.from(document.querySelectorAll<HTMLElement>("[data-board-day]"));
     const empty = document.querySelector<HTMLElement>("[data-board-empty]");
     const countEl = document.querySelector<HTMLElement>("[data-board-count]");
 
+    const cornerMap: Record<string, string[]> = JSON.parse(
+      document.getElementById("board-corner-map")?.textContent || "{}"
+    );
+
+    /** 활성 필터 — "all" | 코너 키(market·story·sns) | 분류명 */
     let active = "all";
+
+    function isOn(card: HTMLElement) {
+      if (active === "all") return true;
+      const cats = cornerMap[active];
+      if (cats) return cats.includes(card.dataset.category ?? "");
+      return card.dataset.category === active;
+    }
 
     function apply() {
       let shown = 0;
       for (const card of cards) {
-        const on = active === "all" || card.dataset.category === active;
+        const on = isOn(card);
         card.hidden = !on;
         if (on) shown += 1;
       }
@@ -272,6 +344,9 @@ const jsonLd = graph([
         day.hidden = !any;
       }
       buttons.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.boardTab === active)));
+      cornerButtons.forEach((b) =>
+        b.setAttribute("aria-pressed", String(b.dataset.boardCorner === active))
+      );
       if (countEl) countEl.textContent = String(shown);
       if (empty) empty.hidden = shown > 0;
     }
@@ -283,11 +358,141 @@ const jsonLd = graph([
       });
     });
 
+    cornerButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const key = button.dataset.boardCorner ?? "";
+        active = active === key ? "all" : key;
+        apply();
+      });
+    });
+
     apply();
   </script>
 </Base>
 
 <style>
+  /* ---------- 세 코너 카드 ---------- */
+  .br-corners-title {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    color: var(--color-ink-faint);
+  }
+
+  .br-corners {
+    margin-top: 14px;
+    display: grid;
+    gap: 10px;
+  }
+
+  @media (min-width: 900px) {
+    .br-corners {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+  }
+
+  .br-corners > li {
+    display: block;
+  }
+
+  .br-corner {
+    --tint: var(--color-brand-soft);
+    --tone: var(--color-brand-deep);
+    display: flex;
+    gap: 12px;
+    width: 100%;
+    height: 100%;
+    min-height: 44px;
+    padding: 14px 15px;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-card);
+    background: #fff;
+    text-align: left;
+    box-shadow: 0 1px 2px rgb(11 27 41 / 0.04);
+    transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+  }
+
+  .br-corner[data-tone="market"] {
+    --tint: var(--color-brand-soft);
+    --tone: var(--color-brand-deep);
+  }
+
+  .br-corner[data-tone="story"] {
+    --tint: #f7eae2;
+    --tone: var(--color-clay);
+  }
+
+  .br-corner[data-tone="sns"] {
+    --tint: var(--color-jade-soft);
+    --tone: var(--color-jade);
+  }
+
+  .br-corner:hover,
+  .br-corner:focus-visible {
+    border-color: var(--color-line);
+    box-shadow: 0 10px 26px -22px rgb(11 27 41 / 0.55);
+  }
+
+  .br-corner[aria-pressed="true"] {
+    border-color: var(--tone);
+    background: var(--tint);
+    box-shadow: inset 0 0 0 1px var(--tone);
+  }
+
+  .br-corner-emoji {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: var(--tint);
+    font-size: 18px;
+    line-height: 1;
+  }
+
+  .br-corner[aria-pressed="true"] .br-corner-emoji {
+    background: #fff;
+  }
+
+  .br-corner-body {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+  }
+
+  .br-corner-name {
+    font-size: 14.5px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--tone);
+  }
+
+  .br-corner-tagline {
+    font-size: 12.5px;
+    font-weight: 600;
+    line-height: 1.5;
+    color: var(--color-ink);
+  }
+
+  .br-corner-blurb {
+    margin-top: 2px;
+    font-size: 12px;
+    line-height: 1.65;
+    color: var(--color-ink-muted);
+    overflow-wrap: anywhere;
+  }
+
+  .br-corner-meta {
+    margin-top: 4px;
+    font-size: 11.5px;
+    color: var(--color-ink-faint);
+  }
+
+  /* ---------- 날짜 묶음 ---------- */
   .br-day + .br-day {
     margin-top: 28px;
     padding-top: 24px;
@@ -343,13 +548,27 @@ const jsonLd = graph([
     }
   }
 
-  /* 분류 띠 — 카드 왼쪽 한 줄로 분류를 색으로도 알린다(색만으로 구분하지 않도록 알약 글자도 함께 둔다) */
+  /* 코너 띠 — 카드 왼쪽 한 줄로 코너를 색으로도 알린다(색만으로 구분하지 않도록 이름도 함께 둔다) */
   .br-card::before {
     content: "";
     position: absolute;
     inset: 0 auto 0 0;
     width: 3px;
     background: var(--color-brand-glow);
+  }
+
+  .br-item[data-tone="market"] .br-card::before {
+    background: var(--color-brand-glow);
+  }
+
+  .br-item[data-tone="story"] .br-card::before {
+    background: var(--color-clay);
+    opacity: 0.75;
+  }
+
+  .br-item[data-tone="sns"] .br-card::before {
+    background: var(--color-jade);
+    opacity: 0.85;
   }
 
   .br-cat[data-cat="market"] {
@@ -367,9 +586,14 @@ const jsonLd = graph([
     background: var(--color-sky);
   }
 
-  .br-cat[data-cat="trend"] {
+  .br-cat[data-cat="story"] {
     color: var(--color-clay);
     background: #f7eae2;
+  }
+
+  .br-cat[data-cat="sns"] {
+    color: var(--color-jade);
+    background: var(--color-jade-soft);
   }
 
   .br-head {
@@ -390,6 +614,26 @@ const jsonLd = graph([
     font-weight: 700;
     letter-spacing: -0.01em;
     white-space: nowrap;
+  }
+
+  /* 코너 이름 — 분류 알약 옆에 작게. 모바일에서는 슬롯과 함께 줄바꿈된다 */
+  .br-corner-tag {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--color-ink-faint);
+    white-space: nowrap;
+  }
+
+  .br-corner-tag[data-tone="market"] {
+    color: var(--color-brand-deep);
+  }
+
+  .br-corner-tag[data-tone="story"] {
+    color: var(--color-clay);
+  }
+
+  .br-corner-tag[data-tone="sns"] {
+    color: var(--color-jade);
   }
 
   .br-slot {
