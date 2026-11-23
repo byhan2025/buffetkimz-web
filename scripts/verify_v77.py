@@ -176,12 +176,12 @@ with sync_playwright() as p:
     want_cards = counts.get("store")
     want_sections = counts.get("cats")
     check(
-        f"B1 앱스토어 카드 {want_cards}종(store.ts)",
+        f"B1 앱스토어 진열 {want_cards}칸(도구 + 달력 + 앨범 · store.ts)",
         want_cards is not None and cards == want_cards,
         f"화면 {cards} / 데이터 {want_cards}",
     )
     check(
-        f"B2 섹션 {want_sections}",
+        f"B2 카테고리별 진열 {want_sections}",
         want_sections is not None and per_section == want_sections,
         f"화면 {per_section} / 데이터 {want_sections}",
     )
