@@ -163,6 +163,10 @@ const jsonLd = graph([
               </span>
             ))}
           </div>
+          {/* v8.9.1 — 금액이 '예시'임을 첫 화면에서 한 번 더 분명히 적는다(16:00 모바일 점검) */}
+          <p class="mt-3 text-[16px] leading-[1.65] text-ink-faint" data-virtual-amount>
+            이 강의에 나오는 모든 금액은 연습용 가상 금액입니다. 내 숫자를 넣으면 결과가 달라집니다.
+          </p>
         </div>
       </div>
     </section>
@@ -232,6 +236,9 @@ const jsonLd = graph([
                   세 번 넣어 보기
                 </h2>
                 <p class="mt-2 text-[17px] leading-[1.7] text-ink-muted">{lesson.calculator.note}</p>
+                <p class="mono mt-2 text-[16px] leading-[1.6] text-ink-faint">
+                  모든 금액은 연습용 가상 금액입니다. 내 숫자로 바꿔 넣어 보세요.
+                </p>
               </div>
 
               <ul class="mt-5 grid gap-3">

@@ -1,6 +1,6 @@
 # buffetkimz-web — 작업 규칙
 
-통합 개인 브랜드 사이트(`buffetkimz.com`, GitHub Pages). Astro 기반. 2026-11-23 현재 `package.json` 버전 `8.9.0`(카드뉴스 전용 페이지·WebP).
+통합 개인 브랜드 사이트(`buffetkimz.com`, GitHub Pages). Astro 기반. 2026-11-23 현재 `package.json` 버전 `8.9.1`(모바일 320px·터치 타깃 보완).
 
 > 설치 시점: v8.6.0 작업이 끝나고 `main` 이 정리된 뒤에 이 파일을 `apps/buffetkimz-web/AGENTS.md` 로 넣는다. `scripts/apply-agents-md.sh --app buffetkimz-web --force`.
 

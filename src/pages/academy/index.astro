@@ -1137,8 +1137,9 @@ const jsonLd = graph([
   }
 
   .academy-check input {
-    width: 18px;
-    height: 18px;
+    /* v8.9.1 — 18px → 20px(라벨 전체가 44px 높이의 클릭 영역이다) */
+    width: 20px;
+    height: 20px;
     flex: none;
     accent-color: var(--color-brand);
   }

@@ -4280,7 +4280,8 @@
 
   .hub-quicknav a {
     display: inline-flex;
-    min-height: 34px;
+    /* v8.9.1 — 모바일 터치 타깃 44px(34px → 44px) */
+    min-height: 44px;
     align-items: center;
     padding: 0 12px;
     border: 1px solid var(--color-line);
@@ -4487,7 +4488,8 @@
   }
 
   .hub-copy {
-    min-height: 40px;
+    /* v8.9.1 — 모바일 터치 타깃 44px */
+    min-height: 44px;
     padding: 0 12px;
     border: 1px solid var(--color-line);
     border-radius: 999px;
@@ -5405,7 +5407,8 @@
 
   .store-tab {
     display: inline-flex;
-    min-height: 40px;
+    /* v8.9.1 — 모바일 터치 타깃 44px */
+    min-height: 44px;
     flex: 0 0 auto;
     align-items: center;
     gap: 7px;
@@ -6096,9 +6099,10 @@
 
   .mboard-mini-item {
     display: inline-flex;
-    align-items: baseline;
+    align-items: center;
     gap: 5px;
-    min-height: 30px;
+    /* v8.9.1 — 모바일 터치 타깃 44px */
+    min-height: 44px;
     padding: 4px 9px;
     border: 1px solid rgb(255 255 255 / 0.09);
     border-radius: 8px;
@@ -6476,7 +6480,8 @@
 
   .pfeed-tab {
     flex: 1 1 0;
-    min-height: 32px;
+    /* v8.9.1 — 모바일 터치 타깃 44px(2026-11-23 점검) */
+    min-height: 44px;
     padding: 0 6px;
     border-radius: 999px;
     font-size: 11.5px;
@@ -7647,7 +7652,8 @@
 
   .ab-side-tool {
     display: flex;
-    min-height: 40px;
+    /* v8.9.1 — 모바일 터치 타깃 44px */
+    min-height: 44px;
     align-items: center;
     justify-content: space-between;
     gap: 8px;
@@ -7967,7 +7973,8 @@
 
   .ab-hq-links a {
     display: flex;
-    min-height: 40px;
+    /* v8.9.1 — 모바일 터치 타깃 44px */
+    min-height: 44px;
     align-items: center;
     justify-content: space-between;
     gap: 8px;
@@ -8831,7 +8838,8 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    min-height: 40px;
+    /* v8.9.1 — 모바일 터치 타깃 44px */
+    min-height: 44px;
     padding: 0 13px;
     border: 1px solid var(--color-line);
     border-radius: 999px;
@@ -8849,7 +8857,8 @@
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    min-height: 32px;
+    /* v8.9.1 — 모바일 터치 타깃 44px */
+    min-height: 44px;
     padding: 0 10px;
     border: 1px solid var(--color-line);
     border-radius: 999px;
@@ -9479,5 +9488,120 @@
     display: flex;
     flex-wrap: wrap;
     gap: 5px;
+  }
+}
+
+/* ==================================================================
+   v8.9.1 모바일 터치 타깃 — 44px (2026-11-23 16:00 모바일 점검 반영)
+   ------------------------------------------------------------------
+   점검에서 지적된 19×19('근거')·36×17('글 읽기 →')처럼 44px 미만인 보조 링크를
+   손가락 크기로 넓힌다. 글자 크기·굵기는 그대로 두고 상자만 키우며, 음수 마진으로
+   줄 높이와 간격(레이아웃)은 이전과 같게 유지한다. 겹침을 피하려고 넓히는 방향을
+   링크가 놓인 여백 쪽(카드 안쪽 여백·줄 사이 빈칸)으로만 잡았다.
+   ================================================================== */
+@layer components {
+  .simtop-all,
+  .simtop-more,
+  .pfeed-link,
+  .picks-more,
+  .hub-ai-source,
+  .film-credit-line a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+
+  /* 바로 쓰는 시뮬레이터 — 머리의 '앱스토어 전체 →', 카드의 '근거'
+     '근거'는 44px 폭까지 넓힌다: 왼쪽은 버튼과의 간격(8px)까지만, 오른쪽은 카드 여백(14px)까지 */
+  .simtop-all {
+    margin-block: -13px;
+  }
+
+  .simtop-more {
+    min-width: 44px;
+    padding: 0 14px 0 8px;
+    margin: 0 -14px 0 -8px;
+  }
+
+  /* 분야별 30초 브리핑 — 각 줄의 '… →'. 줄 사이 여백으로 위아래를 넓히고, 좌우는 줄 끝 여백으로 */
+  .pfeed-link {
+    padding-inline: 10px;
+    margin: -14px -10px;
+  }
+
+  /* 포털 픽 — '전체 보기 →'·'자료앨범 →'·'앱스토어 →' */
+  .picks-more {
+    padding-inline: 10px;
+    margin: -12px -10px;
+  }
+
+  /* 오늘 확인 허브 — '원문 보기' */
+  .hub-ai-source {
+    padding-inline: 8px;
+    margin: -13px -8px;
+  }
+
+  /* 브랜드 필름 크레딧 한 줄 — 기록·카드·도구·일정 링크(24px) */
+  .film-credit-line a {
+    margin-block: -10px;
+  }
+
+  /* 헤더 로고 링크 — 헤더 줄(모바일 56px) 안에서 44px */
+  .brand-lockup-link {
+    min-height: 44px;
+    align-items: center;
+  }
+
+}
+
+/* v8.9.1 — 목록 카드 제목 링크·글 안의 목차 링크도 모바일에서는 44px 높이로 (데스크톱은 그대로) */
+@layer components {
+  @media (max-width: 767px) {
+    .post-card [data-card-title] a {
+      display: flex;
+      min-height: 44px;
+      align-items: center;
+    }
+
+    .toc-link {
+      min-height: 44px;
+      align-items: center;
+      padding-block: 6px;
+    }
+  }
+}
+
+/* v8.9.1 — 글로 끝나는 줄의 작은 링크도 모바일에서는 44px 상자로(글자 위치·줄 높이는 그대로) */
+@layer components {
+  @media (max-width: 767px) {
+    .ab-legal a,
+    [data-post-brand-card] p a,
+    .cmp-foot .cmp-source {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+      margin-block: -13px;
+    }
+
+    .ab-legal {
+      gap: 4px 12px;
+    }
+  }
+}
+
+/* v8.9.1 — 44px로 넓힌 링크 상자가 이웃 줄과 겹치지 않게 줄 간격을 확보한다(320px) */
+@layer components {
+  @media (max-width: 767px) {
+    .film-credit-line {
+      gap: 20px 10px;
+    }
+
+    .picks-panel-head {
+      padding-bottom: 12px;
+    }
+
+    .picks-cards-head {
+      padding-bottom: 10px;
+    }
   }
 }

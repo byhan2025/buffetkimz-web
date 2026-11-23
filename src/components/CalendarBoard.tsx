@@ -262,7 +262,7 @@ export default function CalendarBoard({ items, initialMonth, note, todayIso }: P
                         href={item.sourceUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="mt-1.5 inline-block text-[12px] text-ink-faint underline decoration-line underline-offset-2 hover:text-brand-deep"
+                        className="mt-1.5 inline-flex min-h-[44px] items-center text-[12px] text-ink-faint underline decoration-line underline-offset-2 hover:text-brand-deep"
                       >
                         출처: {item.source.length > 34 ? item.source.slice(0, 34) + "…" : item.source}
                       </a>

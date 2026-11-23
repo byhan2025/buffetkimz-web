@@ -93,7 +93,9 @@ const brief = (text: string, limit = 80) => {
     )
   }
 
-  <ul class={`grid gap-4 ${grid}`} data-post-cards data-view-mode="card" aria-label={label}>
+  {/* 320px — 칸 폭이 auto 트랙이면 카드의 max-content(시리즈 칩·기준일 줄)까지 넓어져 문서가 밀린다.
+      grid-cols-1(repeat(1, minmax(0,1fr)))로 트랙을 컨테이너 폭에 고정한다. */}
+  <ul class={`grid grid-cols-1 gap-4 ${grid}`} data-post-cards data-view-mode="card" aria-label={label}>
     {
       items.map((item) => {
         const question = shouldShowQuestion(item.question, item.title) ? item.question : undefined;
@@ -105,7 +107,7 @@ const brief = (text: string, limit = 80) => {
               : undefined;
         return (
           <li
-            class="card post-card card-lift flex flex-col p-5"
+            class="card post-card card-lift flex min-w-0 flex-col p-5"
             data-post-item
             data-date={item.dateISO ?? item.date}
             data-title={item.title}
@@ -147,7 +149,7 @@ const brief = (text: string, limit = 80) => {
             )}
 
             <h3 class="clamp-2 mt-1.5 text-[17px] font-bold leading-[1.42] tracking-[-0.03em] text-ink" data-card-title>
-              <a href={withBase(item.url)} class="block min-h-[24px] hover:text-brand-deep">
+              <a href={withBase(item.url)} class="flex min-h-[44px] items-center hover:text-brand-deep md:block md:min-h-[24px]">
                 {item.title}
               </a>
             </h3>

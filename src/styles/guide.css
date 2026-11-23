@@ -259,7 +259,8 @@ html.bk-off-tool .journey-bar[data-store="bk_tool_guide_v1"] {
   }
 
   .journey-main {
-    min-height: 40px;
+    /* v8.9.1 — 모바일 터치 타깃 44px(40px → 44px) */
+    min-height: 44px;
   }
 }
 
