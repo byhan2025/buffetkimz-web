@@ -152,6 +152,18 @@ with sync_playwright() as p:
     out = OUT / f"1280-p2-track-stage-2-bottom-{MODE}.png"
     pg.screenshot(path=str(out))
     written.append(str(out))
+
+    # 도구 출구 패널 전체 — 390px에서는 세로로 길어 잘리므로 데스크톱에서 한 장.
+    # 고정 바(요약 바·가이드)는 캡처 동안만 감춘다(패널이 길어 스크롤 중 바가 패널 위에 그려진다).
+    pg.goto(f"{BASE}{PREFIX}/apps/pension-draw/run/", wait_until="load")
+    pg.wait_for_timeout(900)
+    pg.add_style_tag(content="[data-sticky-summary],[data-guide-dock]{display:none!important}")
+    el = pg.locator("[data-run-exit]").first
+    el.scroll_into_view_if_needed()
+    pg.wait_for_timeout(300)
+    out = OUT / f"1280-p2-run-exit-{MODE}.png"
+    el.screenshot(path=str(out))
+    written.append(str(out))
     ctx.close()
     browser.close()
 

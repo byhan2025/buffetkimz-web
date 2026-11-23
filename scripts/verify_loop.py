@@ -15,16 +15,18 @@
   P7 다음 단계 링크 — 1단계 페이지가 2단계로, 2단계가 3단계로 가는 링크를 실제로 들고 있는가
 
 사용:
-  npm run build && python3 scripts/verify_loop.py
-결과: reports/buffetkimz-web/learning-loop/verify-loop.json
+  npm run build && python3 scripts/verify_loop.py          # 로컬 dist
+  python3 scripts/verify_loop.py --live                     # gh-pages 라이브
+결과: reports/buffetkimz-web/learning-loop/verify-loop-{local,live}.json
 """
 from __future__ import annotations
 
 import json
 import pathlib
-import re
 import shutil
 import subprocess
+import sys
+import urllib.request
 
 APP = pathlib.Path(__file__).resolve().parent.parent
 DIST = APP / "dist"
@@ -32,6 +34,9 @@ OUT = APP.parent.parent / "reports" / "buffetkimz-web" / "learning-loop"
 OUT.mkdir(parents=True, exist_ok=True)
 
 NODE = shutil.which("node") or "/workspace/.tools/node-v22.23.4-linux-x64/bin/node"
+MODE = "live" if "--live" in sys.argv else "local"
+LIVE = "https://byhan2025.github.io/buffetkimz-web"
+_CACHE: dict[str, str] = {}
 
 DUMP = """
 const [tracks, apps] = await Promise.all([
@@ -55,8 +60,20 @@ def check(name: str, ok: bool, detail: str = "") -> None:
 
 
 def html_of(path: str) -> str:
-    file = DIST / path.strip("/") / "index.html"
-    return file.read_text(encoding="utf-8", errors="ignore") if file.exists() else ""
+    """로컬은 dist, `--live`는 gh-pages에서 읽는다(한 번 읽은 페이지는 다시 받지 않는다)."""
+    if path in _CACHE:
+        return _CACHE[path]
+    if MODE == "live":
+        try:
+            with urllib.request.urlopen(f"{LIVE}{path}", timeout=30) as res:
+                text = res.read().decode("utf-8", "ignore")
+        except Exception:
+            text = ""
+    else:
+        file = DIST / path.strip("/") / "index.html"
+        text = file.read_text(encoding="utf-8", errors="ignore") if file.exists() else ""
+    _CACHE[path] = text
+    return text
 
 
 def data():
@@ -69,7 +86,7 @@ def data():
 
 
 def main() -> int:
-    if not (DIST / "index.html").exists():
+    if MODE == "local" and not (DIST / "index.html").exists():
         check("P0 dist 준비", False, "dist/index.html이 없습니다 — npm run build 먼저")
         return finish()
     d = data()
@@ -78,7 +95,7 @@ def main() -> int:
         return finish()
 
     live = [t for t in d["tracks"] if t["status"] == "live"]
-    check("P0 dist 준비", bool(live), f"라이브 트랙 {len(live)}개")
+    check(f"P0 {MODE} 준비", bool(live), f"라이브 트랙 {len(live)}개")
 
     # ── P1 단계 페이지 ────────────────────────────────────────────────
     missing, no_dock, no_badge = [], [], []
@@ -166,15 +183,16 @@ def main() -> int:
 
 def finish() -> int:
     passed = sum(1 for c in CHECKS if c["ok"])
-    (OUT / "verify-loop.json").write_text(
-        json.dumps({"checks": CHECKS, "passed": passed, "total": len(CHECKS)}, ensure_ascii=False, indent=2) + "\n",
+    (OUT / f"verify-loop-{MODE}.json").write_text(
+        json.dumps({"mode": MODE, "checks": CHECKS, "passed": passed, "total": len(CHECKS)},
+                   ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
     )
     print()
     if passed != len(CHECKS):
         print(f"✗ {passed}/{len(CHECKS)} 통과 — 실패한 항목을 고치세요")
         return 1
-    print(f"{passed}/{len(CHECKS)} 통과 — {OUT/'verify-loop.json'}")
+    print(f"{passed}/{len(CHECKS)} 통과 — {OUT/f'verify-loop-{MODE}.json'}")
     return 0
 
 

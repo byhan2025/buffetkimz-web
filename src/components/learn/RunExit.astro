@@ -68,7 +68,7 @@ const after = ref ? undefined : nextTool(slug);
 
       <div class="re-links">
         <a class="re-link" href={withBase(trackHref(view.track, view.stage))}>
-          <span class="re-link-kicker">{view.stage.no}단계 안내</span>
+          <span class="re-link-kicker">{view.stage.no}단계 · {view.stage.name}</span>
           <span class="re-link-title">
             {view.stage.question}
             <span aria-hidden="true">→</span>
@@ -108,7 +108,7 @@ const after = ref ? undefined : nextTool(slug);
     </section>
   ) : (
     <section class="run-exit" data-run-exit="tool" aria-labelledby="run-exit-title">
-      <p class="re-kicker">계산을 마쳤습니다</p>
+      <p class="re-kicker">이 도구 다음</p>
       <h2 class="re-title" id="run-exit-title">
         다음에 이어서 볼 것
       </h2>
@@ -121,7 +121,7 @@ const after = ref ? undefined : nextTool(slug);
           </span>
         </a>
         <a class="re-link" href={withBase("/academy")}>
-          <span class="re-link-kicker">같은 기준을 글로 읽기</span>
+          <span class="re-link-kicker">글로 읽기</span>
           <span class="re-link-title">
             금융생활학교 — 3단계 트랙과 강의
             <span aria-hidden="true">→</span>
@@ -129,7 +129,7 @@ const after = ref ? undefined : nextTool(slug);
         </a>
       </div>
       {name && (
-        <p class="re-note">결과의 기준일과 출처는 위 '계산 기준·출처'에 있습니다. 숫자가 바뀌면 이 화면도 다시 만듭니다.</p>
+        <p class="re-note">결과의 기준일과 출처는 위의 '기준·출처'에 있습니다. 숫자가 바뀌면 이 화면도 다시 만듭니다.</p>
       )}
     </section>
   )
