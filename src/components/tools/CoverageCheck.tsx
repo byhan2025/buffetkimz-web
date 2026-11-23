@@ -289,7 +289,7 @@ export default function CoverageCheck({ compact = false }: { compact?: boolean }
           </ol>
 
           <div className="mt-3 overflow-x-auto rounded-lg border border-line-soft">
-            <table className="w-full min-w-[420px] border-collapse text-[12px]">
+            <table className="w-full border-collapse text-[12px]">
               <caption className="sr-only">연령대별 5대 담보 기준점</caption>
               <thead>
                 <tr className="border-b border-line bg-paper-deep text-left">
