@@ -143,7 +143,7 @@ export const today: TodayData = {
   status: "ok",
   staleAfterDays: 3,
   scheduleConnected: true,
-  updatedAtLabel: "11/23 08:25",
+  updatedAtLabel: "11/23 13:30",
   cadence: "하루 네 번(06:00 · 08:20 · 13:30 · 19:00) 자동 확인",
   stripNote: `등락률은 ${CHANGE_BASIS}입니다. 지표마다 마지막 기준 시각이 다르고, 값은 참고용입니다.`,
 
