@@ -1,16 +1,16 @@
 [
   {
-    "slug": "economy-fixed-cost-check",
-    "out": "public/thumbs/economy-fixed-cost-check.webp",
-    "bytes": 38136,
+    "slug": "insurance-ltc-premium-worth",
+    "out": "public/thumbs/insurance-ltc-premium-worth.webp",
+    "bytes": 56128,
     "lines": [
       {
-        "text": "금리·환율이 오르면",
+        "text": "20년 보험료 441만",
         "size": 64,
         "overflow": false
       },
       {
-        "text": "먼저 오르는 세 곳",
+        "text": "3년 돌봄 4,915만",
         "size": 64,
         "overflow": false
       }

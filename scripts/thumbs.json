@@ -744,6 +744,24 @@
       "sub": "5년 조기 76.7세 · 5년 연기 83.9세",
       "alt": "어두운 나무 탁자 위의 회중시계와 모래시계, 봉인된 봉투 — 국민연금 수령 시점",
       "date": "2026.11.23"
+    },
+    {
+      "slug": "insurance-ltc-premium-worth",
+      "out": "public/thumbs/insurance-ltc-premium-worth.webp",
+      "art": "downloads/thumbs-raw/insurance-ltc-premium-worth.png",
+      "badge": [
+        "보험 · 요양",
+        "2026.11"
+      ],
+      "accent": "#F2D08C",
+      "headline": [
+        "20년 보험료 441만",
+        "3년 돌봄 4,915만"
+      ],
+      "accentLine": 1,
+      "sub": "공단이 내는 91.3%, 내 몫은 15~20%",
+      "alt": "어두운 탁자 위의 두 봉투와 계산기, 겹쳐 둔 요양 서류 — 20년 보험료와 3년 돌봄비",
+      "date": "2026.11.24"
     }
   ]
 }

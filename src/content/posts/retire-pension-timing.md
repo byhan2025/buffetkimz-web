@@ -18,9 +18,8 @@ toolTitle: "은퇴 계산 열기"
 gain: "조기 감액률과 연기 가산율을 국민연금공단 안내와 법 조문에서 확인하고, 손익분기 나이를 직접 계산하는 세 줄 공식을 만들었습니다."
 gainType: "original-data"
 metrics:
-  market: []
   rules: ["public-pension-health-limit"]
-tags: ["국민연금", "조기노령연금", "연기연금", "손익분기"]
+tags: ["국민연금", "조기노령연금", "연기연금"]
 compare:
   title: "조기수령 vs 연기 — 무엇을 비교해야 하나"
   asOfLabel: "국민연금공단 노령연금 안내·국민연금법 제54조·제62조·제63조 · 기준 2026. 11. 23."

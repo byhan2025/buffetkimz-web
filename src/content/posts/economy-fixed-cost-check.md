@@ -18,8 +18,7 @@ gain: "기준금리·COFIX·할부수수료율·해외결제 수수료를 각각
 gainType: "clearer-answer"
 metrics:
   market: ["base-rate", "ktb3y", "usdkrw"]
-  rules: []
-tags: ["기준금리", "COFIX", "카드 할부", "해외결제"]
+tags: ["COFIX", "카드 할부", "해외결제"]
 compare:
   title: "금리가 오를 때 vs 환율이 오를 때 — 먼저 닿는 곳"
   asOfLabel: "한국은행 통화정책방향(2026. 10. 22.)·은행연합회 COFIX 공시(2026. 11. 16.) · 기준 2026. 11. 23."

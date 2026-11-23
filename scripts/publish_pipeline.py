@@ -1185,6 +1185,18 @@ def yaml_scalar(value) -> str:
     return json.dumps(text, ensure_ascii=False)
 
 
+def yaml_node(value):
+    """중첩 구조(compare·metrics 등)는 JSON 흐름 표기로 쓴다 — JSON은 YAML의 부분집합이라 그대로 유효하다.
+
+    2026-11-24: dict를 yaml_scalar로 넘기면 파이썬 repr 문자열이 되어 Astro 스키마가
+    `compare: Expected type "object", received "string"`으로 빌드를 세웠다. 중첩 값은
+    손실 없이 한 줄짜리 JSON으로 적는다.
+    """
+    if isinstance(value, (dict, list)):
+        return json.dumps(value, ensure_ascii=False)
+    return yaml_scalar(value)
+
+
 def emit_frontmatter(fm: dict) -> str:
     lines = ["---"]
     for key in FM_ORDER:
@@ -1197,19 +1209,19 @@ def emit_frontmatter(fm: dict) -> str:
                 lines.append(f"  - label: {yaml_scalar(s.get('label',''))}")
                 if s.get("url"):
                     lines.append(f"    url: {yaml_scalar(s['url'])}")
-        elif isinstance(value, list):
+        elif isinstance(value, list) and not any(isinstance(t, (dict, list)) for t in value):
             lines.append(f"{key}: [" + ", ".join(yaml_scalar(t) for t in value) + "]")
         else:
-            lines.append(f"{key}: {yaml_scalar(value)}")
+            lines.append(f"{key}: {yaml_node(value)}")
     for key, value in fm.items():
         if key in FM_ORDER or value in (None, "", []):
             continue
-        if isinstance(value, list):
+        if isinstance(value, list) and not any(isinstance(t, (dict, list)) for t in value):
             lines.append(f"{key}:")
             for item in value:
                 lines.append(f"  - {yaml_scalar(item)}")
         else:
-            lines.append(f"{key}: {yaml_scalar(value)}")
+            lines.append(f"{key}: {yaml_node(value)}")
     lines.append("---")
     return "\n".join(lines)
 
