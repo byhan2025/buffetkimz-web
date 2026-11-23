@@ -14,6 +14,7 @@ series:
   no: 4
 app: "account-tax-compare"
 tags: ["ETF", "IRP 70%", "자산배치"]
+cards: ["etf-6numbers-3d"]
 compare:
   title: "국내주식형 ETF vs 해외·채권형 ETF — 일반계좌에서"
   asOfLabel: "소득세법 제17조·제94조 · 기준 2026. 11. 21."

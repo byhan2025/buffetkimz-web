@@ -11,6 +11,7 @@ series:
   no: 3
 question: "전환할까, 선택형으로 깎을까"
 tags: ["실손보험", "계약전환 할인", "2세대 실손"]
+cards: ["silson-switch-3d"]
 compare:
   title: "계약전환 vs 선택형 할인특약 — 달라지는 것만"
   asOfLabel: "금융위 보도자료(2026. 11. 19.) · 시행 11. 23."

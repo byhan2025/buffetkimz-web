@@ -35,7 +35,7 @@ export type ReadingSection = { h: string; ps: string[] };
 export type LessonForkSide = { tag: string; head: string; body: string; verdict: string };
 
 export type LessonCardSlide = {
-  /** public 기준 경로 — `/gallery/3d-…-01.png` */
+  /** public 기준 경로 — `/gallery/3d-…-01.webp` */
   src: string;
   alt: string;
   caption: string;
@@ -187,13 +187,13 @@ export const readingChars = (reading: ReadingSection[]) =>
 
 /* ------------------------------------------------------------------
    자료앨범 3D 세트 — 인라인 카드뉴스 뷰어가 읽는 6장
-   · 파일: public/gallery/3d-{prefix}-01..06.png
+   · 파일: public/gallery/3d-{prefix}-01..06.webp
    · 캡션은 자료앨범(gallery.ts)의 같은 세트와 어긋나지 않게 그대로 옮겨 적는다.
    ------------------------------------------------------------------ */
 const CARD = { w: 1080, h: 1350 } as const;
 
 const card = (prefix: string, no: number, caption: string, alt: string): LessonCardSlide => ({
-  src: `/gallery/3d-${prefix}-${String(no).padStart(2, "0")}.png`,
+  src: `/gallery/3d-${prefix}-${String(no).padStart(2, "0")}.webp`,
   alt,
   caption,
 });

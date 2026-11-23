@@ -8,6 +8,11 @@ import { site } from "@/config/site";
 import { breadcrumbList, graph, pageUrl, partOfWebsite } from "@/lib/schema";
 
 const initialMonth = site.today.getMonth() + 1;
+/**
+ * D-Day의 '오늘' — site.today(화면을 만든 날)를 쓴다.
+ * v8.9.0 이전에는 site.baseDate(콘텐츠 기준일)를 넘겨, 11월 23일이 기한인 실손 전환이 D-1로 보였다.
+ */
+const todayIso = site.today.toISOString().slice(0, 10);
 const keyItems = calendar.filter((c) => c.key);
 
 const jsonLd = graph([
@@ -55,7 +60,7 @@ const jsonLd = graph([
   </section>
 
   <section class="wrap py-8 md:py-12" id="calendar">
-    <CalendarBoard items={calendar} initialMonth={initialMonth} note={calendarNote} todayIso={site.baseDate} client:load />
+    <CalendarBoard items={calendar} initialMonth={initialMonth} note={calendarNote} todayIso={todayIso} client:load />
 
     <div class="mt-10 grid gap-8 border-t border-line pt-6 md:grid-cols-3">
       {

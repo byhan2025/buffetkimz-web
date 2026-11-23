@@ -14,6 +14,7 @@ series:
   no: 2
 app: "account-tax-compare"
 tags: ["ISA", "연금소득세", "기타소득세"]
+cards: ["pension-accounts"]
 compare:
   title: "연금계좌에서 꺼낼 때 — 연금으로 받기 vs 연금 외로 받기"
   asOfLabel: "소득세법 제20조의3·제21조·제129조 · 기준 2026. 11. 21."

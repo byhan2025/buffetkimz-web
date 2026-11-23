@@ -14,6 +14,7 @@ series:
   no: 6
 app: "account-tax-compare"
 tags: ["건강보험료", "IRP 중도인출", "피부양자"]
+cards: ["pension-retire-checklist"]
 compare:
   title: "직장가입자 피부양자 vs 지역가입자 — 은퇴 후 내 자리"
   asOfLabel: "국민건강보험법 시행규칙 별표 1의2 · 제44조 · 2026년 보험료율 7.19%"

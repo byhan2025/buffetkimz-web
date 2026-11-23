@@ -12,6 +12,7 @@ series:
 app: "pension-tax"
 question: "ISA 돈, 연금계좌로 옮기면 뭐가 달라지나"
 tags: ["ISA", "연금저축", "세액공제"]
+cards: ["isa-basics-3d"]
 compare:
   title: "ISA 만기 자금 — 연금계좌로 옮길 때 vs 그냥 받을 때"
   asOfLabel: "소득세법 제59조의3·시행령 제118조의2 · 기준 2026. 11. 21."

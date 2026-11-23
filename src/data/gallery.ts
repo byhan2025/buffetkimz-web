@@ -46,6 +46,12 @@ export type GallerySlide = {
 
 export type GalleryItem = {
   id: string;
+  /**
+   * v8.9.0 — 이 세트가 설명하는 글(post id). 글과 카드는 **링크 1줄**로만 잇는다(감사 R2).
+   * 글 쪽 frontmatter `cards`가 같은 값을 들고 있어야 하고, 어긋나면 빌드가 세운다(src/lib/gallery.ts).
+   * 주제가 같은 글 하나만 적는다 — '인접'한 글은 `related`에 둔다.
+   */
+  post?: string;
   title: string;
   /** 카드 이름 아래 한 줄 */
   tagline: string;
@@ -67,28 +73,28 @@ const H = 1350;
 /** 카드뉴스 ① — 4대 계좌 비교 4장 */
 const accountsSlides: GallerySlide[] = [
   {
-    src: "/gallery/pension-accounts-01.png",
+    src: "/gallery/pension-accounts-01.webp",
     width: W,
     height: H,
     alt: "4대 계좌 비교 표지 — 네 개의 막대와 '같은 돈, 네 개의 그릇'이라는 제목",
     caption: "표지 — 같은 5,000만원 수익, 네 계좌의 세후 결말",
   },
   {
-    src: "/gallery/pension-accounts-02.png",
+    src: "/gallery/pension-accounts-02.webp",
     width: W,
     height: H,
     alt: "네 계좌의 세금 시점을 2×2로 정리한 카드 — 연금저축·IRP·ISA·일반계좌",
     caption: "네 계좌 — 납입·운용·수령의 세금 시점",
   },
   {
-    src: "/gallery/pension-accounts-03.png",
+    src: "/gallery/pension-accounts-03.webp",
     width: W,
     height: H,
     alt: "5,000만원 수익의 계좌별 세금과 세후 실수령을 비교한 표",
     caption: "같은 5,000만원 수익, 세후로 남는 돈",
   },
   {
-    src: "/gallery/pension-accounts-04.png",
+    src: "/gallery/pension-accounts-04.webp",
     width: W,
     height: H,
     alt: "비교할 때 기억할 세 가지 조건 — 자산 유형, 9.9%의 구성, 연금 수령 요건",
@@ -112,42 +118,42 @@ export const galleryItems: GalleryItem[] = [
     tags: ["카드뉴스", "손글씨 다이어그램", "리밸런싱", "현금 비중", "자산배분", "목표 비중", "자산형성"],
     slides: [
       {
-        src: "/gallery/3d-asset-rebalance-01.png",
+        src: "/gallery/3d-asset-rebalance-01.webp",
         width: W,
         height: H,
         alt: "표지 — 저울 위 두 단지 사이에서 동전을 옮겨 담는 마스코트와 '오를 때 덜고 내릴 때 채웁니다'",
         caption: "표지 — 리밸런싱은 오를 때 덜고 내릴 때 채우는 일",
       },
       {
-        src: "/gallery/3d-asset-rebalance-02.png",
+        src: "/gallery/3d-asset-rebalance-02.webp",
         width: W,
         height: H,
         alt: "오해 vs 팩트 — 왼쪽은 무너질 듯 높이 쌓은 동전 탑을 붙든 마스코트, 오른쪽은 크기가 고른 세 단지를 나란히 둔 마스코트",
         caption: "오해 vs 팩트 — 그냥 두기 / 목표금액 = 총자산 × 목표비중, 넘으면 덜기",
       },
       {
-        src: "/gallery/3d-asset-rebalance-03.png",
+        src: "/gallery/3d-asset-rebalance-03.webp",
         width: W,
         height: H,
         alt: "목표 비중 — 둘로 나눈 파이 옆에서 자와 연필을 든 마스코트, '총자산 1,000만이면 주식 700만'",
         caption: "① 목표 비중 — 총자산 1,000만이면 주식 700만, 지금 820만이면 120만 덜기",
       },
       {
-        src: "/gallery/3d-asset-rebalance-04.png",
+        src: "/gallery/3d-asset-rebalance-04.webp",
         width: W,
         height: H,
         alt: "점검 주기 — 달력의 한 칸에 동그라미를 치는 마스코트와 작은 종, '1년에 한 번, 5%p 넘으면 그때도'",
         caption: "② 점검 — 정기 연 1회 + 임계 ±5%p, 점검 날짜를 달력에 먼저 적기",
       },
       {
-        src: "/gallery/3d-asset-rebalance-05.png",
+        src: "/gallery/3d-asset-rebalance-05.webp",
         width: W,
         height: H,
         alt: "현금 비중 — 울타리 친 동전 나무와, 바구니·우산을 올려둔 나무 선반을 가리키는 마스코트",
         caption: "③ 현금 비중 — 생활비 3~6개월 + 3년 안에 쓸 돈은 투자 밖에",
       },
       {
-        src: "/gallery/3d-asset-rebalance-06.png",
+        src: "/gallery/3d-asset-rebalance-06.webp",
         width: W,
         height: H,
         alt: "요약 — 체크박스 세 칸이 있는 클립보드를 든 마스코트와 3줄 규칙",
@@ -175,42 +181,42 @@ export const galleryItems: GalleryItem[] = [
     tags: ["카드뉴스", "손글씨 다이어그램", "은퇴 인출", "순서 위험", "현금 버퍼", "1,500만", "건보료 피부양자", "은퇴"],
     slides: [
       {
-        src: "/gallery/3d-retire-drawdown-01.png",
+        src: "/gallery/3d-retire-drawdown-01.webp",
         width: W,
         height: H,
         alt: "표지 — 회색 두 개와 노란 세 개로 놓인 징검다리를 동전 바구니를 들고 건너는 마스코트, '같은 수익률도 순서가 갈립니다'",
         caption: "표지 — 은퇴 첫 5년, 같은 수익률도 순서가 결과를 가른다",
       },
       {
-        src: "/gallery/3d-retire-drawdown-02.png",
+        src: "/gallery/3d-retire-drawdown-02.webp",
         width: W,
         height: H,
         alt: "오해 vs 팩트 — 왼쪽은 같은 동전 더미 둘을 비교하며 갸우뚱하는 마스코트, 오른쪽은 내려갔다 오르는 선을 그린 종이를 든 마스코트",
         caption: "오해 vs 팩트 — 평균이 같으면 같다? / 인출이 있으면 순서가 결과를 바꾼다",
       },
       {
-        src: "/gallery/3d-retire-drawdown-03.png",
+        src: "/gallery/3d-retire-drawdown-03.webp",
         width: W,
         height: H,
         alt: "계산 — 막대 두 개와 달력, 지갑을 든 마스코트, '하락 먼저 1억 6,760만 / 상승 먼저 2억 1,307만' 비교표",
         caption: "① 3억·연 1,500만 인출 — 5개 수익률을 순서만 바꾸면 4,547만 원 차이",
       },
       {
-        src: "/gallery/3d-retire-drawdown-04.png",
+        src: "/gallery/3d-retire-drawdown-04.webp",
         width: W,
         height: H,
         alt: "현금 버퍼 — 골짜기 위 다리에 늘어놓은 자루와 우산, 자루를 들고 다리를 건너는 마스코트",
         caption: "② 현금 버퍼 — 생활비 2년치는 현금으로, 하락장에도 투자를 팔지 않기",
       },
       {
-        src: "/gallery/3d-retire-drawdown-05.png",
+        src: "/gallery/3d-retire-drawdown-05.webp",
         width: W,
         height: H,
         alt: "두 개의 선 — 높이가 다른 두 팻말 사이에서 연필을 든 마스코트, '사적연금 1,500만 / 소득 합계 2,000만' 구분표",
         caption: "③ 사적연금 1,500만(세금)과 소득 합계 2,000만(건보료)은 다른 제도",
       },
       {
-        src: "/gallery/3d-retire-drawdown-06.png",
+        src: "/gallery/3d-retire-drawdown-06.webp",
         width: W,
         height: H,
         alt: "요약 — 클립보드와 안락의자에 앉은 마스코트, 은퇴 첫 5년 3줄 점검",
@@ -240,42 +246,42 @@ export const galleryItems: GalleryItem[] = [
     tags: ["카드뉴스", "손글씨 다이어그램", "학교 트랙", "가계", "현금흐름", "고정비", "대출 원리금"],
     slides: [
       {
-        src: "/gallery/3d-household-budget-01.png",
+        src: "/gallery/3d-household-budget-01.webp",
         width: W,
         height: H,
         alt: "표지 — 크림 종이 위 세 줄짜리 장부와 동전, 장부를 가리키는 마스코트",
         caption: "표지 — 들어오는 돈과 나가는 돈, 세 줄로",
       },
       {
-        src: "/gallery/3d-household-budget-02.png",
+        src: "/gallery/3d-household-budget-02.webp",
         width: W,
         height: H,
         alt: "오해 vs 팩트 — 왼쪽은 큰 동전 하나를 든 마스코트, 오른쪽은 여러 작은 통으로 동전이 빠져나가는 모습을 보는 마스코트",
         caption: "오해 vs 팩트 — 소득이 크면 남는다 / 고정비·원리금이 먼저다",
       },
       {
-        src: "/gallery/3d-household-budget-03.png",
+        src: "/gallery/3d-household-budget-03.webp",
         width: W,
         height: H,
         alt: "배관 하나로 유리병에 동전이 차곡차곡 흘러드는 장면과 마스코트",
         caption: "1줄 — 실수령 500만, 세전이 아닙니다",
       },
       {
-        src: "/gallery/3d-household-budget-04.png",
+        src: "/gallery/3d-household-budget-04.webp",
         width: W,
         height: H,
         alt: "달력이 붙은 작은 통 네 개가 나란히 놓인 선반과 마스코트",
         caption: "2줄 — 고정비 160만, 날짜가 정해진 지출",
       },
       {
-        src: "/gallery/3d-household-budget-05.png",
+        src: "/gallery/3d-household-budget-05.webp",
         width: W,
         height: H,
         alt: "지붕 위에 큰 동전을 올린 집 모형과 위로 향한 이자 화살표",
         caption: "3줄 — 대출 원리금 61만, 금리 오르면 이자가 는다",
       },
       {
-        src: "/gallery/3d-household-budget-06.png",
+        src: "/gallery/3d-household-budget-06.webp",
         width: W,
         height: H,
         alt: "클립보드와 계산기를 든 마스코트, 세 줄 체크리스트",
@@ -307,42 +313,42 @@ export const galleryItems: GalleryItem[] = [
     tags: ["카드뉴스", "손글씨 다이어그램", "학교 트랙", "초등", "용돈", "저축", "물가"],
     slides: [
       {
-        src: "/gallery/3d-allowance-01.png",
+        src: "/gallery/3d-allowance-01.webp",
         width: W,
         height: H,
         alt: "표지 — 나무 책상 위 봉투 세 개와 동전, 첫 봉투에 동전을 넣는 마스코트와 '용돈 7,000원, 세 칸으로 나눠 볼까?'",
         caption: "표지 — 용돈 7,000원을 세 칸으로 나눠 볼까?",
       },
       {
-        src: "/gallery/3d-allowance-02.png",
+        src: "/gallery/3d-allowance-02.webp",
         width: W,
         height: H,
         alt: "오해 vs 팩트 — 빈 지갑을 든 마스코트와 세 봉투에 동전을 나눠 담는 마스코트",
         caption: "오해 vs 팩트 — 남으면 모은다 / 먼저 나눈다",
       },
       {
-        src: "/gallery/3d-allowance-03.png",
+        src: "/gallery/3d-allowance-03.webp",
         width: W,
         height: H,
         alt: "칸 ① — 동전 하나와 간식·연필이 든 장바구니를 든 마스코트, '이번 주에 쓸 돈 3,000원'",
         caption: "칸 ① — 이번 주에 쓸 돈 3,000원",
       },
       {
-        src: "/gallery/3d-allowance-04.png",
+        src: "/gallery/3d-allowance-04.webp",
         width: W,
         height: H,
         alt: "칸 ② — 유리병에 동전을 넣는 마스코트와 병에 기댄 사다리, 병 위의 자전거 그림",
         caption: "칸 ② — 목표 30,000원, 매주 3,000원",
       },
       {
-        src: "/gallery/3d-allowance-05.png",
+        src: "/gallery/3d-allowance-05.webp",
         width: W,
         height: H,
         alt: "칸 ③ — 뚜껑 있는 작은 통에 동전을 넣는 마스코트와 옆에 세운 우산",
         caption: "칸 ③ — 급할 때 쓰는 돈 1,000원",
       },
       {
-        src: "/gallery/3d-allowance-06.png",
+        src: "/gallery/3d-allowance-06.webp",
         width: W,
         height: H,
         alt: "오늘 할 일 — 봉투 세 개에 연필로 이름을 쓰는 마스코트와 동전 더미, 세 칸 체크리스트",
@@ -367,42 +373,42 @@ export const galleryItems: GalleryItem[] = [
     tags: ["카드뉴스", "손글씨 다이어그램", "학교 트랙", "청소년", "소액결제", "BNPL", "금융사기"],
     slides: [
       {
-        src: "/gallery/3d-teen-pay-01.png",
+        src: "/gallery/3d-teen-pay-01.webp",
         width: W,
         height: H,
         alt: "표지 — 화면에서 동전이 흘러나와 유리병에 담기는 휴대폰과 놀란 마스코트",
         caption: "표지 — 월 5,000원이 1년이면 60,000원",
       },
       {
-        src: "/gallery/3d-teen-pay-02.png",
+        src: "/gallery/3d-teen-pay-02.webp",
         width: W,
         height: H,
         alt: "오해 vs 팩트 — 동전 하나를 든 마스코트와 달력 12칸에 동전이 쌓인 모습을 보는 마스코트",
         caption: "오해 vs 팩트 — 한 달 5천 원 / 1년으로 보기",
       },
       {
-        src: "/gallery/3d-teen-pay-03.png",
+        src: "/gallery/3d-teen-pay-03.webp",
         width: W,
         height: H,
         alt: "반복 결제 — 달력 12칸마다 동전 하나씩, 그 옆을 가리키는 마스코트",
         caption: "반복 결제 — 한 달 30,000원이면 1년 360,000원",
       },
       {
-        src: "/gallery/3d-teen-pay-04.png",
+        src: "/gallery/3d-teen-pay-04.webp",
         width: W,
         height: H,
         alt: "BNPL — 가게에서 작은 상자를 받는 마스코트와 위에 떠 있는 시계·수수료 동전",
         caption: "BNPL — 200,000원 3개월, 수수료 10,000원",
       },
       {
-        src: "/gallery/3d-teen-pay-05.png",
+        src: "/gallery/3d-teen-pay-05.webp",
         width: W,
         height: H,
         alt: "사기 신호 — 휴대폰에서 물음표 봉투가 나오고 한 손을 든 채 뒤로 물러서는 마스코트, 경찰 호루라기와 방패",
         caption: "사기 신호 — 송금 요청은 멈추고 확인(112·1332)",
       },
       {
-        src: "/gallery/3d-teen-pay-06.png",
+        src: "/gallery/3d-teen-pay-06.webp",
         width: W,
         height: H,
         alt: "오늘 할 일 — 세 칸 체크리스트를 든 마스코트와 휴대폰·호루라기",
@@ -427,42 +433,42 @@ export const galleryItems: GalleryItem[] = [
     tags: ["카드뉴스", "손글씨 다이어그램", "학교 트랙", "첫 월급", "명세서", "4대보험", "실수령"],
     slides: [
       {
-        src: "/gallery/3d-firstpay-01.png",
+        src: "/gallery/3d-firstpay-01.webp",
         width: W,
         height: H,
         alt: "표지 — 세 줄이 그어진 긴 명세서를 두 손으로 든 마스코트와 지갑",
         caption: "표지 — 세전 300만, 통장엔 267만",
       },
       {
-        src: "/gallery/3d-firstpay-02.png",
+        src: "/gallery/3d-firstpay-02.webp",
         width: W,
         height: H,
         alt: "오해 vs 팩트 — 큰 동전 자루를 안고 빈 지갑을 본 마스코트와 작은 자루를 들고 통에 동전을 나눠 주는 마스코트",
         caption: "오해 vs 팩트 — 세전 300만 / 실수령 267만",
       },
       {
-        src: "/gallery/3d-firstpay-03.png",
+        src: "/gallery/3d-firstpay-03.webp",
         width: W,
         height: H,
         alt: "1줄 지급 — 책상 위 빈 카드 세 장과 동전, 첫 장을 가리키는 마스코트",
         caption: "1줄 지급 — 기본급·수당을 더한 세전",
       },
       {
-        src: "/gallery/3d-firstpay-04.png",
+        src: "/gallery/3d-firstpay-04.webp",
         width: W,
         height: H,
         alt: "2줄 공제 — 작은 통 네 개에 동전이 쏟아지는 모습을 살피는 마스코트",
         caption: "2줄 공제 — 4대보험과 세금, 가상 33만 원",
       },
       {
-        src: "/gallery/3d-firstpay-05.png",
+        src: "/gallery/3d-firstpay-05.webp",
         width: W,
         height: H,
         alt: "3줄 실수령 — 동전을 세 유리병에 나누는 마스코트, 우산·달력·새싹이 각 병 옆에",
         caption: "3줄 실수령 — 267만 원을 세 칸으로",
       },
       {
-        src: "/gallery/3d-firstpay-06.png",
+        src: "/gallery/3d-firstpay-06.webp",
         width: W,
         height: H,
         alt: "오늘 할 일 — 긴 명세서의 세 줄을 빨간 연필로 동그라미하는 마스코트",
@@ -485,6 +491,7 @@ export const galleryItems: GalleryItem[] = [
    */
   {
     id: "account-order-hand",
+    post: "pension-master-03-yearend-900",
     title: "연봉 5,500만, 계좌 넣는 순서",
     tagline: "손글씨 카드 6장 · 연금저축 600 → IRP 300 → ISA",
     summary:
@@ -494,42 +501,42 @@ export const galleryItems: GalleryItem[] = [
     tags: ["카드뉴스", "손글씨 다이어그램", "계좌 순서", "연금저축", "IRP", "ISA", "세액공제"],
     slides: [
       {
-        src: "/gallery/3d-account-order-01.png",
+        src: "/gallery/3d-account-order-01.webp",
         width: W,
         height: H,
         alt: "표지 — 세 단 계단 위 동전 단지를 오르는 마스코트와 '남는 돈, 어디부터 넣어야 할까'",
         caption: "표지 — 연봉 5,500만 원 기준 계좌 3순위 배치표",
       },
       {
-        src: "/gallery/3d-account-order-02.png",
+        src: "/gallery/3d-account-order-02.webp",
         width: W,
         height: H,
         alt: "오해 vs 팩트 — 왼쪽은 빈 단지 옆에 앉은 시무룩한 마스코트, 오른쪽은 세 단지에 동전을 나눠 담는 마스코트",
         caption: "오해 vs 팩트 — 아무 계좌나 넣기 / 세액공제율·유동성 순서대로 채우기",
       },
       {
-        src: "/gallery/3d-account-order-03.png",
+        src: "/gallery/3d-account-order-03.webp",
         width: W,
         height: H,
         alt: "1순위 — 우산과 동전 단지, 저금통, 동전을 넣는 마스코트",
         caption: "1순위 — 비상금 다음은 연금저축 600만 (16.5%·13.2%)",
       },
       {
-        src: "/gallery/3d-account-order-04.png",
+        src: "/gallery/3d-account-order-04.webp",
         width: W,
         height: H,
         alt: "2순위 — 나란한 두 단지를 잇는 작은 다리와 클립보드를 든 마스코트",
         caption: "2순위 — IRP 300만 추가, 합산 900만 원 한도",
       },
       {
-        src: "/gallery/3d-account-order-05.png",
+        src: "/gallery/3d-account-order-05.webp",
         width: W,
         height: H,
         alt: "3순위 — 열린 보물상자와 기대어 놓은 달력, 동전을 든 마스코트",
         caption: "3순위 — 3년 안 쓸 돈은 ISA (서민형 400만·일반형 200만)",
       },
       {
-        src: "/gallery/3d-account-order-06.png",
+        src: "/gallery/3d-account-order-06.webp",
         width: W,
         height: H,
         alt: "요약 — 클립보드 체크리스트를 든 마스코트와 3줄 배치표",
@@ -554,42 +561,42 @@ export const galleryItems: GalleryItem[] = [
     tags: ["카드뉴스", "손글씨 다이어그램", "낙폭", "회복률", "변동성", "리스크 관리"],
     slides: [
       {
-        src: "/gallery/3d-drawdown-recovery-01.png",
+        src: "/gallery/3d-drawdown-recovery-01.webp",
         width: W,
         height: H,
         alt: "표지 — V자 골짜기 아래에 선 마스코트와 반대편 언덕 위의 작은 깃발",
         caption: "표지 — 낙폭과 회복의 비대칭",
       },
       {
-        src: "/gallery/3d-drawdown-recovery-02.png",
+        src: "/gallery/3d-drawdown-recovery-02.webp",
         width: W,
         height: H,
         alt: "오해 vs 팩트 — 왼쪽은 금 간 동전을 든 걱정스러운 마스코트, 오른쪽은 깃발이 있는 긴 사다리를 오르는 마스코트",
         caption: "오해 vs 팩트 — +50%면 본전? / 반 토막 뒤엔 +100%",
       },
       {
-        src: "/gallery/3d-drawdown-recovery-03.png",
+        src: "/gallery/3d-drawdown-recovery-03.webp",
         width: W,
         height: H,
         alt: "구간별 회복률 — 동전이 담긴 네 개의 단지와 자, 네 줄 비교표",
         caption: "구간별 회복률 — −10%→+11.1%, −20%→+25%, −30%→+42.9%, −50%→+100%",
       },
       {
-        src: "/gallery/3d-drawdown-recovery-04.png",
+        src: "/gallery/3d-drawdown-recovery-04.webp",
         width: W,
         height: H,
         alt: "함정 — 울퉁불퉁한 길에서 동전을 떨어뜨리는 수레와 옆의 평평한 길",
         caption: "함정 — 변동성 끌림, 오를수록 덜 오릅니다",
       },
       {
-        src: "/gallery/3d-drawdown-recovery-05.png",
+        src: "/gallery/3d-drawdown-recovery-05.webp",
         width: W,
         height: H,
         alt: "두 장치 — 우산 두 개와 달걀 바구니, 동전 주머니를 든 마스코트",
         caption: "낙폭을 줄이는 두 장치 — 분산과 현금 비중",
       },
       {
-        src: "/gallery/3d-drawdown-recovery-06.png",
+        src: "/gallery/3d-drawdown-recovery-06.webp",
         width: W,
         height: H,
         alt: "원칙 — 방패와 클립보드를 든 마스코트와 3줄 체크리스트",
@@ -614,42 +621,42 @@ export const galleryItems: GalleryItem[] = [
     tags: ["카드뉴스", "손글씨 다이어그램", "퇴직연금", "DB", "DC", "IRP", "퇴직소득세"],
     slides: [
       {
-        src: "/gallery/3d-retirement-3tier-01.png",
+        src: "/gallery/3d-retirement-3tier-01.webp",
         width: W,
         height: H,
         alt: "표지 — 세 층으로 쌓은 블록과 동전, 맨 위층을 가리키는 마스코트",
         caption: "표지 — 퇴직연금 DB·DC·IRP 한눈 비교",
       },
       {
-        src: "/gallery/3d-retirement-3tier-02.png",
+        src: "/gallery/3d-retirement-3tier-02.webp",
         width: W,
         height: H,
         alt: "오해 vs 팩트 — 왼쪽은 같은 동전 두 개를 든 갸우뚱한 마스코트, 오른쪽은 저울로 동전 더미를 비교하는 마스코트",
         caption: "오해 vs 팩트 — 퇴직금은 다 똑같다 / 임금상승률 vs 운용수익률",
       },
       {
-        src: "/gallery/3d-retirement-3tier-03.png",
+        src: "/gallery/3d-retirement-3tier-03.webp",
         width: W,
         height: H,
         alt: "DB형 — 창문과 금고가 있는 회사 건물, 사다리를 오르는 마스코트",
         caption: "DB형 — 임금상승률이 높고 오래 다닐 때",
       },
       {
-        src: "/gallery/3d-retirement-3tier-04.png",
+        src: "/gallery/3d-retirement-3tier-04.webp",
         width: W,
         height: H,
         alt: "DC형 — 동전을 돛으로 단 종이배를 조타하는 마스코트",
         caption: "DC형 — 직접 굴릴 때, 이직이 잦을 때",
       },
       {
-        src: "/gallery/3d-retirement-3tier-05.png",
+        src: "/gallery/3d-retirement-3tier-05.webp",
         width: W,
         height: H,
         alt: "IRP — 문과 동전 투입구가 있는 단지에 서류 가방을 넣는 마스코트",
         caption: "IRP — 퇴직금 받을 통장 + 세액공제 300만",
       },
       {
-        src: "/gallery/3d-retirement-3tier-06.png",
+        src: "/gallery/3d-retirement-3tier-06.webp",
         width: W,
         height: H,
         alt: "수령 체크 — 모래시계에서 동전이 손으로 떨어지고 달력과 단지가 놓인 장면",
@@ -662,6 +669,7 @@ export const galleryItems: GalleryItem[] = [
   },
   {
     id: "coverage-gaps-hand",
+    post: "insurance-coverage-conditions",
     title: "보장 공백 5칸 — 약관에서 갈리는 것",
     tagline: "손글씨 카드 6장 · 면책·감액·지급 기준",
     summary:
@@ -671,42 +679,42 @@ export const galleryItems: GalleryItem[] = [
     tags: ["카드뉴스", "손글씨 다이어그램", "보장 공백", "면책기간", "감액기간", "유사암", "수술비", "피부양자"],
     slides: [
       {
-        src: "/gallery/3d-coverage-gaps-01.png",
+        src: "/gallery/3d-coverage-gaps-01.webp",
         width: W,
         height: H,
         alt: "표지 — 다섯 칸 빈 종이 위의 돋보기와 들여다보는 마스코트",
         caption: "표지 — 가입금액 전에 볼 약관 공백 5칸",
       },
       {
-        src: "/gallery/3d-coverage-gaps-02.png",
+        src: "/gallery/3d-coverage-gaps-02.webp",
         width: W,
         height: H,
         alt: "오해 vs 팩트 — 왼쪽은 금 간 방패와 큰 동전을 든 마스코트, 오른쪽은 돋보기로 계약서를 보는 마스코트",
         caption: "오해 vs 팩트 — 진단비 크기만 크면 든든 / 면책·감액·지급 기준",
       },
       {
-        src: "/gallery/3d-coverage-gaps-03.png",
+        src: "/gallery/3d-coverage-gaps-03.webp",
         width: W,
         height: H,
         alt: "공백 1·2 — 서로 다른 색 종이 세 장과 청진기, 두 장을 비교하는 마스코트",
         caption: "공백 ① ② — 실손 세대별 자기부담, 면책 90일·감액 1~2년",
       },
       {
-        src: "/gallery/3d-coverage-gaps-04.png",
+        src: "/gallery/3d-coverage-gaps-04.webp",
         width: W,
         height: H,
         alt: "공백 3 — 크기가 다른 세 원과 가장 작은 원을 돋보기로 보는 마스코트",
         caption: "공백 ③ — 유사암·경계성종양은 일반암의 10~20%",
       },
       {
-        src: "/gallery/3d-coverage-gaps-05.png",
+        src: "/gallery/3d-coverage-gaps-05.webp",
         width: W,
         height: H,
         alt: "공백 4·5 — 병원과 저울, 서류 더미와 동전 주머니를 가리키는 마스코트",
         caption: "공백 ④ ⑤ — 수술비 종수와 공적연금 포함 소득 합계 2,000만 원(피부양자)",
       },
       {
-        src: "/gallery/3d-coverage-gaps-06.png",
+        src: "/gallery/3d-coverage-gaps-06.webp",
         width: W,
         height: H,
         alt: "점검 — 안경과 펜이 꽂힌 클립보드를 든 마스코트와 3줄 체크리스트",
@@ -728,42 +736,42 @@ export const galleryItems: GalleryItem[] = [
     tags: ["카드뉴스", "손글씨 다이어그램", "연말정산", "종합소득세", "ISA 만기", "연금저축 900만", "금융 달력"],
     slides: [
       {
-        src: "/gallery/3d-finance-calendar-01.png",
+        src: "/gallery/3d-finance-calendar-01.webp",
         width: W,
         height: H,
         alt: "표지 — 벽에 걸린 달력 격자와 동그라미 표시, 연필과 동전을 든 마스코트",
         caption: "표지 — 12개월 금융 달력",
       },
       {
-        src: "/gallery/3d-finance-calendar-02.png",
+        src: "/gallery/3d-finance-calendar-02.webp",
         width: W,
         height: H,
         alt: "오해 vs 팩트 — 왼쪽은 마지막 칸에 엑스 표시된 달력 앞에서 조는 마스코트, 오른쪽은 네 칸을 동그라미하는 마스코트",
         caption: "오해 vs 팩트 — 12월 31일에만 챙긴다 / 다섯 번의 타이밍",
       },
       {
-        src: "/gallery/3d-finance-calendar-03.png",
+        src: "/gallery/3d-finance-calendar-03.webp",
         width: W,
         height: H,
         alt: "1~3월 — 체크 표시한 달력과 영수증, 계산기, 동전을 든 마스코트",
         caption: "1~3월 — 간소화 자료 1월 15일, 2월 환급·4월 건보료 정산",
       },
       {
-        src: "/gallery/3d-finance-calendar-04.png",
+        src: "/gallery/3d-finance-calendar-04.webp",
         width: W,
         height: H,
         alt: "5~6월 — 서명란이 있는 서류와 달력, 봉투가 놓인 장면",
         caption: "5~6월 — 종합소득세 5월 31일, 건보료·피부양자 확인",
       },
       {
-        src: "/gallery/3d-finance-calendar-05.png",
+        src: "/gallery/3d-finance-calendar-05.webp",
         width: W,
         height: H,
         alt: "7~10월 — 톱니와 동전을 올린 저울을 조절하는 마스코트와 달력",
         caption: "7~10월 — ISA 만기와 중간 리밸런싱",
       },
       {
-        src: "/gallery/3d-finance-calendar-06.png",
+        src: "/gallery/3d-finance-calendar-06.webp",
         width: W,
         height: H,
         alt: "11~12월 — 동전 더미와 단지, 마지막 칸에 동그라미 친 달력, 엄지척 마스코트",
@@ -781,7 +789,7 @@ export const galleryItems: GalleryItem[] = [
    * v8.0.0 — 「한스푼 아카데미」 STEP별 자료앨범 1차 4세트(24장) 추가.
    * A. 세 칸의 지도(월급 3통) / B. 세 순간(15.4%·16.5%·연금소득세) /
    * D. ETF 6개 숫자 / F. 사적연금 1,500만 원 경계선 — 아카데미 STEP 1·2·3·4와 짝을 이룬다.
-   * 파일: `public/gallery/3d-{three-buckets,tax-moments,etf-6numbers,pension-1500}-NN.png`
+   * 파일: `public/gallery/3d-{three-buckets,tax-moments,etf-6numbers,pension-1500}-NN.webp`
    */
   {
     id: "three-buckets-3d",
@@ -794,42 +802,42 @@ export const galleryItems: GalleryItem[] = [
     tags: ["월급관리", "비상금", "단기목표", "장기투자", "자동이체", "3D 카드"],
     slides: [
       {
-        src: "/gallery/3d-three-buckets-01.png",
+        src: "/gallery/3d-three-buckets-01.webp",
         width: W,
         height: H,
         alt: "표지 — 세 칸으로 나뉜 나무 쟁반에 금화·작은 집·새싹이 담겨 있고, 양팔을 벌린 너구리 캐릭터와 '월급이 들어오면 나뉘는 3개의 통'",
         caption: "표지 — 월급이 들어오면 나뉘는 3개의 통",
       },
       {
-        src: "/gallery/3d-three-buckets-02.png",
+        src: "/gallery/3d-three-buckets-02.webp",
         width: W,
         height: H,
         alt: "오해 vs 팩트 — 왼쪽은 거의 빈 단지 옆에 시무룩하게 선 캐릭터, 오른쪽은 동전을 세 갈래로 나눠 세 단지에 담는 캐릭터",
         caption: "오해 vs 팩트 — 남는 돈 모으기 / 먼저 나누고 쓰기",
       },
       {
-        src: "/gallery/3d-three-buckets-03.png",
+        src: "/gallery/3d-three-buckets-03.webp",
         width: W,
         height: H,
         alt: "비상금 — 금화와 지폐가 든 유리병에 동전을 넣는 캐릭터, 옆에 작은 우산과 방패, 알람시계",
         caption: "통 ① — 생활비 3~6개월, 바로 꺼낼 수 있게",
       },
       {
-        src: "/gallery/3d-three-buckets-04.png",
+        src: "/gallery/3d-three-buckets-04.webp",
         width: W,
         height: H,
         alt: "단기목표 — 자물쇠와 깃발이 달린 저금함에 봉투를 넣는 캐릭터, 옆에 작은 여행 가방과 세 개의 달력 블록",
         caption: "통 ② — 1~3년 안에 쓸 돈은 예·적금으로",
       },
       {
-        src: "/gallery/3d-three-buckets-05.png",
+        src: "/gallery/3d-three-buckets-05.webp",
         width: W,
         height: H,
         alt: "장기투자 — 금화가 열매로 달린 작은 나무 화분에 물을 주는 캐릭터와 옆의 모래시계",
         caption: "통 ③ — 5년 이상 묶을 돈은 절세계좌에",
       },
       {
-        src: "/gallery/3d-three-buckets-06.png",
+        src: "/gallery/3d-three-buckets-06.webp",
         width: W,
         height: H,
         alt: "체크리스트 — 세 개의 빈 체크 동그라미가 있는 클립보드를 든 캐릭터, 책상 위 기어 세 개와 알람시계",
@@ -845,6 +853,7 @@ export const galleryItems: GalleryItem[] = [
   },
   {
     id: "tax-moments-3d",
+    post: "pension-early-withdrawal-165",
     title: "모르면 16.5% 떼이는 세금 세 순간",
     tagline: "3D 스토리 카드 6장 · 이자·중도해지·연금수령",
     summary:
@@ -854,42 +863,42 @@ export const galleryItems: GalleryItem[] = [
     tags: ["세금", "15.4%", "16.5%", "연금소득세", "중도해지", "3D 카드"],
     slides: [
       {
-        src: "/gallery/3d-tax-moments-01.png",
+        src: "/gallery/3d-tax-moments-01.webp",
         width: W,
         height: H,
         alt: "표지 — 나무 선반 위 세 개의 작은 알람시계, 걱정스러운 표정으로 손가락을 든 캐릭터와 '모르면 16.5% 떼이는 세금 세 순간'",
         caption: "표지 — 모르면 16.5% 떼이는 세 순간",
       },
       {
-        src: "/gallery/3d-tax-moments-02.png",
+        src: "/gallery/3d-tax-moments-02.webp",
         width: W,
         height: H,
         alt: "오해 vs 팩트 — 왼쪽은 환급 봉투를 안고 웃는 캐릭터, 오른쪽은 밑이 깨진 금고에서 동전이 새는 것을 보고 놀란 캐릭터",
         caption: "오해 vs 팩트 — 공제받았으니 이득 / 해지하면 16.5%",
       },
       {
-        src: "/gallery/3d-tax-moments-03.png",
+        src: "/gallery/3d-tax-moments-03.webp",
         width: W,
         height: H,
         alt: "순간 1 — 은행 모형으로 이어지는 동전 레일에서 집게가 동전을 집어 상자에 담고, 동전 하나를 든 채 시무룩한 캐릭터",
         caption: "순간 1 — 이자·배당 15.4%, 이미 떼고 받습니다",
       },
       {
-        src: "/gallery/3d-tax-moments-04.png",
+        src: "/gallery/3d-tax-moments-04.webp",
         width: W,
         height: H,
         alt: "순간 2 — 거대한 가위가 금고의 자물쇠를 자르고, 빨간 경보 종이 울리며 동전이 쏟아지는 장면",
         caption: "순간 2 — 중도해지 16.5% 기타소득세",
       },
       {
-        src: "/gallery/3d-tax-moments-05.png",
+        src: "/gallery/3d-tax-moments-05.webp",
         width: W,
         height: H,
         alt: "순간 3 — 수도꼭지에서 동전이 한 방울씩 떨어져 모래시계를 거쳐 쟁반으로 흐르고, 손잡이를 돌리는 캐릭터",
         caption: "순간 3 — 연금으로 받으면 5.5%~3.3%",
       },
       {
-        src: "/gallery/3d-tax-moments-06.png",
+        src: "/gallery/3d-tax-moments-06.webp",
         width: W,
         height: H,
         alt: "요약 — 왼쪽은 동전 몇 개가 담긴 열린 접시, 오른쪽은 자물쇠가 달린 작은 궤짝, 그 사이에 선 캐릭터",
@@ -905,6 +914,7 @@ export const galleryItems: GalleryItem[] = [
   },
   {
     id: "etf-6numbers-3d",
+    post: "pension-master-04-asset-etf",
     title: "수익률 전에 볼 ETF 6개 숫자",
     tagline: "3D 스토리 카드 6장 · 비용·유동성·추적",
     summary:
@@ -914,42 +924,42 @@ export const galleryItems: GalleryItem[] = [
     tags: ["ETF", "총보수", "기타비용", "추적오차", "괴리율", "3D 카드"],
     slides: [
       {
-        src: "/gallery/3d-etf-6numbers-01.png",
+        src: "/gallery/3d-etf-6numbers-01.webp",
         width: W,
         height: H,
         alt: "표지 — 여섯 개의 빈 계기판 다이얼이 달린 콘솔, 확대경으로 다이얼을 들여다보는 캐릭터와 '수익률 전에 볼 ETF 6개 숫자'",
         caption: "표지 — 수익률 전에 볼 6개 숫자",
       },
       {
-        src: "/gallery/3d-etf-6numbers-02.png",
+        src: "/gallery/3d-etf-6numbers-02.webp",
         width: W,
         height: H,
         alt: "오해 vs 팩트 — 왼쪽은 아주 작은 가격표가 달린 택배 상자를 든 캐릭터, 오른쪽은 저울 아래 숨은 추 때문에 기운 상자",
         caption: "오해 vs 팩트 — 보수만 싸면 제일 싼 ETF? / 총비용으로 비교",
       },
       {
-        src: "/gallery/3d-etf-6numbers-03.png",
+        src: "/gallery/3d-etf-6numbers-03.webp",
         width: W,
         height: H,
         alt: "순자산·거래량 — 동전이 수북한 큰 좌판과 줄을 선 미니어처 군중, 위에서 깔때기로 동전이 쏟아지는 시장",
         caption: "숫자 ① ② — 순자산과 거래량, 클수록 유동성",
       },
       {
-        src: "/gallery/3d-etf-6numbers-04.png",
+        src: "/gallery/3d-etf-6numbers-04.webp",
         width: W,
         height: H,
         alt: "총보수+기타비용 — 물 위로 드러난 작은 빙산 끝과 물속의 거대한 얼음 덩어리, 옆 작은 배에 탄 캐릭터",
         caption: "숫자 ③ ④ — 총보수+기타비용이 실제 비용",
       },
       {
-        src: "/gallery/3d-etf-6numbers-05.png",
+        src: "/gallery/3d-etf-6numbers-05.webp",
         width: W,
         height: H,
         alt: "추적오차·괴리율 — 트랙에서 줄무늬 주자가 앞서 달리고, 캐릭터가 눈금 없는 긴 줄자를 들고 뒤쫓는 장면",
         caption: "숫자 ⑤ ⑥ — 추적오차·괴리율, 지수를 얼마나 따라가나",
       },
       {
-        src: "/gallery/3d-etf-6numbers-06.png",
+        src: "/gallery/3d-etf-6numbers-06.webp",
         width: W,
         height: H,
         alt: "매수 전 10초 — 빈 문자판의 큰 회중시계와 세 개의 빈 타일, 손가락을 들어 알려 주는 캐릭터",
@@ -964,6 +974,7 @@ export const galleryItems: GalleryItem[] = [
   },
   {
     id: "pension-1500-3d",
+    post: "pension-master-05-draw-1500",
     title: "사적연금 연 1,500만 원 경계선",
     tagline: "3D 스토리 카드 6장 · 분리과세 vs 종합과세",
     summary:
@@ -973,42 +984,42 @@ export const galleryItems: GalleryItem[] = [
     tags: ["사적연금", "1500만원", "분리과세", "종합과세", "연금수령", "3D 카드"],
     slides: [
       {
-        src: "/gallery/3d-pension-1500-01.png",
+        src: "/gallery/3d-pension-1500-01.webp",
         width: W,
         height: H,
         alt: "표지 — 흰 선이 그어진 흙길과 작은 나무 게이트, 금화 바구니를 든 캐릭터와 빈 나무 표지판",
         caption: "표지 — 사적연금 연 1,500만 원 경계선",
       },
       {
-        src: "/gallery/3d-pension-1500-02.png",
+        src: "/gallery/3d-pension-1500-02.webp",
         width: W,
         height: H,
         alt: "오해 vs 팩트 — 왼쪽은 바람 빠진 풍선을 든 시무룩한 캐릭터, 오른쪽은 두 갈래 길에 자신 있게 선 캐릭터",
         caption: "오해 vs 팩트 — 넘으면 무조건 손해? / 유리한 쪽을 고릅니다",
       },
       {
-        src: "/gallery/3d-pension-1500-03.png",
+        src: "/gallery/3d-pension-1500-03.webp",
         width: W,
         height: H,
         alt: "1,500만 원 이하 — 완만한 미끄럼틀을 따라 금화가 쟁반으로 미끄러지고, 꼭대기에 앉아 있는 캐릭터",
         caption: "이하 — 3.3~5.5% 저율 분리과세로 끝",
       },
       {
-        src: "/gallery/3d-pension-1500-04.png",
+        src: "/gallery/3d-pension-1500-04.webp",
         width: W,
         height: H,
         alt: "포함 범위 — 두 칸으로 나뉜 큰 단지에 동전이 쏟아지고, 작은 집과 원반은 테두리에 튕겨 밖으로 나가는 장면",
         caption: "포함 범위 — 공제받은 원금 + 운용수익만",
       },
       {
-        src: "/gallery/3d-pension-1500-05.png",
+        src: "/gallery/3d-pension-1500-05.webp",
         width: W,
         height: H,
         alt: "1,500만 원 초과 — 금빛 아치문과 크림색 아치문 사이에서 금화와 원반을 양손에 들고 저울질하는 캐릭터",
         caption: "초과 시 — 16.5% 분리과세 vs 종합과세, 다른 소득이 적으면 종합과세가 유리할 수도",
       },
       {
-        src: "/gallery/3d-pension-1500-06.png",
+        src: "/gallery/3d-pension-1500-06.webp",
         width: W,
         height: H,
         alt: "인출 속도 — 수도꼭지에서 금화 한 닢이 여섯 개 컵 중 첫 컵으로 떨어지고, 손잡이를 천천히 조절하는 캐릭터",
@@ -1029,6 +1040,7 @@ export const galleryItems: GalleryItem[] = [
    */
   {
     id: "silson-switch-3d",
+    post: "silson-switch-2026",
     title: "실손 50% 할인, 갈아타기 전 3가지",
     tagline: "3D 스토리 카드 6장 · 11. 23. 시행 계약전환",
     summary:
@@ -1038,42 +1050,42 @@ export const galleryItems: GalleryItem[] = [
     tags: ["실손보험", "계약전환", "선택형 할인", "5세대 실손", "3D 카드"],
     slides: [
       {
-        src: "/gallery/3d-silson-switch-01.png",
+        src: "/gallery/3d-silson-switch-01.webp",
         width: W,
         height: H,
         alt: "표지 — 보험 증권 두 권을 양손에 들고 번갈아 보는 너구리 캐릭터와 '내일부터 시작되는 실손 50% 할인'",
         caption: "표지 — 내일부터 시작되는 50% 할인",
       },
       {
-        src: "/gallery/3d-silson-switch-02.png",
+        src: "/gallery/3d-silson-switch-02.webp",
         width: W,
         height: H,
         alt: "대상 — 낡은 증권 한 권을 두 손으로 든 캐릭터와 '2013년 3월 이전 1·2세대 실손'",
         caption: "대상 — 2013년 3월 이전 계약",
       },
       {
-        src: "/gallery/3d-silson-switch-03.png",
+        src: "/gallery/3d-silson-switch-03.webp",
         width: W,
         height: H,
         alt: "함정 1 — 병원 모형과 저금통을 저울에 올려 견주는 캐릭터와 '병원 자주 간다면 먼저 따져야 해요'",
         caption: "함정 1 — 병원 이용이 많다면 자기부담률",
       },
       {
-        src: "/gallery/3d-silson-switch-04.png",
+        src: "/gallery/3d-silson-switch-04.webp",
         width: W,
         height: H,
         alt: "함정 2 — 잠긴 유리함 앞에서 황금 티켓 한 장을 든 캐릭터와 '선택형 할인은 철회·해지 1회'",
         caption: "함정 2 — 철회·해지는 1회",
       },
       {
-        src: "/gallery/3d-silson-switch-05.png",
+        src: "/gallery/3d-silson-switch-05.webp",
         width: W,
         height: H,
         alt: "함정 3 — 가위를 든 캐릭터와 '전환 전 6개월 기존 계약 해지하면'",
         caption: "함정 3 — 기존 계약을 해지하면 할인 종료",
       },
       {
-        src: "/gallery/3d-silson-switch-06.png",
+        src: "/gallery/3d-silson-switch-06.webp",
         width: W,
         height: H,
         alt: "클로징 — 증권을 돋보기로 들여다보는 캐릭터와 '숫자보다 증권을 먼저 펼쳐 보세요'",
@@ -1089,6 +1101,7 @@ export const galleryItems: GalleryItem[] = [
   },
   {
     id: "pension-900-3d",
+    post: "pension-master-03-yearend-900",
     title: "연말 전 900만 원, 채우는 순서",
     tagline: "3D 스토리 카드 6장 · 연금저축 600 → IRP 300 → ISA 300",
     summary:
@@ -1098,42 +1111,42 @@ export const galleryItems: GalleryItem[] = [
     tags: ["연말정산", "연금저축", "IRP", "ISA 전환", "세액공제", "3D 카드"],
     slides: [
       {
-        src: "/gallery/3d-pension-tax-01.png",
+        src: "/gallery/3d-pension-tax-01.webp",
         width: W,
         height: H,
         alt: "표지 — 동전 자루를 유리병에 붓는 캐릭터와 '연말 전 900만 원 채우는 순서'",
         caption: "표지 — 연금저축 600 → IRP 300 → ISA 300",
       },
       {
-        src: "/gallery/3d-pension-tax-02.png",
+        src: "/gallery/3d-pension-tax-02.webp",
         width: W,
         height: H,
         alt: "1단계 — 동전 자루를 큰 유리병에 붓는 캐릭터와 '먼저 연금저축 600만 원'",
         caption: "1단계 — 연금저축 600만 원",
       },
       {
-        src: "/gallery/3d-pension-tax-03.png",
+        src: "/gallery/3d-pension-tax-03.webp",
         width: W,
         height: H,
         alt: "2단계 — 금고에 동전을 쏟아 넣는 캐릭터와 'IRP로 300만 원 더 채우기'",
         caption: "2단계 — IRP로 300만 원, 합산 900만 원",
       },
       {
-        src: "/gallery/3d-pension-tax-04.png",
+        src: "/gallery/3d-pension-tax-04.webp",
         width: W,
         height: H,
         alt: "3단계 — 동전을 유리병에 넣는 캐릭터와 'ISA 만기 자금 300만 원 더'",
         caption: "3단계 — ISA 전환 300만 원 추가 한도",
       },
       {
-        src: "/gallery/3d-pension-tax-05.png",
+        src: "/gallery/3d-pension-tax-05.webp",
         width: W,
         height: H,
         alt: "내 숫자 — 금고 문 앞에서 손을 내미는 캐릭터와 '총급여 5,500만 기준 16.5% 아니면 13.2%'",
         caption: "내 공제율 — 16.5% 또는 13.2%",
       },
       {
-        src: "/gallery/3d-pension-tax-06.png",
+        src: "/gallery/3d-pension-tax-06.webp",
         width: W,
         height: H,
         alt: "마감 — 마지막 동전을 병에 넣는 캐릭터와 '12월 31일 입금분까지, 해지는 55세 이후에'",
@@ -1149,6 +1162,7 @@ export const galleryItems: GalleryItem[] = [
   },
   {
     id: "isa-basics-3d",
+    post: "isa-pension-300",
     title: "ISA 5분 정리, 핵심 네 가지",
     tagline: "3D 스토리 카드 6장 · 비과세·손익통산·한도·전환",
     summary:
@@ -1158,42 +1172,42 @@ export const galleryItems: GalleryItem[] = [
     tags: ["ISA", "비과세", "손익통산", "납입한도", "연금전환", "3D 카드"],
     slides: [
       {
-        src: "/gallery/3d-isa-basics-01.png",
+        src: "/gallery/3d-isa-basics-01.webp",
         width: W,
         height: H,
         alt: "표지 — 한 입 베인 동전 더미를 보는 캐릭터와 '예금 이자 15.4% 세금, 그냥 다 내시나요?'",
         caption: "표지 — 이자 15.4%, 그냥 내시나요",
       },
       {
-        src: "/gallery/3d-isa-basics-02.png",
+        src: "/gallery/3d-isa-basics-02.webp",
         width: W,
         height: H,
         alt: "비과세 — 크고 작은 두 유리병과 '서민형 400만·일반형 200만 비과세'",
         caption: "핵심 1 — 비과세 400만·200만",
       },
       {
-        src: "/gallery/3d-isa-basics-03.png",
+        src: "/gallery/3d-isa-basics-03.webp",
         width: W,
         height: H,
         alt: "손익통산 — 저울 양팔에 수익과 손실 동전, '수익과 손실을 합쳐서 계산합니다'",
         caption: "핵심 2 — 손익통산",
       },
       {
-        src: "/gallery/3d-isa-basics-04.png",
+        src: "/gallery/3d-isa-basics-04.webp",
         width: W,
         height: H,
         alt: "납입한도 — 사다리 위에서 거대한 저금통에 동전을 붓는 캐릭터",
         caption: "핵심 3 — 연 2,000만·최대 1억",
       },
       {
-        src: "/gallery/3d-isa-basics-05.png",
+        src: "/gallery/3d-isa-basics-05.webp",
         width: W,
         height: H,
         alt: "연금 전환 — 동전 바구니를 든 캐릭터와 모래시계, '3년 채우고 연금계좌로 넘기면'",
         caption: "핵심 4 — 3년 후 연금 전환",
       },
       {
-        src: "/gallery/3d-isa-basics-06.png",
+        src: "/gallery/3d-isa-basics-06.webp",
         width: W,
         height: H,
         alt: "클로징 — 초록 문 앞에 선 캐릭터와 '일반 계좌 쓰기 전에 ISA부터'",
@@ -1209,6 +1223,7 @@ export const galleryItems: GalleryItem[] = [
   },
   {
     id: "pension-accounts",
+    post: "pension-master-02-tax-compare",
     title: "4대 계좌, 같은 돈의 네 가지 결말",
     tagline: "일반·ISA·연금저축·IRP 세후 비교",
     summary:
@@ -1225,6 +1240,7 @@ export const galleryItems: GalleryItem[] = [
   },
   {
     id: "pension-draw-order",
+    post: "pension-master-05-draw-1500",
     title: "연금 인출 순서 4단계",
     tagline: "세금이 없는 돈부터 나옵니다",
     summary:
@@ -1234,7 +1250,7 @@ export const galleryItems: GalleryItem[] = [
     tags: ["연금 인출", "인출 순서", "1,500만원", "연금소득세"],
     slides: [
       {
-        src: "/gallery/pension-draw-order.png",
+        src: "/gallery/pension-draw-order.webp",
         width: W,
         height: H,
         alt: "연금 인출 순서 4단계 인포그래픽 — 비과세 원금, 퇴직금, 공제분, 운용수익",
@@ -1249,6 +1265,7 @@ export const galleryItems: GalleryItem[] = [
   },
   {
     id: "pension-retire-checklist",
+    post: "pension-master-06-healthcheck",
     title: "은퇴 전 점검 7가지",
     tagline: "건보료·중도인출·계좌 분리",
     summary:
@@ -1258,7 +1275,7 @@ export const galleryItems: GalleryItem[] = [
     tags: ["은퇴 점검", "건강보험료", "IRP 중도인출", "체크리스트"],
     slides: [
       {
-        src: "/gallery/pension-retire-checklist.png",
+        src: "/gallery/pension-retire-checklist.webp",
         width: W,
         height: H,
         alt: "은퇴 전 점검 7가지 체크리스트 — 요건, 계좌 분리, 건보료, 중도인출",

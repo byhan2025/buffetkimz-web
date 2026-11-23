@@ -1,18 +1,26 @@
 ---
 /**
- * 포털 픽 — v7.0 홈.
+ * 포털 픽 — 홈 ③ '최신'.
  *
- * 왼쪽: 자산리포트(/posts) 최신 3편 — 카테고리·제목·기준일·읽는 시간.
+ * 왼쪽: 자산리포트(/posts) 최신 3편 + **카드뉴스 최신 2세트**(v8.9.0, 감사 R1·S1).
+ *      글과 카드는 다른 발행물이라 한 칸에서 나란히 보여 주고, 카드는 표지 썸네일로 구분한다.
  * 오른쪽: 앱스토어(/apps) 추천 4종 — 아이콘·이름·한 줄·바로 열기.
  *
- * 글은 컬렉션에서, 앱은 store.ts에서 읽는다. 손으로 적은 제목·숫자를 두지 않는다.
+ * 글은 컬렉션에서, 카드는 gallery.ts에서, 앱은 store.ts에서 읽는다. 손으로 적은 제목·숫자를 두지 않는다.
  */
 import { withBase, site, menuLabel } from "@/config/site";
 import { featuredStore } from "@/data/store";
 import AppStoreIcon from "@/components/apps/AppStoreIcon.astro";
 import { allPosts, categoryLabel, postPath, formatDate } from "@/lib/posts";
+import { galleryItems } from "@/data/gallery";
+import { cardThumb } from "@/lib/card-assets";
 
 const posts = (await allPosts()).slice(0, 3);
+/** 카드뉴스 최신 2세트 — 표지는 실제 파일이 있는 첫 장(빌드 시점 확인) */
+const cardPick = galleryItems
+  .map((item) => ({ item, cover: item.slides[0] }))
+  .filter((x) => Boolean(x.cover))
+  .slice(0, 2);
 const picks = featuredStore.slice(0, 4);
 ---
 
@@ -35,7 +43,7 @@ const picks = featuredStore.slice(0, 4);
         <div class="picks-panel-head">
           <p class="picks-panel-label">
             {menuLabel.posts}
-            <span class="picks-panel-sub">최신 3편</span>
+            <span class="picks-panel-sub">최신 3편 + 카드 2세트</span>
           </p>
           <a href={withBase("/posts")} class="picks-more">전체 보기 →</a>
         </div>
@@ -55,6 +63,37 @@ const picks = featuredStore.slice(0, 4);
             ))
           }
         </ul>
+
+        <div class="picks-cards" data-guide="picks-cards">
+          <div class="picks-cards-head">
+            <p class="picks-panel-sub">카드뉴스 최신 2세트</p>
+            <a href={withBase("/gallery")} class="picks-more">자료앨범 →</a>
+          </div>
+          <ul class="picks-cards-list">
+            {cardPick.map(({ item, cover }) => (
+              <li>
+                <a href={withBase(`/gallery/${item.id}/`)} class="picks-card">
+                  <img
+                    src={withBase(cardThumb(cover.src))}
+                    alt=""
+                    width="48"
+                    height="60"
+                    loading="lazy"
+                    decoding="async"
+                    class="picks-card-cover"
+                  />
+                  <span class="picks-card-body">
+                    <span class="picks-card-title">{item.title}</span>
+                    <span class="picks-card-meta mono">
+                      카드 {item.slides.length}장 · {item.category === "cardnews" ? "카드뉴스" : item.category === "infographic" ? "인포그래픽" : "체크리스트"}
+                    </span>
+                  </span>
+                  <span class="picks-card-go" aria-hidden="true">→</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
 
       <!-- 앱스토어 -->

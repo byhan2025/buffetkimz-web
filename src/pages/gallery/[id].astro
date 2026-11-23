@@ -1,0 +1,422 @@
+---
+/**
+ * 카드뉴스 전용 페이지 — `/gallery/<id>/` (v8.9.0, 감사 보고 I2·I3·S6·S8).
+ *
+ * 왜 만들었나
+ *  · v8.8.0까지 카드 세트는 인덱스 카드 안에서만 넘겨 볼 수 있었다. 세트마다 주소가 없어
+ *    공유·검색·OG가 되지 않았고, 카드 6장의 이야기도 '6개의 슬라이드'로만 보였다.
+ *  · 이제 세트 1개 = 발행물 1건이다. 자체 제목·리드·기준일·출처·전용 URL·OG(표지)를 갖는다.
+ *
+ * 읽는 방식 (두 가지)
+ *  ① 스토리(기본) — 세로로 6장을 이어 붙이고, 장마다 실제 텍스트 캡션을 노출한다.
+ *     카드 안 글자는 이미지라 검색·낭독기가 읽지 못한다. 그래서 캡션을 본문 텍스트로 둔다(S6).
+ *  ② 한눈에 보기 — 6장을 격자로 펼친다. 장을 누르면 스토리의 그 자리로 돌아간다.
+ *  데스크톱에서는 좌측에 01~06 인덱스가 붙박이로 남아 지금 읽는 장을 표시한다.
+ *
+ * 글과의 관계
+ *  · 글 ↔ 카드는 **링크 1줄**로만 잇는다(본문 이미지 삽입 없음). 짝은 gallery.ts의 `post`가 정한다.
+ *  · 하단에 '이 카드의 글 읽기 → /posts/<slug>/' 하나와 관련 계산기 하나만 둔다.
+ *
+ * 권한
+ *  · 등록·수정 UI는 없다. 이미지와 목록은 저장소에서만 바뀐다(정적 빌드).
+ */
+import Base from "@/layouts/Base.astro";
+import HomePill from "@/components/HomePill.astro";
+import AdSlot from "@/components/AdSlot.astro";
+import { withBase, absolute } from "@/config/site";
+import { GALLERY_CATEGORIES, galleryItems, type GalleryItem } from "@/data/gallery";
+import { allPosts, postPath, formatDate, categoryLabel } from "@/lib/posts";
+import { cardThumb, existsInPublic } from "@/lib/card-assets";
+import { cardSetsOfPost } from "@/lib/gallery";
+import { AUTHOR_ID, ORG_ID, breadcrumbList, graph, pageUrl, partOfWebsite } from "@/lib/schema";
+
+export async function getStaticPaths() {
+  const posts = await allPosts();
+  return galleryItems.map((item) => ({
+    params: { id: item.id },
+    props: { item, post: posts.find((p) => p.id === item.post) },
+  }));
+}
+
+const { item, post } = Astro.props as { item: GalleryItem; post: Awaited<ReturnType<typeof allPosts>>[number] | undefined };
+
+const catLabel = GALLERY_CATEGORIES.find((c) => c.id === item.category)?.label ?? item.category;
+const path = `/gallery/${item.id}`;
+
+/** 파일이 실제로 있는 장만 — 깨진 이미지로 페이지를 만들지 않는다 */
+const slides = item.slides.filter((s) => existsInPublic(s.src));
+const total = slides.length;
+const cover = slides[0];
+const pad = (n: number) => String(n).padStart(2, "0");
+const countLabel = total === 1 ? "1장" : `${total}장`;
+const basisDots = item.createdAt.replace(/^(\d{4})-(\d{2})-(\d{2})$/, "$1. $2. $3.");
+
+/** 이 카드의 글 — 짝이 있으면 그 글, 없으면 관련 목록의 첫 글(라벨을 '관련 글'로 바꿔 쓴다) */
+const relatedPostHref = item.related?.find((r) => r.href.startsWith("/posts/"))?.href;
+const relatedPostSlug = relatedPostHref?.replace(/^\/posts\//, "");
+const relatedPost = post ?? undefined;
+const relatedPostLink = relatedPost
+  ? { href: postPath(relatedPost), title: relatedPost.data.title, meta: `${categoryLabel(relatedPost)} · ${formatDate(relatedPost.data.publishedAt)} · ${relatedPost.data.readingMinutes}분`, paired: true }
+  : relatedPostSlug
+    ? (() => {
+        const label = item.related?.find((r) => r.href === relatedPostHref)?.label ?? "관련 글";
+        return { href: relatedPostHref as string, title: label, meta: "이 카드와 같은 주제의 기록", paired: false };
+      })()
+    : undefined;
+
+/** 관련 계산기 — related에서 글이 아닌 첫 항목(앱·도구·달력) */
+const relatedTool = item.related?.find((r) => r.href.startsWith("/apps/") || r.href.startsWith("/tools/") || r.href.startsWith("/calendar"));
+
+const siblingSets = post ? cardSetsOfPost(post.id).filter((s) => s.id !== item.id) : [];
+
+const jsonLd = graph([
+  {
+    "@type": "Article",
+    "@id": `${pageUrl(path)}#article`,
+    headline: item.title,
+    description: item.summary,
+    abstract: item.tagline,
+    ...(cover ? { image: [absolute(cover.src)] } : {}),
+    datePublished: item.createdAt,
+    dateModified: item.createdAt,
+    inLanguage: "ko-KR",
+    author: { "@id": AUTHOR_ID },
+    publisher: { "@id": ORG_ID },
+    isPartOf: partOfWebsite,
+    mainEntityOfPage: { "@id": `${pageUrl(path)}#webpage` },
+    articleSection: catLabel,
+    keywords: item.tags.join(", "),
+    ...(total > 0
+      ? {
+          associatedMedia: slides.map((s) => ({
+            "@type": "ImageObject",
+            contentUrl: absolute(s.src),
+            width: s.width,
+            height: s.height,
+            caption: s.caption,
+          })),
+        }
+      : {}),
+  },
+  {
+    "@type": "WebPage",
+    "@id": `${pageUrl(path)}#webpage`,
+    url: pageUrl(path),
+    name: `${item.title} — 카드뉴스 ${countLabel}`,
+    inLanguage: "ko-KR",
+    isPartOf: partOfWebsite,
+    primaryImageOfPage: cover ? { "@type": "ImageObject", contentUrl: absolute(cover.src) } : undefined,
+  },
+  breadcrumbList([
+    { name: "홈", path: "/" },
+    { name: "자료앨범", path: "/gallery" },
+    { name: item.title, path },
+  ]),
+]);
+
+const description = `${item.tagline} ${item.summary}`.slice(0, 155);
+---
+
+<Base
+  title={`${item.title} — 카드뉴스 ${countLabel}`}
+  description={description}
+  path={path}
+  type="article"
+  publishedTime={item.createdAt}
+  image={cover?.src}
+  imageAlt={cover?.alt}
+  imageWidth={cover?.width}
+  imageHeight={cover?.height}
+  jsonLd={jsonLd}
+>
+  <!-- ① 머리 — 표지 · 제목 · 리드 · 기준일·출처 -->
+  <section class="scene-sky border-b border-line/70">
+    <div class="wrap py-8 md:py-11">
+      <HomePill />
+      <nav class="flex flex-wrap items-center gap-2 text-[12px] text-ink-faint" aria-label="위치">
+        <a href={withBase("/")} class="inline-flex min-h-[44px] items-center hover:text-ink md:min-h-[24px]">홈</a>
+        <span aria-hidden="true">/</span>
+        <a href={withBase("/gallery")} class="inline-flex min-h-[44px] items-center hover:text-ink md:min-h-[24px]">자료앨범</a>
+        <span aria-hidden="true">/</span>
+        <span class="max-w-[46ch] truncate text-ink-muted">{item.title}</span>
+      </nav>
+
+      <div class="mt-4 grid gap-7 md:grid-cols-[minmax(0,1fr)_300px] md:items-start md:gap-10">
+        <div class="min-w-0">
+          <p class="mono text-[11.5px] font-semibold tracking-[0.18em] text-brand">{catLabel} · 자료앨범</p>
+          <h1 class="h-display mt-2 text-ink">{item.title}</h1>
+          <p class="lede mt-3 max-w-[52ch]">{item.tagline}</p>
+          <p class="mt-3 max-w-[56ch] text-[13.5px] leading-[1.75] text-ink-muted">{item.summary}</p>
+
+          <ul class="mt-5 flex flex-wrap gap-2">
+            <li class="chip">{countLabel} 카드뉴스</li>
+            <li class="chip">기준일 {basisDots}</li>
+            <li class="chip">1080 × 1350 (4:5)</li>
+            <li class="chip">WebP · 워터마크 없음</li>
+          </ul>
+        </div>
+
+        {
+          cover && (
+            <a
+              href={`#c1`}
+              class="block overflow-hidden rounded-2xl border border-line bg-white shadow-[0_24px_60px_-46px_rgba(15,53,80,0.7)]"
+              aria-label={`${item.title} 첫 장으로 이동`}
+            >
+              <img
+                src={withBase(cover.src)}
+                alt={cover.alt}
+                width={cover.width}
+                height={cover.height}
+                class="w-full"
+                fetchpriority="high"
+                decoding="async"
+              />
+            </a>
+          )
+        }
+      </div>
+
+      <!-- 기준일·출처 1회 명시 (S8) — 카드 안 작은 글씨를 대신 읽어 주는 자리 -->
+      <div class="note-box mt-6 flex flex-col gap-1.5 md:flex-row md:items-start md:gap-6">
+        <p class="shrink-0 text-[12px] font-bold text-ink">기준일 · 출처</p>
+        <p class="text-[12.5px] leading-[1.7] text-ink-muted">
+          {basisDots} 기준으로 확인한 내용입니다. {item.basis}
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ② 읽기 방식 · 카드 -->
+  <section class="scene-white border-b border-line">
+    <div class="wrap flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between">
+      <div class="flex flex-wrap items-center gap-1.5" role="tablist" aria-label="보기 방식">
+        <button type="button" role="tab" aria-selected="true" class="gallery-tab is-active" data-cnp-mode-btn="story">
+          스토리로 보기
+        </button>
+        <button type="button" role="tab" aria-selected="false" class="gallery-tab" data-cnp-mode-btn="grid">
+          한눈에 보기
+        </button>
+      </div>
+      <p class="mono text-[12px] text-ink-faint" data-cnp-progress>
+        01 / {pad(total)} · {countLabel}
+      </p>
+    </div>
+  </section>
+
+  <section class="scene-cream">
+    <div class="wrap py-8 md:py-12">
+      <div class="cnp-layout">
+        <!-- 좌측 인덱스 — 데스크톱에서만 붙박이 -->
+        <aside class="cnp-index" aria-label="카드 인덱스">
+          <p class="cnp-index-label">CARD INDEX</p>
+          <ol class="cnp-index-list">
+            {
+              slides.map((s, i) => (
+                <li>
+                  <a href={`#c${i + 1}`} class="cnp-index-link" data-cnp-index={i + 1}>
+                    <span class="cnp-index-no mono">{pad(i + 1)}</span>
+                    <span class="line-clamp-2">{s.caption.replace(/^[^—]{0,12}—\s*/, "")}</span>
+                  </a>
+                </li>
+              ))
+            }
+          </ol>
+        </aside>
+
+        <div class="min-w-0">
+          {/* 스토리 — 기본 */}
+          <div class="cnp-story" data-cnp-story>
+            {
+              slides.map((s, i) => (
+                <figure class="cnp-slide" id={`c${i + 1}`} data-cnp-slide={i + 1}>
+                  <div class="cnp-shot">
+                    <img
+                      src={withBase(s.src)}
+                      alt={s.alt}
+                      width={s.width}
+                      height={s.height}
+                      loading={i === 0 ? "eager" : "lazy"}
+                      decoding="async"
+                    />
+                    <span class="cnp-no">
+                      {pad(i + 1)} / {pad(total)}
+                    </span>
+                  </div>
+                  <figcaption class="cnp-cap">
+                    <span class="cnp-cap-no mono">{pad(i + 1)}</span>
+                    <span>{s.caption}</span>
+                  </figcaption>
+                </figure>
+              ))
+            }
+          </div>
+
+          {/* 한눈에 보기 — 토글 */}
+          <div class="cnp-grid" data-cnp-grid hidden>
+            {
+              slides.map((s, i) => (
+                <a href={`#c${i + 1}`} class="cnp-grid-item" data-cnp-grid-item={i + 1}>
+                  <img src={withBase(cardThumb(s.src))} alt={s.alt} width="480" height="600" loading="lazy" decoding="async" />
+                  <span class="cnp-grid-cap">
+                    <span class="mono font-semibold text-brand-deep">{pad(i + 1)}</span>
+                    <span>{s.caption}</span>
+                  </span>
+                </a>
+              ))
+            }
+          </div>
+
+          {/* 이어지는 곳 — 글 1 + 계산기 1 */}
+          {
+            (relatedPostLink || relatedTool) && (
+              <section class="mt-10 border-t border-line pt-6" aria-labelledby="cnp-rel">
+                <h2 id="cnp-rel" class="text-[11px] font-bold tracking-[0.16em] text-ink-faint">
+                  이 카드에서 이어지는 곳
+                </h2>
+                <div class="mt-3 grid gap-3 sm:grid-cols-2">
+                  {relatedPostLink && (
+                    <a href={withBase(relatedPostLink.href)} class="cnp-rel-card">
+                      <span class="text-[11px] font-bold tracking-[0.12em] text-brand-deep">
+                        {relatedPostLink.paired ? "이 카드의 글 읽기" : "관련 글"}
+                      </span>
+                      <span class="text-[15px] font-bold leading-snug tracking-[-0.02em] text-ink">
+                        {relatedPostLink.title}
+                      </span>
+                      <span class="mono text-[11.5px] text-ink-faint">{relatedPostLink.meta}</span>
+                      <span class="mt-1 text-[12.5px] font-semibold text-brand-deep">글 열기 →</span>
+                    </a>
+                  )}
+                  {relatedTool && (
+                    <a href={withBase(relatedTool.href)} class="cnp-rel-card">
+                      <span class="text-[11px] font-bold tracking-[0.12em] text-brand-deep">관련 계산기</span>
+                      <span class="text-[15px] font-bold leading-snug tracking-[-0.02em] text-ink">{relatedTool.label}</span>
+                      <span class="text-[12.5px] leading-[1.65] text-ink-muted">내 숫자를 넣고 같은 기준으로 확인합니다.</span>
+                      <span class="mt-1 text-[12.5px] font-semibold text-brand-deep">계산 열기 →</span>
+                    </a>
+                  )}
+                </div>
+                {siblingSets.length > 0 && (
+                  <p class="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-[12px] text-ink-muted">
+                    <span class="text-ink-faint">같은 글의 다른 카드</span>
+                    {siblingSets.map((s) => (
+                      <a href={withBase(`/gallery/${s.id}/`)} class="font-semibold text-brand-deep link">
+                        {s.title} ({s.slides.length}장)
+                      </a>
+                    ))}
+                  </p>
+                )}
+              </section>
+            )
+          }
+
+          {/* 내려받기 */}
+          <section class="cnp-dl mt-8" aria-labelledby="cnp-dl">
+            <div class="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between">
+              <h2 id="cnp-dl" class="text-[13px] font-bold text-ink">내려받기</h2>
+              <p class="mono text-[11.5px] text-ink-faint">1080 × 1350 · WebP · {countLabel}</p>
+            </div>
+            <div class="mt-3 flex flex-wrap items-center gap-2">
+              <button type="button" class="btn btn-primary btn-sm" data-cnp-download-all>
+                전체 {countLabel} 내려받기
+              </button>
+              <div class="cnp-dl-nums">
+                {slides.map((s, i) => (
+                  <a
+                    href={withBase(s.src)}
+                    download={s.src.split("/").pop()}
+                    class="btn btn-tertiary btn-xs"
+                    aria-label={`${pad(i + 1)}장 내려받기`}
+                  >
+                    {pad(i + 1)}
+                  </a>
+                ))}
+              </div>
+            </div>
+            <p class="mt-2.5 text-[11.5px] leading-[1.65] text-ink-faint">
+              브라우저가 연속 다운로드를 막으면 위의 번호를 한 장씩 눌러 받아 주세요. 상담·발표 자료로 쓰실 때
+              숫자는 기준일({basisDots})과 함께 확인해 주세요.
+            </p>
+          </section>
+
+          <div class="mt-8">
+            <AdSlot id="gallery-detail-bottom" size="leaderboard" region="article-bottom" />
+          </div>
+
+          <p class="mt-4 text-[12px] leading-[1.8] text-ink-faint">
+            자료 등록은 관리자만 합니다(저장소에서 이미지·목록을 고친 뒤 빌드).
+            <a href={withBase("/gallery")} class="link font-semibold text-ink-soft">자료앨범 전체 {galleryItems.length}세트 보기 →</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const root = document.querySelector<HTMLElement>("[data-cnp-story]");
+    const grid = document.querySelector<HTMLElement>("[data-cnp-grid]");
+    const buttons = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-cnp-mode-btn]"));
+    const progress = document.querySelector<HTMLElement>("[data-cnp-progress]");
+    const indexLinks = Array.from(document.querySelectorAll<HTMLAnchorElement>("[data-cnp-index]"));
+    const total = document.querySelectorAll("[data-cnp-slide]").length;
+
+    const pad = (n: number) => String(n).padStart(2, "0");
+
+    /** 보기 방식 — 스토리(세로) / 한눈에(격자). 주소 해시는 건드리지 않는다. */
+    function setMode(mode: "story" | "grid") {
+      if (!root || !grid) return;
+      const isGrid = mode === "grid";
+      grid.hidden = !isGrid;
+      root.hidden = isGrid;
+      buttons.forEach((b) => {
+        const on = b.dataset.cnpModeBtn === mode;
+        b.classList.toggle("is-active", on);
+        b.setAttribute("aria-selected", on ? "true" : "false");
+      });
+    }
+
+    buttons.forEach((b) =>
+      b.addEventListener("click", () => setMode(b.dataset.cnpModeBtn === "grid" ? "grid" : "story"))
+    );
+
+    /* 격자에서 장을 누르면 스토리로 돌아가 그 장으로 간다 */
+    document.querySelectorAll<HTMLAnchorElement>("[data-cnp-grid-item]").forEach((a) => {
+      a.addEventListener("click", () => setMode("story"));
+    });
+
+    /* 인덱스·진행 표시 — 지금 읽는 장을 표시한다 */
+    if (root && "IntersectionObserver" in window) {
+      const io = new IntersectionObserver(
+        (entries) => {
+          const visible = entries
+            .filter((e) => e.isIntersecting)
+            .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+          if (!visible) return;
+          const n = Number((visible.target as HTMLElement).dataset.cnpSlide ?? 1);
+          indexLinks.forEach((l) => l.classList.toggle("is-active", Number(l.dataset.cnpIndex) === n));
+          if (progress) progress.textContent = `${pad(n)} / ${pad(total)} · ${total}장`;
+        },
+        { rootMargin: "-45% 0px -45% 0px", threshold: [0, 0.25, 0.5, 1] }
+      );
+      document.querySelectorAll<HTMLElement>("[data-cnp-slide]").forEach((el) => io.observe(el));
+    }
+
+    /* 전체 내려받기 — 브라우저가 막으면 번호 버튼을 한 장씩 누르라고 안내한다 */
+    const allBtn = document.querySelector<HTMLButtonElement>("[data-cnp-download-all]");
+    allBtn?.addEventListener("click", async () => {
+      const links = Array.from(document.querySelectorAll<HTMLAnchorElement>("[data-cnp-dl] a[download]"));
+      const nums = Array.from(document.querySelectorAll<HTMLAnchorElement>(".cnp-dl-nums a[download]"));
+      const targets = nums.length ? nums : links;
+      const label = allBtn.textContent;
+      for (let i = 0; i < targets.length; i += 1) {
+        allBtn.textContent = `내려받는 중 ${i + 1}/${targets.length}`;
+        targets[i].click();
+        await new Promise((r) => setTimeout(r, 420));
+      }
+      allBtn.textContent = label;
+    });
+
+    /* 외부에서 온 앵커(#c3)가 격자 모드에서 열리면 스토리로 되돌린다 */
+    if (location.hash) setMode("story");
+  </script>
+</Base>

@@ -1,19 +1,24 @@
 ---
 /**
- * 인라인 카드뉴스 뷰어 — 강의 페이지 안에서 3D 카드 6장을 바로 넘겨 본다 (v8.1.0).
+ * 인라인 카드뉴스 뷰어 — 강의·글 안에서 카드 세트를 바로 넘겨 본다 (v8.9.0).
  *
- * 왜 만들었나
- *  · v8.0은 카드 세트를 '자료앨범 링크 한 줄'로만 두었다. 카드뉴스를 더 선호한다는 요청에 따라,
- *    강의를 읽기 전에 6장을 눈으로 먼저 훑고, 마음에 드는 장은 크게 보고 내려받을 수 있게 했다.
+ * v8.1.0의 문제(감사 I4)
+ *  · 스테이지가 **300px 고정**이라 본문 칼럼(778px)의 27%에 불과했다. 4:5 카드가 300×375px로
+ *    본문 옆에 끼어 '미리보기'처럼 보였고, 캡션은 1줄(13px), 썸네일은 52px였다.
  *
- * 무엇을 지키나
- *  · 카드 파일은 `public/gallery/`의 실제 PNG만 건다. 아직 없는 세트는 빈 이미지 대신 '준비 안내'를 그린다
- *    (파일이 들어오면 다음 빌드에서 자동으로 6장이 나타난다 — 코드를 고칠 필요가 없다).
+ * v8.9.0
+ *  · 스테이지를 **최소 460~560px**(모바일은 화면 폭)로 키우고, 카드 바로 아래에 캡션 바를 둔다.
+ *  · 썸네일 3×2 → **6칸 인덱스**(번호 + 한 줄). 지금 장이 어디인지 목록에서 바로 보인다.
+ *  · '전체 펼쳐보기'로 6장을 세로로 펼친다(넘기지 않고 한 번에 읽는 사람을 위해).
+ *  · 표지·썸네일은 480×600 WebP 썸네일을 쓴다 — 1080 원본은 크게 볼 때만 받는다.
+ *
+ * 지키는 것
+ *  · 카드 파일은 `public/gallery/`의 실제 WebP만 건다. 없는 세트는 빈 이미지 대신 '준비 안내'를 그린다.
  *  · 입력값·조회 기록을 저장하지 않는다. 이미지 경로만 읽는다.
- *  · 자바스크립트가 없어도 첫 장과 '자료앨범 전체 보기' 링크는 그대로 보인다.
+ *  · 자바스크립트가 없어도 첫 장·캡션·'카드 전체 보기' 링크는 그대로 보인다.
  */
 import { withBase } from "@/config/site";
-import { availableSlides } from "@/lib/card-assets";
+import { availableSlides, cardThumb } from "@/lib/card-assets";
 import type { LessonCardSet } from "@/data/academy-lessons";
 
 interface Props {
@@ -23,7 +28,7 @@ interface Props {
   no?: string;
   /** 제목 위 작은 라벨 */
   eyebrow?: string;
-  /** 자료앨범 링크 문구 */
+  /** 카드 페이지 링크 문구 */
   linkLabel?: string;
   /** 이 강의에서 특히 먼저 볼 장 (1부터). 없으면 세트의 startIndex */
   focus?: number;
@@ -34,13 +39,13 @@ interface Props {
 const {
   set,
   no = "④",
-  eyebrow = "자료앨범 3D 카드뉴스",
-  linkLabel = "자료앨범에서 6장 전체 보기",
+  eyebrow = "자료앨범 카드뉴스",
+  linkLabel = "카드 페이지에서 전체 보기",
   focus,
   size = "default",
 } = Astro.props;
 
-/** 빌드 시점에 실제로 있는 PNG만 남긴다 — 없는 파일로 깨진 이미지를 그리지 않는다. */
+/** 빌드 시점에 실제로 있는 카드만 남긴다 — 없는 파일로 깨진 이미지를 그리지 않는다. */
 const slides = availableSlides(set);
 
 const start = Math.min(
@@ -48,13 +53,19 @@ const start = Math.min(
   Math.max(slides.length - 1, 0),
 );
 
+const pad = (n: number) => String(n).padStart(2, "0");
+
 const payload = slides.map((s, i) => ({
   src: withBase(s.src),
+  thumb: withBase(cardThumb(s.src)),
   alt: s.alt,
   caption: s.caption,
-  name: `${set.id}-${String(i + 1).padStart(2, "0")}.png`,
+  no: pad(i + 1),
+  name: `${set.id}-${pad(i + 1)}.webp`,
 }));
 
+/** 카드 전용 페이지 — 세트 id 하나로 주소가 정해진다(`/gallery/<id>/`) */
+const setHref = withBase(`/gallery/${set.id}/`);
 const heading = `${set.title} — 카드뉴스 ${slides.length}장`;
 ---
 
@@ -70,7 +81,7 @@ const heading = `${set.title} — 카드뉴스 ${slides.length}장`;
       <h2 id={`cn-title-${set.id}`} class="cn-title">{set.title}</h2>
       <p class="cn-meta">{set.meta}</p>
     </div>
-    <a href={withBase(set.href)} class="cn-gallery-link">
+    <a href={setHref} class="cn-gallery-link">
       {linkLabel}
       <span aria-hidden="true">→</span>
     </a>
@@ -79,53 +90,60 @@ const heading = `${set.title} — 카드뉴스 ${slides.length}장`;
   {
     slides.length > 0 ? (
       <>
-        <div class="cn-view">
-          <div class="cn-stage" data-cn-stage>
-            <img
-              src={payload[start].src}
-              alt={payload[start].alt}
-              width="1080"
-              height="1350"
-              loading="eager"
-              decoding="async"
-              class="cn-img"
-              data-cn-img
-            />
-            <button type="button" class="cn-nav is-prev" data-cn-prev aria-label="이전 카드">
-              ‹
-            </button>
-            <button type="button" class="cn-nav is-next" data-cn-next aria-label="다음 카드">
-              ›
-            </button>
-            <span class="cn-counter mono" data-cn-counter>
-              {start + 1} / {slides.length}
-            </span>
+        <div class="cn-view" data-cn-view>
+          <div class="cn-main">
+            <div class="cn-stage" data-cn-stage>
+              <img
+                src={payload[start].src}
+                alt={payload[start].alt}
+                width="1080"
+                height="1350"
+                loading="eager"
+                decoding="async"
+                class="cn-img"
+                data-cn-img
+              />
+              <button type="button" class="cn-nav is-prev" data-cn-prev aria-label="이전 카드">
+                ‹
+              </button>
+              <button type="button" class="cn-nav is-next" data-cn-next aria-label="다음 카드">
+                ›
+              </button>
+              <span class="cn-counter mono" data-cn-counter>
+                {pad(start + 1)} / {pad(slides.length)}
+              </span>
+            </div>
+
+            {/* 카드 바로 아래 캡션 바 — 이 장이 말하는 것 */}
+            <p class="cn-caption" data-cn-caption aria-live="polite">
+              <span class="cn-caption-no mono" data-cn-caption-no>{pad(start + 1)}</span>
+              <span data-cn-caption-text>{payload[start].caption}</span>
+            </p>
           </div>
 
           <div class="cn-side">
-            <p class="cn-caption" data-cn-caption aria-live="polite">
-              {payload[start].caption}
-            </p>
-
-            <ul class="cn-thumbs" data-cn-thumbs aria-label={`${set.title} 카드 목록`}>
+            <ol class="cn-index" data-cn-index aria-label={`${set.title} 카드 목록`}>
               {payload.map((s, i) => (
                 <li>
                   <button
                     type="button"
-                    class:list={["cn-thumb", i === start && "is-active"]}
-                    data-cn-thumb={i}
-                    aria-label={`${i + 1}장 — ${s.caption}`}
+                    class:list={["cn-index-btn", i === start && "is-active"]}
+                    data-cn-index-btn={i}
+                    aria-label={`${s.no}장 — ${s.caption}`}
                     aria-pressed={i === start ? "true" : "false"}
                   >
-                    <img src={s.src} alt="" width="1080" height="1350" loading="lazy" decoding="async" />
-                    <span class="cn-thumb-no mono" aria-hidden="true">{i + 1}</span>
+                    <span class="cn-index-no mono" aria-hidden="true">{s.no}</span>
+                    <span class="cn-index-line">{s.caption}</span>
                   </button>
                 </li>
               ))}
-            </ul>
+            </ol>
 
             <div class="cn-actions">
-              <button type="button" class="btn btn-secondary btn-sm min-h-[44px]" data-cn-open>
+              <button type="button" class="btn btn-secondary btn-sm min-h-[44px]" data-cn-stack-toggle>
+                전체 펼쳐보기
+              </button>
+              <button type="button" class="btn btn-tertiary btn-sm min-h-[44px]" data-cn-open>
                 지금 장 크게 보기
               </button>
               <a
@@ -138,9 +156,39 @@ const heading = `${set.title} — 카드뉴스 ${slides.length}장`;
               </a>
             </div>
             <p class="cn-note">
-              카드마다 하단에 그 숫자의 조문과 기준일이 적혀 있습니다. 6장을 모두 내려받으려면 위의
-              '자료앨범'에서 세트를 여세요.
+              카드마다 하단에 그 숫자의 조문과 기준일이 적혀 있습니다. 세트 전체 받기와 카드별 설명은 위의
+              '카드 페이지'에서 이어집니다.
             </p>
+          </div>
+        </div>
+
+        {/* 전체 펼쳐보기 — 6장 세로 스택 */}
+        <div class="cn-stack" data-cn-stack hidden>
+          {
+            payload.map((s, i) => (
+              <figure class="cn-stack-item">
+                <img
+                  src={i === 0 ? s.src : s.src}
+                  alt={s.alt}
+                  width="1080"
+                  height="1350"
+                  loading="lazy"
+                  decoding="async"
+                />
+                <figcaption class="cn-stack-cap">
+                  <span class="mono cn-stack-no">{s.no}</span>
+                  <span>{s.caption}</span>
+                </figcaption>
+              </figure>
+            ))
+          }
+          <div class="cn-stack-foot">
+            <button type="button" class="btn btn-secondary btn-sm min-h-[44px]" data-cn-stack-close>
+              한 장씩 보기
+            </button>
+            <a href={setHref} class="btn btn-tertiary btn-sm min-h-[44px]">
+              카드 페이지에서 내려받기 →
+            </a>
           </div>
         </div>
 
@@ -175,21 +223,21 @@ const heading = `${set.title} — 카드뉴스 ${slides.length}장`;
       </>
     ) : (
       <div class="cn-empty">
-        <p class="cn-empty-title">이 세트의 카드 6장은 지금 제작 중입니다</p>
+        <p class="cn-empty-title">이 세트의 카드는 지금 준비 중입니다</p>
         <p class="cn-empty-body">
-          장면과 숫자를 육안으로 검수한 뒤 자료앨범에 올립니다. 올라오면 이 자리에 6장이 그대로 나타나고, 그
-          전까지는 아래 5분 읽기와 계산기로 같은 내용을 확인할 수 있습니다.
+          장면과 숫자를 육안으로 검수한 뒤 자료앨범에 올립니다. 올라오면 이 자리에 그대로 나타나고, 그
+          전까지는 아래 본문과 계산기로 같은 내용을 확인할 수 있습니다.
         </p>
         <ul class="cn-empty-list">
           {set.slides.map((s, i) => (
             <li>
-              <span class="mono">{i + 1}</span>
+              <span class="mono">{pad(i + 1)}</span>
               <span>{s.caption}</span>
             </li>
           ))}
         </ul>
-        <a href={withBase(set.href)} class="btn btn-secondary btn-sm min-h-[44px]">
-          자료앨범 카드뉴스 전체 보기
+        <a href={setHref} class="btn btn-secondary btn-sm min-h-[44px]">
+          카드 페이지 열기
         </a>
       </div>
     )
@@ -197,7 +245,7 @@ const heading = `${set.title} — 카드뉴스 ${slides.length}장`;
 </section>
 
 <script>
-  type Slide = { src: string; alt: string; caption: string; name: string };
+  type Slide = { src: string; thumb: string; alt: string; caption: string; no: string; name: string };
 
   document.querySelectorAll<HTMLElement>("[data-cardnews]").forEach((root) => {
     const data = root.querySelector<HTMLScriptElement>("[data-cn-data]");
@@ -212,14 +260,19 @@ const heading = `${set.title} — 카드뉴스 ${slides.length}장`;
 
     const img = root.querySelector<HTMLImageElement>("[data-cn-img]");
     const counter = root.querySelector<HTMLElement>("[data-cn-counter]");
-    const caption = root.querySelector<HTMLElement>("[data-cn-caption]");
-    const thumbs = Array.from(root.querySelectorAll<HTMLButtonElement>("[data-cn-thumb]"));
+    const caption = root.querySelector<HTMLElement>("[data-cn-caption-text]");
+    const captionNo = root.querySelector<HTMLElement>("[data-cn-caption-no]");
+    const indexButtons = Array.from(root.querySelectorAll<HTMLButtonElement>("[data-cn-index-btn]"));
     const download = root.querySelector<HTMLAnchorElement>("[data-cn-download]");
     const dialog = root.querySelector<HTMLDialogElement>("[data-cn-dialog]");
     const dImg = root.querySelector<HTMLImageElement>("[data-cn-dialog-img]");
     const dCount = root.querySelector<HTMLElement>("[data-cn-dialog-count]");
     const dCaption = root.querySelector<HTMLElement>("[data-cn-dialog-caption]");
     const dDownload = root.querySelector<HTMLAnchorElement>("[data-cn-dialog-download]");
+    const stack = root.querySelector<HTMLElement>("[data-cn-stack]");
+    const view = root.querySelector<HTMLElement>("[data-cn-view]");
+    const stackToggle = root.querySelector<HTMLButtonElement>("[data-cn-stack-toggle]");
+    const stackClose = root.querySelector<HTMLButtonElement>("[data-cn-stack-close]");
 
     let i = Number(root.dataset.start ?? 0);
     if (!Number.isFinite(i) || i < 0 || i >= slides.length) i = 0;
@@ -230,22 +283,23 @@ const heading = `${set.title} — 카드뉴스 ${slides.length}장`;
         img.src = s.src;
         img.alt = s.alt;
       }
-      if (counter) counter.textContent = `${i + 1} / ${slides.length}`;
+      if (counter) counter.textContent = `${s.no} / ${slides[slides.length - 1].no}`;
       if (caption) caption.textContent = s.caption;
+      if (captionNo) captionNo.textContent = s.no;
       if (download) {
         download.href = s.src;
         download.setAttribute("download", s.name);
       }
-      thumbs.forEach((t, n) => {
+      indexButtons.forEach((b, n) => {
         const on = n === i;
-        t.classList.toggle("is-active", on);
-        t.setAttribute("aria-pressed", on ? "true" : "false");
+        b.classList.toggle("is-active", on);
+        b.setAttribute("aria-pressed", on ? "true" : "false");
       });
       if (dImg) {
         dImg.src = s.src;
         dImg.alt = s.alt;
       }
-      if (dCount) dCount.textContent = `${i + 1} / ${slides.length}`;
+      if (dCount) dCount.textContent = `${s.no} / ${slides[slides.length - 1].no}`;
       if (dCaption) dCaption.textContent = s.caption;
       if (dDownload) {
         dDownload.href = s.src;
@@ -260,11 +314,24 @@ const heading = `${set.title} — 카드뉴스 ${slides.length}장`;
 
     root.querySelector("[data-cn-prev]")?.addEventListener("click", () => go(i - 1));
     root.querySelector("[data-cn-next]")?.addEventListener("click", () => go(i + 1));
-    thumbs.forEach((t, n) => t.addEventListener("click", () => go(n)));
+    indexButtons.forEach((b, n) => b.addEventListener("click", () => go(n)));
     root.querySelector("[data-cn-open]")?.addEventListener("click", () => dialog?.showModal());
     root.querySelector("[data-cn-close]")?.addEventListener("click", () => dialog?.close());
     root.querySelector("[data-cn-dialog-prev]")?.addEventListener("click", () => go(i - 1));
     root.querySelector("[data-cn-dialog-next]")?.addEventListener("click", () => go(i + 1));
+
+    /* 전체 펼쳐보기 — 한 장씩 보기와 자리를 바꾼다 */
+    function setStack(on: boolean) {
+      if (!stack || !view) return;
+      stack.hidden = !on;
+      view.hidden = on;
+      if (stackToggle) stackToggle.textContent = on ? "한 장씩 보기" : "전체 펼쳐보기";
+    }
+    stackToggle?.addEventListener("click", () => setStack(Boolean(stack?.hidden)));
+    stackClose?.addEventListener("click", () => {
+      setStack(false);
+      root.querySelector("[data-cn-stage]")?.scrollIntoView({ block: "center", behavior: "smooth" });
+    });
 
     /* 카드 사이 여백을 눌러도 닫힌다 — 모달 밖 클릭과 같은 동작 */
     dialog?.addEventListener("click", (event) => {
@@ -292,7 +359,9 @@ const heading = `${set.title} — 카드뉴스 ${slides.length}장`;
   .cn.is-school .cn-gallery-link,
   .cn.is-school .cn-note,
   .cn.is-school .cn-dialog-caption,
-  .cn.is-school .cn-dialog-count {
+  .cn.is-school .cn-dialog-count,
+  .cn.is-school .cn-index-line,
+  .cn.is-school .cn-stack-cap {
     font-size: 16px;
     line-height: 1.6;
   }
@@ -307,10 +376,8 @@ const heading = `${set.title} — 카드뉴스 ${slides.length}장`;
     line-height: 1.6;
   }
 
-  .cn.is-school .cn-thumb-no {
-    font-size: 16px;
-    width: 26px;
-    height: 26px;
+  .cn.is-school .cn-index-no {
+    font-size: 15px;
   }
 
   .cn.is-school .cn-dialog-title {
@@ -323,7 +390,8 @@ const heading = `${set.title} — 카드뉴스 ${slides.length}장`;
   }
 
   .cn.is-school .cn-actions .btn,
-  .cn.is-school .cn-empty .btn {
+  .cn.is-school .cn-empty .btn,
+  .cn.is-school .cn-stack-foot .btn {
     font-size: 16px;
     min-height: 48px;
   }
@@ -398,18 +466,30 @@ const heading = `${set.title} — 카드뉴스 ${slides.length}장`;
     color: var(--color-brand);
   }
 
+  /* ── 스테이지 + 캡션 ───────────────────────────────────────────── */
   .cn-view {
     display: grid;
-    gap: 14px;
+    gap: 16px;
     margin-top: 14px;
   }
 
-  @media (min-width: 860px) {
+  /*
+   * v8.9.0 — 강의 본문 칼럼은 1280에서 약 680px이다. 인덱스에 210px을 내주면 스테이지가 446px로
+   * 줄어 '최소 460px'을 못 지킨다. 그래서 인덱스는 168~200px로 조이고, 남는 폭을 카드에 준다.
+   */
+  @media (min-width: 900px) {
     .cn-view {
-      grid-template-columns: minmax(0, 300px) minmax(0, 1fr);
-      gap: 22px;
+      grid-template-columns: minmax(0, 1fr) minmax(168px, 200px);
+      gap: 18px;
       align-items: start;
     }
+  }
+
+  .cn-main {
+    min-width: 0;
+    /* v8.9.0 — 300px 고정 폐기. 본문 칼럼 안에서 460~560px을 지키고, 모바일은 화면 폭을 쓴다 */
+    width: 100%;
+    max-width: 560px;
   }
 
   .cn-stage {
@@ -434,9 +514,9 @@ const heading = `${set.title} — 카드뉴스 ${slides.length}장`;
     top: 50%;
     display: grid;
     place-items: center;
-    width: 40px;
-    height: 40px;
-    margin-top: -20px;
+    width: 44px;
+    height: 44px;
+    margin-top: -22px;
     border-radius: 999px;
     border: 1px solid rgb(255 255 255 / 0.6);
     background-color: rgb(11 27 41 / 0.62);
@@ -451,33 +531,34 @@ const heading = `${set.title} — 카드뉴스 ${slides.length}장`;
   }
 
   .cn-nav.is-prev {
-    left: 8px;
+    left: 10px;
   }
 
   .cn-nav.is-next {
-    right: 8px;
+    right: 10px;
   }
 
   .cn-counter {
     position: absolute;
-    top: 8px;
-    right: 8px;
-    padding: 3px 8px;
+    top: 10px;
+    right: 10px;
+    padding: 3px 9px;
     border-radius: 999px;
     background-color: rgb(11 27 41 / 0.72);
     color: #ffffff;
-    font-size: 11px;
+    font-size: 11.5px;
     letter-spacing: 0.02em;
   }
 
-  .cn-side {
-    min-width: 0;
-  }
-
+  /* 카드 아래 캡션 바 */
   .cn-caption {
-    min-height: 44px;
+    display: grid;
+    grid-template-columns: 26px minmax(0, 1fr);
+    gap: 8px;
+    align-items: baseline;
+    margin-top: 8px;
     padding: 10px 12px;
-    border-radius: 12px;
+    border-radius: 0 0 14px 14px;
     background-color: var(--color-brand-soft);
     font-size: 13px;
     font-weight: 650;
@@ -486,58 +567,78 @@ const heading = `${set.title} — 카드뉴스 ${slides.length}장`;
     text-wrap: pretty;
   }
 
-  .cn-thumbs {
+  .cn-caption-no {
+    font-size: 11px;
+    font-weight: 700;
+    opacity: 0.85;
+  }
+
+  /* ── 6칸 인덱스(번호 + 한 줄) ─────────────────────────────────── */
+  .cn-side {
+    min-width: 0;
+  }
+
+  .cn-index {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 3px;
+  }
+
+  @media (max-width: 899px) {
+    .cn-index {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 4px;
+    }
+  }
+
+  .cn-index-btn {
+    display: grid;
+    grid-template-columns: 24px minmax(0, 1fr);
     gap: 6px;
-    margin-top: 10px;
-  }
-
-  .cn-thumb {
-    position: relative;
-    display: block;
+    align-items: baseline;
     width: 100%;
-    padding: 0;
-    border: 2px solid transparent;
-    border-radius: 10px;
-    overflow: hidden;
-    background-color: var(--color-paper);
+    min-height: 40px;
+    padding: 6px 8px;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    text-align: left;
+    font-size: 11.5px;
+    line-height: 1.45;
+    color: var(--color-ink-muted);
+    background-color: transparent;
   }
 
-  .cn-thumb img {
-    display: block;
-    width: 100%;
-    height: auto;
-    aspect-ratio: 4 / 5;
-    object-fit: cover;
-    opacity: 0.78;
+  .cn-index-btn:hover {
+    background-color: var(--color-paper-deep);
+    color: var(--color-ink);
   }
 
-  .cn-thumb.is-active {
-    border-color: var(--color-brand);
+  .cn-index-btn.is-active {
+    border-color: color-mix(in srgb, var(--color-brand) 45%, transparent);
+    background-color: var(--color-brand-soft);
+    font-weight: 650;
+    color: var(--color-brand-deep);
   }
 
-  .cn-thumb.is-active img,
-  .cn-thumb:hover img {
-    opacity: 1;
-  }
-
-  .cn-thumb:focus-visible {
+  .cn-index-btn:focus-visible {
     outline: 2px solid var(--color-brand);
     outline-offset: 2px;
   }
 
-  .cn-thumb-no {
-    position: absolute;
-    right: 4px;
-    bottom: 4px;
-    min-width: 16px;
-    padding: 1px 4px;
-    border-radius: 999px;
-    background-color: rgb(11 27 41 / 0.68);
-    color: #ffffff;
-    font-size: 9.5px;
-    text-align: center;
+  .cn-index-no {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--color-ink-faint);
+  }
+
+  .cn-index-btn.is-active .cn-index-no {
+    color: var(--color-brand);
+  }
+
+  .cn-index-line {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 
   .cn-actions {
@@ -552,6 +653,48 @@ const heading = `${set.title} — 카드뉴스 ${slides.length}장`;
     font-size: 11.5px;
     line-height: 1.65;
     color: var(--color-ink-faint);
+  }
+
+  /* ── 전체 펼쳐보기 ─────────────────────────────────────────────── */
+  .cn-stack {
+    display: grid;
+    gap: 14px;
+    max-width: 560px;
+    margin-top: 14px;
+  }
+
+  .cn-stack-item img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 5;
+    border-radius: 14px;
+    border: 1px solid var(--color-line-soft);
+    background-color: var(--color-paper-deep);
+  }
+
+  .cn-stack-cap {
+    display: grid;
+    grid-template-columns: 26px minmax(0, 1fr);
+    gap: 8px;
+    align-items: baseline;
+    margin-top: 6px;
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: var(--color-ink-soft);
+  }
+
+  .cn-stack-no {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--color-brand-deep);
+  }
+
+  .cn-stack-foot {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding-top: 4px;
   }
 
   /* ---- 준비 안내(카드 파일이 아직 없을 때) ---- */

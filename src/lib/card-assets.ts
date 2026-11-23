@@ -41,3 +41,19 @@ export function availableSlides(set: LessonCardSet): LessonCardSlide[] {
 
 /** 화면에 적는 카드 수 — 없으면 `0` */
 export const availableCount = (set: LessonCardSet): number => availableSlides(set).length;
+
+/**
+ * 카드 썸네일 경로 — v8.9.0.
+ *   /gallery/3d-silson-switch-01.webp → /gallery/thumbs/3d-silson-switch-01.webp (480×600)
+ * 표지 그리드·뷰어 인덱스는 1080 원본을 받지 않는다(같은 세트 6장을 한 화면에 늘어놓기 때문).
+ */
+export const cardThumb = (src: string): string => src.replace("/gallery/", "/gallery/thumbs/");
+
+/** public 아래 파일이 실제로 있는지 — 자료앨범(/gallery/<id>/)이 같은 규칙으로 장을 거른다 */
+export function existsInPublic(publicPath: string): boolean {
+  try {
+    return fs.existsSync(path.join(publicDir, publicPath.replace(/^\//, "")));
+  } catch {
+    return false;
+  }
+}

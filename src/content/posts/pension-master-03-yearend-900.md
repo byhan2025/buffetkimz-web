@@ -14,6 +14,7 @@ series:
   no: 3
 app: "pension-tax"
 tags: ["세액공제", "연금저축", "ISA 전환"]
+cards: ["pension-900-3d", "account-order-hand"]
 compare:
   title: "결정세액이 남아 있을 때 vs 거의 없을 때"
   asOfLabel: "소득세법 제59조의3 · 시행령 제118조의3 · 기준 2026. 11. 21."

@@ -84,6 +84,11 @@ const posts = defineCollection({
     /** gain의 종류 — 카드 라벨을 가른다 */
     gainType: z.enum(["clearer-answer", "original-data", "stronger-opinion"]).optional(),
     tags: z.array(z.string()).default([]),
+    /**
+     * v8.9.0 — 이 글의 카드 세트 id(`src/data/gallery.ts`). 글↔카드는 본문 이미지가 아니라 링크 1줄이다.
+     * 카드 쪽 `post`와 짝을 이루며, 한쪽만 적혀 있으면 `src/lib/gallery.ts`의 검사가 빌드를 세운다.
+     */
+    cards: z.array(z.string()).default([]),
     sources: z
       .array(
         z.object({

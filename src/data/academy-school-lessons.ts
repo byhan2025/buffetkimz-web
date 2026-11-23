@@ -26,10 +26,10 @@ const won = (n: number) => `${n.toLocaleString("ko-KR")}원`;
 const manwon = (n: number) => `${n.toLocaleString("ko-KR")}만원`;
 
 /* ------------------------------------------------------------------
-   카드 세트 — public/gallery/3d-*.png 6장
+   카드 세트 — public/gallery/3d-*.webp 6장
    ------------------------------------------------------------------ */
 const card = (prefix: string, no: number, caption: string, alt: string) => ({
-  src: `/gallery/3d-${prefix}-${String(no).padStart(2, "0")}.png`,
+  src: `/gallery/3d-${prefix}-${String(no).padStart(2, "0")}.webp`,
   alt,
   caption,
 });

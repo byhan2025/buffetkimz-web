@@ -6678,6 +6678,83 @@
     background: #ffffff;
   }
 
+  /* v8.9.0 — 홈 ③ 최신: 글 3편 아래 카드뉴스 2세트 (감사 R1) */
+  .picks-cards {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--color-line);
+  }
+
+  .picks-cards-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .picks-cards-list {
+    display: grid;
+    gap: 6px;
+    margin-top: 6px;
+  }
+
+  .picks-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px;
+    border: 1px solid transparent;
+    border-radius: 12px;
+    transition: background-color 0.16s ease, border-color 0.16s ease;
+  }
+
+  .picks-card:hover {
+    border-color: var(--color-line);
+    background-color: var(--color-paper-deep);
+  }
+
+  .picks-card-cover {
+    flex: none;
+    width: 42px;
+    height: 52px;
+    border-radius: 7px;
+    border: 1px solid var(--color-line);
+    object-fit: cover;
+  }
+
+  .picks-card-body {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  .picks-card-title {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    font-size: 12.5px;
+    font-weight: 650;
+    line-height: 1.4;
+    color: var(--color-ink);
+  }
+
+  .picks-card:hover .picks-card-title {
+    color: var(--color-brand-deep);
+  }
+
+  .picks-card-meta {
+    font-size: 10.5px;
+    color: var(--color-ink-faint);
+  }
+
+  .picks-card-go {
+    margin-left: auto;
+    flex: none;
+    font-size: 13px;
+    color: var(--color-ink-faint);
+  }
+
   .picks-panel--apps {
     background:
       radial-gradient(90% 80% at 100% 0%, rgb(26 79 253 / 0.1), transparent 62%),
@@ -9057,5 +9134,350 @@
   .table-wrap:has(> table.table-stack) {
     margin-block: 1.3em;
     background-image: none;
+  }
+}
+
+/* ------------------------------------------------------------------
+   자료앨범 v8.9.0 — 표지 그리드(인덱스) + 카드 전용 페이지(/gallery/<id>/)
+   감사 보고 I1~I3: 인덱스에서 넘기지 않고 들어간다. 카드 페이지는 세로 스토리가 기본,
+   그리드는 '한눈에 보기' 토글. 좌측 인덱스는 데스크톱에서만 붙박이(sticky)로 남는다.
+   ------------------------------------------------------------------ */
+@layer components {
+  /* ── 인덱스 표지 카드 ───────────────────────────────────────────── */
+  .cnp-cover {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    overflow: hidden;
+    background: #fff;
+  }
+
+  .cnp-cover-link {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    height: 100%;
+    color: inherit;
+  }
+
+  .cnp-cover-media {
+    position: relative;
+    display: block;
+    background: #071227;
+  }
+
+  .cnp-cover-media img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    transition: transform 0.35s ease;
+  }
+
+  .cnp-cover-link:hover .cnp-cover-media img {
+    transform: scale(1.02);
+  }
+
+  .cnp-cover-badge {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: rgba(4, 13, 24, 0.72);
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #eef1f7;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .cnp-cover-body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 4px;
+    padding: 14px 16px 16px;
+  }
+
+  .cnp-cover-cat {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--color-brand-deep);
+  }
+
+  .cnp-cover-title {
+    font-size: 15.5px;
+    font-weight: 700;
+    line-height: 1.4;
+    letter-spacing: -0.03em;
+    color: var(--color-ink);
+    text-wrap: pretty;
+  }
+
+  .cnp-cover-line {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: var(--color-ink-muted);
+  }
+
+  .cnp-cover-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin-top: auto;
+    padding-top: 8px;
+    font-size: 11.5px;
+    color: var(--color-ink-faint);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .cnp-cover-go {
+    margin-left: auto;
+    font-weight: 700;
+    color: var(--color-brand-deep);
+  }
+
+  /* 대표 1세트 — 첫 보이는 카드가 넓게 펼쳐진다(제목·리드·장수·기준일) */
+  @media (min-width: 768px) {
+    .cnp-cover.is-feature {
+      grid-column: 1 / -1;
+    }
+
+    .cnp-cover.is-feature .cnp-cover-link {
+      flex-direction: row;
+      align-items: stretch;
+    }
+
+    .cnp-cover.is-feature .cnp-cover-media {
+      flex: 0 0 clamp(240px, 30%, 320px);
+    }
+
+    .cnp-cover.is-feature .cnp-cover-media img {
+      height: auto;
+      aspect-ratio: 4 / 5;
+    }
+
+    .cnp-cover.is-feature .cnp-cover-body {
+      justify-content: center;
+      gap: 7px;
+      max-width: 62ch;
+      padding: 24px 30px;
+    }
+
+    .cnp-cover.is-feature .cnp-cover-meta {
+      margin-top: 10px;
+      padding-top: 0;
+    }
+
+    .cnp-cover.is-feature .cnp-cover-title {
+      font-size: 21px;
+      line-height: 1.35;
+    }
+
+    .cnp-cover.is-feature .cnp-cover-line {
+      -webkit-line-clamp: 4;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+  }
+
+  /* ── 카드 전용 페이지 ──────────────────────────────────────────── */
+  .cnp-layout {
+    display: grid;
+    gap: 26px;
+  }
+
+  @media (min-width: 1024px) {
+    .cnp-layout {
+      grid-template-columns: 208px minmax(0, 600px);
+      justify-content: center;
+      gap: 40px;
+      align-items: start;
+    }
+  }
+
+  .cnp-index {
+    display: none;
+  }
+
+  @media (min-width: 1024px) {
+    .cnp-index {
+      position: sticky;
+      top: 88px;
+      display: block;
+    }
+  }
+
+  .cnp-index-label {
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    color: var(--color-ink-faint);
+  }
+
+  .cnp-index-list {
+    display: grid;
+    gap: 2px;
+    margin-top: 10px;
+    border-left: 1px solid var(--color-line);
+  }
+
+  .cnp-index-link {
+    display: grid;
+    grid-template-columns: 22px minmax(0, 1fr);
+    gap: 6px;
+    margin-left: -1px;
+    padding: 7px 0 7px 10px;
+    border-left: 2px solid transparent;
+    font-size: 11.5px;
+    line-height: 1.45;
+    color: var(--color-ink-faint);
+    transition: color 0.16s ease, border-color 0.16s ease;
+  }
+
+  .cnp-index-link:hover {
+    color: var(--color-ink-soft);
+  }
+
+  .cnp-index-link.is-active {
+    border-left-color: var(--color-brand);
+    color: var(--color-ink);
+    font-weight: 650;
+  }
+
+  .cnp-index-no {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .cnp-story {
+    display: grid;
+    gap: 26px;
+    max-width: 560px;
+  }
+
+  .cnp-slide {
+    scroll-margin-top: 80px;
+  }
+
+  .cnp-shot {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--color-line);
+    border-radius: 16px;
+    background: #071227;
+    box-shadow: 0 26px 60px -48px rgba(15, 53, 80, 0.8);
+  }
+
+  .cnp-shot img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+  }
+
+  .cnp-no {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: rgba(4, 13, 24, 0.72);
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    color: #eef1f7;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .cnp-cap {
+    display: grid;
+    grid-template-columns: 30px minmax(0, 1fr);
+    gap: 8px;
+    margin-top: 9px;
+    font-size: 13.5px;
+    line-height: 1.62;
+    color: var(--color-ink-soft);
+    text-wrap: pretty;
+  }
+
+  .cnp-cap-no {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--color-brand-deep);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .cnp-grid {
+    display: grid;
+    gap: 14px;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+
+  @media (min-width: 768px) {
+    .cnp-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  .cnp-grid-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    color: inherit;
+  }
+
+  .cnp-grid-item img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    border: 1px solid var(--color-line);
+    border-radius: 12px;
+    background: #071227;
+  }
+
+  .cnp-grid-cap {
+    display: grid;
+    grid-template-columns: 20px minmax(0, 1fr);
+    gap: 6px;
+    font-size: 11.5px;
+    line-height: 1.5;
+    color: var(--color-ink-muted);
+  }
+
+  .cnp-rel-card {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    height: 100%;
+    padding: 16px 18px;
+    border: 1px solid var(--color-line);
+    border-radius: 16px;
+    background: #fff;
+  }
+
+  .cnp-rel-card:hover {
+    border-color: color-mix(in srgb, var(--color-brand) 45%, transparent);
+  }
+
+  .cnp-dl {
+    padding: 16px 18px;
+    border: 1px solid var(--color-line);
+    border-radius: 16px;
+    background: color-mix(in srgb, var(--color-paper-deep) 55%, #fff);
+  }
+
+  .cnp-dl-nums {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
   }
 }

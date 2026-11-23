@@ -14,6 +14,7 @@ series:
   no: 5
 app: "pension-draw"
 tags: ["연금 인출", "1,500만원", "분리과세"]
+cards: ["pension-1500-3d", "pension-draw-order"]
 compare:
   title: "연 1,500만원 초과분 — 종합과세 vs 16.5% 분리과세"
   asOfLabel: "소득세법 제14조제3항제9호·제64조의4 · 기준 2026. 11. 21."

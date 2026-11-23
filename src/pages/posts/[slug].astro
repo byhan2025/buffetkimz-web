@@ -13,6 +13,8 @@ import { withBase, absolute } from "@/config/site";
 import { categoryBySlug, categoryName } from "@/data/categories";
 import { allPosts, postPath, formatDate, summaryOf, toolOf, seriesOf, nextInSeries, seriesTotalOf } from "@/lib/posts";
 import { thumbOf, thumbAltOf, thumbSize } from "@/lib/thumbs";
+import { cardThumb } from "@/lib/card-assets";
+import { cardSetsOfPost, validatePairs } from "@/lib/gallery";
 import { AUTHOR_ID, ORG_ID, breadcrumbList, graph, pageUrl, partOfWebsite } from "@/lib/schema";
 
 export async function getStaticPaths() {
@@ -74,6 +76,10 @@ const balanceLine: Record<string, string> = {
 };
 
 const all = await allPosts();
+/** 글↔카드 짝 검사 — 한 방향으로만 적힌 짝이 있으면 이 글의 빌드가 선다 */
+validatePairs(all);
+/** 이 글의 카드 세트 — 본문에는 넣지 않고 아래 '카드 1줄'로만 잇는다(감사 R2·S1) */
+const cardSets = cardSetsOfPost(post.id);
 /** v7.7 — 시리즈 회차: 전체 편수·다음 편·첫 편 */
 const seriesTotal = seriesTotalOf(all, post);
 const seriesNext = nextInSeries(all, post);
@@ -341,6 +347,58 @@ const jsonLd = graph([
               </a>
             </div>
           </section>
+
+          {/* 말미 ①-3 이 글의 카드 — 글은 글이고, 카드는 카드다(이미지 삽입 없이 링크 1줄) */}
+          {
+            cardSets.length > 0 && (
+              <section class="mt-12 max-w-[66ch]" aria-labelledby="post-cards-heading" data-post-cards>
+                <div class="card border border-line bg-paper-deep/35 p-5">
+                  <p class="text-[11px] font-bold tracking-[0.16em] text-brand-deep" id="post-cards-heading">
+                    이 글의 카드
+                  </p>
+                  <ul class="mt-3 divide-y divide-line-soft">
+                    {cardSets.map((set) => {
+                      const cover = set.slides[0];
+                      return (
+                        <li>
+                          <a
+                            href={withBase(`/gallery/${set.id}/`)}
+                            class="group flex items-center gap-3 py-3"
+                            data-post-card-link={set.id}
+                          >
+                            {cover && (
+                              <img
+                                src={withBase(cardThumb(cover.src))}
+                                alt=""
+                                width="48"
+                                height="60"
+                                loading="lazy"
+                                decoding="async"
+                                class="h-[60px] w-[48px] shrink-0 rounded-md border border-line object-cover"
+                              />
+                            )}
+                            <span class="min-w-0">
+                              <span class="block text-[14.5px] font-semibold leading-snug text-ink group-hover:text-brand-deep">
+                                {set.title}
+                              </span>
+                              <span class="mt-1 block text-[11.5px] text-ink-faint">{set.tagline}</span>
+                            </span>
+                            <span class="ml-auto shrink-0 text-[12.5px] font-semibold text-brand-deep">
+                              이 글의 카드 {set.slides.length}장 보기 →
+                            </span>
+                          </a>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                  <p class="mt-2 text-[11.5px] leading-[1.65] text-ink-faint">
+                    카드는 글의 요약본이 아니라 따로 읽는 발행물입니다. 카드 페이지에서 장마다 한 줄 설명과 기준일·출처를
+                    함께 확인할 수 있습니다.
+                  </p>
+                </div>
+              </section>
+            )
+          }
 
           {/* 말미 ② 한 줄 면책 — 도구 카드와 충분한 여백을 두고 내려온다 */}
           <p class="mt-10 max-w-[66ch] border-t border-line pt-4 text-[12.5px] leading-[1.7] text-ink-faint" data-post-disclaimer>

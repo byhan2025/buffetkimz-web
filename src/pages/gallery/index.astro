@@ -1,0 +1,318 @@
+---
+/**
+ * 자료앨범 인덱스 — `/gallery/` (v8.9.0, 감사 보고 I1·I5·S6).
+ *
+ * 무엇이 바뀌었나
+ *  · v8.8.0까지는 카드 안에서 6장을 넘겨 보는 '작은 캐러셀'이 목록 카드마다 붙어 있었다.
+ *    한 화면에 세트 21개 × 장 넘김 버튼 3개 × 썸네일 6개가 겹쳐, 정작 표지가 보이지 않았다.
+ *  · 이제 목록은 **표지 그리드**다. 맨 위 한 세트는 큰 표지 + 제목·리드·장수·기준일로 펼치고,
+ *    나머지는 3열 표지 카드(제목·한 줄·N장·기준일)로 놓는다.
+ *  · 넘겨 보기·크게 보기는 카드 전용 페이지(`/gallery/<id>/`)가 맡는다. 이 페이지는 '고르는' 화면이다.
+ *
+ * 권한 모델(정적 사이트)
+ *  · 업로드 폼도 API도 없다. 자료 등록은 관리자가 `public/gallery/`에 이미지를 넣고
+ *    `src/data/gallery.ts`에 한 건을 추가한 뒤 빌드·배포하는 방식뿐이다.
+ *  · 이미지는 v8.9.0부터 WebP(1080×1350, 장당 26~133KB)와 썸네일(480×600)을 쓴다.
+ */
+import Base from "@/layouts/Base.astro";
+import HomePill from "@/components/HomePill.astro";
+import AdSlot from "@/components/AdSlot.astro";
+import { withBase, site } from "@/config/site";
+import { GALLERY_CATEGORIES, categoryCount, galleryCount, galleryItems, gallerySlideCount } from "@/data/gallery";
+import { cardThumb, existsInPublic } from "@/lib/card-assets";
+import { breadcrumbList, graph, pageUrl, partOfWebsite } from "@/lib/schema";
+import { allPosts } from "@/lib/posts";
+import { validatePairs } from "@/lib/gallery";
+
+/** 글↔카드 짝이 한 방향으로만 적혀 있으면 여기서 빌드가 선다 */
+validatePairs(await allPosts());
+
+const tabs = [
+  { id: "all", label: "전체", count: galleryCount },
+  ...GALLERY_CATEGORIES.map((c) => ({ id: c.id, label: c.label, count: categoryCount(c.id) })),
+];
+
+/** 태그 칩 — 자료에서 태그를 모아 빈도순으로 */
+const tagCounts = new Map<string, number>();
+for (const item of galleryItems) for (const t of item.tags) tagCounts.set(t, (tagCounts.get(t) ?? 0) + 1);
+const tags = [...tagCounts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "ko")).slice(0, 10);
+
+const catLabel = (id: string) => GALLERY_CATEGORIES.find((c) => c.id === id)?.label ?? id;
+const dots = (iso: string) => iso.replace(/^(\d{4})-(\d{2})-(\d{2})$/, "$1. $2. $3.");
+
+/** 표지 — 실제 파일이 있는 첫 장. 없는 세트는 카드에서 빼지 않고 '준비 중'으로 남긴다 */
+const coverOf = (item: (typeof galleryItems)[number]) => item.slides.find((s) => existsInPublic(s.src));
+
+const jsonLd = graph([
+  {
+    "@type": "CollectionPage",
+    "@id": `${pageUrl("/gallery")}#webpage`,
+    name: "자료앨범 — 버핏킴즈",
+    description:
+      "금융·연금·재무 주제를 4:5 카드뉴스·인포그래픽·체크리스트로 정리한 자료 모음. 카드마다 전용 페이지에서 6장을 이어 읽고 내려받습니다.",
+    url: pageUrl("/gallery"),
+    inLanguage: "ko-KR",
+    isPartOf: partOfWebsite,
+    mainEntity: {
+      "@type": "ItemList",
+      itemListElement: galleryItems.map((item, i) => ({
+        "@type": "ListItem",
+        position: i + 1,
+        name: item.title,
+        url: pageUrl(`/gallery/${item.id}`),
+      })),
+    },
+  },
+  breadcrumbList([
+    { name: "홈", path: "/" },
+    { name: "자료앨범", path: "/gallery" },
+  ]),
+]);
+---
+
+<Base
+  title="자료앨범 — 카드뉴스·인포그래픽 내려받기"
+  description={`연금·금융 주제를 4:5 카드로 정리한 자료 ${galleryCount}세트 ${gallerySlideCount}장. 표지를 누르면 카드 전용 페이지에서 카드 전체를 이어 읽고 내려받습니다.`}
+  path="/gallery"
+  jsonLd={jsonLd}
+>
+  <!-- ① 머리 -->
+  <section class="scene-sky border-b border-line/70">
+    <div class="wrap py-9 md:py-12">
+      <HomePill />
+      <nav class="flex flex-wrap items-center gap-2 text-[12px] text-ink-faint" aria-label="위치">
+        <a href={withBase("/")} class="inline-flex min-h-[44px] items-center hover:text-ink md:min-h-[24px]">홈</a>
+        <span aria-hidden="true">/</span>
+        <span class="text-ink-muted">자료앨범</span>
+      </nav>
+
+      <div class="mt-5 max-w-[62ch]">
+        <p class="mono text-[11.5px] font-semibold tracking-[0.18em] text-brand">GALLERY · 자료앨범</p>
+        <h1 class="h-display mt-2 text-ink">표지로 고르고,<br />카드로 끝까지 읽습니다</h1>
+        <p class="lede mt-4 max-w-[56ch]">
+          한 주제를 3~6장으로 끊어 담은 카드뉴스입니다. 표지를 누르면 카드 전용 페이지에서 장마다 한 줄 설명을
+          읽으며 이어 보고, 필요한 장만 또는 세트 전체를 내려받습니다.
+        </p>
+
+        <ul class="mt-5 flex flex-wrap gap-2" data-gallery-summary>
+          <li class="chip">{galleryCount}세트 · {gallerySlideCount}장</li>
+          <li class="chip">1080 × 1350 (4:5)</li>
+          <li class="chip">WebP · 워터마크 없음</li>
+          <li class="chip">기준일 {site.baseDateLabel}</li>
+        </ul>
+      </div>
+
+      <!-- 방문자 안내 1줄 — 제작·등록 절차는 코드 주석(gallery.ts 헤더)에만 둔다 -->
+      <div class="note-box mt-6 flex flex-col gap-1.5 md:flex-row md:items-start md:gap-6" data-gallery-policy>
+        <p class="shrink-0 text-[12px] font-bold text-ink">자료 안내</p>
+        <p class="text-[12.5px] leading-[1.7] text-ink-muted">
+          관리자가 검수해 등록한 자료를 자유롭게 보고 내려받을 수 있습니다. 카드 안 숫자는 기준일과 1차 출처를
+          함께 확인해 주세요.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ② 분류 · 검색 -->
+  <section class="scene-white border-b border-line">
+    <div class="wrap py-5 md:py-6">
+      <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div class="flex flex-wrap items-center gap-1.5" role="tablist" aria-label="자료 분류" data-gallery-tabs>
+          {
+            tabs.map((t) => (
+              <button
+                type="button"
+                role="tab"
+                aria-selected={t.id === "all" ? "true" : "false"}
+                data-gallery-tab={t.id}
+                data-count={t.count}
+                class={`gallery-tab ${t.id === "all" ? "is-active" : ""}`}
+              >
+                {t.label}
+                <span class="gallery-tab-count">{t.count}</span>
+              </button>
+            ))
+          }
+        </div>
+
+        <div class="flex w-full items-center gap-2 md:w-[320px]">
+          <label for="gallery-search" class="sr-only">자료 검색</label>
+          <input
+            id="gallery-search"
+            type="search"
+            placeholder="제목·태그로 찾기 (예: ISA)"
+            class="h-[44px] w-full rounded-full border border-line bg-white px-4 text-[13px] text-ink placeholder:text-ink-faint focus:border-brand/50 focus:outline-none"
+            data-gallery-search
+          />
+        </div>
+      </div>
+
+      <div class="mt-3 flex flex-wrap items-center gap-1.5" data-gallery-tags>
+        <span class="text-[12px] font-semibold text-ink-faint">태그</span>
+        {
+          tags.map(([tag, n]) => (
+            <button type="button" class="gallery-tag" data-gallery-tag={tag}>
+              {tag}
+              <span class="text-ink-faint">{n}</span>
+            </button>
+          ))
+        }
+      </div>
+
+      <p class="mt-3 text-[12px] text-ink-faint" data-gallery-status>
+        <span data-gallery-count>{galleryCount}</span>세트 · <span data-gallery-count-slides>{gallerySlideCount}</span>장 ·
+        표지를 누르면 카드 전용 페이지가 열립니다.
+      </p>
+    </div>
+  </section>
+
+  <!-- ③ 표지 그리드 — 첫 보이는 세트가 대표(넓게), 나머지는 3열 -->
+  <section class="scene-cream">
+    <div class="wrap py-8 md:py-12">
+      <div class="grid gap-5 sm:grid-cols-2 xl:grid-cols-3" data-gallery-grid>
+        {
+          galleryItems.map((item) => {
+            const cover = coverOf(item);
+            return (
+              <article
+                class="gallery-card cnp-cover"
+                data-gallery-item={item.id}
+                data-category={item.category}
+                data-tags={item.tags.join(" ")}
+                data-title={`${item.title} ${item.tagline} ${item.summary} ${item.tags.join(" ")}`}
+                data-slides={item.slides.length}
+              >
+                <a
+                  href={withBase(`/gallery/${item.id}/`)}
+                  class="cnp-cover-link"
+                  aria-label={`${item.title} — 카드 ${item.slides.length}장 열기`}
+                >
+                  <span class="cnp-cover-media">
+                    {cover ? (
+                      <img
+                        src={withBase(cardThumb(cover.src))}
+                        alt={cover.alt}
+                        width="480"
+                        height="600"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    ) : (
+                      <span class="grid aspect-[4/5] place-items-center text-[12px] text-[#c9cedd]">표지 준비 중</span>
+                    )}
+                    <span class="cnp-cover-badge">{item.slides.length === 1 ? "1장" : `${item.slides.length}장`}</span>
+                  </span>
+
+                  <span class="cnp-cover-body">
+                    <span class="cnp-cover-cat">{catLabel(item.category)}</span>
+                    <span class="cnp-cover-title">{item.title}</span>
+                    <span class="cnp-cover-line">{item.summary}</span>
+                    <span class="cnp-cover-meta">
+                      <span class="mono">
+                        {item.slides.length === 1 ? "1장" : `${item.slides.length}장`} · 기준일 {dots(item.createdAt)}
+                      </span>
+                      <span class="cnp-cover-go">카드 보기 →</span>
+                    </span>
+                  </span>
+                </a>
+              </article>
+            );
+          })
+        }
+      </div>
+
+      <p class="py-16 text-center text-[14px] text-ink-muted" data-gallery-empty hidden>
+        조건에 맞는 자료가 없습니다. 검색어를 지우거나 다른 태그를 골라 보세요.
+      </p>
+
+      <div class="mt-8">
+        <AdSlot id="gallery-bottom" size="leaderboard" region="article-bottom" />
+      </div>
+
+      <p class="mt-4 text-[12px] leading-[1.8] text-ink-faint">
+        모든 카드는 1080×1350 WebP입니다. 카드 전용 페이지에서 세트 전체를 연속으로 내려받을 수 있고, 브라우저가
+        막으면 번호 버튼으로 한 장씩 받아 주세요. 자료의 숫자는 각 카드 하단의 기준일·출처를 함께 확인해 주세요.
+      </p>
+    </div>
+  </section>
+
+  <script>
+    const grid = document.querySelector<HTMLElement>("[data-gallery-grid]");
+    const cards = Array.from(document.querySelectorAll<HTMLElement>("[data-gallery-item]"));
+    const tabs = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-gallery-tab]"));
+    const search = document.querySelector<HTMLInputElement>("[data-gallery-search]");
+    const tagButtons = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-gallery-tag]"));
+    const empty = document.querySelector<HTMLElement>("[data-gallery-empty]");
+    const countEl = document.querySelector<HTMLElement>("[data-gallery-count]");
+    const slideCountEl = document.querySelector<HTMLElement>("[data-gallery-count-slides]");
+
+    let activeCat = "all";
+    let activeTag = "";
+
+    /* 대표 세트 — 화면에 실제로 보이는 첫 카드. 필터가 바뀌면 그 카드가 대표가 된다. */
+    function paintFeature() {
+      let first = true;
+      cards.forEach((card) => {
+        const on = !card.hidden && first;
+        card.classList.toggle("is-feature", on);
+        if (on) first = false;
+      });
+    }
+
+    function applyFilter() {
+      const q = (search?.value || "").trim().toLowerCase();
+      let shown = 0;
+      let slides = 0;
+      cards.forEach((card) => {
+        const cat = card.dataset.category || "";
+        const tags = (card.dataset.tags || "").toLowerCase();
+        const title = (card.dataset.title || "").toLowerCase();
+        const okCat = activeCat === "all" || cat === activeCat;
+        const okTag = !activeTag || tags.includes(activeTag.toLowerCase());
+        const okQ = !q || title.includes(q);
+        const visible = okCat && okTag && okQ;
+        card.hidden = !visible;
+        if (visible) {
+          shown += 1;
+          slides += Number(card.dataset.slides || 0);
+        }
+      });
+      tabs.forEach((t) => {
+        const on = (t.dataset.galleryTab || "all") === activeCat;
+        t.classList.toggle("is-active", on);
+        t.setAttribute("aria-selected", on ? "true" : "false");
+      });
+      tagButtons.forEach((t) => t.classList.toggle("is-active", (t.dataset.galleryTag || "") === activeTag));
+      if (countEl) countEl.textContent = String(shown);
+      if (slideCountEl) slideCountEl.textContent = String(slides);
+      if (empty) empty.hidden = shown > 0;
+      if (grid) grid.hidden = shown === 0;
+      paintFeature();
+    }
+
+    tabs.forEach((t) =>
+      t.addEventListener("click", () => {
+        activeCat = t.dataset.galleryTab || "all";
+        applyFilter();
+        /* v7.2부터 메뉴가 `/gallery/?cat=cardnews`로 들어온다 — 탭을 눌러도 주소를 맞춘다 */
+        const url = new URL(window.location.href);
+        if (activeCat === "all") url.searchParams.delete("cat");
+        else url.searchParams.set("cat", activeCat);
+        history.replaceState(null, "", url);
+      })
+    );
+
+    const catFromUrl = new URLSearchParams(window.location.search).get("cat");
+    if (catFromUrl && tabs.some((t) => t.dataset.galleryTab === catFromUrl)) activeCat = catFromUrl;
+    search?.addEventListener("input", applyFilter);
+    tagButtons.forEach((t) =>
+      t.addEventListener("click", () => {
+        const tag = t.dataset.galleryTag || "";
+        activeTag = activeTag === tag ? "" : tag;
+        applyFilter();
+      })
+    );
+
+    applyFilter();
+  </script>
+</Base>

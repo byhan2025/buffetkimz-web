@@ -14,6 +14,7 @@ series:
   no: 1
 app: "coverage-check"
 tags: ["보장분석", "5대 담보", "감액기간"]
+cards: ["coverage-gaps-hand"]
 compare:
   title: "가입금액만 볼 때 vs 지급 조건까지 볼 때"
   asOfLabel: "보험업감독규정·표준약관 · 기준 2026. 11. 21."

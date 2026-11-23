@@ -1,6 +1,6 @@
 # buffetkimz-web — 작업 규칙
 
-통합 개인 브랜드 사이트(`buffetkimz.com`, GitHub Pages). Astro 기반. 2026-11-22 현재 `package.json` 버전 `8.6.0`, v8.6.0 99점 마감 작업이 진행 중이었다.
+통합 개인 브랜드 사이트(`buffetkimz.com`, GitHub Pages). Astro 기반. 2026-11-23 현재 `package.json` 버전 `8.9.0`(카드뉴스 전용 페이지·WebP).
 
 > 설치 시점: v8.6.0 작업이 끝나고 `main` 이 정리된 뒤에 이 파일을 `apps/buffetkimz-web/AGENTS.md` 로 넣는다. `scripts/apply-agents-md.sh --app buffetkimz-web --force`.
 
@@ -18,6 +18,9 @@ scripts/dev-gate.sh --app buffetkimz-web --full --allow-build    # 빌드까지
 ## 경계
 
 - `deploy_domain.sh`, `deploy_pages.sh` 는 도메인·DNS·라이브를 건드린다. 승인 없이 실행하지 않는다(단방향 문).
+- 카드 이미지는 **WebP만 배포한다**(`public/gallery/*.webp` + `public/gallery/thumbs/`). 새 카드를 PNG로 렌더했다면
+  `python3 scripts/make_gallery_webp.py`로 변환해야 화면에 나타난다(원본 PNG는 `assets/gallery-png/`로 이동).
+- 글↔카드 짝은 `src/data/gallery.ts`의 `post`와 글 frontmatter `cards`가 짝을 이룬다. 한쪽만 고치면 빌드가 선다.
 - 배포 뒤에는 라이브 URL 과 캡처로 확인한 것만 "완료"라고 보고한다.
 - 비주얼 정본은 `guidelines/buffetkimz-fixed-visual-template.md`, 모션·전환 취향은 그 문서와 `boban-fixed-visual-template.md`.
 - 브랜드 분리: 보반과 버핏킴즈는 별개 브랜드다. 한쪽 문구를 다른 쪽에 복사하지 않는다.
