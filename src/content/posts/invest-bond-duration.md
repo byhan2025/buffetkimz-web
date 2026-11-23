@@ -9,7 +9,7 @@ baseDate: 2026-11-22
 publishedAt: 2026-11-22
 readingMinutes: 6
 question: "금리가 오르면 내 채권은 얼마나 손해인가"
-toolHref: "/apps/deposit-savings/run"
+toolHref: "/apps/compound-return/run?mode=deposit"
 toolTitle: "같은 돈을 예금에 두면 세후 얼마인지 비교하기"
 gain: "듀레이션별 금리 1%포인트 손익과 채권 이자·매매차익·채권형 ETF의 과세 차이를 한 표에 모았습니다."
 gainType: "clearer-answer"
@@ -35,7 +35,7 @@ compare:
       - "평균 듀레이션을 상품 설명에서 직접 확인해야 합니다"
       - "매매는 언제든 되지만 그 시점 가격으로 팔립니다"
   note: "같은 채권을 담아도 그릇이 세금을 바꿉니다. 금리 민감도는 두 경우 모두 평균 듀레이션으로 봅니다."
-  toolHref: "/apps/deposit-savings/run"
+  toolHref: "/apps/compound-return/run?mode=deposit"
   toolLabel: "예금 세후 금액과 비교하기"
   sources:
     - label: "기획재정부 — 시사경제용어사전: 듀레이션"
@@ -82,7 +82,7 @@ compare:
 1. 상품의 평균 듀레이션을 봅니다. 만기 10년 표시만 보고 고르면 금리 위험을 놓칩니다.
 2. 금리 시나리오별 손익을 계산합니다. 듀레이션 8년에 1,000만원이면 1%포인트에 80만원입니다.
 3. 만기까지 보유할 돈인지 확인합니다. 중도매도는 그 시점 금리에 따라 원금보다 적게 받을 수 있고, 장외채권은 되사는 조건이 상품마다 다릅니다.
-4. 예금과 비교합니다. [예금·적금 세후 비교기](/apps/deposit-savings/run)에 같은 금액과 기간을 넣으면 확정 이자와 세후 금액을 볼 수 있습니다.
+4. 예금과 비교합니다. [예금·적금 세후 비교기](/apps/compound-return/run?mode=deposit)에 같은 금액과 기간을 넣으면 확정 이자와 세후 금액을 볼 수 있습니다.
 
 ## 만기와 금리를 함께 보는 방법
 

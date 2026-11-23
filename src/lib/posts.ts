@@ -88,7 +88,6 @@ const appCta: Record<string, string> = {
   "disclosure-check": "고지 항목 자가점검 해 보기",
   "silson-compare": "내 실손 세대 비교해 보기",
   "trade-timemachine": "시뮬레이터 열어 보기",
-  "bojang-counsel-guide": "담보 확인 순서 열어 보기",
 };
 
 /** 앱도 toolHref도 없는 글에 붙는 분야 기본 도구 — 실제로 있는 도구만 가리킨다. */

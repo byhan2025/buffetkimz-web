@@ -28,7 +28,14 @@ const TAX_LABEL: Record<TaxType, string> = {
 
 const won = (n: number) => `${Math.floor(n).toLocaleString("ko-KR")}원`;
 
-export default function DepositSavingsCalc({ compact = false }: { compact?: boolean }) {
+export default function DepositSavingsCalc({
+  compact = false,
+  embedded = false,
+}: {
+  compact?: boolean;
+  /** v8.8.0 — `compound-return`의 '예금·적금' 탭으로 들어갈 때 껍데기 없이 본문만 그린다 */
+  embedded?: boolean;
+}) {
   const [kind, setKind] = useState<Kind>("deposit");
   const [amount, setAmount] = useState(1000); // 만원 (예금 원금 또는 월납입)
   const [months, setMonths] = useState(12);
@@ -72,18 +79,15 @@ export default function DepositSavingsCalc({ compact = false }: { compact?: bool
     return { n, principal, totalPrincipal, interest, taxAmount, netInterest, netTotal, effectiveAnnual, compare };
   }, [kind, amount, months, rate, compound, tax]);
 
-  return (
-    <UtilShell
-      id="deposit-savings"
-      title="예금·적금 세후 비교기"
-      subtitle="단리·월복리와 과세유형별로 만기 실수령액을 나란히 비교합니다."
-      note={
-        <>
-          광고 금리는 세전입니다. 이자에 세금이 붙은 뒤{" "}
-          <strong className="font-semibold text-ink">실제로 남는 금액</strong>을 확인하세요.
-        </>
-      }
-    >
+  const content = (
+    <>
+      {/* v8.8.0 — 통합 도구의 탭 안에서는 껍데기 대신 이 한 줄이 화면 이름을 알린다 */}
+      {embedded && (
+        <div className="mb-1 border-b border-line-soft pb-2.5">
+          <p className="text-[14.5px] font-bold tracking-[-0.02em] text-ink">예금·적금 세후 비교기</p>
+          <p className="mt-0.5 text-[12px] leading-relaxed text-ink-muted">단리·월복리와 과세유형별로 만기 실수령액을 나란히 비교합니다.</p>
+        </div>
+      )}
       <div className="grid gap-1 md:grid-cols-2 md:gap-x-8">
         <QuickChoices
           label="상품 종류"
@@ -193,6 +197,24 @@ export default function DepositSavingsCalc({ compact = false }: { compact?: bool
           ]}
         />
       </div>
+    </>
+  );
+
+  if (embedded) return content;
+
+  return (
+    <UtilShell
+      id="deposit-savings"
+      title="예금·적금 세후 비교기"
+      subtitle="단리·월복리와 과세유형별로 만기 실수령액을 나란히 비교합니다."
+      note={
+        <>
+          광고 금리는 세전입니다. 이자에 세금이 붙은 뒤{" "}
+          <strong className="font-semibold text-ink">실제로 남는 금액</strong>을 확인하세요.
+        </>
+      }
+    >
+      {content}
     </UtilShell>
   );
 }

@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { site } from "@/config/site";
 import { Tabs, TextInput, UtilShell } from "./UtilShell";
+import { useMode } from "../ModeTabs";
+import MovingDday from "./MovingDday";
 
 /**
  * 날짜 계산 + 단위 변환.
@@ -9,7 +11,10 @@ import { Tabs, TextInput, UtilShell } from "./UtilShell";
  * 영업일은 토·일만 빼고 센다 — 공휴일·임시공휴일은 넣지 않았으므로 실제 영업일과 다를 수 있다.
  */
 
-type Mode = "date" | "unit";
+type Mode = "date" | "unit" | "moving";
+
+/** v8.8.0 — 옛 `/apps/moving-dday/` 주소가 `?mode=moving`으로 이 탭을 연다. */
+const DATE_MODES = ["date", "unit", "moving"] as const;
 
 const DAY = 86400000;
 
@@ -132,7 +137,7 @@ function UnitRow({ def }: { def: RowDef }) {
 }
 
 export default function UnitDateCalc() {
-  const [mode, setMode] = useState<Mode>("date");
+  const [mode, setMode] = useMode<Mode>("date", DATE_MODES);
   const [today, setToday] = useState<Date>(() => new Date(site.today));
   const [start, setStart] = useState(iso(new Date(site.today)));
   const [end, setEnd] = useState(() => iso(addDays(new Date(site.today), 100)));
@@ -172,7 +177,7 @@ export default function UnitDateCalc() {
     <UtilShell
       id="unit-date-calc"
       title="날짜 계산 · 단위 변환"
-      subtitle="두 날짜 사이 일수와 영업일을 세고, 평·인치·용량을 바로 바꿉니다."
+      subtitle="두 날짜 사이 일수와 영업일, 이사 D-Day 일정을 세고, 평·인치·용량을 바로 바꿉니다."
       note={
         <>
           날짜와 숫자는 <strong className="font-semibold text-ink">이 브라우저에서만</strong> 계산됩니다. 저장하지
@@ -187,10 +192,15 @@ export default function UnitDateCalc() {
         options={[
           { value: "date", label: "날짜 계산" },
           { value: "unit", label: "단위 변환" },
+          { value: "moving", label: "이사 D-Day" },
         ]}
       />
 
-      {mode === "date" ? (
+      {mode === "moving" ? (
+        <div className="mt-3" data-moving-pane>
+          <MovingDday embedded />
+        </div>
+      ) : mode === "date" ? (
         <div className="mt-3" data-date-pane>
           <div className="grid gap-3 sm:grid-cols-2">
             <TextInput label="시작일" type="date" value={start} onChange={setStart} />

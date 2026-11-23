@@ -175,11 +175,6 @@ export function nextReading(postId: string): ReadingNext | null {
 export type ToolNext = { href: string; name: string; why: string };
 
 const toolTrack: Record<string, ToolNext> = {
-  "bojang-counsel-guide": {
-    href: "/apps/coverage-check",
-    name: "보장 점검 시뮬레이터",
-    why: "담보 확인 순서를 봤다면, 내 증권 금액으로 바로 점검합니다",
-  },
   "pension-tax": {
     href: "/apps/pension-draw",
     name: "연금 인출·세금 시뮬레이터",

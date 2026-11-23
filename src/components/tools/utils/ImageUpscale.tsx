@@ -197,7 +197,14 @@ function drawZoom(
 /** 화면이 한 번 그려질 틈을 준다 — 무거운 작업 중에도 진행 문구가 보이게 */
 const breathe = () => new Promise<void>((r) => requestAnimationFrame(() => setTimeout(r, 0)));
 
-export default function ImageUpscale() {
+export default function ImageUpscale({
+  compact = false,
+  embedded = false,
+}: {
+  compact?: boolean;
+  /** v8.8.0 — `image-compress`의 '해상도 확대' 탭으로 들어갈 때 껍데기 없이 본문만 그린다 */
+  embedded?: boolean;
+}) {
   const [loaded, setLoaded] = useState<Loaded | null>(null);
   const [scale, setScale] = useState<Scale>(2);
   const [sharpen, setSharpen] = useState(true);
@@ -410,18 +417,15 @@ export default function ImageUpscale() {
     if (f) void readFile(f);
   };
 
-  return (
-    <UtilShell
-      id="image-upscale"
-      title="이미지 해상도 업스케일"
-      subtitle="2·3·4배로 키우고 경계를 세워 PNG로 저장"
-      note={
-        <>
-          사진은 <strong className="font-semibold text-ink">이 브라우저 안에서만</strong> 처리되고 업로드되지 않습니다.
-          업스케일은 픽셀을 늘리고 경계를 세우는 처리로, <strong className="font-semibold text-ink">없던 디테일을 복원하는 AI는 아닙니다</strong>.
-        </>
-      }
-    >
+  const content = (
+    <>
+      {/* v8.8.0 — 통합 도구의 탭 안에서는 껍데기 대신 이 한 줄이 화면 이름을 알린다 */}
+      {embedded && (
+        <div className="mb-1 border-b border-line-soft pb-2.5">
+          <p className="text-[14.5px] font-bold tracking-[-0.02em] text-ink">이미지 해상도 업스케일</p>
+          <p className="mt-0.5 text-[12px] leading-relaxed text-ink-muted">2·3·4배로 키우고 경계를 세워 PNG로 저장합니다.</p>
+        </div>
+      )}
       <div className="space-y-4">
         {/* 파일 넣기 */}
         <div
@@ -642,6 +646,24 @@ export default function ImageUpscale() {
           넘으면 2배도 한도를 넘을 수 있습니다.
         </p>
       </div>
+    </>
+  );
+
+  if (embedded) return content;
+
+  return (
+    <UtilShell
+      id="image-upscale"
+      title="이미지 해상도 업스케일"
+      subtitle="2·3·4배로 키우고 경계를 세워 PNG로 저장"
+      note={
+        <>
+          사진은 <strong className="font-semibold text-ink">이 브라우저 안에서만</strong> 처리되고 업로드되지 않습니다.
+          업스케일은 픽셀을 늘리고 경계를 세우는 처리로, <strong className="font-semibold text-ink">없던 디테일을 복원하는 AI는 아닙니다</strong>.
+        </>
+      }
+    >
+      {content}
     </UtilShell>
   );
 }

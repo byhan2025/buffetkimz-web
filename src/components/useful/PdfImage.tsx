@@ -25,6 +25,8 @@ import {
   todayStamp,
 } from "./kit";
 import { Note } from "../tools/ui";
+import { ModeTabs, useMode } from "../tools/ModeTabs";
+import PdfMergeSplit from "../tools/utils/PdfMergeSplit";
 
 type Tab = "toPdf" | "toImage";
 type PageSize = "a4" | "a4-land" | "image";
@@ -35,7 +37,7 @@ type PdfPage = { index: number; blob: Blob; url: string; w: number; h: number };
 
 const MM = 2.834645669; // 1mm = 2.8346pt
 
-export default function PdfImage({ compact = false }: { compact?: boolean }) {
+function PdfImagePane({ compact = false }: { compact?: boolean }) {
   const [tab, setTab] = useState<Tab>("toPdf");
 
   return (
@@ -550,5 +552,31 @@ function IconBtn({ children, label, onClick, disabled }: { children: React.React
     >
       {children}
     </button>
+  );
+}
+
+/* ------------------------------------------------------------------ v8.8.0 통합
+ * `pdf-merge-split`(PDF 합치기·페이지 추출)를 같은 화면의 두 번째 탭으로 흡수했다.
+ * PDF를 다루는 일은 결국 '한 파일로 모으기'와 '쪽으로 꺼내기' 두 방향이라 한 도구로 두었다.
+ */
+const PDF_MODES = ["convert", "merge"] as const;
+type PdfMode = (typeof PDF_MODES)[number];
+
+export default function PdfImage({ compact = false }: { compact?: boolean }) {
+  const [mode, setMode] = useMode<PdfMode>("convert", PDF_MODES);
+  return (
+    <div data-merged-tool="pdf-image">
+      <ModeTabs
+        label="PDF 작업"
+        value={mode}
+        onChange={setMode}
+        options={[
+          { value: "convert", label: "PDF ↔ 이미지" },
+          { value: "merge", label: "합치기·나누기" },
+        ]}
+        note="PDF는 브라우저 안에서만 열리고 만들어집니다 — 변환과 병합·추출을 한 화면에서 오갑니다."
+      />
+      {mode === "merge" ? <PdfMergeSplit compact={compact} embedded /> : <PdfImagePane compact={compact} />}
+    </div>
   );
 }

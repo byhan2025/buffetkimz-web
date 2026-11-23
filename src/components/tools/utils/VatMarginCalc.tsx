@@ -2,6 +2,8 @@ import { useMemo, useState } from "react";
 import { site } from "@/config/site";
 import { Note, ResultStat, RunnerShell, Segmented, StickySummary, formatKrw } from "../ui";
 import { AmountField, CaveatBox, Line, num } from "./fields-c";
+import { ModeTabs, useMode } from "../ModeTabs";
+import FreelancerTaxCalc from "./FreelancerTaxCalc";
 
 /**
  * 부가세·마진·할인 계산기 — 업무용 3탭.
@@ -17,7 +19,7 @@ const VAT_RATE = 0.1;
 const supplyOf = (total: number) => Math.round(total / (1 + VAT_RATE));
 const vatOf = (supply: number) => Math.round(supply * VAT_RATE);
 
-export default function VatMarginCalc({ compact = false }: { compact?: boolean }) {
+function VatMarginPane({ compact = false }: { compact?: boolean }) {
   const [tab, setTab] = useState<Tab>("vat");
 
   // ① 부가세
@@ -379,5 +381,31 @@ export default function VatMarginCalc({ compact = false }: { compact?: boolean }
         한 건을 다루는 참고용 모의계산이며, 신고·증빙 요건과 간이과세·면세 여부는 거래 형태에 따라 다릅니다.
       </Note>
     </RunnerShell>
+  );
+}
+
+/* ------------------------------------------------------------------ v8.8.0 통합
+ * `freelancer-tax`(3.3% 원천징수)를 같은 화면의 두 번째 탭으로 흡수했다.
+ * 사업소득자가 청구할 때 보는 두 숫자 — 부가세 10%와 원천징수 3.3% — 를 한 화면에 두었다.
+ */
+const VAT_MODES = ["vat", "freelance"] as const;
+type VatMode = (typeof VAT_MODES)[number];
+
+export default function VatMarginCalc({ compact = false }: { compact?: boolean }) {
+  const [mode, setMode] = useMode<VatMode>("vat", VAT_MODES);
+  return (
+    <div data-merged-tool="vat-margin">
+      <ModeTabs
+        label="계산 종류"
+        value={mode}
+        onChange={setMode}
+        options={[
+          { value: "vat", label: "부가세·마진·할인" },
+          { value: "freelance", label: "3.3% 프리랜서" },
+        ]}
+        note="부가세 10%(청구할 때 더하는 세금)와 3.3% 원천징수(받을 때 미리 떼는 세금)를 오갑니다."
+      />
+      {mode === "freelance" ? <FreelancerTaxCalc compact={compact} embedded /> : <VatMarginPane compact={compact} />}
+    </div>
   );
 }

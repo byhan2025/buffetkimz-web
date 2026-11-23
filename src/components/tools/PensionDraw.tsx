@@ -2,6 +2,8 @@ import { useEffect, useId, useMemo, useState, type CSSProperties } from "react";
 import { TAX_CONFIG, manLabel, simulate } from "@/lib/pension-engine.mjs";
 import { withBase } from "@/config/site";
 import { RunnerShell, StickySummary, formatKrw } from "./ui";
+import { ModeTabs, useMode } from "./ModeTabs";
+import KoreanAgePension from "./utils/KoreanAgePension";
 
 /**
  * 연금 인출·세금 시뮬레이터 (v6.0)
@@ -135,7 +137,7 @@ function Card({
   );
 }
 
-export default function PensionDraw({ compact = false }: { compact?: boolean }) {
+function PensionDrawTax({ compact = false }: { compact?: boolean }) {
   const [age, setAge] = useState(65);
   const [priv, setPriv] = useState(1800); // 만원
   const [pub, setPub] = useState(720); // 만원
@@ -501,5 +503,35 @@ export default function PensionDraw({ compact = false }: { compact?: boolean }) 
         note={`${TAX_CONFIG.checkedOn} 기준 · 참고용 추정`}
       />
     </RunnerShell>
+  );
+}
+
+/* ------------------------------------------------------------------ v8.8.0 통합
+ * `korean-age-pension`(만 나이·국민연금 개시연령·사적연금 55세)을 같은 화면의 두 번째 탭으로 흡수했다.
+ * 기능은 그대로 두고 도구 수만 줄인다 — 옛 주소 `/apps/korean-age-pension/`은 이 화면으로 리다이렉트된다.
+ */
+const PENSION_DRAW_MODES = ["tax", "age"] as const;
+type PensionDrawMode = (typeof PENSION_DRAW_MODES)[number];
+
+export default function PensionDraw({ compact = false }: { compact?: boolean }) {
+  const [mode, setMode] = useMode<PensionDrawMode>("tax", PENSION_DRAW_MODES);
+  return (
+    <div data-merged-tool="pension-draw">
+      <ModeTabs
+        label="연금 계산 종류"
+        value={mode}
+        onChange={setMode}
+        options={[
+          { value: "tax", label: "인출·세금" },
+          { value: "age", label: "개시일·나이" },
+        ]}
+        note="받는 해의 세금(인출)과, 언제부터 받을 수 있는지(개시일·나이)를 한 화면에서 오갑니다."
+      />
+      {mode === "age" ? (
+        <KoreanAgePension compact={compact} embedded />
+      ) : (
+        <PensionDrawTax compact={compact} />
+      )}
+    </div>
   );
 }

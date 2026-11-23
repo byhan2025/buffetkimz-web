@@ -76,7 +76,14 @@ const PENSION_ROWS = [
   { band: "1969년생 이후", age: 65 },
 ];
 
-export default function KoreanAgePension({ compact = false }: { compact?: boolean }) {
+export default function KoreanAgePension({
+  compact = false,
+  embedded = false,
+}: {
+  compact?: boolean;
+  /** v8.8.0 — `pension-draw`의 '개시일·나이' 탭으로 들어갈 때 껍데기 없이 본문만 그린다 */
+  embedded?: boolean;
+}) {
   const [birthText, setBirthText] = useState("1975-03-15");
   const [earlyYears, setEarlyYears] = useState<"0" | "1" | "2" | "3" | "4" | "5">("0");
   const [monthlyPension, setMonthlyPension] = useState(120);
@@ -116,12 +123,15 @@ export default function KoreanAgePension({ compact = false }: { compact?: boolea
   const monthly = monthlyPension * 10000;
   const reduced = Math.round(monthly * (1 - (calc ? calc.reduction : 0) / 100));
 
-  return (
-    <RunnerShell
-      title="만 나이 · 연금 개시일 계산"
-      subtitle="생년월일 하나로 만 나이, 국민연금 노령연금 개시연령, 조기수령 감액, 사적연금 55세 개시일을 계산합니다."
-      example="생년월일과 조기수령 희망 연수를 바꿔 보세요. 기준일은 2026년 11월 21일입니다."
-    >
+  const content = (
+    <>
+      {/* v8.8.0 — 통합 도구의 탭 안에서는 껍데기 대신 이 한 줄이 화면 이름을 알린다 */}
+      {embedded && (
+        <div className="mb-1 border-b border-line-soft pb-2.5">
+          <p className="text-[14.5px] font-bold tracking-[-0.02em] text-ink">만 나이 · 연금 개시일</p>
+          <p className="mt-0.5 text-[12px] leading-relaxed text-ink-muted">생년월일 하나로 만 나이와 국민연금·사적연금 개시일을 계산합니다.</p>
+        </div>
+      )}
       <div className="grid gap-1 md:grid-cols-2 md:gap-x-8">
         <DateField
           label="생년월일"
@@ -332,14 +342,16 @@ export default function KoreanAgePension({ compact = false }: { compact?: boolea
             </div>
           )}
 
-          <StickySummary
-            items={[
-              { label: "만 나이", value: `${calc.age.years}세` },
-              { label: "국민연금 개시", value: `${calc.start.age}세` },
-              { label: "사적연금", value: calc.dPrivate > 0 ? `${calc.dPrivate}일 남음` : "개시 가능" },
-            ]}
-            note={`출생연도 기준 · 확인 기준일 ${site.baseDateLabel}`}
-          />
+          {!embedded && (
+            <StickySummary
+              items={[
+                { label: "만 나이", value: `${calc.age.years}세` },
+                { label: "국민연금 개시", value: `${calc.start.age}세` },
+                { label: "사적연금", value: calc.dPrivate > 0 ? `${calc.dPrivate}일 남음` : "개시 가능" },
+              ]}
+              note={`출생연도 기준 · 확인 기준일 ${site.baseDateLabel}`}
+            />
+          )}
 
           <Note>
             기준일 {site.baseDateLabel}. 만 나이는 행정기본법 제7조의2, 개시연령은 국민연금법 부칙, 조기감액은
@@ -348,6 +360,18 @@ export default function KoreanAgePension({ compact = false }: { compact?: boolea
           </Note>
         </>
       )}
+    </>
+  );
+
+  if (embedded) return content;
+
+  return (
+    <RunnerShell
+      title="만 나이 · 연금 개시일 계산"
+      subtitle="생년월일 하나로 만 나이, 국민연금 노령연금 개시연령, 조기수령 감액, 사적연금 55세 개시일을 계산합니다."
+      example="생년월일과 조기수령 희망 연수를 바꿔 보세요. 기준일은 2026년 11월 21일입니다."
+    >
+      {content}
     </RunnerShell>
   );
 }

@@ -26,7 +26,8 @@ export const GET: APIRoute = async () => {
     readingMinutes: p.data.readingMinutes,
   }));
 
-  const appDocs: SearchDoc[] = apps.map((a) => ({
+  /* v8.8.0 — 보관함 도구는 검색에서도 빠진다(직접 주소로만 연다). */
+  const appDocs: SearchDoc[] = apps.filter((a) => !a.archived).map((a) => ({
     id: `app-${a.slug}`,
     type: "app",
     title: a.name,

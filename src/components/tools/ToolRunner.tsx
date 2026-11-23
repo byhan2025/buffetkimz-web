@@ -7,13 +7,10 @@ import RetirementFlow from "./RetirementFlow";
 import CompoundReturn from "./CompoundReturn";
 import AccountTaxCompare from "./AccountTaxCompare";
 /* v7.3 — 유용한앱 7종. 모두 브라우저 로컬 처리(파일 서버 미전송). */
-import ExifMosaic from "../useful/ExifMosaic";
 import UrlCleaner from "../useful/UrlCleaner";
 import PdfImage from "../useful/PdfImage";
 import ImageCompress from "../useful/ImageCompress";
 import QrGenerator from "../useful/QrGenerator";
-import ImageResize from "../useful/ImageResize";
-import Watermark from "../useful/Watermark";
 /* v7.3 — 유용한앱 2탄 8종(텍스트·문서·보안·디자인). 모두 브라우저 로컬 처리. */
 import TextCounter from "./utils/TextCounter";
 import PrivacyMasker from "./utils/PrivacyMasker";
@@ -23,32 +20,33 @@ import ColorExtractor from "./utils/ColorExtractor";
 import TextToCard from "./utils/TextToCard";
 import UnitDateCalc from "./utils/UnitDateCalc";
 /* v7.3 — 유용한앱 3탄 8종(금융·생활 계산). */
-import KoreanAgePension from "./utils/KoreanAgePension";
 import SalaryNetCalc from "./utils/SalaryNetCalc";
 import LoanRepayCalc from "./utils/LoanRepayCalc";
 import VatMarginCalc from "./utils/VatMarginCalc";
 import RentJeonseCalc from "./utils/RentJeonseCalc";
 import SeverancePayCalc from "./utils/SeverancePayCalc";
 import DividendTaxCalc from "./utils/DividendTaxCalc";
-import HourlyWageCalc from "./utils/HourlyWageCalc";
 /* v7.3 — 유용한앱 4탄 4종(업스케일·단축·PDF 병합/추출·세계시계). */
-import ImageUpscale from "./utils/ImageUpscale";
 import UrlShortener from "./utils/UrlShortener";
-import PdfMergeSplit from "./utils/PdfMergeSplit";
 import MarketWorldClock from "./utils/MarketWorldClock";
 /* v7.4 — 유용한앱 5탄 12종(로고·부동산·노동·세금·금융 계산). 모두 브라우저 로컬 처리. */
 import SvgLogoMaker from "./utils/SvgLogoMaker";
 import BrokerageFeeCalc from "./utils/BrokerageFeeCalc";
 import AcquisitionTaxCalc from "./utils/AcquisitionTaxCalc";
 import SubscriptionScoreCalc from "./utils/SubscriptionScoreCalc";
-import MovingDday from "./utils/MovingDday";
 import HealthPremiumCompare from "./utils/HealthPremiumCompare";
 import AnnualLeaveCalc from "./utils/AnnualLeaveCalc";
 import UnemploymentCalc from "./utils/UnemploymentCalc";
-import FreelancerTaxCalc from "./utils/FreelancerTaxCalc";
 import OverseasStockTaxCalc from "./utils/OverseasStockTaxCalc";
-import DepositSavingsCalc from "./utils/DepositSavingsCalc";
 
+/**
+ * 실행 화면이 있는 도구 → 컴포넌트.
+ *
+ * v8.8.0 — 흡수된 11종(korean-age-pension · deposit-savings · hourly-wage · freelancer-tax ·
+ * image-resize · image-upscale · watermark · exif-mosaic · pdf-merge-split · moving-dday ·
+ * bojang-counsel-guide)은 자기 주소를 잃고 통합 도구의 탭으로 들어갔다. 그래서 이 표에서도 빠진다.
+ * 옛 주소는 `astro.config.mjs`의 redirects가 통합 도구로 넘긴다.
+ */
 const MAP: Record<string, (props: { compact?: boolean }) => React.ReactElement> = {
   "pension-tax": PensionTax,
   "pension-draw": PensionDraw,
@@ -58,13 +56,10 @@ const MAP: Record<string, (props: { compact?: boolean }) => React.ReactElement> 
   "coverage-check": CoverageCheck,
   "disclosure-check": DisclosureCheck,
   "silson-compare": SilsonCompare,
-  "exif-mosaic": ExifMosaic,
   "url-cleaner": UrlCleaner,
   "pdf-image": PdfImage,
   "image-compress": ImageCompress,
   "qr-generator": QrGenerator,
-  "image-resize": ImageResize,
-  watermark: Watermark,
   "text-counter": TextCounter,
   "privacy-masker": PrivacyMasker,
   "json-csv-formatter": DataFormatter,
@@ -72,29 +67,22 @@ const MAP: Record<string, (props: { compact?: boolean }) => React.ReactElement> 
   "color-extractor": ColorExtractor,
   "text-to-card": TextToCard,
   "unit-date-calc": UnitDateCalc,
-  "korean-age-pension": KoreanAgePension,
   "salary-net": SalaryNetCalc,
   "loan-repay": LoanRepayCalc,
   "vat-margin": VatMarginCalc,
   "rent-jeonse": RentJeonseCalc,
   "severance-pay": SeverancePayCalc,
   "dividend-tax": DividendTaxCalc,
-  "hourly-wage": HourlyWageCalc,
-  "image-upscale": ImageUpscale,
   "url-shortener": UrlShortener,
-  "pdf-merge-split": PdfMergeSplit,
   "market-world-clock": MarketWorldClock,
   "svg-logo-maker": SvgLogoMaker,
   "brokerage-fee": BrokerageFeeCalc,
   "acquisition-tax": AcquisitionTaxCalc,
   "subscription-score": SubscriptionScoreCalc,
-  "moving-dday": MovingDday,
   "health-insurance-compare": HealthPremiumCompare,
   "annual-leave": AnnualLeaveCalc,
   "unemployment-benefit": UnemploymentCalc,
-  "freelancer-tax": FreelancerTaxCalc,
   "overseas-stock-tax": OverseasStockTaxCalc,
-  "deposit-savings": DepositSavingsCalc,
 };
 
 export default function ToolRunner({ slug, compact = false }: { slug: string; compact?: boolean }) {

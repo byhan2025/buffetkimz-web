@@ -36,7 +36,14 @@ const POSITIONS: { value: Position; label: string }[] = [
 
 const SWATCHES = ["#ffffff", "#0b1b29", "#1a4ffd", "#a85a3b", "#f2d98d"];
 
-export default function Watermark({ compact = false }: { compact?: boolean }) {
+export default function Watermark({
+  compact = false,
+  embedded = false,
+}: {
+  compact?: boolean;
+  /** v8.8.0 — `image-compress`의 '워터마크' 탭으로 들어갈 때 껍데기 없이 본문만 그린다 */
+  embedded?: boolean;
+}) {
   const [file, setFile] = useState<File | null>(null);
   const [img, setImg] = useState<HTMLImageElement | null>(null);
   const [text, setText] = useState("buffetkimz");
@@ -155,12 +162,15 @@ export default function Watermark({ compact = false }: { compact?: boolean }) {
     downloadBlob(result.blob, `${baseName(file.name)}-watermark.${ext}`);
   };
 
-  return (
-    <UtilityShell
-      title="워터마크 넣기"
-      subtitle="사진에 문구를 얹어 내 사진임을 남깁니다. 미리보기 그대로 저장됩니다."
-      steps={["이미지 넣기", "문구·위치·투명도 조정", "내려받기"]}
-    >
+  const content = (
+    <>
+      {/* v8.8.0 — 통합 도구의 탭 안에서는 껍데기 대신 이 한 줄이 화면 이름을 알린다 */}
+      {embedded && (
+        <div className="mb-1 border-b border-line-soft pb-2.5">
+          <p className="text-[14.5px] font-bold tracking-[-0.02em] text-ink">워터마크 넣기</p>
+          <p className="mt-0.5 text-[12px] leading-relaxed text-ink-muted">사진에 문구를 얹어 내 사진임을 남깁니다.</p>
+        </div>
+      )}
       <div className="grid gap-4 lg:grid-cols-[0.85fr_1.15fr]">
         <div className="space-y-3">
           <Panel>
@@ -301,6 +311,18 @@ export default function Watermark({ compact = false }: { compact?: boolean }) {
           <LocalNote />
         </div>
       </div>
+    </>
+  );
+
+  if (embedded) return content;
+
+  return (
+    <UtilityShell
+      title="워터마크 넣기"
+      subtitle="사진에 문구를 얹어 내 사진임을 남깁니다. 미리보기 그대로 저장됩니다."
+      steps={["이미지 넣기", "문구·위치·투명도 조정", "내려받기"]}
+    >
+      {content}
     </UtilityShell>
   );
 }

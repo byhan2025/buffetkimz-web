@@ -34,7 +34,14 @@ function toGross(net: number) {
   return fromGross(g);
 }
 
-export default function FreelancerTaxCalc({ compact = false }: { compact?: boolean }) {
+export default function FreelancerTaxCalc({
+  compact = false,
+  embedded = false,
+}: {
+  compact?: boolean;
+  /** v8.8.0 — `vat-margin`의 '3.3% 프리랜서' 탭으로 들어갈 때 껍데기 없이 본문만 그린다 */
+  embedded?: boolean;
+}) {
   const [mode, setMode] = useState<"gross" | "net">("gross");
   const [amount, setAmount] = useState(3000000);
   const [count, setCount] = useState(12);
@@ -49,18 +56,15 @@ export default function FreelancerTaxCalc({ compact = false }: { compact?: boole
   };
   const effective = calc.gross > 0 ? (calc.incomeTax + calc.localTax) / calc.gross : 0;
 
-  return (
-    <UtilShell
-      id="freelancer-tax"
-      title="프리랜서 3.3% 계산기"
-      subtitle="세전과 세후를 양방향으로 계산하고, 소득세 3%·지방소득세 0.3% 내역을 보여 줍니다."
-      note={
-        <>
-          3.3%는 최종 세금이 아니라 <strong className="font-semibold text-ink">선납</strong>입니다. 다음 해 5월
-          종합소득세 신고에서 경비율·노란우산·연금저축으로 일부 돌려받을 수 있습니다.
-        </>
-      }
-    >
+  const content = (
+    <>
+      {/* v8.8.0 — 통합 도구의 탭 안에서는 껍데기 대신 이 한 줄이 화면 이름을 알린다 */}
+      {embedded && (
+        <div className="mb-1 border-b border-line-soft pb-2.5">
+          <p className="text-[14.5px] font-bold tracking-[-0.02em] text-ink">프리랜서 3.3% 계산기</p>
+          <p className="mt-0.5 text-[12px] leading-relaxed text-ink-muted">세전과 세후를 양방향으로 계산하고, 소득세 3%·지방소득세 0.3% 내역을 보여 줍니다.</p>
+        </div>
+      )}
       <div className="grid gap-1 md:grid-cols-2 md:gap-x-8">
         <QuickChoices
           label="계산 방향"
@@ -174,6 +178,24 @@ export default function FreelancerTaxCalc({ compact = false }: { compact?: boole
           ]}
         />
       </div>
+    </>
+  );
+
+  if (embedded) return content;
+
+  return (
+    <UtilShell
+      id="freelancer-tax"
+      title="프리랜서 3.3% 계산기"
+      subtitle="세전과 세후를 양방향으로 계산하고, 소득세 3%·지방소득세 0.3% 내역을 보여 줍니다."
+      note={
+        <>
+          3.3%는 최종 세금이 아니라 <strong className="font-semibold text-ink">선납</strong>입니다. 다음 해 5월
+          종합소득세 신고에서 경비율·노란우산·연금저축으로 일부 돌려받을 수 있습니다.
+        </>
+      }
+    >
+      {content}
     </UtilShell>
   );
 }

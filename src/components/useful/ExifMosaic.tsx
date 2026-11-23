@@ -144,7 +144,14 @@ function applyRegion(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, r
   }
 }
 
-export default function ExifMosaic({ compact = false }: { compact?: boolean }) {
+export default function ExifMosaic({
+  compact = false,
+  embedded = false,
+}: {
+  compact?: boolean;
+  /** v8.8.0 — `image-compress`의 'EXIF·모자이크' 탭으로 들어갈 때 껍데기 없이 본문만 그린다 */
+  embedded?: boolean;
+}) {
   const [file, setFile] = useState<File | null>(null);
   const [img, setImg] = useState<HTMLImageElement | null>(null);
   const [meta, setMeta] = useState<MetaRow[] | null>(null);
@@ -299,12 +306,15 @@ export default function ExifMosaic({ compact = false }: { compact?: boolean }) {
   const gpsLine = meta?.find((m) => m.label === "GPS 위도");
   const gpsLine2 = meta?.find((m) => m.label === "GPS 경도");
 
-  return (
-    <UtilityShell
-      title="EXIF 제거 · 모자이크"
-      subtitle="사진에 남은 촬영 정보를 확인하고, 가릴 곳은 끌어서 칠한 뒤 깨끗한 파일로 저장합니다."
-      steps={["이미지 넣기", "가릴 곳 드래그", "저장 (EXIF 제거)"]}
-    >
+  const content = (
+    <>
+      {/* v8.8.0 — 통합 도구의 탭 안에서는 껍데기 대신 이 한 줄이 화면 이름을 알린다 */}
+      {embedded && (
+        <div className="mb-1 border-b border-line-soft pb-2.5">
+          <p className="text-[14.5px] font-bold tracking-[-0.02em] text-ink">EXIF 제거 · 모자이크</p>
+          <p className="mt-0.5 text-[12px] leading-relaxed text-ink-muted">촬영 정보를 확인하고, 가릴 곳을 칠한 뒤 깨끗한 파일로 저장합니다.</p>
+        </div>
+      )}
       <div className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
         <div className="space-y-3">
           <Panel>
@@ -484,6 +494,18 @@ export default function ExifMosaic({ compact = false }: { compact?: boolean }) {
           <LocalNote>사진과 촬영 정보는 브라우저 안에서만 읽고, 어디로도 전송하지 않습니다.</LocalNote>
         </div>
       </div>
+    </>
+  );
+
+  if (embedded) return content;
+
+  return (
+    <UtilityShell
+      title="EXIF 제거 · 모자이크"
+      subtitle="사진에 남은 촬영 정보를 확인하고, 가릴 곳은 끌어서 칠한 뒤 깨끗한 파일로 저장합니다."
+      steps={["이미지 넣기", "가릴 곳 드래그", "저장 (EXIF 제거)"]}
+    >
+      {content}
     </UtilityShell>
   );
 }

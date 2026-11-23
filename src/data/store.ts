@@ -236,7 +236,39 @@ const orderBySlug: Record<string, number> = {
   "deposit-savings": 400,
 };
 
-const fromApps: StoreItem[] = apps.map((a) => ({
+/**
+ * v8.8.0 — 정예 노출 순서.
+ *
+ * 감사 보고서 3-2(1)·I9: 금융투자앱 안에서도 '브랜드 얼굴' 8종과 그다음 4종이 먼저 보여야 한다.
+ * `order`는 카테고리 안에서만 쓰이므로, 정예에 낮은 값을 주면 카테고리마다 자동으로 앞에 온다.
+ */
+const ELITE_A = [
+  "pension-tax",
+  "pension-draw",
+  "account-tax-compare",
+  "retirement-flow",
+  "compound-return",
+  "trade-timemachine",
+  "coverage-check",
+  "silson-compare",
+] as const;
+const ELITE_B = [
+  "salary-net",
+  "loan-repay",
+  "health-insurance-compare",
+  "overseas-stock-tax",
+] as const;
+
+function shelfOrder(slug: string): number {
+  const a = (ELITE_A as readonly string[]).indexOf(slug);
+  if (a >= 0) return 10 + a * 10;
+  const b = (ELITE_B as readonly string[]).indexOf(slug);
+  if (b >= 0) return 200 + b * 10;
+  return 300 + (orderBySlug[slug] ?? 90);
+}
+
+/** 보관함 도구는 코드·주소만 남기고 진열대에서 뺀다(검색·홈·크레딧 숫자도 storeCount·toolCount를 쓰므로 함께 빠진다). */
+const fromApps: StoreItem[] = apps.filter((a) => !a.archived).map((a) => ({
   id: a.slug,
   name: a.name,
   tagline: a.subtitle,
@@ -250,7 +282,7 @@ const fromApps: StoreItem[] = apps.map((a) => ({
   notice: a.notice,
   icon: artToIcon[a.art],
   meta: metaBySlug[a.slug] ?? a.kind,
-  order: orderBySlug[a.slug] ?? 90,
+  order: shelfOrder(a.slug),
   featured: ["pension-tax", "retirement-flow", "trade-timemachine", "silson-compare"].includes(a.slug),
   tags: a.tags,
 }));
@@ -305,9 +337,13 @@ export const storeCount = storeItems.length;
 /**
  * 진열대에 올린 **도구** 수 — 금융 일정 달력과 자료앨범은 도구가 아니므로 빼고 센다.
  * v8.7.0 — 화면의 '51종'이 실제 도구 49종에 달력·앨범을 합친 값이었던 산식 오류를 바로냈다(감사 V1).
- * 도구를 지우면 이 숫자도 따라 줄어든다(손으로 적지 않는다).
+ * v8.8.0 — 도구 11종을 8개 화면으로 흡수하고 8종을 보관함으로 옮겨 **노출 28종**이 됐다.
+ * 도구를 지우거나 숨기면 이 숫자도 따라 줄어든다(손으로 적지 않는다).
  */
 export const toolCount = fromApps.length;
+
+/** 보관함(직접 주소로만 열리는) 도구 수 — 화면에는 쓰지 않고 검수·보고에서 센다. */
+export const archivedCount = apps.filter((a) => a.archived).length;
 
 /** 진열대 구성 설명 — '도구 N종 + 금융 일정 달력 + 자료앨범' */
 export const storeBreakdown = `도구 ${toolCount}종 + 금융 일정 달력 + 자료앨범(내려받기 전용)`;

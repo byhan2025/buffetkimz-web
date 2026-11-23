@@ -87,7 +87,14 @@ const loadPdf = async (bytes: Uint8Array) => {
   }
 };
 
-export default function PdfMergeSplit() {
+export default function PdfMergeSplit({
+  compact = false,
+  embedded = false,
+}: {
+  compact?: boolean;
+  /** v8.8.0 — `pdf-image`의 '합치기·나누기' 탭으로 들어갈 때 껍데기 없이 본문만 그린다 */
+  embedded?: boolean;
+}) {
   const [tab, setTab] = useState<"merge" | "split">("merge");
 
   /* ── 병합 ────────────────────────────────────────────── */
@@ -267,18 +274,15 @@ export default function PdfMergeSplit() {
     if (e.dataTransfer.files?.length) void addFiles(e.dataTransfer.files);
   };
 
-  return (
-    <UtilShell
-      id="pdf-merge-split"
-      title="PDF 합치기 · 페이지 추출"
-      subtitle="여러 PDF를 한 파일로, 필요한 페이지만 새 파일로"
-      note={
-        <>
-          PDF는 <strong className="font-semibold text-ink">이 브라우저 안에서만</strong> 열리고 합쳐집니다. 서버로
-          올리지 않고, 만든 파일도 기기에 바로 저장됩니다. 암호가 걸린 PDF는 열 수 없습니다.
-        </>
-      }
-    >
+  const content = (
+    <>
+      {/* v8.8.0 — 통합 도구의 탭 안에서는 껍데기 대신 이 한 줄이 화면 이름을 알린다 */}
+      {embedded && (
+        <div className="mb-1 border-b border-line-soft pb-2.5">
+          <p className="text-[14.5px] font-bold tracking-[-0.02em] text-ink">PDF 합치기 · 페이지 추출</p>
+          <p className="mt-0.5 text-[12px] leading-relaxed text-ink-muted">여러 PDF를 한 파일로, 필요한 페이지만 새 파일로.</p>
+        </div>
+      )}
       <div className="space-y-3.5">
         <Tabs
           label="PDF 작업"
@@ -512,6 +516,24 @@ export default function PdfMergeSplit() {
           </div>
         )}
       </div>
+    </>
+  );
+
+  if (embedded) return content;
+
+  return (
+    <UtilShell
+      id="pdf-merge-split"
+      title="PDF 합치기 · 페이지 추출"
+      subtitle="여러 PDF를 한 파일로, 필요한 페이지만 새 파일로"
+      note={
+        <>
+          PDF는 <strong className="font-semibold text-ink">이 브라우저 안에서만</strong> 열리고 합쳐집니다. 서버로
+          올리지 않고, 만든 파일도 기기에 바로 저장됩니다. 암호가 걸린 PDF는 열 수 없습니다.
+        </>
+      }
+    >
+      {content}
     </UtilShell>
   );
 }

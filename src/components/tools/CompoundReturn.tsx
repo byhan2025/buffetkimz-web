@@ -11,11 +11,13 @@ import {
   type TaxMode,
 } from "@/lib/finance";
 import { site } from "@/config/site";
+import { ModeTabs, useMode } from "./ModeTabs";
+import DepositSavingsCalc from "./utils/DepositSavingsCalc";
 
 const pctPoint = (v: number) => `${v.toFixed(1)}%`;
 const pctFine = (v: number) => `${v.toFixed(2)}%`;
 
-export default function CompoundReturn({ compact = false }: { compact?: boolean }) {
+function CompoundReturnPane({ compact = false }: { compact?: boolean }) {
   const [initial, setInitial] = useState(COMPOUND_EXAMPLE.initial);
   const [monthly, setMonthly] = useState(COMPOUND_EXAMPLE.monthly);
   const [years, setYears] = useState(COMPOUND_EXAMPLE.years);
@@ -392,5 +394,32 @@ export default function CompoundReturn({ compact = false }: { compact?: boolean 
         것으로 보았고, 물가상승은 반영하지 않았습니다. 기준일 {site.baseDateLabel}
       </Note>
     </RunnerShell>
+  );
+}
+
+/* ------------------------------------------------------------------ v8.8.0 통합
+ * `deposit-savings`(예금·적금 세후 비교)를 같은 화면의 두 번째 탭으로 흡수했다.
+ * 예금·적금은 단리·월복리와 과세유형을, 복리 계산은 적립식·세후 평가액을 다룬다 —
+ * 같은 '이자'를 다루는 두 갈래를 한 도구로 모았다.
+ */
+const COMPOUND_MODES = ["compound", "deposit"] as const;
+type CompoundMode = (typeof COMPOUND_MODES)[number];
+
+export default function CompoundReturn({ compact = false }: { compact?: boolean }) {
+  const [mode, setMode] = useMode<CompoundMode>("compound", COMPOUND_MODES);
+  return (
+    <div data-merged-tool="compound-return">
+      <ModeTabs
+        label="수익률 계산 종류"
+        value={mode}
+        onChange={setMode}
+        options={[
+          { value: "compound", label: "복리·세후 수익률" },
+          { value: "deposit", label: "예금·적금" },
+        ]}
+        note="적립식 투자의 세전·세후 평가액과, 예금·적금의 만기 실수령액을 한 화면에서 오갑니다."
+      />
+      {mode === "deposit" ? <DepositSavingsCalc compact={compact} embedded /> : <CompoundReturnPane compact={compact} />}
+    </div>
   );
 }

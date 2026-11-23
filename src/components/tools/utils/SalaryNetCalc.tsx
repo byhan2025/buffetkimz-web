@@ -3,6 +3,8 @@ import { useMemo, useState } from "react";
 import { site } from "@/config/site";
 import { Bar, Note, ResultStat, RunnerShell, Segmented, StickySummary, formatKrw } from "../ui";
 import { AmountField, CaveatBox, Line, num, TableScroll } from "./fields-c";
+import { ModeTabs, useMode } from "../ModeTabs";
+import HourlyWageCalc from "./HourlyWageCalc";
 
 /**
  * 세전 연봉·월급 → 월 실수령액 계산기 (2026년 기준).
@@ -60,7 +62,7 @@ function creditLimit(grossMan: number): number {
   return Math.max(20 * MAN, (50 - (grossMan - 12000) * 0.005) * MAN);
 }
 
-export default function SalaryNetCalc({ compact = false }: { compact?: boolean }) {
+function SalaryNetPane({ compact = false }: { compact?: boolean }) {
   const [mode, setMode] = useState<"annual" | "monthly">("annual");
   const [annual, setAnnual] = useState(4800); // 만원
   const [family, setFamily] = useState(1);
@@ -377,5 +379,32 @@ export default function SalaryNetCalc({ compact = false }: { compact?: boolean }
         신고한 급여 항목과 연말정산 결과에 따라 실제 금액은 달라집니다.
       </Note>
     </RunnerShell>
+  );
+}
+
+/* ------------------------------------------------------------------ v8.8.0 통합
+ * `hourly-wage`(시급 → 월급·주휴수당)를 같은 화면의 두 번째 탭으로 흡수했다.
+ * '월급을 받는 사람'과 '시급으로 일하는 사람'이 같은 질문(세전·세후, 주휴수당 포함 월급)을
+ * 묻기 때문에 한 도구의 두 입력 방식으로 두었다.
+ */
+const SALARY_MODES = ["salary", "hourly"] as const;
+type SalaryMode = (typeof SALARY_MODES)[number];
+
+export default function SalaryNetCalc({ compact = false }: { compact?: boolean }) {
+  const [mode, setMode] = useMode<SalaryMode>("salary", SALARY_MODES);
+  return (
+    <div data-merged-tool="salary-net">
+      <ModeTabs
+        label="급여 입력 방식"
+        value={mode}
+        onChange={setMode}
+        options={[
+          { value: "salary", label: "연봉·월급" },
+          { value: "hourly", label: "시급·주휴수당" },
+        ]}
+        note="연봉·월급에서 4대보험과 세금을 빼는 계산과, 시급에서 주휴수당을 더해 월급을 만드는 계산을 오갑니다."
+      />
+      {mode === "hourly" ? <HourlyWageCalc compact={compact} embedded /> : <SalaryNetPane compact={compact} />}
+    </div>
   );
 }

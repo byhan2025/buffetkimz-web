@@ -145,6 +145,7 @@ export const utilsBApps: UtilsApp[] = [
   },
   {
     slug: "json-csv-formatter",
+    archived: true,
     name: "JSON·CSV 정리",
     subtitle: "데이터를 표로, 표를 데이터로",
     summary:
@@ -196,6 +197,7 @@ export const utilsBApps: UtilsApp[] = [
   },
   {
     slug: "diff-checker",
+    archived: true,
     name: "두 글 비교",
     subtitle: "무엇이 바뀌었는지 색으로",
     summary:
@@ -247,6 +249,7 @@ export const utilsBApps: UtilsApp[] = [
   },
   {
     slug: "color-extractor",
+    archived: true,
     name: "이미지 대표색 추출",
     subtitle: "사진에서 색 여섯 개 뽑기",
     summary:
@@ -298,6 +301,7 @@ export const utilsBApps: UtilsApp[] = [
   },
   {
     slug: "text-to-card",
+    archived: true,
     name: "텍스트 → 카드 이미지",
     subtitle: "제목·본문을 4:5 카드로",
     summary:

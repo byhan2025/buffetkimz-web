@@ -68,7 +68,7 @@ const jsonLd = graph([
 
 <Base
   title={`${menuLabel.apps} — 금융투자앱 · 보험앱 · 유용한앱`}
-  description={`세전 연봉 실수령액·국민연금 개시일·대출 상환·전세·월세·퇴직금·배당 세금·연금 세액공제·투자 복리 같은 금융·생활 계산부터 이미지 압축·PDF 변환·글자수 세기·개인정보 가리기·QR·워터마크까지 ${toolCount}종. 금융투자앱·보험앱·유용한앱으로 나눠 필요할 때 바로 엽니다.`}
+  description={`세전 연봉 실수령액·국민연금 개시일·대출 상환·전세·월세·퇴직금·배당 세금·연금 세액공제·투자 복리 같은 금융·생활 계산부터 이미지 압축·비율 리사이즈·워터마크·PDF 변환·글자수 세기·개인정보 가리기·QR까지 ${toolCount}종. 금융투자앱·보험앱·유용한앱으로 나눠 필요할 때 바로 엽니다.`}
   path="/apps"
   jsonLd={jsonLd}
 >
@@ -101,7 +101,7 @@ const jsonLd = graph([
             ))
           }
           <li class="store-hero-chip-plain">외부 웹앱 {externalCount}종</li>
-          <li class="store-hero-chip-plain">실무자용 {practitionerCount}종</li>
+          {practitionerCount > 0 && <li class="store-hero-chip-plain">실무자용 {practitionerCount}종</li>}
         </ul>
 
         <p class="store-hero-meta mono">
@@ -319,7 +319,7 @@ const jsonLd = graph([
               )
             }
 
-            {category.id === "insurance" && (
+            {category.id === "insurance" && practitionerCount > 0 && (
               <p class="store-sec-note">
                 <span class="store-sec-note-tag">실무자용</span>
                 설계사가 상담 자리에서 쓰는 앱은 카드에 <b>실무자용</b> 표시를 달았습니다. 일반 독자용

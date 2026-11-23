@@ -37,7 +37,14 @@ const PRESETS: Preset[] = [
   { id: "profile", label: "프로필 1:1", w: 800, h: 800, note: "프로필 사진 · 800×800" },
 ];
 
-export default function ImageResize({ compact = false }: { compact?: boolean }) {
+export default function ImageResize({
+  compact = false,
+  embedded = false,
+}: {
+  compact?: boolean;
+  /** v8.8.0 — `image-compress`의 '리사이즈' 탭으로 들어갈 때 껍데기 없이 본문만 그린다 */
+  embedded?: boolean;
+}) {
   const [file, setFile] = useState<File | null>(null);
   const [img, setImg] = useState<HTMLImageElement | null>(null);
   const [presetId, setPresetId] = useState("insta-45");
@@ -128,12 +135,15 @@ export default function ImageResize({ compact = false }: { compact?: boolean }) 
     downloadBlob(result.blob, `${baseName(file.name)}-${preset.w}x${preset.h}.${ext}`);
   };
 
-  return (
-    <UtilityShell
-      title="SNS 비율 리사이즈"
-      subtitle="채널 규격을 고르면 크롭 또는 여백으로 맞춘 파일을 바로 만듭니다."
-      steps={["이미지 넣기", "규격·맞춤 방식 고르기", "내려받기"]}
-    >
+  const content = (
+    <>
+      {/* v8.8.0 — 통합 도구의 탭 안에서는 껍데기 대신 이 한 줄이 화면 이름을 알린다 */}
+      {embedded && (
+        <div className="mb-1 border-b border-line-soft pb-2.5">
+          <p className="text-[14.5px] font-bold tracking-[-0.02em] text-ink">SNS 비율 리사이즈</p>
+          <p className="mt-0.5 text-[12px] leading-relaxed text-ink-muted">채널 규격을 고르면 크롭 또는 여백으로 맞춘 파일을 만듭니다.</p>
+        </div>
+      )}
       <div className="grid gap-4 lg:grid-cols-[0.85fr_1.15fr]">
         <div className="space-y-3">
           <Panel>
@@ -272,6 +282,18 @@ export default function ImageResize({ compact = false }: { compact?: boolean }) 
           <LocalNote />
         </div>
       </div>
+    </>
+  );
+
+  if (embedded) return content;
+
+  return (
+    <UtilityShell
+      title="SNS 비율 리사이즈"
+      subtitle="채널 규격을 고르면 크롭 또는 여백으로 맞춘 파일을 바로 만듭니다."
+      steps={["이미지 넣기", "규격·맞춤 방식 고르기", "내려받기"]}
+    >
+      {content}
     </UtilityShell>
   );
 }

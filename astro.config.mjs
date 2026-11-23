@@ -20,6 +20,21 @@ let BASE = raw(process.env.BASE_PATH) || '/';
 if (!BASE.startsWith('/')) BASE = `/${BASE}`;
 if (!BASE.endsWith('/')) BASE = `${BASE}/`;
 
+/**
+ * 보관함(비노출) 도구의 페이지 경로 — 사이트맵에서만 뺀다.
+ * 값은 `src/data/apps.ts`에서 `archived: true`로 둔 8종과 같다(그쪽을 고치면 여기도 함께 고친다).
+ */
+const ARCHIVED_PATHS = [
+  '/apps/json-csv-formatter',
+  '/apps/diff-checker',
+  '/apps/color-extractor',
+  '/apps/text-to-card',
+  '/apps/svg-logo-maker',
+  '/apps/url-shortener',
+  '/apps/url-cleaner',
+  '/apps/market-world-clock',
+];
+
 /** 마크다운 본문 안의 내부 링크("/apps/…")에도 배포 접두를 붙인다. */
 function rehypeBase(base) {
   const prefix = base.replace(/\/$/, '');
@@ -43,6 +58,57 @@ export default defineConfig({
   base: BASE,
   output: 'static',
   trailingSlash: 'ignore',
+  /*
+   * v8.8.0 — 도구 11종을 8개 화면으로 흡수했다.
+   * 흡수된 도구의 옛 주소(`/apps/<옛 슬러그>/`, `/run/`, `/tools/<옛 슬러그>/`)는
+   * 반드시 새 통합 도구의 해당 탭으로 보낸다 — 기존 글·강의·북마크에서 깨진 링크(404)가 0건이어야 한다.
+   * 정적 빌드에서는 Astro가 meta refresh + JS 이동 HTML을 만들어 준다.
+   */
+  redirects: {
+    '/apps/korean-age-pension': '/apps/pension-draw?mode=age',
+    '/apps/korean-age-pension/run': '/apps/pension-draw/run?mode=age',
+    '/tools/korean-age-pension': '/apps/pension-draw?mode=age',
+
+    '/apps/deposit-savings': '/apps/compound-return?mode=deposit',
+    '/apps/deposit-savings/run': '/apps/compound-return/run?mode=deposit',
+    '/tools/deposit-savings': '/apps/compound-return?mode=deposit',
+
+    '/apps/bojang-counsel-guide': '/apps/coverage-check',
+    '/apps/bojang-counsel-guide/run': '/apps/coverage-check/run',
+    '/tools/bojang-counsel-guide': '/apps/coverage-check',
+
+    '/apps/hourly-wage': '/apps/salary-net?mode=hourly',
+    '/apps/hourly-wage/run': '/apps/salary-net/run?mode=hourly',
+    '/tools/hourly-wage': '/apps/salary-net?mode=hourly',
+
+    '/apps/freelancer-tax': '/apps/vat-margin?mode=freelance',
+    '/apps/freelancer-tax/run': '/apps/vat-margin/run?mode=freelance',
+    '/tools/freelancer-tax': '/apps/vat-margin?mode=freelance',
+
+    '/apps/image-resize': '/apps/image-compress?mode=resize',
+    '/apps/image-resize/run': '/apps/image-compress/run?mode=resize',
+    '/tools/image-resize': '/apps/image-compress?mode=resize',
+
+    '/apps/image-upscale': '/apps/image-compress?mode=upscale',
+    '/apps/image-upscale/run': '/apps/image-compress/run?mode=upscale',
+    '/tools/image-upscale': '/apps/image-compress?mode=upscale',
+
+    '/apps/watermark': '/apps/image-compress?mode=watermark',
+    '/apps/watermark/run': '/apps/image-compress/run?mode=watermark',
+    '/tools/watermark': '/apps/image-compress?mode=watermark',
+
+    '/apps/exif-mosaic': '/apps/image-compress?mode=exif',
+    '/apps/exif-mosaic/run': '/apps/image-compress/run?mode=exif',
+    '/tools/exif-mosaic': '/apps/image-compress?mode=exif',
+
+    '/apps/pdf-merge-split': '/apps/pdf-image?mode=merge',
+    '/apps/pdf-merge-split/run': '/apps/pdf-image/run?mode=merge',
+    '/tools/pdf-merge-split': '/apps/pdf-image?mode=merge',
+
+    '/apps/moving-dday': '/apps/unit-date-calc?mode=moving',
+    '/apps/moving-dday/run': '/apps/unit-date-calc/run?mode=moving',
+    '/tools/moving-dday': '/apps/unit-date-calc?mode=moving',
+  },
   build: {
     inlineStylesheets: 'auto',
   },
@@ -50,13 +116,16 @@ export default defineConfig({
     react(),
     sitemap({
       // 실행 화면·검색·옛 주소 이동 페이지는 사이트맵에서 뺀다
+      // v8.8.0 — 보관함(archived) 도구도 뺀다. 앱스토어·검색에서 숨긴 페이지를 사이트맵에 올리면
+      //          'noindex + 사이트맵'이 서로 모순된다. 목록은 `src/data/apps.ts`의 archived 항목과 같다.
       filter: (page) =>
         !page.includes('/run') &&
         !page.includes('/search') &&
         !page.includes('/tools') &&
-        !page.includes('/topics'),
+        !page.includes('/topics') &&
+        !ARCHIVED_PATHS.some((p) => page.includes(p)),
       changefreq: 'weekly',
-      lastmod: new Date('2026-11-22'),
+      lastmod: new Date('2026-11-23'),
     }),
   ],
   markdown: {

@@ -16,7 +16,14 @@ import { AmountField, CaveatBox, Line, num, TableScroll } from "./fields-c";
 const MIN_WAGE_2026 = 10320;
 const WEEKS_PER_MONTH = 4.345;
 
-export default function HourlyWageCalc({ compact = false }: { compact?: boolean }) {
+export default function HourlyWageCalc({
+  compact = false,
+  embedded = false,
+}: {
+  compact?: boolean;
+  /** v8.8.0 — `salary-net`의 '시급' 탭으로 들어갈 때 껍데기 없이 본문만 그린다 */
+  embedded?: boolean;
+}) {
   const [wage, setWage] = useState(MIN_WAGE_2026);
   const [hours, setHours] = useState(8);
   const [days, setDays] = useState(5);
@@ -60,12 +67,15 @@ export default function HourlyWageCalc({ compact = false }: { compact?: boolean 
     };
   }, [wage, hours, days, attendance]);
 
-  return (
-    <RunnerShell
-      title="시급 → 월급 (주휴수당 포함)"
-      subtitle="2026년 최저임금을 기본값으로, 근무시간과 근무일수에 따른 주휴수당과 월 예상 급여를 계산합니다."
-      example="시급 10,320원(2026 최저임금)·하루 8시간·주 5일로 시작합니다. 시간을 바꾸면 주휴수당이 자동으로 붙습니다."
-    >
+  const content = (
+    <>
+      {/* v8.8.0 — 통합 도구의 탭 안에서는 껍데기 대신 이 한 줄이 화면 이름을 알린다 */}
+      {embedded && (
+        <div className="mb-1 border-b border-line-soft pb-2.5">
+          <p className="text-[14.5px] font-bold tracking-[-0.02em] text-ink">시급 → 월급 (주휴수당 포함)</p>
+          <p className="mt-0.5 text-[12px] leading-relaxed text-ink-muted">2026년 최저임금 기준으로 주휴수당을 포함한 월 예상 급여를 계산합니다.</p>
+        </div>
+      )}
       <div className="grid gap-1 md:grid-cols-2 md:gap-x-8">
         <AmountField
           label="시급"
@@ -256,20 +266,34 @@ export default function HourlyWageCalc({ compact = false }: { compact?: boolean 
         </div>
       )}
 
-      <StickySummary
-        items={[
-          { label: "월 예상 급여", value: formatKrw(calc.monthly) },
-          { label: "주휴수당", value: formatKrw(calc.monthlyHoliday) },
-          { label: "월 시간", value: `${calc.monthHours}시간` },
-        ]}
-        note={`2026 최저임금 ${num(MIN_WAGE_2026)}원 · 확인 기준일 ${site.baseDateLabel}`}
-      />
+      {!embedded && (
+        <StickySummary
+          items={[
+            { label: "월 예상 급여", value: formatKrw(calc.monthly) },
+            { label: "주휴수당", value: formatKrw(calc.monthlyHoliday) },
+            { label: "월 시간", value: `${calc.monthHours}시간` },
+          ]}
+          note={`2026 최저임금 ${num(MIN_WAGE_2026)}원 · 확인 기준일 ${site.baseDateLabel}`}
+        />
+      )}
 
       <Note>
         기준일 {site.baseDateLabel}. 2026년 적용 최저임금 고시(고용노동부고시 제2025-47호)와 근로기준법
         제55조·시행령 제30조의 주휴수당 규정으로 계산했습니다. 월 환산은 4.345주를 곱해 반올림한 참고용 모의계산이며,
         회사의 급여 계산 방식(월 209시간 고정 등)에 따라 1~2천원 차이가 날 수 있습니다.
       </Note>
+    </>
+  );
+
+  if (embedded) return content;
+
+  return (
+    <RunnerShell
+      title="시급 → 월급 (주휴수당 포함)"
+      subtitle="2026년 최저임금을 기본값으로, 근무시간과 근무일수에 따른 주휴수당과 월 예상 급여를 계산합니다."
+      example="시급 10,320원(2026 최저임금)·하루 8시간·주 5일로 시작합니다. 시간을 바꾸면 주휴수당이 자동으로 붙습니다."
+    >
+      {content}
     </RunnerShell>
   );
 }

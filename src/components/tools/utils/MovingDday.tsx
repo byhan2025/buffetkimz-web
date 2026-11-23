@@ -93,7 +93,14 @@ const CHECKS = [
   "건강보험 피부양자·지역가입자 전환 확인",
 ];
 
-export default function MovingDday({ compact = false }: { compact?: boolean }) {
+export default function MovingDday({
+  compact = false,
+  embedded = false,
+}: {
+  compact?: boolean;
+  /** v8.8.0 — `unit-date-calc`의 '이사 D-Day' 탭으로 들어갈 때 껍데기 없이 본문만 그린다 */
+  embedded?: boolean;
+}) {
   const [balance, setBalance] = useState("2026-12-15");
   const [checked, setChecked] = useState<Record<string, boolean>>({});
 
@@ -109,27 +116,26 @@ export default function MovingDday({ compact = false }: { compact?: boolean }) {
   }, [balance]);
 
   if (!calc) {
+    const empty = <p className="text-[13px] text-ink-muted">잔금일을 선택해 주세요.</p>;
+    if (embedded) return empty;
     return (
       <UtilShell id="moving-dday" title="전입·확정일자 이사 D-Day" subtitle="잔금일을 넣으면 일정이 계산됩니다.">
-        <p className="text-[13px] text-ink-muted">잔금일을 선택해 주세요.</p>
+        {empty}
       </UtilShell>
     );
   }
 
   const dLabel = calc.untilBase > 0 ? `D-${calc.untilBase}` : calc.untilBase === 0 ? "D-DAY" : `D+${-calc.untilBase}`;
 
-  return (
-    <UtilShell
-      id="moving-dday"
-      title="전입·확정일자 이사 D-Day"
-      subtitle="잔금일을 기준으로 전입신고 14일 기한과 대항력·우선변제권 시점을 역산합니다."
-      note={
-        <>
-          체크 상태는 <strong className="font-semibold text-ink">이 브라우저 메모리에만</strong> 있고 저장하지 않습니다.
-          새로 고치면 초기화됩니다.
-        </>
-      }
-    >
+  const content = (
+    <>
+      {/* v8.8.0 — 통합 도구의 탭 안에서는 껍데기 대신 이 한 줄이 화면 이름을 알린다 */}
+      {embedded && (
+        <div className="mb-1 border-b border-line-soft pb-2.5">
+          <p className="text-[14.5px] font-bold tracking-[-0.02em] text-ink">전입·확정일자 이사 D-Day</p>
+          <p className="mt-0.5 text-[12px] leading-relaxed text-ink-muted">잔금일 기준으로 전입신고 14일 기한과 대항력·우선변제권 시점을 역산합니다.</p>
+        </div>
+      )}
       <div className="grid gap-1 md:grid-cols-2 md:gap-x-8">
         <DateField
           label="잔금일(이사일)"
@@ -215,6 +221,24 @@ export default function MovingDday({ compact = false }: { compact?: boolean }) {
         <Line label="전입신고 기한" value="전입한 날부터 14일 이내" />
         <Line label="확정일자" value="주민센터·인터넷등기소" strong />
       </div>
+    </>
+  );
+
+  if (embedded) return content;
+
+  return (
+    <UtilShell
+      id="moving-dday"
+      title="전입·확정일자 이사 D-Day"
+      subtitle="잔금일을 기준으로 전입신고 14일 기한과 대항력·우선변제권 시점을 역산합니다."
+      note={
+        <>
+          체크 상태는 <strong className="font-semibold text-ink">이 브라우저 메모리에만</strong> 있고 저장하지 않습니다.
+          새로 고치면 초기화됩니다.
+        </>
+      }
+    >
+      {content}
     </UtilShell>
   );
 }

@@ -22,6 +22,11 @@ import {
   savedPct,
 } from "./kit";
 import { Note } from "../tools/ui";
+import { ModeTabs, useMode } from "../tools/ModeTabs";
+import ImageResize from "./ImageResize";
+import Watermark from "./Watermark";
+import ExifMosaic from "./ExifMosaic";
+import ImageUpscale from "../tools/utils/ImageUpscale";
 
 type OutFormat = "auto" | "jpeg" | "webp" | "png";
 
@@ -80,7 +85,7 @@ const TYPE_LABEL: Record<string, string> = {
   "image/png": "PNG",
 };
 
-export default function ImageCompress({ compact = false }: { compact?: boolean }) {
+function ImageCompressPane({ compact = false }: { compact?: boolean }) {
   const [items, setItems] = useState<Item[]>([]);
   const [format, setFormat] = useState<OutFormat>("auto");
   const [quality, setQuality] = useState(72);
@@ -364,5 +369,44 @@ export default function ImageCompress({ compact = false }: { compact?: boolean }
         </div>
       </div>
     </UtilityShell>
+  );
+}
+
+/* ------------------------------------------------------------------ v8.8.0 통합
+ * 사진 도구 네 가지(리사이즈·업스케일·워터마크·EXIF 모자이크)를 '이미지 정리함' 한 화면으로 모았다.
+ * 다섯 탭은 모두 브라우저 안에서만 처리되고(서버 미전송), 파일을 올리지 않는다는 원칙도 같다.
+ */
+const IMAGE_MODES = ["compress", "resize", "upscale", "watermark", "exif"] as const;
+type ImageMode = (typeof IMAGE_MODES)[number];
+
+export default function ImageCompress({ compact = false }: { compact?: boolean }) {
+  const [mode, setMode] = useMode<ImageMode>("compress", IMAGE_MODES);
+  return (
+    <div data-merged-tool="image-compress">
+      <ModeTabs
+        label="이미지 정리 작업"
+        value={mode}
+        onChange={setMode}
+        options={[
+          { value: "compress", label: "압축" },
+          { value: "resize", label: "리사이즈" },
+          { value: "upscale", label: "확대" },
+          { value: "watermark", label: "워터마크" },
+          { value: "exif", label: "EXIF·모자이크" },
+        ]}
+        note="사진을 올리면 브라우저 안에서만 처리됩니다 — 압축·리사이즈·확대·워터마크·촬영정보 제거를 한 화면에서 오갑니다."
+      />
+      {mode === "resize" ? (
+        <ImageResize compact={compact} embedded />
+      ) : mode === "upscale" ? (
+        <ImageUpscale compact={compact} embedded />
+      ) : mode === "watermark" ? (
+        <Watermark compact={compact} embedded />
+      ) : mode === "exif" ? (
+        <ExifMosaic compact={compact} embedded />
+      ) : (
+        <ImageCompressPane compact={compact} />
+      )}
+    </div>
   );
 }
