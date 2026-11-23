@@ -50,13 +50,18 @@ const ariaOf = (badge: Badge) =>
     : `${badge.name} ${badge.value}, ${badge.law}, ${badge.yearLabel}`;
 
 /**
- * 경고 한 줄 — **허브 전체**가 멈췄을 때만 띄운다.
+ * 경고 한 줄 — **허브가 실제로 망가졌을 때만** 띄운다.
  *
- * 지표 하나의 나이(예: 기준금리 32일)는 값의 성질이라 경고가 아니다. 값의 기준 시각은 배지 안에
- * `10. 22. 금통위`처럼 늘 함께 있으므로, 화면은 '언제 값인지'를 숨기지 않는다.
- * 파이프라인이 실패했거나 허브가 3일 넘게 멈춘 경우에만 그 사실을 배지 아래에 적는다.
+ *  · 지표 하나의 나이(예: 기준금리 10. 22. = 32일)는 값의 성질이라 경고가 아니다. 값의 기준 시각은
+ *    배지 안에 늘 함께 있으므로 화면이 '언제 값인지'를 숨기지 않는다.
+ *  · '확인 지연'(다음 확인 시각이 지났다)은 이 사이트에서 **빌드 시각에 얼려진 판정**이라 배지에 쓰지 않는다.
+ *    19:00 회차가 1분 늦으면 그날 밤 내내 '지연'이 박힌 채 남는다(거짓 경고).
+ *  · 그래서 배지가 말하는 경고는 둘뿐이다 — `갱신 실패`(파이프라인 실패) · `지난 정보`(허브 3일 초과).
  */
-const hubAlert = badges.find((badge): badge is MarketBadge => badge.kind === "market" && badge.hubFresh.state !== "ok");
+const hubAlert = badges.find(
+  (badge): badge is MarketBadge =>
+    badge.kind === "market" && (badge.hubFresh.state === "failed" || badge.hubFresh.state === "stale"),
+);
 ---
 
 {
@@ -255,24 +260,20 @@ const hubAlert = badges.find((badge): badge is MarketBadge => badge.kind === "ma
     }
   }
 
-  /* 데스크톱 — 한 줄 가로, 값을 더 크게 */
+  /* 데스크톱 — 글 본문 폭(66ch) 안에서는 여전히 2열이 가장 읽기 좋다.
+     4개를 한 줄에 밀어 넣으면 배지 하나가 160px로 좁아져 값이 5줄로 접힌다(실측).
+     칸 수는 모바일과 같게 두고 글자·여백만 키운다. */
   @media (min-width: 768px) {
     .lmb-list {
-      display: flex;
-      flex-wrap: wrap;
       gap: 10px;
-    }
-
-    .lmb-item {
-      flex: 1 1 180px;
-      max-width: 260px;
     }
 
     .lmb-badge {
       min-height: 36px;
+      padding: 9px 12px;
     }
 
-    /* 데스크톱 — 기준 시각과 출처를 한 줄로 */
+    /* 기준 시각과 출처는 한 줄로 (법령 이름이 길면 자연스럽게 다음 줄) */
     .lmb-meta {
       flex-direction: row;
       flex-wrap: wrap;
