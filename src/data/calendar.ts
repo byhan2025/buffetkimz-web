@@ -497,7 +497,7 @@ export const calendar: CalendarItem[] = [
     kind: "마감",
     body: "개인사업자는 상반기 실적을 기준으로 종합소득세 중간예납을 11월 30일까지 납부합니다. 고지서가 나온 경우 기한을 넘기면 가산세가 붙습니다.",
     action: "홈택스에서 고지 여부와 납부 금액을 확인하고, 연금계좌 납입과 현금흐름을 함께 봅니다.",
-    source: "소득세법 제65조",
+    source: "국세청 중간예납 안내(소득세법 제65조)",
     sourceUrl: "https://www.nts.go.kr/nts/cm/cntnts/cntntsView.do?cntntsId=7673&mi=2236",
     dueDate: "2026-11-30",
   },
