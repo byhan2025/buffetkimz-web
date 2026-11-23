@@ -708,6 +708,42 @@
       "out": "public/thumbs/invest-overseas-stock-tax.webp",
       "art": "downloads/thumbs-raw/invest-overseas-stock-tax.png",
       "date": "2026.11.22"
+    },
+    {
+      "slug": "economy-fixed-cost-check",
+      "out": "public/thumbs/economy-fixed-cost-check.webp",
+      "art": "downloads/thumbs-raw/economy-fixed-cost-check.png",
+      "badge": [
+        "경제 · 금리",
+        "2026.11"
+      ],
+      "accent": "#8FE9CB",
+      "headline": [
+        "금리·환율이 오르면",
+        "먼저 오르는 세 곳"
+      ],
+      "accentLine": 1,
+      "sub": "대출 약정서 · 카드 명세서 · 해외결제",
+      "alt": "어두운 책상 위에 놓인 세 장의 명세서와 황동 저울 — 금리·환율이 닿는 세 곳",
+      "date": "2026.11.23"
+    },
+    {
+      "slug": "retire-pension-timing",
+      "out": "public/thumbs/retire-pension-timing.webp",
+      "art": "downloads/thumbs-raw/retire-pension-timing.png",
+      "badge": [
+        "노후 · 국민연금",
+        "2026.11"
+      ],
+      "accent": "#F2D08C",
+      "headline": [
+        "조기냐 연기냐",
+        "손익분기 나이부터"
+      ],
+      "accentLine": 1,
+      "sub": "5년 조기 76.7세 · 5년 연기 83.9세",
+      "alt": "어두운 나무 탁자 위의 회중시계와 모래시계, 봉인된 봉투 — 국민연금 수령 시점",
+      "date": "2026.11.23"
     }
   ]
 }

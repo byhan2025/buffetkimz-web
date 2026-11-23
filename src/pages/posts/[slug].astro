@@ -463,7 +463,7 @@ const jsonLd = graph([
               {seriesNext ? (
                 <a
                   href={withBase(postPath(seriesNext))}
-                  class="mt-2 block text-[16px] font-bold leading-[1.45] tracking-[-0.03em] text-ink underline decoration-brand/30 underline-offset-4 hover:text-brand-deep"
+                  class="mt-2 flex min-h-11 items-center text-[16px] font-bold leading-[1.45] tracking-[-0.03em] text-ink underline decoration-brand/30 underline-offset-4 hover:text-brand-deep"
                   data-series-next-link
                 >
                   다음 편 이어 읽기 — {seriesNext.data.title}
@@ -471,7 +471,7 @@ const jsonLd = graph([
               ) : (
                 <a
                   href={withBase(postPath(seriesFirst))}
-                  class="mt-2 block text-[16px] font-bold leading-[1.45] tracking-[-0.03em] text-ink underline decoration-brand/30 underline-offset-4 hover:text-brand-deep"
+                  class="mt-2 flex min-h-11 items-center text-[16px] font-bold leading-[1.45] tracking-[-0.03em] text-ink underline decoration-brand/30 underline-offset-4 hover:text-brand-deep"
                   data-series-next-link
                 >
                   마지막 편입니다 — 1편부터 다시 읽기
@@ -482,7 +482,7 @@ const jsonLd = graph([
               </p>
               <a
                 href={withBase(tool.href)}
-                class="btn btn-secondary btn-sm mt-3"
+                class="btn btn-secondary btn-sm mt-3 max-w-full whitespace-normal"
                 data-series-tool={tool.name}
               >
                 짝꿍 계산기 — {tool.cta}

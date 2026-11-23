@@ -70,6 +70,9 @@ ROUTES = [
     ("lesson-dock", "/academy/step2-account-order/"),
     ("run-exit", "/apps/pension-draw/run/"),
     ("gallery-reverse", "/gallery/three-buckets-3d/"),
+    # 2026-11-23 P0 빈틈 2편 — 경제-C·노후-B(숫자 배지·4열 표가 있는 새 글)
+    ("post-new-economy", "/posts/economy-fixed-cost-check/"),
+    ("post-new-retire", "/posts/retire-pension-timing/"),
 ]
 
 # 문장 속 인라인 링크는 WCAG 2.5.8(최소 24px) 예외다 — 목록에는 남기되 실패로 세지 않는다.
