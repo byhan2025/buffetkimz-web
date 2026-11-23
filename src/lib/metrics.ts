@@ -19,12 +19,33 @@ import { today as hubToday, type Indicator } from "../data/today";
 import { metricBadgeById, type MetricBadge, type MetricBadgeId } from "../data/metric-badges";
 import { freshnessOf, type Fresh } from "./fresh";
 
+/** 허브 전체의 신선도 — 배지 경고는 이 값만 본다(지표별 나이는 값의 성질이라 경고가 아니다). */
+export function hubFreshness(): Fresh {
+  return freshnessOf({
+    asOf: hubToday.asOf,
+    nextCheckAt: hubToday.nextCheckAt,
+    status: hubToday.status,
+    lastGoodAsOf: hubToday.lastGoodAsOf,
+    scheduleConnected: hubToday.scheduleConnected,
+    staleAfterDays: hubToday.staleAfterDays,
+  });
+}
+
 /** 시장 배지 — 값·등락·기준 시각·출처가 모두 있을 때만 만들어진다. */
 export type MarketBadge = {
   kind: "market";
   id: string;
   ind: Indicator;
+  /**
+   * 지표 하나의 나이 — 기준금리처럼 **값이 한 달씩 유지되는 지표**는 3일 규칙에 걸려 '지난 정보'가 된다.
+   * 그래서 화면의 경고는 이 값이 아니라 `hubFresh`(허브 전체의 신선도)로 판단한다.
+   */
   fresh: Fresh;
+  /**
+   * 허브 전체의 신선도 — 파이프라인이 실패했거나 허브가 3일 넘게 멈췄을 때만 경고를 띄운다.
+   * 지표 값 자체의 기준 시각은 언제나 `ind.asOfLabel`로 함께 보인다(값과 기준이 떨어지지 않는다).
+   */
+  hubFresh: Fresh;
   /** 화면 낭독용 한 줄 — '코스피 4,715.38, 전일 대비 3.17% 내림, 11. 23. 13:30 장중 기준, 한국거래소' */
   aria: string;
 };
@@ -48,7 +69,12 @@ const directionWord = (ind: Indicator): string => {
 
 /** 값·등락·기준 시각·출처가 한 줄에 다 있는 배지만 돌려준다. */
 function ariaOf(ind: Indicator): string {
-  const change = ind.change && ind.change.trim() ? `, 전일 대비 ${ind.change.replace(/^[−-]/, "")} ${directionWord(ind)}` : "";
+  // '동결'처럼 등락률이 아닌 말은 '전일 대비 … 변동 없음'으로 늘리지 않는다(읽으면 뜻이 흐려진다).
+  const change = ind.change?.trim()
+    ? ind.direction === "flat"
+      ? `, ${ind.change.trim()}`
+      : `, 전일 대비 ${ind.change.replace(/^[−-]/, "")} ${directionWord(ind)}`
+    : "";
   return `${ind.name} ${ind.value}${change}, ${ind.asOfLabel} 기준, ${ind.source}`;
 }
 
@@ -72,6 +98,7 @@ export function marketBadge(id: string): MarketBadge | null {
       scheduleConnected: hubToday.scheduleConnected,
       staleAfterDays: hubToday.staleAfterDays,
     }),
+    hubFresh: hubFreshness(),
     aria: ariaOf(ind),
   };
 }

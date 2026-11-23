@@ -1,0 +1,291 @@
+---
+/**
+ * LiveMetricBadge — 값·등락·기준 시각·출처를 **한 상자 안에** 담는 배지 (v9.0.0 P1 신설).
+ *
+ * 설계: reports/buffetkimz-web/learning-blueprint-v1-20261123.md §4-4·§4-5·§4-6
+ *
+ * 왜 이렇게 그리는가
+ *  ① 이 컴포넌트는 숫자를 만들지 않는다. `lib/metrics.ts`의 `badgesOf()`가 해석한 배지만 그린다.
+ *     값은 `today.ts`(시장)와 `metric-badges.ts`(제도), 신선도는 `fresh.ts`가 유일한 출처다.
+ *  ② **기준 시각·출처가 없으면 배지를 그리지 않는다.** 그 판정은 `metrics.ts`가 이미 했고(없으면 null),
+ *     여기서는 결과 배열이 비면 아무것도 그리지 않는다(빈 상자를 만들지 않는다).
+ *  ③ 같은 상자 안에 값과 기준 시각을 붙여 둔다 — 값만 크게 두고 기준을 각주로 내리면 '지금 값'처럼 읽힌다.
+ *  ④ 시장 값(하루 네 번 바뀜)과 제도 값(법·요율)을 **표기로 구분**한다: 시장은 '11. 23. 13:30 장중',
+ *     제도는 '2026년 기준'. 하나의 배지 안에서 두 성질을 섞지 않는다.
+ *
+ * 금지어(실시간·속보·긴급 …)는 쓰지 않는다. `scripts/verify_metrics.py` M1이 dist 전체를 다시 센다.
+ *
+ * Props
+ *  · market — `today.ts` 지표 id (값·기준 시각·출처가 모두 있는 것만 그려진다)
+ *  · rules  — `metric-badges.ts` 제도 배지 id
+ *  · variant — `chips`(기본, 1~2줄) / `panel`(배지마다 근거 1줄 — 글 본문용)
+ *  · place  — `post` · `lesson` · `track` — 화면 맥락 표시(스타일·검사용, 문구는 바뀌지 않는다)
+ */
+import { badgesOf, type Badge, type MarketBadge } from "@/lib/metrics";
+
+interface Props {
+  market?: string[];
+  rules?: string[];
+  variant?: "chips" | "panel";
+  place?: "post" | "lesson" | "track";
+}
+
+const { market = [], rules = [], variant = "chips", place = "post" } = Astro.props;
+
+/** 배지 0개면(없는 id·기준 시각 없음) 이 블록 자체를 그리지 않는다. */
+const badges = badgesOf({ market, rules });
+
+/** 출처를 짧게 — '한국거래소(Yahoo Finance)' → '한국거래소', '서울외국환중개·Yahoo Finance' → '서울외국환중개' */
+const shortSource = (name: string) => name.split(/[(\·]/)[0].trim();
+
+const urlOf = (badge: Badge) => (badge.kind === "market" ? badge.ind.sourceUrl : badge.lawUrl);
+const stampOf = (badge: Badge) => (badge.kind === "market" ? badge.ind.asOfLabel : badge.yearLabel);
+const sourceOf = (badge: Badge) => (badge.kind === "market" ? shortSource(badge.ind.source) : badge.law);
+const valueOf = (badge: Badge) => (badge.kind === "market" ? badge.ind.value : badge.value);
+const nameOf = (badge: Badge) => (badge.kind === "market" ? badge.ind.name : badge.name);
+const basisOf = (badge: Badge) => (badge.kind === "market" ? badge.ind.basis ?? "" : badge.basis);
+const ariaOf = (badge: Badge) =>
+  badge.kind === "market"
+    ? badge.aria
+    : `${badge.name} ${badge.value}, ${badge.law}, ${badge.yearLabel}`;
+
+/**
+ * 경고 한 줄 — **허브 전체**가 멈췄을 때만 띄운다.
+ *
+ * 지표 하나의 나이(예: 기준금리 32일)는 값의 성질이라 경고가 아니다. 값의 기준 시각은 배지 안에
+ * `10. 22. 금통위`처럼 늘 함께 있으므로, 화면은 '언제 값인지'를 숨기지 않는다.
+ * 파이프라인이 실패했거나 허브가 3일 넘게 멈춘 경우에만 그 사실을 배지 아래에 적는다.
+ */
+const hubAlert = badges.find((badge): badge is MarketBadge => badge.kind === "market" && badge.hubFresh.state !== "ok");
+---
+
+{
+  badges.length > 0 && (
+    <div class="lmb" data-metric-badges data-place={place} data-variant={variant}>
+      {/* 글에서는 이 상자가 '이 글의 주장'이 아니라 '함께 보는 숫자'임을 한 줄로 밝힌다 —
+          글의 결론 바로 아래에 숫자 상자가 붙으면 글이 그 숫자를 주장하는 것처럼 읽힌다. */}
+      {place === "post" && (
+        <p class="lmb-kicker">
+          함께 보는 숫자 <span aria-hidden="true">·</span> 값마다 기준 시각과 출처
+        </p>
+      )}
+      <ul class="lmb-list">
+        {badges.map((badge) => {
+          const isMarket = badge.kind === "market";
+          return (
+            <li class="lmb-item">
+              <a
+                class="lmb-badge"
+                href={urlOf(badge)}
+                target="_blank"
+                rel="noopener noreferrer"
+                data-badge={`${badge.kind}:${badge.id}`}
+                aria-label={ariaOf(badge)}
+              >
+                <span class="lmb-head">
+                  <span class="lmb-name">{nameOf(badge)}</span>
+                  {isMarket && badge.ind.change.trim() && (
+                    <span class={`lmb-change is-${badge.ind.direction}`}>{badge.ind.change}</span>
+                  )}
+                </span>
+                <span class="lmb-value mono">{valueOf(badge)}</span>
+                {variant === "panel" && badge.kind === "rule" && basisOf(badge) && (
+                  <span class="lmb-basis">{basisOf(badge)}</span>
+                )}
+                <span class="lmb-meta">
+                  <span class="lmb-stamp mono">{stampOf(badge)}</span>
+                  <span class="lmb-src">{sourceOf(badge)}</span>
+                </span>
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+      {hubAlert && (
+        <p class="lmb-alert">
+          <span class="lmb-alert-tag">{hubAlert.hubFresh.label}</span>
+          {hubAlert.hubFresh.detail || `값마다 기준 시각이 다릅니다.`}
+        </p>
+      )}
+    </div>
+  )
+}
+
+<style>
+  .lmb {
+    margin-top: 14px;
+    min-width: 0;
+  }
+
+  .lmb-kicker {
+    margin: 0 0 6px;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--color-ink-faint);
+  }
+
+  .lmb-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .lmb-item {
+    min-width: 0;
+  }
+
+  /* 배지 하나가 곧 링크 — 터치 목표 44px(모바일) · 36px(데스크톱) */
+  .lmb-badge {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-height: 44px;
+    min-width: 0;
+    padding: 8px 10px;
+    border: 1px solid var(--color-line);
+    border-radius: 10px;
+    background-color: var(--color-surface);
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .lmb-badge:hover {
+    border-color: var(--color-brand);
+  }
+
+  .lmb-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 6px;
+    min-width: 0;
+  }
+
+  .lmb-name {
+    overflow: hidden;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.35;
+    color: var(--color-ink-faint);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .lmb-change {
+    flex: none;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--color-ink-faint);
+  }
+
+  .lmb-change.is-up {
+    color: var(--color-clay);
+  }
+
+  .lmb-change.is-down {
+    color: #1d4e77;
+  }
+
+  .lmb-value {
+    font-size: 13.5px;
+    font-weight: 700;
+    line-height: 1.4;
+    letter-spacing: -0.02em;
+    color: var(--color-ink);
+  }
+
+  .lmb-basis {
+    margin-top: 2px;
+    font-size: 11.5px;
+    line-height: 1.55;
+    color: var(--color-ink-muted);
+  }
+
+  /* 모바일 — 기준 시각과 출처를 두 줄로 둔다. 한 줄에 밀어 넣으면 법령 이름이 다음 줄로 넘어가며
+     줄 첫머리에 구분점이 남는다(읽는 순서가 끊긴다). */
+  .lmb-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    min-width: 0;
+    margin-top: 2px;
+    font-size: 10.5px;
+    line-height: 1.4;
+    color: var(--color-ink-faint);
+  }
+
+  .lmb-stamp {
+    flex: none;
+  }
+
+  .lmb-src {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+
+
+  .lmb-alert {
+    margin-top: 6px;
+    font-size: 11.5px;
+    line-height: 1.55;
+    color: var(--color-ink-muted);
+  }
+
+  .lmb-alert-tag {
+    margin-right: 6px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background-color: var(--color-paper-deep);
+    font-size: 10.5px;
+    font-weight: 700;
+    color: var(--color-ink-soft);
+  }
+
+  /* 320px — 두 칸이면 값이 세 줄로 접힌다. 한 칸으로 내려 읽기 순서를 지킨다. */
+  @media (max-width: 359px) {
+    .lmb-list {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* 데스크톱 — 한 줄 가로, 값을 더 크게 */
+  @media (min-width: 768px) {
+    .lmb-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .lmb-item {
+      flex: 1 1 180px;
+      max-width: 260px;
+    }
+
+    .lmb-badge {
+      min-height: 36px;
+    }
+
+    /* 데스크톱 — 기준 시각과 출처를 한 줄로 */
+    .lmb-meta {
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 4px;
+    }
+
+    .lmb-stamp::after {
+      content: " ·";
+    }
+
+    .lmb-value {
+      font-size: 14.5px;
+    }
+  }
+</style>

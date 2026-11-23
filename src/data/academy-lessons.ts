@@ -168,6 +168,12 @@ export type AcademyLesson = {
   numbers: Record<string, string>;
   /** ③ 계산기 실습 */
   calculator: { name: string; href: string; note: string };
+  /**
+   * v9.0.0 P1 — 히어로 아래 붙는 숫자 배지(`components/metrics/LiveMetricBadge.astro`).
+   * market은 `today.ts` 지표 id, rules는 `metric-badges.ts` id. 값·기준 시각이 없는 id는 화면이 그리지 않는다.
+   * 배지를 붙이지 않는 강의는 이 필드를 비운다(빈 상자를 만들지 않는다).
+   */
+  metrics?: { market?: string[]; rules?: string[] };
   scenarios: LessonScenario[];
   sources: LessonSource[];
   cardSet: LessonCardSet;
@@ -1550,6 +1556,11 @@ export const ACADEMY_LESSONS: AcademyLesson[] = [
       href: "/apps/pension-tax/run",
       note: "총급여 구간과 두 계좌 납입액을 넣어 공제액이 계단으로 오르는 것을 확인합니다.",
     },
+    // v9.0.0 P1 — 이 강의의 세 숫자(합산 한도·공제율·중도해지)를 기준 시각·조문과 함께 보여 준다.
+    metrics: {
+      market: [],
+      rules: ["pension-combined-limit", "pension-credit-rate", "early-withdraw-rate"],
+    },
     scenarios: [
       {
         id: "base",
@@ -1855,6 +1866,11 @@ export const ACADEMY_LESSONS: AcademyLesson[] = [
       name: "연금 인출·세금 시뮬레이터",
       href: "/apps/pension-draw/run",
       note: "인출액과 수익률 순서를 넣어 잔액이 어떻게 달라지는지 확인합니다(입력값은 화면에만).",
+    },
+    // v9.0.0 P1 — 인출 기준선(1,500만·연금소득세)과 이자 가정의 기준금리를 함께 둔다.
+    metrics: {
+      market: ["base-rate"],
+      rules: ["pension-private-threshold", "annuity-tax-rate"],
     },
     scenarios: [
       {

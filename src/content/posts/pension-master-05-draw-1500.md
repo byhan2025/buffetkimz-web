@@ -13,6 +13,9 @@ series:
   name: "연금·퇴직 마스터 가이드"
   no: 5
 app: "pension-draw"
+metrics:
+  market: ["base-rate"]
+  rules: ["pension-private-threshold", "annuity-tax-rate", "early-withdraw-rate"]
 tags: ["연금 인출", "1,500만원", "분리과세"]
 cards: ["pension-1500-3d", "pension-draw-order"]
 compare:

@@ -12,6 +12,33 @@ v3: 20개 대표 사이트 벤치마킹(보고서 `reports/buffetkimz-web/benchm
 도구 미리보기 카드와 하단 강조 구간에만, 행동은 브랜드 블루(`#1A4FFD`)로. 홈은 4장면 리듬
 (화이트블루 → 크림 기록 → 화이트 도구 → 네이비 제도·채널 → 크림 푸터)입니다.
 
+### v9.0.0 — 학습순환 P1: 숫자 배지 첫 노출·금지어 3곳 정리
+
+설계안(`reports/buffetkimz-web/learning-blueprint-v1-20261123.md` §4·§7)과 P0 구현 기록 위에서,
+**배지가 처음 화면에 나왔다.** P0의 데이터 계약(`tracks.ts`·`metric-badges.ts`·`metrics.ts`)은 그대로 두고
+그 위에 그리는 컴포넌트 1개와 삽입 지점 2곳만 더했다(새 도구·새 메뉴·새 카드 0).
+
+- **`components/metrics/LiveMetricBadge.astro` 신설** — 시장 배지(`today.ts`)와 제도 배지(`metric-badges.ts`)를
+  같은 상자에 그리되 표기로 구분한다: 시장은 `11. 20. 최종호가 · 금융투자협회`, 제도는 `2026년 기준 · 소득세법 제59조의3`.
+  값·등락·기준 시각·출처는 한 카드 안에 있고, **기준 시각이나 출처가 없으면 그 배지를 그리지 않는다**(`metrics.ts`가 null).
+  배지마다 `data-badge="market:<id>"` / `data-badge="rule:<id>"`를 달아 `verify_metrics.py` M2가 기준 표기 누락을 잰다.
+  390px는 2열(320px는 1열), 데스크톱은 한 줄 가로. 배지 상자는 링크 하나(원문·법령)이고 높이 44px 이상이다.
+- **첫 노출 5곳** — 글 3편(`pension-master-01-four-accounts`·`-02-tax-compare`·`-05-draw-1500`)과
+  아카데미 2강(`step2-pension-tax-limit`·`step4-retire-drawdown-order`). 글은 결론·목차 아래 '함께 보는 숫자'로,
+  강의는 히어로 칩 줄 아래에 붙는다. 글에서 이 상자는 **글의 주장이 아니라 참고 숫자**임을 한 줄로 먼저 밝힌다.
+- **경고는 허브 단위로만** — 지표 하나의 나이로 '지난 정보'를 붙이면 기준금리(10. 22. 금통위)가 32일 지난 값으로
+  보인다. 값의 기준 시각은 카드 안에 늘 있으므로, 배지 아래 경고는 **파이프라인 실패·허브 3일 정지**일 때만 띄운다
+  (`MarketBadge.hubFresh` · `hubFreshness()`).
+- **금지어 3곳 정리** — `/apps/dividend-tax/run` "실시간으로 바뀝니다" → "입력값에 따라 바로 바뀝니다",
+  `/apps/qr-generator`·`/apps/qr-generator/run` "실시간 미리보기" → "입력 즉시 미리보기".
+  `verify_metrics.py`의 LEGACY에서 세 줄을 지웠고, 남은 1곳은 학교 강의의 경찰 신고 '긴급 상황'(맥락상 유지)이다.
+- **모바일 점검 확대** — `check_mobile_320.py` 점검 목록에 배지 3화면을 넣자 아카데미 운영표의 '아카데미 로드맵'
+  링크(71×20)가 44px 미만으로 잡혔다. 운영표 7종 모두 `inline-flex min-h-[44px]`로 고쳤다.
+- **새 캡처 스크립트** `scripts/capture_badges_390.py` — 배지 블록만 390px로 잘라
+  `reports/buffetkimz-web/learning-loop/shots/`에 남긴다(로컬·`--live`).
+- **검증** — `npm run build` 306 HTML · `verify:tracks` 19/19 · `verify:metrics` 5/5(배지 5페이지·17개) ·
+  `verify:tax` 22/22 · `verify_v77` 32/32 · `check_mobile_320` 320·390 넘침 0 · 44px 미만 0.
+
 ### v8.9.1 — 모바일 320px 넘침·터치 타깃 44px·초등 1강 가상 금액 표기
 
 16:00 모바일 점검에서 올라온 세 건을 고쳤다. 화면 글자와 정보 구조는 그대로 두고, 손가락이 닿는

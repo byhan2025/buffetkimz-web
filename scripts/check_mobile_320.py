@@ -58,6 +58,10 @@ ROUTES = [
     ("calendar", "/calendar/"),
     ("gallery", "/gallery/"),
     ("about", "/about/"),
+    # v9.0.0 P1 — 숫자 배지가 처음 붙은 화면(배지 2열 그리드·44px 배지 상자)
+    ("post-badge", "/posts/pension-master-02-tax-compare/"),
+    ("post-badge-3", "/posts/pension-master-05-draw-1500/"),
+    ("lesson-badge", "/academy/step2-pension-tax-limit/"),
 ]
 
 # 문장 속 인라인 링크는 WCAG 2.5.8(최소 24px) 예외다 — 목록에는 남기되 실패로 세지 않는다.

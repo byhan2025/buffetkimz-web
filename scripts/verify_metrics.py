@@ -6,10 +6,14 @@
 
 무엇을 재는가
   M1 dist HTML에 금지어 7단어가 새로 생기지 않았는가
-     — 추적을 시작한 시점(2026-11-23)에 이미 있던 4곳은 LEGACY로 적어 두고, **그 밖의 새 위반만** 실패로 센다.
-       (P0는 화면을 바꾸지 않는 단계라 기존 문구를 이 작업에서 고치지 않는다. 고칠 목록은 리포트에 남긴다.)
-  M2 배지를 단 페이지마다 기준 시각(asOfLabel)이 HTML에 실제로 있는가
-     — 값만 있고 기준이 없는 배지 0. P0에는 배지 UI가 없으므로 이 검사는 P1부터 의미를 가진다(지금은 0페이지 = 통과).
+     — 추적을 시작한 시점(2026-11-23)에 있던 문구는 LEGACY로 적어 두고 **그 밖의 새 위반만** 실패로 센다.
+       P1에서 화면 문구 3곳(세금 계산기·QR 생성기 2곳)을 고쳐 LEGACY에서 지웠다. 남은 1곳은 학교 강의의
+       경찰 신고 '긴급 상황'으로, 맥락상 정당해 유지한다.
+  M2 배지를 단 페이지마다 그 배지의 기준 표기가 HTML에 실제로 있는가
+     — 시장(M) 배지는 `asOfLabel`(값의 기준 시각), 제도(R) 배지는 `yearLabel`+`law`(기준 연도·조문).
+       값만 있고 기준이 없는 배지 0.
+  M2b P1이 처음 붙인 배지 페이지(글 3편 · 강의 2개)에 배지가 실제로 살아 있는가
+     — 데이터만 남고 화면에서 빠지면 이 자리에서 잡는다.
   M3 허브 신선도 — today.asOf가 검증 시점(한국 날짜)에서 1일을 넘기지 않았는가
      — 파이프라인이 허브 갱신을 건너뛰면 빌드는 서지만 '오늘'이 늙는다. 배포 직전에 이 자리에서 잡는다.
      (`site.today`가 today.asOf에서 파생되므로 site.today의 나이 = 허브의 나이다.)
@@ -40,11 +44,18 @@ KST = dt.timezone(dt.timedelta(hours=9))
 # 2026-11-23 P0 착수 시점에 이미 dist에 있던 금지어 — P0는 화면을 바꾸지 않으므로 여기 적어 두고,
 # 이 목록에 없는 새 등장만 실패로 센다. (P1에서 문구를 고치면 이 표에서 한 줄씩 지운다.)
 LEGACY = {
-    ("apps/dividend-tax/run", "실시간"): "계산 결과가 입력에 따라 바뀐다는 뜻으로 쓴 '실시간으로 바뀝니다'",
-    ("apps/qr-generator", "실시간"): "'실시간 미리보기' 칩",
-    ("apps/qr-generator/run", "실시간"): "'실시간 미리보기' 칩",
-    ("academy/school-teen-payments", "긴급"): "경찰 신고 번호 안내의 '긴급 상황'",
+    ("academy/school-teen-payments", "긴급"): "경찰 신고 번호 안내의 '긴급 상황' — 맥락상 정당해 유지",
 }
+
+# P1(2026-11-23)이 배지를 처음 붙인 화면 — 글 3편(연금·절세 트랙 1·2·3단계) + 아카데미 강의 2개.
+# 배지가 데이터에만 남고 화면에서 빠지면 M2b가 잡는다.
+P1_BADGE_PAGES = (
+    "posts/pension-master-01-four-accounts",
+    "posts/pension-master-02-tax-compare",
+    "posts/pension-master-05-draw-1500",
+    "academy/step2-pension-tax-limit",
+    "academy/step4-retire-drawdown-order",
+)
 
 CHECKS: list[dict] = []
 
@@ -61,7 +72,7 @@ console.log(JSON.stringify({
   asOf: today.today.asOf,
   status: today.today.status ?? 'ok',
   indicators: today.today.indicators.map(i => ({id: i.id, asOfLabel: i.asOfLabel})),
-  rules: badges.METRIC_BADGES.map(b => ({id: b.id, value: b.value, yearLabel: b.yearLabel})),
+  rules: badges.METRIC_BADGES.map(b => ({id: b.id, value: b.value, yearLabel: b.yearLabel, law: b.law})),
 }));
 """
 
@@ -110,25 +121,46 @@ def main() -> int:
     stale_legacy = sorted(f"{p}:'{w}'" for p, w in set(LEGACY) - legacy_seen)
     print(f"  INFO 기존 문구(다음 정리 대상) {len(legacy_seen)}곳 · 이미 사라진 항목 {stale_legacy or '없음'}", flush=True)
 
-    # ── M2 배지가 있는 페이지 = 기준 시각이 있는 페이지 ──────────────────
-    # P1에서 LiveMetricBadge가 `data-badge`를 달면 이 검사가 실제로 페이지를 센다.
+    # ── M2 배지가 있는 페이지 = 기준 표기가 있는 페이지 ──────────────────
+    # `LiveMetricBadge`는 배지마다 `data-badge="market:<id>"` / `data-badge="rule:<id>"`를 단다.
+    # 시장 배지는 값의 기준 시각(asOfLabel), 제도 배지는 기준 연도·조문이 같은 HTML에 있어야 한다.
     badge_pages: list[str] = []
+    badge_count: dict[str, int] = {}
     no_stamp: list[str] = []
     label_by_id = {i["id"]: i["asOfLabel"] for i in data["indicators"]}
+    law_by_id = {b["id"]: (b["yearLabel"], b["law"]) for b in data["rules"]}
     for html in DIST.rglob("*.html"):
         text = html.read_text(encoding="utf-8", errors="ignore")
-        ids = re.findall(r'data-badge="(?:market:)?([\w-]+)"', text)
-        if not ids:
+        found = re.findall(r'data-badge="(?:(market|rule):)?([\w-]+)"', text)
+        if not found:
             continue
-        badge_pages.append(page_path(html))
-        for bid in ids:
-            label = label_by_id.get(bid)
-            if label and label not in text:
-                no_stamp.append(f"{page_path(html)}: {bid} ({label} 없음)")
+        page = page_path(html)
+        badge_pages.append(page)
+        badge_count[page] = len(found)
+        for kind, bid in found:
+            if kind == "rule":
+                stamp, law = law_by_id.get(bid, ("", ""))
+                if not stamp or stamp not in text:
+                    no_stamp.append(f"{page}: rule {bid} ({stamp or '연도'} 없음)")
+                elif not law or law not in text:
+                    no_stamp.append(f"{page}: rule {bid} ({law or '조문'} 없음)")
+            else:
+                label = label_by_id.get(bid)
+                if label and label not in text:
+                    no_stamp.append(f"{page}: market {bid} ({label} 없음)")
     check(
-        "M2 배지 페이지마다 기준 시각 표기",
+        "M2 배지 페이지마다 기준 시각·조문 표기",
         not no_stamp,
-        ", ".join(no_stamp[:3]) or f"배지 페이지 {len(badge_pages)}개 (P0는 배지 UI 이전)",
+        ", ".join(no_stamp[:3]) or f"배지 페이지 {len(badge_pages)}개 · 배지 {sum(badge_count.values())}개",
+    )
+
+    # ── M2b P1 첫 노출 페이지에 배지가 살아 있는가 ────────────────────────
+    missing_pages = [p for p in P1_BADGE_PAGES if p not in badge_count]
+    check(
+        "M2b P1 배지 페이지 5곳(글 3·강의 2)에 배지 존재",
+        not missing_pages,
+        ", ".join(missing_pages[:5])
+        or " · ".join(f"{p.split('/')[-1]} {badge_count[p]}개" for p in P1_BADGE_PAGES),
     )
 
     # ── M3 허브 신선도 — 배포 직전 게이트 ─────────────────────────────────

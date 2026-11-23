@@ -13,6 +13,9 @@ series:
   name: "연금·퇴직 마스터 가이드"
   no: 2
 app: "account-tax-compare"
+metrics:
+  market: ["base-rate", "ktb3y"]
+  rules: ["pension-credit-rate", "isa-exempt"]
 tags: ["ISA", "연금소득세", "기타소득세"]
 cards: ["pension-accounts"]
 compare:

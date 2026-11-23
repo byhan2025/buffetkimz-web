@@ -13,6 +13,9 @@ series:
   name: "연금·퇴직 마스터 가이드"
   no: 1
 app: "account-tax-compare"
+metrics:
+  market: ["base-rate"]
+  rules: ["pension-combined-limit", "pension-credit-rate"]
 tags: ["연금저축", "IRP", "ISA"]
 compare:
   title: "연금저축 vs IRP — 같은 세액공제, 다른 자유도"

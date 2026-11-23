@@ -961,7 +961,7 @@ export const apps: App[] = [
       "오류 복원 수준이 높을수록 같은 내용에 더 많은 모듈이 필요해 코드가 촘촘해집니다.",
     ],
     inputs: ["내용(주소·문구·전화번호·메일)", "오류 복원 수준", "여백", "전경·배경색", "PNG 크기"],
-    outputs: ["실시간 QR 미리보기", "PNG 파일", "SVG 파일"],
+    outputs: ["입력 즉시 미리보기", "PNG 파일", "SVG 파일"],
     runNote: "내용을 넣으면 QR이 바로 그려집니다. 색과 여백을 조정한 뒤 저장하세요.",
     sourceLine: "ISO/IEC 18004(QR Code)·qrcode 라이브러리 · 기준일 2026. 11. 21.",
     assumptions: [

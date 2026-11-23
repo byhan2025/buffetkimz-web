@@ -15,6 +15,7 @@
 import Base from "@/layouts/Base.astro";
 import HomePill from "@/components/HomePill.astro";
 import SheetSlot from "@/components/academy/SheetSlot.astro";
+import LiveMetricBadge from "@/components/metrics/LiveMetricBadge.astro";
 import CardNewsViewer from "@/components/academy/CardNewsViewer.astro";
 import { withBase, site } from "@/config/site";
 import { ACADEMY, stepByNo, openLessonsOfStep } from "@/data/academy";
@@ -130,6 +131,15 @@ const jsonLd = graph([
           확인합니다.
         </p>
       </div>
+
+      {/*
+        v9.0.0 P1 — 이 강의의 숫자 배지. 히어로 칩 줄 아래, 훅 앞에 둬서
+        강의가 쓰는 숫자(한도·세율·기준선)의 기준 시각과 조문을 먼저 보여 준다.
+        `metrics`가 없거나 id가 해석되지 않으면 컴포넌트가 아무것도 그리지 않는다.
+      */}
+      {lesson.metrics && (
+        <LiveMetricBadge market={lesson.metrics.market} rules={lesson.metrics.rules} place="lesson" />
+      )}
 
       <!-- ① 훅 — 조건이 바뀌면 결론이 뒤집힌다 -->
       <div class="hook mt-5" data-hook>

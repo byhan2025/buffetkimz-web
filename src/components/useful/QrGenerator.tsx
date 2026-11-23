@@ -300,7 +300,7 @@ export default function QrGenerator({ compact = false }: { compact?: boolean }) 
 
         <div className="space-y-3">
           <Panel>
-            <PanelTitle right={<span className="chip !min-h-[24px] !px-2 !text-[11px]">실시간 미리보기</span>}>
+            <PanelTitle right={<span className="chip !min-h-[24px] !px-2 !text-[11px]">입력 즉시 미리보기</span>}>
               미리보기
             </PanelTitle>
             <div className="flex min-h-[240px] items-center justify-center rounded-xl border border-line bg-[#f6f8f7] p-4">
