@@ -21,7 +21,7 @@ import HeaderSearch from "@/components/HeaderSearch.tsx";
 import BrandLockup from "@/components/BrandLockup.astro";
 import { allPosts, categoryCounts } from "@/lib/posts";
 import { calendar } from "@/data/calendar";
-import { categoryCount as storeCategoryCount, storeCount } from "@/data/store";
+import { categoryCount as storeCategoryCount, toolCount } from "@/data/store";
 import {
   categoryCount as galleryCategoryCount,
   galleryCount,
@@ -43,7 +43,7 @@ function chipFor(href?: string): string {
     const n = postCounts[slug];
     return n ? `${n}편` : "";
   }
-  if (href === "/apps") return `${storeCount}종`;
+  if (href === "/apps") return `${toolCount}종`;
   if (href.startsWith("/apps/#cat-")) return `${storeCategoryCount(href.split("#cat-")[1] ?? "")}종`;
   if (href === "/gallery") return `${galleryCount}세트 · ${gallerySlideCount}장`;
   if (href.startsWith("/gallery/?cat=")) return `${galleryCategoryCount(href.split("=")[1] ?? "")}세트`;

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """오늘 확인 허브 데이터 갱신 — `src/data/today.ts` 를 JSON 입력으로 안전하게 바꾼다 (v5.9.3).
 
-06:00 · 08:20 · 19:00 파이프라인이 수집 결과를 JSON 한 장으로 넘기면, 이 스크립트가
+06:00 · 08:20 · 13:30 · 19:00 파이프라인이 수집 결과를 JSON 한 장으로 넘기면, 이 스크립트가
 `src/data/today.ts` 의 **값과 시각만** 고친다(구조·주석·타입은 건드리지 않는다).
 
 계약 (v5.9 보고서 §7.1)
@@ -23,7 +23,7 @@
   python3 scripts/update_today_hub.py --input payload.json --dry-run  # 미리보기(파일 안 씀)
   python3 scripts/update_today_hub.py --fail "19:00 수집 실패: 원문 응답 없음"   # 실패 회차 기록
 
-  # 등록된 정기 스케줄러(06:00·08:20·19:00)만 넘기는 플래그 — 성공했을 때만 '자동 확인'으로 전환
+  # 등록된 정기 스케줄러(06:00·08:20·13:30·19:00)만 넘기는 플래그 — 성공했을 때만 '자동 확인'으로 전환
   python3 scripts/update_today_hub.py --input payload.json --schedule-connected --build
 
 입력 JSON (성공 회차)

@@ -16,7 +16,7 @@ import {
 import { calendar } from "@/data/calendar";
 
 interface Props {
-  variant: "pension" | "retirement" | "compound" | "calendar";
+  variant: "pension" | "pension-draw" | "retirement" | "compound" | "calendar";
   label?: string;
 }
 
@@ -52,6 +52,25 @@ const pensionCredit = (PENSION_RULE.totalLimit * PENSION_RULE.rateLow * 1).toFix
           {"예상 공제액 "}
           <strong class="font-semibold text-brand-deep">{pensionCredit}만원</strong>
           <span class="text-ink-faint">{` · 한도 ${PENSION_RULE.totalLimit}만`}</span>
+        </p>
+      </div>
+    )
+  }
+
+  {
+    variant === "pension-draw" && (
+      <div class="mt-2 space-y-1.5">
+        <div class="mini-row">
+          <span class="text-[12px] text-ink-muted">연 1,500만 이하</span>
+          <span class="mini-track"><i style="width:75%" /></span>
+        </div>
+        <div class="mini-row">
+          <span class="text-[12px] text-ink-muted">1,500만 초과분</span>
+          <span class="mini-track"><i style="width:25%" /></span>
+        </div>
+        <p class="mini-out pt-0.5 text-[12px] text-ink">
+          <strong class="font-semibold text-brand-deep">16.5% 분리과세</strong>
+          <span class="text-ink-faint"> · 종합과세와 유리한 쪽</span>
         </p>
       </div>
     )

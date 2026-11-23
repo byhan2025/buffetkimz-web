@@ -2,110 +2,70 @@
 import Base from "@/layouts/Base.astro";
 import BrandFilm from "@/components/home/BrandFilm.tsx";
 import TodayHub from "@/components/home/TodayHub.astro";
-import IntroPortrait from "@/components/home/IntroPortrait.astro";
-import ArchiveLibrary from "@/components/home/ArchiveLibrary.astro";
 import TrustSplit from "@/components/home/TrustSplit.astro";
 import ChannelBand from "@/components/home/ChannelBand.astro";
 import PortalPicks from "@/components/home/PortalPicks.astro";
-import AcademyBand from "@/components/home/AcademyBand.astro";
-import FinanceStrip from "@/components/FinanceStrip.astro";
 import ToolPreview from "@/components/ToolPreview.astro";
 import Guide from "@/components/guide/Guide.astro";
 import { withBase, site } from "@/config/site";
-import { channels, confirmedLinks } from "@/data/channels";
-import { hubTools, homeMainTools, mainTools, riskTools } from "@/data/tools";
-import { apps, APP_CATEGORIES } from "@/data/apps";
-import { categoryCount, storeCount } from "@/data/store";
+import { channels } from "@/data/channels";
+import { mainTools } from "@/data/tools";
+import { APP_CATEGORIES } from "@/data/apps";
+import { categoryCount, storeCount, toolCount } from "@/data/store";
 import { calendar } from "@/data/calendar";
 import { galleryCount, gallerySlideCount } from "@/data/gallery";
-import { allPosts, koreanDate } from "@/lib/posts";
+import { allPosts } from "@/lib/posts";
 import { graph, organizationNode, personNode, websiteNode } from "@/lib/schema";
 
 /**
- * buffetkimz v5.9 — 브랜드 필름(1P) → 오늘 확인 허브 → 순수 소개(2P) → 아카이브 → 도구 → 신뢰 → 채널.
- *   v5.9: 필름 아래에 '오늘 확인 허브'(기준 시각 → 지표 → 3줄 → 확인 3건 → 대표 도구)를 넣었다.
- *   허브에는 상담·가입 CTA를 두지 않는다(비영업 원칙).
+ * buffetkimz v8.7.0 — 브랜드 필름(1P) → 오늘 확인 허브 → 읽고 열어 보기 → 도구 → 기준 → 채널.
  *
- *  ① 1페이지 브랜드 필름 — 6컷 12초 모션그래픽. 도구 설명·시뮬레이터 창은 첫 화면에서 내렸다.
- *     아래 크레딧 줄(기록·도구·일정·채널)이 종이로 돌아오는 경계다.
- *  ② 2페이지 순수 소개 — 버핏킴즈가 어떤 사람인지, 다섯 분야를 어떤 철학으로 보는지.
- *     도구·계산기 이야기는 한 줄도 넣지 않는다(도구는 4번째 섹션 이하).
- *  ③ 아카이브 — 7대 주제·6개 시리즈·처음 읽을 글·자주 찾는 계산
- *  ④ 도구 쇼케이스 — 금융·투자·연금 메인 5 + 리스크 관리 3 (숫자는 데이터에서 계산)
- *  ⑤ 신뢰 2단 스플릿 — 딥그린 강조 카드 + 공식 출처·기준일 데이터 카드 + 이번 달 일정
- *  ⑥ 채널 7곳 + 딥그린 1:1 상담문의 배너
+ *   v8.7.0(2026-11-23) '덜어내기' 1단계 — 홈 9섹션 270링크를 5블록으로 줄였다(감사 보고 D1~D5).
+ *     ① 필름 + 크레딧 **1줄**(기록·카드·도구·일정)
+ *     ② 오늘 확인 허브(지표 4 · 3줄 · 기한 인용 · 카드)
+ *     ③ 읽고 열어 보기(최신 글 3편 + 앱 추천 4종) — 소개(1,053자)·아카이브(36링크)·
+ *        금융생활학교 밴드는 홈에서 내렸다. 소개는 /about, 전체 목록은 /posts·/academy가 맡는다.
+ *     ④ 도구(대표 계산기 4개) — 지표 스트립·보험 칩 줄·달력 카드는 3중 노출이라 걷어냈다.
+ *     ⑤ 기준(신뢰) → ⑥ 채널
  *
- * 배경 리듬: 나이트(1) → 화이트(2) → 크림(3) → 미스트(4) → 스카이밴드(5) → 화이트+딥그린(6)
+ * 배경 리듬: 나이트(1) → 화이트(②) → 크림(③) → 미스트(④) → 스카이밴드(⑤) → 화이트+딥그린(⑥)
+ *
+ * 원칙: 홈은 대표만 보여 주고, 전체 목록은 각 축 페이지가 한 번만 펼친다(감사 R1·R5).
  */
 const posts = await allPosts();
-
 const sourcedCalendar = calendar.filter((c) => Boolean(c.source));
+
 /**
- * 도구 크레딧 숫자는 손으로 적지 않는다 — 앱 데이터(apps.ts)의 분류와 도구 허브에서 센다.
- * v6.3: '금융·연금 4 + 리스크 관리 3'인데 옆에 '8종'이라 적혀 4+3=7과 어긋나던 표기를 바로냈다.
- * 금융·연금 계산 + 리스크 관리 계산 + 재도 일정 달력의 합이 허브 총합과 같아야 하며,
- * 다르면 빌드를 세워 숫자 표기가 또 어긋나는 일을 막는다.
- */
-const FINANCE_TOOL_KINDS = ["금융·연금", "투자·절세", "연금·절세", "연금·세제"];
-const RISK_TOOL_KINDS = ["보험"];
-const internalApps = apps.filter((a) => a.internal);
-const financeToolCount = internalApps.filter((a) => FINANCE_TOOL_KINDS.includes(a.kind)).length;
-const riskCalcCount = internalApps.filter((a) => RISK_TOOL_KINDS.includes(a.kind)).length;
-const calendarToolCount = mainTools.filter((t) => !t.runHref).length;
-/**
- * v7.0 — 크레딧의 앱 숫자는 앱스토어 진열대(store.ts)에서 센다.
- * 카테고리 합과 총합이 다르면 빌드를 세운다(숫자 표기가 어긋나는 일을 막는다).
+ * 도구 크레딧 숫자는 손으로 적지 않는다 — store.ts의 카테고리 합과 총합이 다르면 빌드를 세운다.
  */
 const categorySum = APP_CATEGORIES.reduce((n, c) => n + categoryCount(c.id), 0);
 if (categorySum !== storeCount) {
   throw new Error(`앱스토어 카테고리 합 ${categorySum} ≠ 전체 ${storeCount}. store.ts의 category를 확인하세요.`);
 }
 const channelCount = channels.length;
-const confirmedChannelCount = confirmedLinks.length;
+
+/**
+ * 홈에 세우는 대표 도구 — 계산기가 있는 네 개(세액공제·인출·은퇴·복리).
+ * 달력은 도구 카드가 아니라 섹션 머리의 한 줄 링크로 보낸다(카드 3중 노출 제거).
+ */
+const homeTools = mainTools.filter((t) => Boolean(t.runHref));
 
 const shortToolLabel: Record<string, string> = {
   pension: "세액공제 계산 열기",
   "pension-draw": "인출 세금 계산 열기",
   "retirement-flow": "은퇴 계산 열기",
   "compound-return": "복리 계산 열기",
-  coverage: "보장 점검 열기",
-  disclosure: "고지 체크 열기",
-  silson: "실손 비교 열기",
+  "coverage": "보장 점검 열기",
+  "disclosure": "고지 체크 열기",
+  "silson": "실손 비교 열기",
 };
 
-const previewVariant: Record<string, "pension" | "retirement" | "compound" | "calendar"> = {
+const previewVariant: Record<string, "pension" | "pension-draw" | "retirement" | "compound" | "calendar"> = {
   pension: "pension",
+  "pension-draw": "pension-draw",
   "retirement-flow": "retirement",
   "compound-return": "compound",
-  calendar: "calendar",
 };
-
-/**
- * 필름 아래 크레딧 줄 — 5대 축(기록·도구·일정·자료·채널).
- * v7.2에서 '자료앨범'을 넣어, 브랜드 필름을 지나 첫 스크롤에서 바로 카드뉴스를 내려받게 한다.
- */
-const credits = [
-  { href: "/posts", label: "자산리포트", note: "기준일·출처 표기", count: `${posts.length}편` },
-  {
-    href: "/apps",
-    label: "앱스토어",
-    note: APP_CATEGORIES.map((c) => `${c.label} ${categoryCount(c.id)}`).join(" + "),
-    count: `${storeCount}종`,
-  },
-  { href: "/calendar", label: "골든타임", note: "1–12월 금융·세제 일정", count: `${sourcedCalendar.length}건` },
-  {
-    href: "/gallery",
-    label: "자료앨범",
-    note: `카드뉴스·체크리스트 ${galleryCount}세트`,
-    count: `${gallerySlideCount}장`,
-  },
-  {
-    href: "/#channels",
-    label: "연결 채널",
-    note: `확인된 링크 ${confirmedChannelCount}곳 · 채널 ${channelCount}곳 주소 확인 중`,
-    count: `${confirmedChannelCount}곳`,
-  },
-];
 
 const jsonLd = graph([websiteNode(), organizationNode(), personNode()]);
 ---
@@ -118,50 +78,32 @@ const jsonLd = graph([websiteNode(), organizationNode(), personNode()]);
 >
   <!-- ① 1페이지 — 6컷 12초 브랜드 모션그래픽 (three.js + GSAP) -->
   <section data-area="1" id="film">
-    <BrandFilm client:load appsHref={withBase("/apps")} />
+    <BrandFilm client:load appsHref={withBase("/apps")} aboutHref={withBase("/about")} />
 
-    <!-- 크레딧 줄 — 상영관에서 종이로 돌아오는 경계 -->
+    <!-- 크레딧 1줄 — 상영관에서 종이로 돌아오는 경계 (v8.7.0: 5줄 + 기준일 2줄 → 1줄) -->
     <div class="film-credits" id="film-credits">
-      <ul class="film-credits-inner">
-        {
-          credits.map((c) => (
-            <li>
-              <a href={withBase(c.href)} class="film-credit">
-                <span class="film-credit-label">
-                  {c.label}
-                  <span class="film-credit-note">{c.note}</span>
-                </span>
-                <span class="film-credit-count">{c.count} →</span>
-              </a>
-            </li>
-          ))
-        }
-      </ul>
-      <div class="wrap flex flex-wrap items-center justify-between gap-2 border-t border-line-soft py-2">
-        <p class="text-[12px] text-ink-faint">기준일 {koreanDate(site.today)} · 모든 글과 도구에 기준일·1차 출처</p>
-        <p class="text-[12px] text-ink-faint">
-          앱 {storeCount}종 · 금융 일정 {sourcedCalendar.length}건 · 기준일 {site.baseDateLabel}
-        </p>
-      </div>
+      <p class="film-credit-line">
+        <a href={withBase("/posts")}><b>{posts.length}</b>편 기록</a>
+        <span aria-hidden="true">·</span>
+        <a href={withBase("/gallery")}><b>{galleryCount}</b>세트 카드 {gallerySlideCount}장</a>
+        <span aria-hidden="true">·</span>
+        <a href={withBase("/apps")}><b>{toolCount}</b>종 도구</a>
+        <span aria-hidden="true">·</span>
+        <a href={withBase("/calendar")}><b>{sourcedCalendar.length}</b>건 일정</a>
+      </p>
+      <p class="film-credit-note">
+        기준일 {site.baseDateLabel} · 모든 글과 도구에 기준일·1차 출처
+      </p>
     </div>
   </section>
 
-  <!-- ② 오늘 확인 허브 — 필름 아래 첫 화면. 기준 시각 → 지표 → 3줄 → 확인 3건 → 대표 도구 -->
+  <!-- ② 오늘 확인 허브 — 필름 아래 첫 화면. 지표 4 · 3줄 · 기한 인용 · 확인 카드 -->
   <TodayHub />
 
-  <!-- ③ 2페이지 — 버핏킴즈는 어떤 사람인가 (순수 소개, 도구 언급 0) -->
-  <IntroPortrait />
-
-  <!-- ④ 포털 픽 — 자산리포트 최신 3편 + 앱스토어 추천 4종 -->
+  <!-- ③ 읽고 열어 보기 — 자산리포트 최신 3편 + 앱스토어 추천 4종 -->
   <PortalPicks />
 
-  <!-- ④-b 아카데미 — 글·도구 다음에 오는 '배우는 순서'(v8.0 파일럿) -->
-  <AcademyBand />
-
-  <!-- ⑤ 아카이브 — 7대 주제·시리즈·처음 읽을 글 -->
-  <ArchiveLibrary />
-
-  <!-- ④ 미스트 — 브라우저 도구 쇼케이스 -->
+  <!-- ④ 미스트 — 대표 계산기 4개 -->
   <section class="scene-mist border-b border-line" data-area="4" id="tools">
     <div class="wrap py-10 md:py-14">
       <div class="sec-head" data-guide="tools">
@@ -176,25 +118,17 @@ const jsonLd = graph([websiteNode(), organizationNode(), personNode()]);
             모든 도구에 예시 입력값·계산 기준·출처·기준일을 함께 적었습니다.
           </p>
           <div class="sec-head-actions">
-            <a href={withBase("/apps")} class="btn btn-secondary btn-sm">앱스토어 전체</a>
-            <a href={withBase("/gallery")} class="btn btn-tertiary btn-sm">자료앨범 — 카드 내려받기</a>
+            <a href={withBase("/apps")} class="btn btn-secondary btn-sm">도구 {toolCount}종 전체</a>
+            <a href={withBase("/calendar")} class="btn btn-tertiary btn-sm">금융 일정 {sourcedCalendar.length}건</a>
           </div>
         </div>
       </div>
 
-      <div class="mt-5">
-        <FinanceStrip />
-      </div>
-
-      <ul class="mt-3 grid gap-3 md:grid-cols-3" data-main-tools>
+      <ul class="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4" data-main-tools>
         {
-          homeMainTools.map((t) => (
-            <li
-              class={`card card-lift flex flex-col p-4 md:p-5 ${
-                t.key === "calendar" ? "md:col-span-3 md:flex-row md:items-center md:gap-6" : ""
-              }`}
-            >
-              <div class={t.key === "calendar" ? "md:min-w-0 md:flex-1" : ""}>
+          homeTools.map((t) => (
+            <li class="card card-lift flex flex-col p-4 md:p-5">
+              <div>
                 <div class="flex items-baseline justify-end gap-2">
                   <span class="text-[12px] text-ink-faint">{t.meta}</span>
                 </div>
@@ -202,41 +136,19 @@ const jsonLd = graph([websiteNode(), organizationNode(), personNode()]);
                 <p class="clamp-2 mt-1.5 text-[12.5px] leading-[1.6] text-ink-muted">{t.short}</p>
               </div>
 
-              <div class={t.key === "calendar" ? "mt-3 md:mt-0 md:w-[220px] md:shrink-0" : "mt-3"}>
+              <div class="mt-3">
                 <ToolPreview variant={previewVariant[t.key] ?? "pension"} />
               </div>
 
-              <div class={t.key === "calendar" ? "mt-3 md:mt-0 md:shrink-0" : "mt-auto pt-3"}>
-                <a
-                  href={withBase(t.runHref ?? t.href)}
-                  class={`btn btn-secondary btn-sm ${t.key === "calendar" ? "" : "w-full"}`}
-                >
-                  {shortToolLabel[t.key] ?? (t.runHref ? "계산해 보기" : "달력 열기")}
+              <div class="mt-auto pt-3">
+                <a href={withBase(t.runHref ?? t.href)} class="btn btn-secondary btn-sm w-full">
+                  {shortToolLabel[t.key] ?? "계산해 보기"}
                 </a>
               </div>
             </li>
           ))
         }
       </ul>
-
-      <div
-        class="mt-3 flex flex-col gap-2 rounded-2xl border border-white/70 bg-white/70 px-4 py-2.5 md:flex-row md:flex-wrap md:items-center md:gap-x-4"
-        data-risk-tools
-      >
-        <span class="text-[12px] font-semibold text-ink-soft">리스크 관리(보험) 참고 도구</span>
-        <ul class="flex flex-wrap items-center gap-1.5">
-          {
-            riskTools.map((t) => (
-              <li>
-                <a href={withBase(t.runHref ?? t.href)} class="btn btn-tertiary btn-xs">
-                  {t.name}
-                </a>
-              </li>
-            ))
-          }
-        </ul>
-        <span class="text-[12px] text-ink-faint md:ml-auto">다섯 담보 기준점 · 고지 항목 · 실손 세대 비교 — 참고용</span>
-      </div>
 
       <p class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-[12px] text-ink-faint">
         <span>예시 입력값은 가상입니다</span>
@@ -247,12 +159,12 @@ const jsonLd = graph([websiteNode(), organizationNode(), personNode()]);
     </div>
   </section>
 
-  <!-- ⑤ 신뢰 2단 스플릿 + 이번 달 일정 -->
-  <TrustSplit postsCount={posts.length} toolCount={hubTools.length} channelCount={channelCount} />
+  <!-- ⑤ 신뢰 2단 스플릿 (이번 달 달력 카드는 v8.7.0에서 걷어냈다 — 허브·/calendar와 중복) -->
+  <TrustSplit postsCount={posts.length} toolCount={toolCount} channelCount={channelCount} />
 
-  <!-- ⑥ 7개 채널 + 딥그린 상담문의 배너 -->
+  <!-- ⑥ 확인된 링크 + 딥그린 상담문의 배너 -->
   <ChannelBand />
 
-  <!-- v6.1 — 첫 방문 3스텝 스포트라이트 투어 + `? 가이드` (driver.js) -->
+  <!-- 첫 방문 3스텝 스포트라이트 투어 + `? 가이드` (driver.js) -->
   <Guide mode="home" />
 </Base>

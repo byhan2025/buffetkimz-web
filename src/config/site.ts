@@ -53,8 +53,12 @@ export const site = {
    */
   baseDate: "2026-11-22",
   baseDateLabel: "2026. 11. 22.",
-  /** 빌드 시점의 '오늘' (기준일과 같은 날로 고정) */
-  today: new Date("2026-11-22T09:00:00+09:00"),
+  /**
+   * D-Day·달력 초기 월·도구 기본값이 쓰는 **오늘** — 콘텐츠 기준일(`baseDate`)과 다를 수 있다.
+   * v8.7.0(2026-11-23): 하루 지난 채로 두면 11월 23일이 기한인 실손 전환이 'D-1'로 보였다.
+   * 콘텐츠 기준일은 글이 확인된 날(11. 22.)이고, '오늘'은 화면을 만든 날이다.
+   */
+  today: new Date("2026-11-23T09:00:00+09:00"),
   /**
    * 1:1 상담문의 — 이 값 하나로 홈·푸터·소개의 링크가 함께 살아난다.
    * http://pf.kakao.com/_UxkVxnn/chat 은 HTTPS로 308 리다이렉트되므로 https 주소를 쓴다(2026-11-19 확인).
@@ -123,8 +127,8 @@ export type NavItem = {
  * v7.2 — 메뉴를 누르면(또는 ▾) 하위 카테고리가 세로로 펼쳐진다. 하위 메뉴는 이 배열 하나에서 나오므로
  * 데스크톱 드롭다운·모바일 퀵 탭 패널이 같은 목록을 쓴다.
  *
- * v7.2.1 — 앞으로 열 카테고리도 자리를 미리 잡아 둔다(`soon: true`).
- * 링크를 만들지 않으므로 404가 생기지 않고, 방문자에게는 '여기 곧 열린다'는 지도가 된다.
+ * v8.7.0 — 화면에 '준비중'으로만 서 있던 자리표시자 8개를 지웠다. 만들지 않은 것은 약속하지 않는다
+ * (감사 보고 D6). `soon` 필드는 남겨 두지만, 지금 메뉴에는 준비중 항목이 하나도 없다.
  */
 export const nav: NavItem[] = [
   {
@@ -134,7 +138,7 @@ export const nav: NavItem[] = [
     match: "/posts",
     children: [
       { href: "/posts", label: "전체 리포트", note: "기준일·출처를 붙인 글 전체" },
-      { href: "/posts/pension/", label: "연금", note: "마스터 6편 · 연금 지도 2편" },
+      { href: "/posts/pension/", label: "연금", note: "마스터 6편 · 연금 지도 3편" },
       { href: "/posts/finance/", label: "금융", note: "금리·환율·제도" },
       { href: "/posts/invest/", label: "투자", note: "배분·복리·규칙" },
       { href: "/posts/economy/", label: "경제", note: "물가·소비·지표" },
@@ -142,8 +146,6 @@ export const nav: NavItem[] = [
       { href: "/posts/retire/", label: "노후준비", note: "고정비·건보료·간병" },
       { href: "/posts/ai/", label: "AI", note: "도구로 옮긴 기록" },
       { href: "/posts/philosophy/", label: "철학·에세이", note: "판단과 설명" },
-      { label: "부동산·대출", note: "주담대·전세·청약", soon: true },
-      { label: "사업자 절세", note: "경비·부가세·종소세", soon: true },
     ],
   },
   {
@@ -156,8 +158,6 @@ export const nav: NavItem[] = [
       { href: "/apps/#cat-finance", label: "금융투자앱", note: "금리·세금·연금·수익률" },
       { href: "/apps/#cat-insurance", label: "보험앱", note: "담보·고지·실손" },
       { href: "/apps/#cat-utility", label: "유용한앱", note: "날짜·절차" },
-      { label: "ETF·배당 스크리너", note: "조건으로 종목 걸러 보기", soon: true },
-      { label: "건보료·종소세 판정", note: "내 소득으로 바로 계산", soon: true },
     ],
   },
   {
@@ -168,8 +168,6 @@ export const nav: NavItem[] = [
     children: [
       { href: "/calendar", label: "연간 금융·세제 캘린더", note: "1–12월 기한과 절차" },
       { href: "/calendar/#calendar", label: "이번 달 주요 일정", note: "이 달에 확인할 것만" },
-      { label: "공모주·국채 청약", note: "청약 일정과 마감", soon: true },
-      { label: "ETF 배당락 일정", note: "분배금 받는 날짜", soon: true },
     ],
   },
   {
@@ -179,11 +177,9 @@ export const nav: NavItem[] = [
     match: "/gallery",
     children: [
       { href: "/gallery", label: "전체 자료", note: "미리보기·다운로드 전용" },
-      { href: "/gallery/?cat=cardnews", label: "카드뉴스", note: "3–5장으로 끊어 읽기" },
-      { href: "/gallery/?cat=carousel", label: "캐러셀", note: "넘기며 보는 연속 카드" },
+      { href: "/gallery/?cat=cardnews", label: "카드뉴스", note: "3~6장으로 끊어 읽기" },
       { href: "/gallery/?cat=infographic", label: "인포그래픽", note: "한 장에 담은 구조" },
       { href: "/gallery/?cat=checklist", label: "체크리스트", note: "확인할 항목 순서" },
-      { label: "월간 시장 지표 팩", note: "한 달 지표를 한 장에", soon: true },
     ],
   },
   {
@@ -201,7 +197,6 @@ export const nav: NavItem[] = [
       { href: "/about", label: "왜 버핏킴즈인가", note: "어떤 기준으로 쓰는 사람인지" },
       { href: "/principles", label: "편집 원칙", note: "1차 자료·사람 검수·비저장" },
       { href: site.kakaoChannelUrl, label: "1:1 문의", note: "카카오톡 채널로 묻기", external: true },
-      { label: "주간 버핏킴즈 레터", note: "확인한 것만 골라 한 통", soon: true },
     ],
   },
 ];

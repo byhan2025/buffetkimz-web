@@ -203,7 +203,7 @@ const SET_THREE_BUCKETS: LessonCardSet = {
   id: "three-buckets-3d",
   title: "월급이 들어오면, 3개의 통",
   meta: "3D 스토리 카드 6장 · 비상금 · 단기목표 · 장기투자",
-  href: "/gallery/?cat=carousel",
+  href: "/gallery/?cat=cardnews",
   startIndex: 0,
   slides: [
     card("three-buckets", 1, "표지 — 월급이 들어오면 나뉘는 3개의 통", "세 칸으로 나뉜 나무 쟁반에 금화·작은 집·새싹이 담겨 있고, 양팔을 벌린 캐릭터"),
@@ -220,7 +220,7 @@ const SET_TAX_MOMENTS: LessonCardSet = {
   id: "tax-moments-3d",
   title: "모르면 16.5% 떼이는 세금 세 순간",
   meta: "3D 스토리 카드 6장 · 이자·중도해지·연금수령",
-  href: "/gallery/?cat=carousel",
+  href: "/gallery/?cat=cardnews",
   startIndex: 0,
   slides: [
     card("tax-moments", 1, "표지 — 모르면 16.5% 떼이는 세 순간", "나무 선반 위 세 개의 작은 알람시계와 걱정스러운 표정의 캐릭터"),
@@ -237,7 +237,7 @@ const SET_ACCOUNT_ORDER: LessonCardSet = {
   id: "account-order-hand",
   title: "연봉 5,500만, 계좌 넣는 순서",
   meta: "손글씨 카드 6장 · 연금저축 · IRP · ISA",
-  href: "/gallery/?cat=carousel",
+  href: "/gallery/?cat=cardnews",
   startIndex: 0,
   slides: [
     card("account-order", 1, "표지 — 연봉 5,500만 원 기준 계좌 3순위 배치표", "세 단 계단 위 동전 단지를 오르는 마스코트와 '남는 돈, 어디부터 넣어야 할까'"),
@@ -254,7 +254,7 @@ const SET_ISA_BASICS: LessonCardSet = {
   id: "isa-basics-3d",
   title: "ISA 5분 정리, 핵심 네 가지",
   meta: "3D 스토리 카드 6장 · 비과세·손익통산·한도·전환",
-  href: "/gallery/?cat=carousel",
+  href: "/gallery/?cat=cardnews",
   startIndex: 0,
   slides: [
     card("isa-basics", 1, "표지 — 이자 15.4%, 그냥 내시나요", "한 입 베인 동전 더미를 보는 캐릭터"),
@@ -271,7 +271,7 @@ const SET_DRAWDOWN: LessonCardSet = {
   id: "drawdown-recovery-hand",
   title: "반 토막이면 두 배 — 낙폭과 회복",
   meta: "손글씨 카드 6장 · 낙폭 · 회복률 · 변동성",
-  href: "/gallery/?cat=carousel",
+  href: "/gallery/?cat=cardnews",
   startIndex: 0,
   slides: [
     card("drawdown-recovery", 1, "표지 — 낙폭과 회복의 비대칭", "V자 골짜기 아래에 선 마스코트와 반대편 언덕 위의 작은 깃발"),
@@ -288,7 +288,7 @@ const SET_ETF_NUMBERS: LessonCardSet = {
   id: "etf-6numbers-3d",
   title: "수익률 전에 볼 ETF 6개 숫자",
   meta: "3D 스토리 카드 6장 · 비용 · 유동성 · 추적",
-  href: "/gallery/?cat=carousel",
+  href: "/gallery/?cat=cardnews",
   startIndex: 0,
   slides: [
     card("etf-6numbers", 1, "표지 — 수익률 전에 볼 6개 숫자", "여섯 개의 빈 계기판 다이얼이 달린 콘솔, 확대경으로 다이얼을 들여다보는 캐릭터와 '수익률 전에 볼 ETF 6개 숫자'"),
@@ -305,7 +305,7 @@ const SET_REBALANCE: LessonCardSet = {
   id: "asset-rebalance-hand",
   title: "오를 때 덜고 내릴 때 채우기 — 리밸런싱과 현금 비중",
   meta: "손글씨 카드 6장 · 목표 비중 · 점검 주기 · 현금 비중",
-  href: "/gallery/?cat=carousel",
+  href: "/gallery/?cat=cardnews",
   startIndex: 0,
   slides: [
     card("asset-rebalance", 1, "표지 — 리밸런싱은 오를 때 덜고 내릴 때 채우는 일", "저울 위 두 단지 사이에서 동전을 옮겨 담는 마스코트와 '오를 때 덜고 내릴 때 채웁니다'"),
@@ -322,7 +322,7 @@ const SET_SILSON: LessonCardSet = {
   id: "silson-switch-3d",
   title: "실손 50% 할인, 갈아타기 전 3가지",
   meta: "3D 스토리 카드 6장 · 11. 23. 시행 계약전환",
-  href: "/gallery/?cat=carousel",
+  href: "/gallery/?cat=cardnews",
   startIndex: 0,
   slides: [
     card("silson-switch", 1, "표지 — 내일부터 시작되는 50% 할인", "보험 증권 두 권을 양손에 들고 번갈아 보는 너구리 캐릭터와 '내일부터 시작되는 실손 50% 할인'"),
@@ -339,7 +339,7 @@ const SET_RETIRE_DRAW: LessonCardSet = {
   id: "retire-drawdown-hand",
   title: "은퇴 첫 5년의 순서 위험 — 같은 수익률, 인출 순서가 만든 차이",
   meta: "손글씨 카드 6장 · 3억 · 연 1,500만 · 순서 비교",
-  href: "/gallery/?cat=carousel",
+  href: "/gallery/?cat=cardnews",
   startIndex: 0,
   slides: [
     card("retire-drawdown", 1, "표지 — 은퇴 첫 5년, 같은 수익률도 순서가 결과를 가른다", "회색 두 개와 노란 세 개로 놓인 징검다리를 동전 바구니를 들고 건너는 마스코트, '같은 수익률도 순서가 갈립니다'"),

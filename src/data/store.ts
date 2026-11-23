@@ -36,7 +36,6 @@ export type StoreIcon =
   | "text-counter"
   | "privacy-masker"
   | "json-csv-formatter"
-  | "password-generator"
   | "diff-checker"
   | "color-extractor"
   | "text-to-card"
@@ -65,8 +64,7 @@ export type StoreIcon =
   | "unemployment"
   | "freelancer-tax"
   | "overseas-tax"
-  | "deposit-compare"
-  | "stock-average";
+  | "deposit-compare";
 
 export type StoreItem = {
   id: string;
@@ -118,7 +116,6 @@ const artToIcon: Record<App["art"], StoreIcon> = {
   "text-counter": "text-counter",
   "privacy-masker": "privacy-masker",
   "json-csv-formatter": "json-csv-formatter",
-  "password-generator": "password-generator",
   "diff-checker": "diff-checker",
   "color-extractor": "color-extractor",
   "text-to-card": "text-to-card",
@@ -147,7 +144,6 @@ const artToIcon: Record<App["art"], StoreIcon> = {
   "freelancer-tax": "freelancer-tax",
   "overseas-tax": "overseas-tax",
   "deposit-compare": "deposit-compare",
-  "stock-average": "stock-average",
 };
 
 /** 카드 아래 메타 한 줄 — 앱마다 다른 값을 쓰는 새 앱만 여기에 적는다. */
@@ -155,7 +151,6 @@ const metaBySlug: Record<string, string> = {
   "text-counter": "텍스트 · 서버 미전송",
   "privacy-masker": "보안 · 서버 미전송",
   "json-csv-formatter": "문서·데이터 · 서버 미전송",
-  "password-generator": "보안 · 서버 미전송",
   "diff-checker": "문서 · 서버 미전송",
   "color-extractor": "디자인 · 서버 미전송",
   "text-to-card": "디자인 · 서버 미전송",
@@ -184,7 +179,6 @@ const metaBySlug: Record<string, string> = {
   "freelancer-tax": "3.3% 양방향 · 서버 미전송",
   "overseas-stock-tax": "250만원 공제 · 서버 미전송",
   "deposit-savings": "15.4% · 서버 미전송",
-  "stock-averaging": "평단가 · 서버 미전송",
 };
 
 /** 홈 진열 순서 — 금융·연금 계산이 먼저, 앱이 뒤, 보험이 마지막. */
@@ -210,7 +204,6 @@ const orderBySlug: Record<string, number> = {
   "text-counter": 100,
   "privacy-masker": 110,
   "json-csv-formatter": 120,
-  "password-generator": 130,
   "diff-checker": 140,
   "color-extractor": 150,
   "text-to-card": 160,
@@ -241,7 +234,6 @@ const orderBySlug: Record<string, number> = {
   "freelancer-tax": 380,
   "overseas-stock-tax": 390,
   "deposit-savings": 400,
-  "stock-averaging": 410,
 };
 
 const fromApps: StoreItem[] = apps.map((a) => ({
@@ -280,7 +272,7 @@ const calendarItem: StoreItem = {
   tags: ["골든타임", "연말정산", "연금 납입", "건보료", "실손 갱신"],
 };
 
-/** 자료앨범 — 방문자 다운로드 전용. 관리자가 등록한 카드뉴스·캐러셀을 모아 둔 칸. */
+/** 자료앨범 — 방문자 다운로드 전용. 관리자가 등록한 카드뉴스·인포그래픽·체크리스트를 모아 둔 칸. */
 const galleryItem: StoreItem = {
   id: "gallery",
   name: "자료앨범",
@@ -294,7 +286,7 @@ const galleryItem: StoreItem = {
   meta: `카드 ${galleryCount}세트 · ${gallerySlideCount}장 · 1080×1350`,
   order: 20,
   featured: false,
-  tags: ["자료앨범", "카드뉴스", "캐러셀", "인포그래픽", "체크리스트", "다운로드"],
+  tags: ["자료앨범", "카드뉴스", "인포그래픽", "체크리스트", "다운로드"],
 };
 
 export const storeItems: StoreItem[] = [...fromApps, calendarItem, galleryItem].sort((a, b) => {
@@ -309,6 +301,16 @@ export const storeByCategory = APP_CATEGORIES.map((c) => ({
 }));
 
 export const storeCount = storeItems.length;
+
+/**
+ * 진열대에 올린 **도구** 수 — 금융 일정 달력과 자료앨범은 도구가 아니므로 빼고 센다.
+ * v8.7.0 — 화면의 '51종'이 실제 도구 49종에 달력·앨범을 합친 값이었던 산식 오류를 바로냈다(감사 V1).
+ * 도구를 지우면 이 숫자도 따라 줄어든다(손으로 적지 않는다).
+ */
+export const toolCount = fromApps.length;
+
+/** 진열대 구성 설명 — '도구 N종 + 금융 일정 달력 + 자료앨범' */
+export const storeBreakdown = `도구 ${toolCount}종 + 금융 일정 달력 + 자료앨범(내려받기 전용)`;
 
 /** 홈 '추천 앱' — 다섯 종. 카테고리마다 하나씩, 금융은 두 개. */
 export const featuredStore: StoreItem[] = [

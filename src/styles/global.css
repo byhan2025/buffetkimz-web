@@ -3290,6 +3290,56 @@
   }
 
   /*
+   * v8.7.0 — 크레딧 5칸을 **1줄**로 줄였다(감사 D5).
+   * '기록 N편 · 카드 N세트 · 도구 N종 · 일정 N건'만 남기고, 기준일은 그 아래 한 줄로 붙인다.
+   */
+  .film-credit-line {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 4px 10px;
+    max-width: 1200px;
+    margin-inline: auto;
+    padding: 11px 16px 2px;
+    font-size: 13px;
+    letter-spacing: -0.02em;
+    color: var(--color-ink-muted);
+  }
+
+  .film-credit-line > span {
+    color: var(--color-ink-faint);
+  }
+
+  .film-credit-line a {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0;
+    min-height: 24px;
+    color: var(--color-ink-soft);
+    text-decoration: none;
+  }
+
+  .film-credit-line a:hover {
+    color: var(--color-brand-deep);
+  }
+
+  .film-credit-line b {
+    font-weight: 800;
+    font-feature-settings: "tnum" 1;
+    color: var(--color-ink);
+  }
+
+  .film-credit-line + .film-credit-note {
+    max-width: 1200px;
+    margin-inline: auto;
+    padding: 0 16px 11px;
+    text-align: center;
+    font-size: 11.5px;
+    color: var(--color-ink-faint);
+  }
+
+  /*
    * v7.2 — 크레딧 5칸(기록·도구·일정·자료·채널).
    * 768px 이상은 다섯 칸을 한 줄로, 모바일 2칸에서는 마지막 '연결 채널'이 한 줄을 다 쓴다.
    */
@@ -5990,19 +6040,42 @@
   }
 
   .mboard-rest {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 6px 10px;
     margin-top: 10px;
     padding-top: 10px;
     border-top: 1px solid rgb(255 255 255 / 0.09);
   }
 
+  /* 접힌 지표 — v8.7.0. summary 한 줄만 보이고, 펼치면 값이 그대로 나온다. */
   .mboard-rest-label {
-    font-size: 9.5px;
-    letter-spacing: 0.14em;
+    display: inline-flex;
+    align-items: center;
+    min-height: 30px;
+    gap: 6px;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: #8f97ad;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .mboard-rest-label::-webkit-details-marker {
+    display: none;
+  }
+
+  .mboard-rest-label::before {
+    content: "+";
+    display: inline-block;
+    width: 10px;
+    font-size: 12px;
     color: #6f778c;
+  }
+
+  .mboard-rest[open] .mboard-rest-label::before {
+    content: "−";
+  }
+
+  .mboard-rest[open] .mboard-rest-label {
+    margin-bottom: 6px;
   }
 
   .mboard-mini {
@@ -6516,6 +6589,53 @@
   .hub-items-note {
     font-size: 10.5px;
     color: var(--color-ink-faint);
+  }
+
+  /* ---------- 기한 인용 — 달력에서 한 줄만 가져온다 (v8.7.0) ---------- */
+  .hub-cites {
+    display: grid;
+    gap: 1px;
+    border: 1px solid var(--color-line);
+    border-radius: 14px;
+    background-color: var(--color-line-soft);
+    overflow: hidden;
+  }
+
+  .hub-cite-link {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 10px;
+    min-height: 44px;
+    padding: 9px 12px;
+    background-color: var(--color-surface);
+    transition: background-color 140ms var(--ease-out-soft);
+  }
+
+  .hub-cite-link:hover {
+    background-color: var(--color-paper-deep, #f4f6f8);
+  }
+
+  .hub-cite-title {
+    flex: 1 1 12ch;
+    min-width: 0;
+    font-size: 13.5px;
+    font-weight: 700;
+    line-height: 1.45;
+    letter-spacing: -0.02em;
+    color: var(--color-ink);
+  }
+
+  .hub-cite-when {
+    font-size: 11px;
+    color: var(--color-ink-faint);
+  }
+
+  .hub-cite-go {
+    flex: none;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--color-brand-deep);
   }
 }
 

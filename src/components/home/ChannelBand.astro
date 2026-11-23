@@ -8,7 +8,7 @@
  * 편집 원칙 링크를 배너 안 보조 링크로 남겼다. 배너는 딥그린 한 면 — 페이지의 마지막 색 장면이다.
  */
 import { withBase, site } from "@/config/site";
-import { channels, confirmedLinks } from "@/data/channels";
+import { confirmedLinks } from "@/data/channels";
 ---
 
 <section class="scene-white border-b border-line" data-area="6" id="channels">
@@ -20,46 +20,33 @@ import { channels, confirmedLinks } from "@/data/channels";
       </div>
       <div class="sec-head-side">
         <p class="sec-desc">
-          긴 글과 기록은 이곳에 남깁니다. 짧은 소식은 각 채널에서 만나요.<br />
-          주소가 확인된 채널부터 열고, 확인 전에는 이름만 적어 둡니다(아래 {channels.length}곳).
+          긴 글과 기록은 이곳에 남깁니다. 짧은 소식은 SNS에서 만나요.<br />
+          주소가 확인된 채널만 링크로 열어 둡니다(아래 {confirmedLinks.length}곳).
         </p>
       </div>
     </div>
 
+    <!-- v8.7.0 — 주소가 없는 SNS 이름을 늘어놓지 않는다(감사 보고 'SNS 이름 나열 숨김').
+         확인된 링크만 카드로 두고, 나머지는 링크가 생길 때 이 자리에 붙인다. -->
     <ul class="mt-5 grid gap-2 sm:grid-cols-2" data-channel-list>
       {
-        channels.map((c) => (
-          <li data-channel class="flex items-center justify-between gap-3 rounded-xl border border-line bg-white px-3.5 py-2">
+        confirmedLinks.map((l) => (
+          <li class="flex items-center justify-between gap-3 rounded-xl border border-line bg-white px-3.5 py-2">
             <span class="min-w-0">
-              <span class="block text-[13.5px] font-semibold text-ink">{c.name}</span>
-              <span class="block truncate text-[12px] text-ink-muted">{c.note}</span>
+              <span class="block text-[13.5px] font-semibold text-ink">{l.name}</span>
+              <span class="block truncate text-[12px] text-ink-muted">{l.note}</span>
             </span>
-            {c.url ? (
-              <a href={c.url} target="_blank" rel="noopener noreferrer" class="btn btn-tertiary btn-xs shrink-0">
-                열기
-              </a>
-            ) : (
-              <span class="shrink-0 text-[12px] text-ink-faint">주소 정리 중</span>
-            )}
+            <a href={l.url} target="_blank" rel="noopener noreferrer" class="btn btn-tertiary btn-xs shrink-0">
+              열기
+            </a>
           </li>
         ))
       }
-      <!-- 7개 채널 + 코드 보관소 = 8칸. 마지막 칸을 비워 두지 않는다. -->
-      <li data-code-store class="flex items-center justify-between gap-3 rounded-xl border border-dashed border-[#cbd9e4] bg-paper px-3.5 py-2">
-        <span class="min-w-0">
-          <span class="block text-[13.5px] font-semibold text-ink">코드 보관소</span>
-          <span class="block truncate text-[12px] text-ink-muted">앱의 코드와 배포 기록</span>
-        </span>
-        <a
-          href={confirmedLinks[0].url}
-          target="_blank"
-          rel="noopener noreferrer"
-          class="btn btn-tertiary btn-xs shrink-0"
-        >
-          {confirmedLinks[0].name} 열기
-        </a>
-      </li>
     </ul>
+    <p class="mt-2 text-[12px] leading-[1.7] text-ink-faint">
+      SNS 채널 주소는 확인되는 대로 이 자리에 링크로 엽니다. 주소를 확인하지 못한 채널은 이름만 걸어 두지 않습니다.
+      기준일 {site.baseDateLabel}
+    </p>
 
     <!-- 마무리 배너 — 1:1 상담문의(주) + 편집 원칙(보조), 딥그린 한 면 -->
     <div class="cta-band mt-5" data-contact-banner>

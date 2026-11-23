@@ -9,7 +9,7 @@
  * 하는 방식으로만 이뤄집니다. 저장소에 쓸 수 있는 사람이 곧 등록 권한입니다.
  *
  * ── 방문자 기능 ──────────────────────────────────────────────────────────
- * 카테고리 탭 · 검색 · 태그 필터 · 카드 안 캐러셀(좌우/썸네일) · 라이트박스 크게 보기 ·
+ * 카테고리 탭 · 검색 · 태그 필터 · 카드 안에서 넘겨 보기(좌우/썸네일) · 라이트박스 크게 보기 ·
  * 현재 장 내려받기(download) · 세트 전체 순차 다운로드 · 전장 미리보기.
  */
 import Base from "@/layouts/Base.astro";
@@ -35,7 +35,7 @@ const catLabel = (id: string) => GALLERY_CATEGORIES.find((c) => c.id === id)?.la
 const story3d = galleryItems.filter((i) => i.tags.includes("3D 카드"));
 const story3dSlides = story3d.reduce((n, i) => n + i.slides.length, 0);
 
-/** 라이트박스·캐러셀이 읽는 자료 (경로는 withBase 적용) */
+/** 라이트박스·장 넘김이 읽는 자료 (경로는 withBase 적용) */
 const payload = galleryItems.map((item) => ({
   id: item.id,
   title: item.title,
@@ -57,7 +57,7 @@ const jsonLd = graph([
     "@id": `${pageUrl("/gallery")}#webpage`,
     name: "자료앨범 — 버핏킴즈",
     description:
-      "금융·연금·재무 주제를 4:5 카드뉴스·캐러셀·인포그래픽·체크리스트로 정리한 자료 모음. 미리보기와 다운로드 전용.",
+      "금융·연금·재무 주제를 4:5 카드뉴스·인포그래픽·체크리스트로 정리한 자료 모음. 미리보기와 다운로드 전용.",
     url: pageUrl("/gallery"),
     inLanguage: "ko-KR",
     isPartOf: partOfWebsite,
@@ -79,7 +79,7 @@ const jsonLd = graph([
 ---
 
 <Base
-  title={`자료앨범 — 카드뉴스·캐러셀·인포그래픽 내려받기`}
+  title={`자료앨범 — 카드뉴스·인포그래픽 내려받기`}
   description={`연금·금융 주제를 4:5 카드로 정리한 자료 ${galleryCount}세트 ${gallerySlideCount}장. 미리보기로 확인하고 원하는 장만, 또는 세트 전체를 내려받습니다. 관리자 등록 자료 전용.`}
   path="/gallery"
   jsonLd={jsonLd}
@@ -99,9 +99,8 @@ const jsonLd = graph([
           <p class="mono text-[11.5px] font-semibold tracking-[0.18em] text-brand">GALLERY · 자료앨범</p>
           <h1 class="h-display mt-2 text-ink">보기 좋게 정리한<br />카드로, 그대로 내려받기</h1>
           <p class="lede mt-4 max-w-[56ch]">
-            연금·금융 주제를 4:5 카드로 끊어 담았습니다. 3D 스토리 캐러셀은 장면이 이어지며 한 주제를
-            끝까지 따라가고, 카드 안에서 넘겨 보고 한 장만 또는 세트 전체를 내려받아 상담·발표 자료로
-            쓰실 수 있습니다.
+            연금·금융 주제를 4:5 카드로 끊어 담았습니다. 카드뉴스는 장면이 이어지며 한 주제를 끝까지
+            따라가고, 카드 안에서 넘겨 보고 한 장만 또는 세트 전체를 내려받아 상담·발표 자료로 쓰실 수 있습니다.
           </p>
 
           <ul class="mt-5 flex flex-wrap gap-2" data-gallery-summary>
@@ -221,7 +220,7 @@ const jsonLd = graph([
                 <span class="chip shrink-0 !text-[11.5px]">{item.slides.length === 1 ? "1장" : `${item.slides.length}장 세트`}</span>
               </div>
 
-              <!-- 카드 안 캐러셀 -->
+              <!-- 카드 안 장 넘김 -->
               <div class="gallery-stage" data-gallery-stage-wrap>
                 <button type="button" class="gallery-open" data-gallery-open aria-label={`${item.title} 크게 보기`}>
                   <img
@@ -462,7 +461,7 @@ const jsonLd = graph([
     );
 
     /*
-     * v7.2 — 메뉴 드롭다운이 `/gallery/?cat=carousel`처럼 들어온다.
+     * v7.2 — 메뉴 드롭다운이 `/gallery/?cat=cardnews`처럼 들어온다.
      * 주소의 분류가 실제 탭에 있으면 그 탭을 연 상태로 시작하고, 탭을 누를 때 주소도 함께 바뀐다.
      */
     const catFromUrl = new URLSearchParams(window.location.search).get("cat");
@@ -488,7 +487,7 @@ const jsonLd = graph([
       })
     );
 
-    // 카드 안 캐러셀
+    // 카드 안 장 넘김
     cards.forEach((card) => {
       const id = card.dataset.galleryItem || "";
       const item = byId.get(id);

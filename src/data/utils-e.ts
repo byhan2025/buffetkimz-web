@@ -29,8 +29,7 @@ export type UtilsEArt =
   | "unemployment"
   | "freelancer-tax"
   | "overseas-tax"
-  | "deposit-compare"
-  | "stock-average";
+  | "deposit-compare";
 
 export type UtilsEApp = Omit<App, "art"> & { art: UtilsEArt };
 export type UtilsEStoreItem = Omit<StoreItem, "icon"> & { icon: UtilsEArt; category: AppCategoryId };
@@ -717,65 +716,6 @@ export const utilsEApps: UtilsEApp[] = [
     art: "deposit-compare",
     tags: ["예금", "적금", "이자", "세후", "15.4%", "비과세", "금리"],
   },
-  {
-    slug: "stock-averaging",
-    name: "주식 물타기 평단가 계산기",
-    subtitle: "새 평단가와 본전가",
-    summary:
-      "보유 수량·평단가와 추가 매수 수량·단가를 넣으면 새 평단가와 총 투자금, 본전가, +10%·+20% 목표가를 계산합니다. 현재가를 넣으면 본전까지 필요한 상승률도 나옵니다.",
-    question: "더 사면 평단가가 얼마로 내려가고, 본전은 어디인가",
-    kind: "투자",
-    madeIn: MADE_IN,
-    status: STATUS,
-    oneLine:
-      "추가 매수 후 새 평단가·총 투자금·본전가와 목표 수익률별 필요 주가를 한 번에 계산합니다.",
-    why: [
-      "물타기는 계산이 단순해 보이지만, 실제로는 두 가지를 놓칩니다. 하나는 평단가가 내려가는 만큼 투자금이 늘어난다는 점이고, 다른 하나는 본전까지 필요한 상승률이 생각보다 크다는 점입니다.",
-      "평단가 5만원에서 3만원으로 두 배 더 사면 평단가는 3만 6,667원이 됩니다. 그런데 그 3만 6,667원을 회복하려면 현재 3만원에서 22%가 올라야 합니다. 하락률과 회복률이 대칭이 아니기 때문입니다.",
-      "이 화면은 그 세 숫자(새 평단가·총 투자금·필요 상승률)를 함께 보여 줍니다. 물타기를 권하는 도구가 아니라, 결정 전에 숫자를 정확히 보게 하는 도구입니다.",
-    ],
-    features: [
-      {
-        title: "새 평단가",
-        body: "(기존 수량×평단가 + 추가 수량×단가) ÷ 총 수량으로 계산합니다.",
-      },
-      {
-        title: "평단가 변화",
-        body: "기존 평단가에서 몇 % 내려갔는지, 총 투자금이 얼마 늘었는지 함께 표시합니다.",
-      },
-      {
-        title: "본전까지",
-        body: "현재가를 넣으면 본전가까지 몇 % 올라야 하는지 계산합니다. 하락률과 회복률이 다르다는 점을 수치로 보여 줍니다.",
-      },
-      {
-        title: "목표가",
-        body: "새 평단가 기준 +10%·+20%·+30% 주가를 함께 냅니다.",
-      },
-    ],
-    audience:
-      "보유 종목의 추가 매수를 고민하는 투자자, 평단가와 본전가를 정확히 알고 싶은 사람.",
-    basis: [
-      "평단가는 이동평균법(총 매입금액 ÷ 총 보유수량)으로 계산합니다. 수수료·세금은 넣지 않았습니다.",
-      "본전가는 새 평단가와 같습니다(수수료·세금 제외). 실제로는 매도 수수료와 세금 때문에 조금 더 높습니다.",
-      "하락률과 회복률은 대칭이 아닙니다. 50% 하락한 종목이 본전이 되려면 100% 올라야 합니다.",
-      "투자 권유가 아닙니다. 이 계산은 보유·매수 결정을 대신하지 않습니다.",
-    ],
-    inputs: ["보유 수량", "보유 평단가", "추가 매수 수량", "추가 매수 단가", "현재가(선택)"],
-    outputs: ["새 평단가와 평단가 변화율", "총 보유 수량·총 투자금", "본전가·필요 상승률·목표 수익률별 주가"],
-    runNote:
-      "수량과 단가를 바꾸면 새 평단가와 본전가가 바로 다시 계산됩니다. 수수료·세금은 반영하지 않습니다.",
-    sourceLine: "이동평균법(총 매입금액 ÷ 총 수량) · 기준일 2026. 11. 21.",
-    assumptions: [
-      "매수·매도 수수료와 세금을 반영하지 않습니다.",
-      "같은 종목의 기존 보유분만 계산합니다. 다른 종목·다른 계좌의 보유분은 넣지 않습니다.",
-      "액면분할·병합, 배당 재투자는 반영하지 않습니다.",
-    ],
-    internal: true,
-    runMode: "calc",
-    category: "utility",
-    art: "stock-average",
-    tags: ["물타기", "평단가", "본전가", "주식", "추가매수", "목표가"],
-  },
 ];
 
 export const utilsEStore: UtilsEStoreItem[] = utilsEApps.map((a, i) => ({
@@ -808,7 +748,6 @@ export const UTILS_E_RUNNER: Record<string, string> = {
   "freelancer-tax": "FreelancerTaxCalc",
   "overseas-stock-tax": "OverseasStockTaxCalc",
   "deposit-savings": "DepositSavingsCalc",
-  "stock-averaging": "StockAveragingCalc",
 };
 
 /** AppStoreIcon.astro의 paths에 붙일 24px 선 아이콘 — 이름은 art 키와 같다 */
@@ -846,9 +785,6 @@ export const UTILS_E_ICONS: Record<UtilsEArt, string> = {
   /* 동전 두 개 + 저울 — 예적금 비교 */
   "deposit-compare":
     "M4.4 7.4c0-1.2 1.8-2.2 4-2.2s4 1 4 2.2-1.8 2.2-4 2.2-4-1-4 2.2v2.4c0 1.2 1.8 2.2 4 2.2s4-1 4-2.2M12 14.6c0-1.2 1.8-2.2 4-2.2s4 1 4 2.2-1.8 2.2-4 2.2-4 1-4 2.2M4.4 7.4v9.4M20 14.6v3",
-  /* 하락 화살 + 선 — 물타기 */
-  "stock-average":
-    "M3.6 19.4h16.8M3.6 19.4V4.6M6.6 8.4l4 4 3-2.4 4.8 5.2M20.4 12.4v3h-3M3.4 15.4l4.2-2.6 3.4 2 5.8-3.4",
 };
 
 /** 앱 카드 도해 — '입력 → 처리 → 결과' 세 줄 */
@@ -864,5 +800,4 @@ export const UTILS_E_ART_ROWS: Record<string, [string, string, string]> = {
   "freelancer-tax": ["계약금액 또는 실수령액", "3.3% 원천징수 양방향", "세전·세후·떼인 세금"],
   "overseas-tax": ["연간 실현 이익·손실", "손익통산 + 250만원 공제 × 22%", "양도세·손실 통산 절감액"],
   "deposit-compare": ["예치금·기간·금리·과세", "단리·월복리 + 15.4%/9.9%/0%", "세후 만기 수령액 비교"],
-  "stock-average": ["보유 수량·평단가 + 추가분", "이동평균법 재계산", "새 평단가·본전가·필요 상승률"],
 };

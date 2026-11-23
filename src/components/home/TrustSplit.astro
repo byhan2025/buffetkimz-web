@@ -11,19 +11,15 @@
  */
 import { withBase, site } from "@/config/site";
 import { calendar } from "@/data/calendar";
-import { storeCount } from "@/data/store";
+import { toolCount } from "@/data/store";
 
 interface Props {
   postsCount: number;
-  toolCount: number;
   channelCount: number;
 }
 
-const { postsCount, toolCount, channelCount } = Astro.props;
-const thisMonth = site.today.getMonth() + 1;
+const { postsCount, channelCount } = Astro.props;
 const sourcedCalendar = calendar.filter((c) => Boolean(c.source));
-const monthItems = calendar.filter((c) => c.month === thisMonth);
-const upcoming = [...monthItems.filter((c) => c.key), ...monthItems.filter((c) => !c.key)].slice(0, 3);
 
 const sources = [
   { org: "금융위원회", what: "보험·금융 정책, 실손 세대" },
@@ -124,8 +120,8 @@ const standards = [
             <dd>{postsCount}<span>편</span></dd>
           </div>
           <div class="trust-stat">
-            <dt>앱</dt>
-            <dd>{storeCount}<span>종</span></dd>
+            <dt>도구</dt>
+            <dd>{toolCount}<span>종</span></dd>
           </div>
           <div class="trust-stat">
             <dt>금융 일정</dt>
@@ -139,33 +135,11 @@ const standards = [
 
         <p class="mt-2.5 text-[12px] leading-[1.7] text-ink-muted">
           모든 글과 도구에 확인 기준일과 1차 출처를 붙입니다. 계산에 넣은 가정과 넣지 못한 것은 결과 옆에
-          적고, SNS 채널에 올리는 글도 같은 기준으로 씁니다. 채널 {channelCount}곳의 주소는 확인되는 대로 엽니다.
+          적고, SNS 채널에 올리는 글도 같은 기준으로 씁니다. 채널 {channelCount}곳 가운데 주소가 확인된 곳만
+          링크로 열어 둡니다.
         </p>
       </div>
     </div>
 
-    <!-- 이번 달 금융 일정 3건 -->
-    <div class="calendar-strip" data-calendar-strip>
-      <div class="flex flex-wrap items-baseline justify-between gap-2">
-        <p class="text-[13px] font-bold tracking-[-0.02em] text-ink">
-          이번 달 금융 일정
-          <span class="ml-1.5 inline-block rounded-full bg-brand-soft px-2 py-0.5 align-[2px] text-[12px] font-semibold text-brand-deep">
-            {thisMonth}월 · {monthItems.length}건
-          </span>
-        </p>
-        <a href={withBase("/calendar")} class="btn btn-tertiary-quiet btn-xs !px-2">1~12월 {calendar.length}건 전체 →</a>
-      </div>
-      <ul class="mt-2 grid gap-2 sm:grid-cols-3">
-        {
-          upcoming.map((item) => (
-            <li class="rounded-lg border border-line bg-white px-3 py-2">
-              <p class="mono text-[12px] text-brand-deep">{item.when}</p>
-              <p class="mt-0.5 text-[13px] font-semibold leading-snug text-ink">{item.title}</p>
-              <p class="clamp-2 mt-0.5 text-[12px] leading-[1.55] text-ink-muted">{item.action}</p>
-            </li>
-          ))
-        }
-      </ul>
-    </div>
   </div>
 </section>

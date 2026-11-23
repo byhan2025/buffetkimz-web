@@ -264,13 +264,25 @@ low = sum(html.count("16.5%") for html in pages.values())
 high = sum(html.count("13.2%") for html in pages.values())
 check("D11 화면에 16.5%·13.2%가 함께 있음", low > 0 and high > 0, f"16.5%×{low} · 13.2%×{high}")
 
-# D12 폐기된 표기가 없다
+# D12 폐기된 '세율 표기'가 없다
+#   2026-11-23 — 표의 아무 비율이나 잡던 것을 세율 맥락으로 좁혔다. 정비사업 표의 '계획 대비 13.0%'는
+#   세율이 아닌데도 걸려 오탐이 났다(economy-seoul-redev-supply). 폐기 표기 자체는 그대로 본다.
+STALE_PATTERNS = ("16.0%", "13.0%", "14.0%", "7.09%", "9.0% 분리과세")
+RATE_CONTEXT = ("공제율", "세액공제", "환급률", "분리과세", "원천징수", "세율", "공제 한도", "과세")
 stale = []
 for p, html in pages.items():
-    for pat in ("16.0%", "13.0%", "14.0%", "7.09%", "9.0% 분리과세"):
-        if pat in html:
-            stale.append(f"{p}:{pat}")
-check("D12 폐기 표기(16.0%·13.0% 등) 0건", not stale, "; ".join(stale[:5]))
+    for pat in STALE_PATTERNS:
+        start = 0
+        while True:
+            idx = html.find(pat, start)
+            if idx < 0:
+                break
+            window = html[max(0, idx - 60) : idx + len(pat) + 60]
+            if any(word in window for word in RATE_CONTEXT):
+                stale.append(f"{p}:{pat}")
+                break
+            start = idx + len(pat)
+check("D12 폐기 세율 표기(16.0%·13.0% 등) 0건", not stale, "; ".join(stale[:5]))
 
 # ---------------------------------------------------------------------------
 # E. 대표 숫자 — 같은 곱에서 나왔는가

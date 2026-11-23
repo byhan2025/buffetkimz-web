@@ -29,7 +29,6 @@ export type UtilsArt =
   | "text-counter"
   | "privacy-masker"
   | "json-csv-formatter"
-  | "password-generator"
   | "diff-checker"
   | "color-extractor"
   | "text-to-card"
@@ -194,59 +193,6 @@ export const utilsBApps: UtilsApp[] = [
     category: "utility",
     art: "json-csv-formatter",
     tags: ["JSON", "CSV", "마크다운", "표", "포맷", "정리"],
-  },
-  {
-    slug: "password-generator",
-    name: "비밀번호 만들기",
-    subtitle: "길이와 종류로 만드는 무작위 문자열",
-    summary:
-      "길이 8~64자, 대소문자·숫자·특수문자 조합으로 비밀번호를 만듭니다. 헷갈리는 글자를 빼고, 강도와 예상 대입 시간을 함께 보여 줍니다.",
-    question: "이 비밀번호는 얼마나 버틸 수 있나",
-    kind: "보안",
-    madeIn: MADE_IN,
-    status: STATUS,
-    oneLine:
-      "기기 안에서 무작위로 비밀번호를 만들고, 조합 수(엔트로피)로 강도를 보여 줍니다.",
-    why: [
-      "사람이 만든 비밀번호는 규칙이 있습니다. 생일, 이름, 단어 조합, 끝에 붙는 ! 하나. 길어 보여도 대입 프로그램은 그 규칙부터 시도합니다.",
-      "무작위로 만든 비밀번호는 외우기 어렵습니다. 그래서 이 도구는 외우게 하지 않고, 만든 즉시 비밀번호 관리자에 넣는 것을 전제로 합니다. 화면 어디에도 저장하지 않습니다.",
-    ],
-    features: [
-      {
-        title: "무작위 생성",
-        body: "crypto.getRandomValues로 뽑아 편향이 없게 만듭니다(Math.random이 아닙니다).",
-      },
-      {
-        title: "조합 보장",
-        body: "고른 문자 종류마다 최소 한 글자가 반드시 들어가고, 만든 뒤 한 번 섞습니다.",
-      },
-      {
-        title: "강도 게이지",
-        body: "가능한 조합 수를 비트로 환산해 다섯 단계로 표시하고, 초당 1,000억 번 대입 기준의 예상 시간을 보여 줍니다.",
-      },
-      {
-        title: "5개 한 번에",
-        body: "여러 사이트에 쓸 비밀번호를 한 번에 만들고, 하나씩 또는 전부 복사합니다.",
-      },
-    ],
-    audience: "비밀번호 관리자를 쓰기 시작한 사람, 같은 비밀번호를 여러 곳에 쓰고 있는 사람.",
-    basis: [
-      "강도(비트)는 문자 종류 수 × 길이의 로그로 계산한 이론값입니다. 사람이 고른 비밀번호나 재사용한 비밀번호는 이 값보다 훨씬 약합니다.",
-      "예상 대입 시간은 초당 1,000억 번 시도(오프라인 공격 가정)로 계산한 평균값이며, 실제 서비스의 시도 제한·2단계 인증 여부에 따라 크게 달라집니다.",
-    ],
-    inputs: ["길이(8~64자)", "문자 종류(대문자·소문자·숫자·특수문자)", "헷갈리는 글자 제외"],
-    outputs: ["비밀번호 1개와 5개 묶음", "강도 단계와 비트", "예상 대입 시간"],
-    runNote: "기본값(16자·네 종류 모두)으로 바로 만들어 줍니다. 조건을 바꾸면 즉시 다시 만듭니다.",
-    sourceLine: "NIST SP 800-63B(길이·무작위성 권고) 참고 · 기준일 2026. 11. 21.",
-    assumptions: [
-      "만든 비밀번호는 화면에만 있고 어디에도 저장·전송되지 않습니다.",
-      "2단계 인증과 비밀번호 관리자 사용을 전제로 한 보조 도구입니다.",
-    ],
-    internal: true,
-    runMode: "tool",
-    category: "utility",
-    art: "password-generator",
-    tags: ["비밀번호", "패스워드", "보안", "난수", "엔트로피"],
   },
   {
     slug: "diff-checker",
@@ -476,7 +422,6 @@ export const UTILS_B_ART_ROWS: Record<UtilsArt, [string, string, string]> = {
   "text-counter": ["글 붙여넣기", "글자·바이트·원고지 세기", "한도 넘으면 문장 단위로 나누기"],
   "privacy-masker": ["상담 메모·거래 내역 붙여넣기", "번호 다섯 종류 찾기", "앞뒤만 남겨 가린 사본"],
   "json-csv-formatter": ["JSON·CSV 붙여넣기", "문법 확인·표 변환", "복사할 코드"],
-  "password-generator": ["길이·문자 종류 고르기", "무작위 조합 만들기", "강도·대입 시간 확인"],
   "diff-checker": ["원문 A·수정본 B", "줄·단어 단위 비교", "바뀐 곳 색으로 보기"],
   "color-extractor": ["이미지 올리기", "픽셀 세어 대표색 뽑기", "HEX·RGB·CSS 변수"],
   "text-to-card": ["제목·본문·출처", "1080×1350 캔버스에 그리기", "PNG 내려받기"],
@@ -488,7 +433,6 @@ export const UTILS_B_RUNNER: Record<string, string> = {
   "text-counter": "TextCounter",
   "privacy-masker": "PrivacyMasker",
   "json-csv-formatter": "DataFormatter",
-  "password-generator": "PasswordGenerator",
   "diff-checker": "DiffChecker",
   "color-extractor": "ColorExtractor",
   "text-to-card": "TextToCard",
@@ -503,8 +447,6 @@ export const UTILS_B_ICONS: Record<UtilsArt, string> = {
     "M3.4 12s3.4-6.2 8.6-6.2c1.7 0 3.2.6 4.5 1.4M20.6 12s-3.4 6.2-8.6 6.2c-1.7 0-3.2-.6-4.5-1.4M4 4l16 16M9.9 9.9a3 3 0 0 0 4.3 4.3",
   "json-csv-formatter":
     "M8.4 3.6H6.6a1.4 1.4 0 0 0-1.4 1.4v4.4L3.6 12l1.6 2.6V19a1.4 1.4 0 0 0 1.4 1.4h1.8M15.6 3.6h1.8a1.4 1.4 0 0 1 1.4 1.4v4.4L20.4 12l-1.6 2.6V19a1.4 1.4 0 0 1-1.4 1.4h-1.8M12 8.4v7.2",
-  "password-generator":
-    "M14.6 4.4a5 5 0 1 0 3.7 8.5l2.6 2.5-1.6 1.6-1.5-1.5-1.2 1.2-1.2-1.2-1.2 1.2-1.2-1.2-1.2 1.2-1.6-1.6-1.3 1.3M16.4 8.7h.1M5.6 21l2-2",
   "diff-checker":
     "M4.4 5.4h6v13.2h-6zM13.6 5.4h6v13.2h-6zM6.2 9h2.4M6.2 12h2.4M6.2 15h1.4M15.4 9h2.4M15.4 12h2.4M15.4 15h1.4",
   "color-extractor":

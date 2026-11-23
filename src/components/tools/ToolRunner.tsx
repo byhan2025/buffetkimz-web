@@ -18,7 +18,6 @@ import Watermark from "../useful/Watermark";
 import TextCounter from "./utils/TextCounter";
 import PrivacyMasker from "./utils/PrivacyMasker";
 import DataFormatter from "./utils/DataFormatter";
-import PasswordGenerator from "./utils/PasswordGenerator";
 import DiffChecker from "./utils/DiffChecker";
 import ColorExtractor from "./utils/ColorExtractor";
 import TextToCard from "./utils/TextToCard";
@@ -49,7 +48,6 @@ import UnemploymentCalc from "./utils/UnemploymentCalc";
 import FreelancerTaxCalc from "./utils/FreelancerTaxCalc";
 import OverseasStockTaxCalc from "./utils/OverseasStockTaxCalc";
 import DepositSavingsCalc from "./utils/DepositSavingsCalc";
-import StockAveragingCalc from "./utils/StockAveragingCalc";
 
 const MAP: Record<string, (props: { compact?: boolean }) => React.ReactElement> = {
   "pension-tax": PensionTax,
@@ -70,7 +68,6 @@ const MAP: Record<string, (props: { compact?: boolean }) => React.ReactElement> 
   "text-counter": TextCounter,
   "privacy-masker": PrivacyMasker,
   "json-csv-formatter": DataFormatter,
-  "password-generator": PasswordGenerator,
   "diff-checker": DiffChecker,
   "color-extractor": ColorExtractor,
   "text-to-card": TextToCard,
@@ -98,7 +95,6 @@ const MAP: Record<string, (props: { compact?: boolean }) => React.ReactElement> 
   "freelancer-tax": FreelancerTaxCalc,
   "overseas-stock-tax": OverseasStockTaxCalc,
   "deposit-savings": DepositSavingsCalc,
-  "stock-averaging": StockAveragingCalc,
 };
 
 export default function ToolRunner({ slug, compact = false }: { slug: string; compact?: boolean }) {

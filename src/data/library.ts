@@ -18,7 +18,9 @@ export type LibraryTopic = {
   sub?: boolean;
 };
 
-/** 화면에 세우는 7대 주제 — 금융·투자·연금·노후·경제·AI·보험 */
+/** 화면에 세우는 주제 — 금융·투자·연금·노후·경제·AI·보험·철학.
+ *  v8.7.0 — '철학·에세이'가 빠져 있어 주제별 편수 합(30)이 전체 편수(31)와 어긋났다(뮤즈대리 적발).
+ *  빠진 주제를 더해 합계가 글 컬렉션 전체와 같아지게 했다. */
 export const libraryTopics: LibraryTopic[] = [
   {
     slug: "finance",
@@ -62,6 +64,12 @@ export const libraryTopics: LibraryTopic[] = [
     line: "약관과 증권을 읽는 기준 — 리스크 관리",
     tag: "RISK",
     sub: true,
+  },
+  {
+    slug: "philosophy",
+    name: "철학·에세이",
+    line: "판단과 설명에 대한 기록",
+    tag: "ESSAY",
   },
 ];
 

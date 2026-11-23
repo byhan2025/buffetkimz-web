@@ -31,9 +31,9 @@ import BrandLockup from "@/components/BrandLockup.astro";
 import ChannelIcon from "@/components/about/ChannelIcon.astro";
 import FinanceCheck from "@/components/about/FinanceCheck.tsx";
 import { withBase, site, menuLabel } from "@/config/site";
-import { channels, confirmedLinks } from "@/data/channels";
+import { confirmedLinks } from "@/data/channels";
 import { calendar } from "@/data/calendar";
-import { storeCount } from "@/data/store";
+import { toolCount } from "@/data/store";
 import { allPosts, postPath } from "@/lib/posts";
 import { AUTHOR_ID, graph, organizationNode, pageUrl, partOfWebsite, personNode, websiteNode } from "@/lib/schema";
 
@@ -45,7 +45,7 @@ const calendarCount = calendar.length;
 
 const stats = [
   { href: "/posts", value: posts.length, unit: "편", label: menuLabel.posts },
-  { href: "/apps", value: storeCount, unit: "종", label: menuLabel.apps },
+  { href: "/apps", value: toolCount, unit: "종", label: menuLabel.apps },
   { href: "/calendar", value: calendarCount, unit: "건", label: menuLabel.calendar },
 ];
 
@@ -121,7 +121,7 @@ const acts = [
     title: "되풀이되는 계산을 도구로 옮겼습니다",
     body:
       "표를 손으로 옮겨 적고 계산기를 두드리는 일은 기록으로 남길 가치가 없습니다. 같은 질문이 다시 오면, 앱스토어에서 그 계산을 바로 열 수 있게 만들었습니다.",
-    chip: `앱 ${storeCount}종 · 금융 일정 ${calendarCount}건`,
+    chip: `앱 ${toolCount}종 · 금융 일정 ${calendarCount}건`,
   },
 ];
 
@@ -157,7 +157,7 @@ const iconOf: Record<string, string> = {
 
 const hubLinks = [
   { href: "/posts", label: `${menuLabel.posts} ${posts.length}편` },
-  { href: "/apps", label: `${menuLabel.apps} ${storeCount}종` },
+  { href: "/apps", label: `${menuLabel.apps} ${toolCount}종` },
   { href: "/calendar", label: `${menuLabel.calendar} ${calendarCount}건` },
   { href: "/search", label: "본문까지 검색" },
   { href: "/rss.xml", label: "RSS 구독" },
@@ -430,7 +430,7 @@ const jsonLd = graph([
           <h2 class="ab-h2" id="ab-hubs-title">어디서든 같은 기준으로<br />만납니다</h2>
         </div>
         <p class="ab-hubs-desc">
-          짧은 소식은 각 SNS에서, 깊은 계산과 기록은 이곳에서 이어집니다. 주소가 확인된 채널부터 열고, 확인 전인 채널은 이름만 적어 둡니다.
+          짧은 소식은 SNS에서, 깊은 계산과 기록은 이곳에서 이어집니다. 주소가 확인된 채널만 링크로 열고, 확인 전인 채널은 이름을 걸지 않습니다.
         </p>
       </div>
 
@@ -458,28 +458,6 @@ const jsonLd = graph([
       </div>
 
       <ul class="ab-channel-grid" data-about-channels>
-        {
-          channels.map((c) => (
-            <li class="ab-channel">
-              <span class="ab-channel-icon">
-                <ChannelIcon name={iconOf[c.name] ?? "bookmark"} />
-              </span>
-              <span class="ab-channel-text">
-                <span class="ab-channel-name">{c.name}</span>
-                <span class="ab-channel-note">{c.note}</span>
-              </span>
-              <span class="ab-channel-state">
-                {c.url ? (
-                  <a href={c.url} target="_blank" rel="noopener noreferrer" class="ab-channel-open">
-                    열기
-                  </a>
-                ) : (
-                  <span class="ab-channel-pending">주소 정리 중</span>
-                )}
-              </span>
-            </li>
-          ))
-        }
         {
           confirmedLinks.map((l) => (
             <li class="ab-channel">

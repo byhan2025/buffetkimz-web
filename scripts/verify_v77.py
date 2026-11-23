@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """v7.7.0 통합 회귀 검증 — 95점 재채점 기준을 화면에서 그대로 잰다.
 
-이 한 스크립트가 v7.1·v7.3·v7.4의 판정을 현재 기준(앱 51종 · 자료앨범 세트 수는 gallery.ts에서 셈 · 메뉴 8분류)으로
+이 한 스크립트가 v7.1·v7.3·v7.4의 판정을 현재 기준(도구·앨범 수는 store.ts·gallery.ts에서 셈 · 메뉴 8분류)으로
 다시 잰다. 옛 스크립트는 그때의 숫자를 들고 있어 최신 빌드에서 실패하는 것이 정상이다.
 
   A. 주요 페이지 × 1280/390 — HTTP 200 · 콘솔 오류 0 · 가로 넘침 0
   B. 앱스토어(/apps)
-     · 카드 51 · 섹션 6·4·41 · 검색창 → 카테고리 칩 → 자주 쓰는 앱 → 전체 목록 순서
+     · 카드 수·섹션 수는 store.ts에서 센 값 · 검색창 → 카테고리 칩 → 자주 쓰는 앱 → 전체 목록 순서
      · 카드 배지 1~2개(무료 배지 0) · 영문 섹션 라벨(APP STORE·FINANCE 등) 0
      · 검색 '퇴직' 걸림 · 390 접힘 8 + 나머지 보기
   C. 4열 이상 표 — 390에서 카드로 펼쳐짐(가로 스크롤 0 · data-label 있음) / 1280은 표 그대로
@@ -54,6 +54,32 @@ PREFIX = "" if MODE == "live" else "/buffetkimz-web"
 VIEWPORTS = {"1280": {"width": 1280, "height": 900}, "390": {"width": 390, "height": 844}}
 
 CHECKS: list[dict] = []
+
+
+def data_counts() -> dict:
+    """앱스토어 숫자의 정본(store.ts)을 node로 읽는다 — 화면 숫자가 바뀌어도 이 검사가 따라간다.
+
+    v8.7.0 — 도구 2종을 지우고 '51종' 산식을 '도구 N종'으로 고친 뒤, 손으로 적은 51이 아니라
+    데이터에서 센 값을 기준으로 잰다.
+    """
+    import shutil
+    import subprocess
+
+    node = shutil.which("node") or "/workspace/.tools/node-v22.23.4-linux-x64/bin/node"
+    code = (
+        "import('./src/data/store.ts').then(m=>console.log(JSON.stringify("
+        "{store:m.storeCount, tool:m.toolCount, cats:m.storeByCategory.map(c=>c.items.length)})))"
+    )
+    run = subprocess.run(
+        [node, "--experimental-strip-types", "-e", code],
+        cwd=str(APP),
+        capture_output=True,
+        text=True,
+    )
+    if run.returncode != 0:
+        print("  ! store.ts를 읽지 못했습니다:", (run.stderr or "").strip()[:200], flush=True)
+        return {}
+    return json.loads(run.stdout.strip().splitlines()[-1])
 
 
 def check(name: str, ok: bool, detail: str = "") -> None:
@@ -146,8 +172,19 @@ with sync_playwright() as p:
     per_section = pg.eval_on_selector_all(
         "[data-store-cat]", "els => els.map(e => e.querySelectorAll('[data-store-item]').length)"
     )
-    check("B1 앱스토어 카드 51종", cards == 51, str(cards))
-    check("B2 섹션 6·4·41", per_section == [6, 4, 41], str(per_section))
+    counts = data_counts()
+    want_cards = counts.get("store")
+    want_sections = counts.get("cats")
+    check(
+        f"B1 앱스토어 카드 {want_cards}종(store.ts)",
+        want_cards is not None and cards == want_cards,
+        f"화면 {cards} / 데이터 {want_cards}",
+    )
+    check(
+        f"B2 섹션 {want_sections}",
+        want_sections is not None and per_section == want_sections,
+        f"화면 {per_section} / 데이터 {want_sections}",
+    )
 
     order = pg.evaluate(
         """() => [...document.querySelectorAll('.store-hero, .store-search-row, .store-tabs, .store-quick, .store-body')]
@@ -393,7 +430,13 @@ with sync_playwright() as p:
 
     pg.goto(url("/search/"), wait_until="networkidle")
     pg.wait_for_timeout(600)
-    check("J4 검색이 앱 51종으로 안내", "51종" in pg.inner_text("body"), "")
+    want_tool = counts.get("tool")
+    search_body = pg.inner_text("body")
+    check(
+        f"J4 검색이 도구 {want_tool}종으로 안내",
+        want_tool is not None and f"도구 {want_tool}종" in search_body,
+        "",
+    )
 
     posts_dir = APP / "src" / "content" / "posts"
     missing = []

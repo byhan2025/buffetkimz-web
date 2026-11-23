@@ -182,7 +182,7 @@ const { mode, journey } = Astro.props;
     };
 
     if (mode === "home") {
-      /* ① 첫 방문 — 오늘 확인 허브 → 추천 시작 글 → 앱스토어, 3스텝 */
+      /* ① 첫 방문 — 오늘 확인 허브 → 오늘의 기록 → 도구, 3스텝 (v8.7.0: '처음 읽을 글' 블록이 홈에서 내려가 '오늘의 기록'으로 옮겼다) */
       /* `satisfies`로 항목 모양을 먼저 검사한다 — 여기서 `side`·`align`이 문자열로 넓어져
          DriveStep과 어긋나는 일(astro check TS2322)을 막고, 오타도 그 자리에서 잡는다. */
       const steps = ([
@@ -197,11 +197,11 @@ const { mode, journey } = Astro.props;
           },
         },
         {
-          element: '[data-guide="first-reads"]',
+          element: '[data-guide="latest"]',
           popover: {
-            title: "② 처음 읽을 글",
+            title: "② 오늘의 기록",
             description:
-              "어디서부터 읽을지 모르겠다면 이 세 편부터. 왜 이 글부터인지도 함께 적어 두었습니다.",
+              "오늘 올라온 자산리포트 세 편과 앱스토어 추천입니다. 글에서 기준을 읽고, 도구에서 내 숫자로 확인합니다.",
             side: "top",
             align: "start",
           },

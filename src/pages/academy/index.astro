@@ -314,8 +314,9 @@ const jsonLd = graph([
         </div>
         <div class="sec-head-side">
           <p class="sec-desc">
-            초등 고학년 8 · 청소년 8 · 첫 월급 8 · 가계 8 · 자산형성 8 · 은퇴 8 · 특집 4입니다.<br />
-            지금은 6트랙 7강이 열려 있고, 나머지는 주 1편 순서로 준비합니다.
+            초등 고학년 8 · 청소년 8 · 첫 월급 8 · 가계 8 · 자산형성 8 · 은퇴 8 · 특집 4로 짜였습니다.<br />
+            지금은 {SCHOOL_COUNTS.openWeeks}주가 열려 있고, 나머지 {SCHOOL_COUNTS.weeks - SCHOOL_COUNTS.openWeeks}주는
+            주 1편 순서로 준비합니다(열린 주만 아래에 적습니다).
           </p>
         </div>
       </div>
@@ -323,18 +324,18 @@ const jsonLd = graph([
       <div class="school-tabs-wrap mt-6">
         <div class="school-tabs" role="group" aria-label="52주 트랙 거르기">
           <button type="button" class="school-tab is-active" data-track-tab="all" aria-pressed="true">
-            전체 <span class="mono">{SCHOOL_COUNTS.weeks}</span>
+            전체 <span class="mono">{SCHOOL_COUNTS.openWeeks}</span>
           </button>
           {
             SCHOOL_TRACKS.map((t) => (
               <button type="button" class="school-tab" data-track-tab={t.id} aria-pressed="false">
-                {t.label} <span class="mono">{t.weeks}</span>
+                {t.label} <span class="mono">{weeksOfTrack(t.id).filter((w) => w.lessonSlug).length}</span>
               </button>
             ))
           }
         </div>
         <p class="school-tabs-note" data-track-note aria-live="polite">
-          전체 {SCHOOL_COUNTS.weeks}주를 보여 줍니다. 트랙을 고르면 그 트랙만 남습니다.
+          지금 열린 {SCHOOL_COUNTS.openWeeks}주를 보여 줍니다. 트랙을 고르면 그 트랙만 남습니다.
         </p>
       </div>
 
@@ -349,35 +350,30 @@ const jsonLd = graph([
                     {t.label}
                   </h3>
                   <p class="text-[12.5px] text-ink-muted">{t.blurb}</p>
-                  <span class="chip !min-h-[24px] !text-[11.5px]">{t.weeks}주</span>
+                  <span class="chip !min-h-[24px] !text-[11.5px]">{t.weeks}주 편성</span>
                 </div>
                 <ol class="school-weeks">
-                  {weeks.map((w) => (
+                  {weeks.filter((w) => w.lessonSlug).map((w) => (
                     <li class="school-week" data-week={w.id}>
                       <div class="school-week-top">
                         <span class="mono school-week-no">{w.week}주</span>
                         <span class="mono text-[10.5px] text-ink-faint">{w.id}</span>
-                        {w.lessonSlug ? (
-                          <span class="school-week-open">지금 열림</span>
-                        ) : (
-                          <span class="school-week-soon">연재 예정</span>
-                        )}
+                        <span class="school-week-open">지금 열림</span>
                       </div>
                       <p class="school-week-title">{w.title}</p>
                       <p class="school-week-goal">{w.goal}</p>
                       <p class="school-week-take">
                         <span class="font-semibold text-ink-soft">가져갈 것</span> {w.takeaway}
                       </p>
-                      {w.lessonSlug ? (
-                        <a href={withBase(`/academy/${w.lessonSlug}/`)} class="school-week-link">
-                          이 주의 강의 보기 <span aria-hidden="true">→</span>
-                        </a>
-                      ) : (
-                        <p class="school-week-practice">실습 · {w.practice}</p>
-                      )}
+                      <a href={withBase(`/academy/${w.lessonSlug}/`)} class="school-week-link">
+                        이 주의 강의 보기 <span aria-hidden="true">→</span>
+                      </a>
                     </li>
                   ))}
                 </ol>
+                <p class="school-week-soon-note">
+                  {t.weeks - weeks.filter((w) => w.lessonSlug).length}주 준비 중
+                </p>
               </section>
             );
           })
@@ -406,7 +402,7 @@ const jsonLd = graph([
         <div class="sec-head-side">
           <p class="sec-desc">
             개념(1) → 계좌(2) → 배분(3) → 수령(4) → 보장(5) → 운영(6) 순서입니다.<br />
-            각 STEP은 질문 하나로 시작하고, 산출물 한 장으로 끝납니다.
+            지금은 STEP마다 대표 강의만 열려 있어, 열린 강의와 계획 수만 적습니다.
           </p>
         </div>
       </div>
@@ -430,23 +426,6 @@ const jsonLd = graph([
                     </span>
                   </div>
                   <p class="mt-1 text-[13.5px] leading-[1.65] text-ink-muted">{step.question}</p>
-                  <dl class="academy-step-meta">
-                    <div>
-                      <dt>강의</dt>
-                      <dd>{step.lessons}강</dd>
-                    </div>
-                    <div>
-                      <dt>카드 세트</dt>
-                      <dd>{step.cards}</dd>
-                    </div>
-                    <div>
-                      <dt>학습 시간</dt>
-                      <dd>{step.time}</dd>
-                    </div>
-                  </dl>
-                  <p class="mt-2 text-[12px] leading-[1.6] text-ink-faint">
-                    <span class="font-semibold text-ink-soft">수료 기준</span> {step.deliverable}
-                  </p>
                   {open && (
                     <ul class="academy-step-lessons">
                       {lessons.map((lesson) => (
@@ -975,6 +954,15 @@ const jsonLd = graph([
     font-size: 11.5px;
     font-weight: 700;
     color: var(--color-brand-deep);
+  }
+
+  /* v8.7.0 — 미공개 주는 목록 대신 이 한 줄로만 남긴다(감사 D8). */
+  .school-week-soon-note {
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px dotted var(--color-line);
+    font-size: 11.5px;
+    color: var(--color-ink-faint);
   }
 
   /* ---- 성인 STEP 로드맵 ---- */

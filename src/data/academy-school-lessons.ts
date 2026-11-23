@@ -39,7 +39,7 @@ const SET_ALLOWANCE: LessonCardSet = {
   id: "allowance-three-rooms-hand",
   title: "용돈 7,000원, 세 칸으로 나누기",
   meta: "손글씨 카드 6장 · 쓸 돈 · 모을 돈 · 남길 돈",
-  href: "/gallery/?cat=carousel",
+  href: "/gallery/?cat=cardnews",
   startIndex: 0,
   slides: [
     card("allowance", 1, "표지 — 용돈 7,000원을 세 칸으로 나눠 볼까?", "나무 책상 위 봉투 세 개와 동전, 첫 봉투에 동전을 넣는 마스코트"),
@@ -56,7 +56,7 @@ const SET_TEEN_PAY: LessonCardSet = {
   id: "teen-pay-traps-hand",
   title: "월 5,000원이 1년이면 60,000원",
   meta: "손글씨 카드 6장 · 구독 · BNPL · 사기 신호",
-  href: "/gallery/?cat=carousel",
+  href: "/gallery/?cat=cardnews",
   startIndex: 0,
   slides: [
     card("teen-pay", 1, "표지 — 월 5,000원이 1년이면 60,000원", "화면에서 동전이 흘러나와 유리병에 담기는 휴대폰과 놀란 마스코트"),
@@ -73,7 +73,7 @@ const SET_FIRSTPAY: LessonCardSet = {
   id: "firstpay-stub-hand",
   title: "세전 300만, 통장엔 267만",
   meta: "손글씨 카드 6장 · 지급 · 공제 · 실수령",
-  href: "/gallery/?cat=carousel",
+  href: "/gallery/?cat=cardnews",
   startIndex: 0,
   slides: [
     card("firstpay", 1, "표지 — 세전 300만, 통장엔 267만", "세 줄이 그어진 긴 명세서를 두 손으로 든 마스코트와 지갑"),
@@ -90,7 +90,7 @@ const SET_HOUSEHOLD: LessonCardSet = {
   id: "household-budget-hand",
   title: "월 500만, 남는 돈은 어디서 줄까",
   meta: "손글씨 카드 6장 · 실수령 · 고정비 · 대출 원리금",
-  href: "/gallery/?cat=carousel",
+  href: "/gallery/?cat=cardnews",
   startIndex: 0,
   slides: [
     card("household-budget", 1, "표지 — 들어오는 돈과 나가는 돈, 세 줄로", "크림 종이 위 세 줄짜리 장부와 동전, 장부를 가리키는 마스코트"),
@@ -107,7 +107,7 @@ const SET_COVERAGE: LessonCardSet = {
   id: "coverage-gaps-hand",
   title: "보장 공백 5칸 — 약관에서 갈리는 것",
   meta: "손글씨 카드 6장 · 면책 · 감액 · 지급 기준",
-  href: "/gallery/?cat=carousel",
+  href: "/gallery/?cat=cardnews",
   startIndex: 0,
   slides: [
     card("coverage-gaps", 1, "표지 — 가입금액 전에 볼 약관 공백 5칸", "다섯 칸 빈 종이 위의 돋보기와 들여다보는 마스코트"),
@@ -124,7 +124,7 @@ const SET_ASSET_SPLIT: LessonCardSet = {
   id: "asset-rebalance-hand",
   title: "오를 때 덜고 내릴 때 채우기 — 리밸런싱과 현금 비중",
   meta: "손글씨 카드 6장 · 목표 비중 · 점검 주기 · 현금 비중",
-  href: "/gallery/?cat=carousel",
+  href: "/gallery/?cat=cardnews",
   startIndex: 0,
   slides: [
     card("asset-rebalance", 1, "표지 — 리밸런싱은 오를 때 덜고 내릴 때 채우는 일", "저울 위 두 단지 사이에서 동전을 옮겨 담는 마스코트와 '오를 때 덜고 내릴 때 채웁니다'"),
@@ -140,7 +140,7 @@ const SET_RETIRE_3TIER: LessonCardSet = {
   id: "retirement-3tier-hand",
   title: "퇴직연금 DB·DC·IRP, 어디에 담을까",
   meta: "손글씨 카드 6장 · 임금상승률 vs 운용수익률",
-  href: "/gallery/?cat=carousel",
+  href: "/gallery/?cat=cardnews",
   startIndex: 0,
   slides: [
     card("retirement-3tier", 1, "표지 — 퇴직연금 DB·DC·IRP 한눈 비교", "세 층으로 쌓은 블록과 동전, 맨 위층을 가리키는 마스코트"),

@@ -1,17 +1,19 @@
 ---
 /**
- * 마켓 보드 — v7.0 홈 금융포털의 첫 모듈.
+ * 마켓 보드 — v8.7.0 홈 금융포털의 첫 모듈.
  *
- *   · 핵심 6지표(원/달러 · 코스피 · 나스닥 · 미 국채 10년 · 기준금리 · 금)를 큰 카드로,
- *     나머지 지표(코스닥 · S&P500 · 반도체 · 국고채 3·10년 · 비트코인)는 아래 얇은 줄로 둔다.
+ *   · 앞줄은 **네 지표**만 큰 카드로 둔다 — 원/달러 · 코스피 · S&P500 · 국고채 3년.
+ *     (v8.7.0 — 감사 보고 D10: 지표 10개를 첫 화면에 모두 펼치던 것을 4개로 줄였다.)
+ *   · 나머지 여섯 지표(코스닥·나스닥·VIX·미 10년·국고 10년·기준금리)는 접힌 한 줄 안에 접어 둔다.
+ *     접힌 것을 펼치면 값이 그대로 있고, 첫 화면의 밀도는 낮아진다.
  *   · 값·등락·기준 시각·출처는 전부 `data/today.ts`에서 온다. 화면에서 새 숫자를 만들지 않는다.
  *   · 스파크라인은 시리즈를 0~1로 정규화해 SVG 한 줄로 그린다(장식이며 축·눈금은 두지 않는다).
  *   · 상승은 클레이, 하락은 파랑 — 빨강으로 겁주지 않는 이 사이트의 규칙을 따른다.
  */
-import { today as hub } from "@/data/today";
+import { hubStamp, today as hub } from "@/data/today";
 import type { Indicator } from "@/data/today";
 
-const FEATURED = ["usdkrw", "kospi", "nasdaq", "us10y", "base-rate", "vix"];
+const FEATURED = ["usdkrw", "kospi", "sp500", "ktb3y"];
 const featured = FEATURED.map((id) => hub.indicators.find((i) => i.id === id)).filter(
   (i): i is Indicator => Boolean(i),
 );
@@ -50,7 +52,7 @@ const dirClass = (d: Indicator["direction"]) =>
   </div>
 
   <p class="mod-chip mono">
-    기준 11. 21. 19:00 · 한국거래소 · 금융투자협회 · CNBC · 한국은행
+    확인 {hubStamp(hub.asOf)} · 한국거래소 · 금융투자협회 · CNBC · 한국은행
   </p>
 
   <ul class="mboard-grid" aria-label="핵심 시장 지표">
@@ -89,29 +91,31 @@ const dirClass = (d: Indicator["direction"]) =>
     }
   </ul>
 
-  <div class="mboard-rest">
-    <p class="mboard-rest-label mono">그 밖의 지표</p>
-    <ul class="mboard-mini">
-      {
-        rest.map((ind) => (
-          <li>
-            <a
-              class="mboard-mini-item"
-              href={ind.sourceUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              data-indicator={ind.id}
-              title={`${ind.name} ${ind.value} ${ind.change} · ${ind.asOfLabel} · ${ind.source}${ind.basis ? ` (${ind.basis})` : ""}`}
-            >
-              <span class="mboard-mini-name">{ind.name}</span>
-              <span class="mboard-mini-value mono">{ind.value}</span>
-              <span class={dirClass(ind.direction)}>{ind.change}</span>
-            </a>
-          </li>
-        ))
-      }
-    </ul>
-  </div>
+  {
+    rest.length > 0 && (
+      <details class="mboard-rest" data-market-rest>
+        <summary class="mboard-rest-label mono">그 밖의 지표 {rest.length}개 펼쳐 보기</summary>
+        <ul class="mboard-mini">
+          {rest.map((ind) => (
+            <li>
+              <a
+                class="mboard-mini-item"
+                href={ind.sourceUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                data-indicator={ind.id}
+                title={`${ind.name} ${ind.value} ${ind.change} · ${ind.asOfLabel} · ${ind.source}${ind.basis ? ` (${ind.basis})` : ""}`}
+              >
+                <span class="mboard-mini-name">{ind.name}</span>
+                <span class="mboard-mini-value mono">{ind.value}</span>
+                <span class={dirClass(ind.direction)}>{ind.change}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </details>
+    )
+  }
 
   <p class="mboard-note">
     지표마다 마지막 기준 시각이 다릅니다. 등락률은 전일 종가·직전 고시 대비이며, 값은 참고용입니다.

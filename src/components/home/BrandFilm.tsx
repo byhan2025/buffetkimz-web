@@ -137,7 +137,14 @@ function sceneIndexAt(t: number): number {
 const pad2 = (n: number) => String(n).padStart(2, "0");
 const clock = (t: number) => `00:${pad2(Math.floor(t))}.${Math.floor((t % 1) * 10)}`;
 
-export default function BrandFilm({ appsHref = "/apps" }: { appsHref?: string }) {
+export default function BrandFilm({
+  appsHref = "/apps",
+  aboutHref = "/about",
+}: {
+  appsHref?: string;
+  /** v8.7.0 — 홈에서 소개 블록을 내려 '소개' 링크는 /about으로 보낸다. */
+  aboutHref?: string;
+}) {
   const rootRef = useRef<HTMLDivElement | null>(null);
   const stageRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -553,7 +560,7 @@ export default function BrandFilm({ appsHref = "/apps" }: { appsHref?: string })
                   <br />
                   원문을 믿는 사람, 매일 나누는 사람.
                 </p>
-                <a className="fs6-link" href="#about" data-film-skip>
+                <a className="fs6-link" href={aboutHref} data-film-skip>
                   소개로 이동
                   <svg viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M4 12h15M13 6l6 6-6 6" />
@@ -591,7 +598,7 @@ export default function BrandFilm({ appsHref = "/apps" }: { appsHref?: string })
           <p className="film-static-sub">금융 · 투자 · 연금 · 재무를 하나의 기준으로 읽습니다</p>
           <p className="film-mono film-static-fields">금융 · 투자 · 연금 · 노후 · 보험</p>
           <div className="film-static-actions">
-            <a className="btn btn-primary film-btn-light" href="#about">
+            <a className="btn btn-primary film-btn-light" href={aboutHref}>
               버핏킴즈 소개
             </a>
             <a className="film-ghost-link" href="#film-credits">
@@ -673,7 +680,7 @@ export default function BrandFilm({ appsHref = "/apps" }: { appsHref?: string })
               </div>
             </div>
 
-            <a className="film-btn film-skip" href="#about" data-film-skip aria-label="필름 건너뛰고 소개로 이동">
+            <a className="film-btn film-skip" href="#today" data-film-skip aria-label="필름 건너뛰고 오늘 확인으로 이동">
               <span className="film-btn-text">건너뛰기</span>
               <svg className="film-ico" viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M5 12h13M12 5l7 7-7 7" />
@@ -681,7 +688,7 @@ export default function BrandFilm({ appsHref = "/apps" }: { appsHref?: string })
             </a>
 
             <div className="film-ctas">
-              <a className="film-cta film-cta-primary" href="#about">
+              <a className="film-cta film-cta-primary" href={aboutHref}>
                 소개 보기
               </a>
               <a className="film-cta" href={appsHref}>

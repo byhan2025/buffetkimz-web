@@ -4,8 +4,7 @@ import SearchApp from "@/components/SearchApp.tsx";
 import HomePill from "@/components/HomePill.astro";
 import { site } from "@/config/site";
 import { allPosts } from "@/lib/posts";
-import { apps } from "@/data/apps";
-import { storeCount } from "@/data/store";
+import { storeBreakdown, toolCount } from "@/data/store";
 import { calendar } from "@/data/calendar";
 
 const posts = await allPosts();
@@ -40,7 +39,7 @@ const posts = await allPosts();
       </div>
       <div>
         <dt class="text-ink-faint">앱스토어</dt>
-        <dd class="mt-1 text-[19px] font-bold tabular-nums text-ink">{storeCount}종</dd>
+        <dd class="mt-1 text-[19px] font-bold tabular-nums text-ink">{toolCount}종</dd>
       </div>
       <div>
         <dt class="text-ink-faint">골든타임</dt>
@@ -48,8 +47,7 @@ const posts = await allPosts();
       </div>
     </dl>
     <p class="mt-0 text-[12px] text-ink-faint">
-      앱스토어 {storeCount}종 = 계산·도구 {apps.length}종 + 금융 일정 달력 + 자료앨범. 기준일
-      {site.baseDateLabel} 이 화면은 검색엔진 색인에서 제외됩니다.
+      앱스토어 {storeBreakdown}. 기준일 {site.baseDateLabel}.
     </p>
     <HomePill position="bottom" />
   </section>

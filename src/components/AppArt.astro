@@ -30,7 +30,6 @@ interface Props {
     | "text-counter"
     | "privacy-masker"
     | "json-csv-formatter"
-    | "password-generator"
     | "diff-checker"
     | "color-extractor"
     | "text-to-card"
@@ -59,8 +58,7 @@ interface Props {
     | "unemployment"
     | "freelancer-tax"
     | "overseas-tax"
-    | "deposit-compare"
-    | "stock-average";
+    | "deposit-compare";
   compact?: boolean;
 }
 const { art, compact = false } = Astro.props;

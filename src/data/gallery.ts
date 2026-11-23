@@ -10,14 +10,15 @@
  * 즉, 이 파일이 곧 '공개된 자료 목록'이며, 저장소에 푸시할 수 있는 사람만 자료를 올릴 수 있습니다.
  *
  * ── 카드 규격 ────────────────────────────────────────────────────────────
- * · 이미지: 1080×1350 (4:5) PNG — 카드뉴스·캐러셀·인포그래픽·체크리스트 공통
- * · 세트: `slides` 배열에 순서대로 담는다. 1장이면 단일 카드, 2장 이상이면 캐러셀.
+ * · 이미지: 1080×1350 (4:5) PNG — 카드뉴스·인포그래픽·체크리스트 공통
+ * · 세트: `slides` 배열에 순서대로 담는다. 1장이면 단일 카드, 2장 이상이면 넘겨 보는 세트.
+ *   v8.7.0 — '캐러셀' 분류를 없애고 3~6장 연속 세트를 모두 `cardnews`로 모았다(감사 보고 D7).
  * · 파일 이름은 `public/gallery/` 아래 경로를 그대로 적는다(다운로드 파일명도 이 이름).
  *
  * 카테고리를 늘리려면 GALLERY_CATEGORIES에 한 줄만 더하면 탭·개수가 자동으로 따라옵니다.
  */
 
-export type GalleryCategoryId = "cardnews" | "carousel" | "infographic" | "checklist";
+export type GalleryCategoryId = "cardnews" | "infographic" | "checklist";
 
 export type GalleryCategory = {
   id: GalleryCategoryId;
@@ -27,8 +28,7 @@ export type GalleryCategory = {
 };
 
 export const GALLERY_CATEGORIES: GalleryCategory[] = [
-  { id: "cardnews", label: "카드뉴스", blurb: "한 주제를 3~5장으로 끊어 읽는 카드" },
-  { id: "carousel", label: "캐러셀", blurb: "넘기며 보는 연속 카드 세트" },
+  { id: "cardnews", label: "카드뉴스", blurb: "한 주제를 3~6장으로 끊어 읽는 카드" },
   { id: "infographic", label: "인포그래픽", blurb: "한 장에 담은 구조와 순서" },
   { id: "checklist", label: "체크리스트", blurb: "확인할 항목을 순서대로" },
 ];
@@ -96,31 +96,6 @@ const accountsSlides: GallerySlide[] = [
   },
 ];
 
-/** 카드뉴스 ② — 연말 세 숫자 3장 */
-const yearendSlides: GallerySlide[] = [
-  {
-    src: "/gallery/pension-yearend-01.png",
-    width: W,
-    height: H,
-    alt: "연말 세액공제 표지 — 600·900·300 세 숫자와 12월 달력",
-    caption: "표지 — 12월 31일 전에 확인할 세 숫자",
-  },
-  {
-    src: "/gallery/pension-yearend-02.png",
-    width: W,
-    height: H,
-    alt: "연금저축 600만원과 IRP 900만원 한도, 공제율 16.5%와 13.2% 비교",
-    caption: "600과 900 — 한도와 공제율",
-  },
-  {
-    src: "/gallery/pension-yearend-03.png",
-    width: W,
-    height: H,
-    alt: "ISA 만기 전환 300만원은 공제대상 납입액이며 환급액이 아니라는 설명",
-    caption: "300 — 환급액이 아니라 공제대상 납입액",
-  },
-];
-
 export const galleryItems: GalleryItem[] = [
   /**
    * v8.4.0 — STEP 6 리밸런싱·현금 비중, 학교 자산형성 1강과 함께 온 1세트(6장).
@@ -132,7 +107,7 @@ export const galleryItems: GalleryItem[] = [
     title: "오를 때 덜고 내릴 때 채우기 — 리밸런싱과 현금 비중",
     tagline: "손글씨 카드 6장 · 목표 비중 70:30, 연 1회 + 5%p 점검",
     summary: "리밸런싱은 수익을 포기하는 일이 아니라 한 자산에 쏠리는 위험을 규칙으로 줄이는 일입니다. 목표 비중을 금액으로 바꾸는 산식(목표금액 = 총자산 × 목표비중), 1년에 한 번과 ±5%p 임계 점검, 생활비 3~6개월과 3년 안에 쓸 돈을 투자 밖에 두는 현금 원칙을 6장에 담았습니다. 특정 종목·상품 권유는 없습니다.",
-    category: "carousel",
+    category: "cardnews",
     createdAt: "2026-11-22",
     tags: ["카드뉴스", "손글씨 다이어그램", "리밸런싱", "현금 비중", "자산배분", "목표 비중", "자산형성"],
     slides: [
@@ -195,7 +170,7 @@ export const galleryItems: GalleryItem[] = [
     title: "은퇴 첫 5년의 순서 위험 — 같은 수익률, 인출 순서가 만든 차이",
     tagline: "손글씨 카드 6장 · 3억 · 연 1,500만 인출, 1억 6,760만 vs 2억 1,307만",
     summary: "은퇴 초기에 하락장과 인출이 겹치면 같은 수익률이라도 남는 돈이 달라집니다. 3억 원에서 매년 1,500만 원을 인출하며 −30·−20·+5·+20·+25%를 '하락 먼저'와 '상승 먼저'로 배열하면 1억 6,760만 원 vs 2억 1,307만 원, 차이는 4,547만 원입니다. 하락장에 팔지 않게 만드는 현금 버퍼 원칙과, 사적연금 1,500만 원(소득세법 — 분리과세·종합과세 선택 기준)과 소득 합계 2,000만 원(건강보험 피부양자 기준)이 서로 다른 제도임을 함께 정리했습니다.",
-    category: "carousel",
+    category: "cardnews",
     createdAt: "2026-11-22",
     tags: ["카드뉴스", "손글씨 다이어그램", "은퇴 인출", "순서 위험", "현금 버퍼", "1,500만", "건보료 피부양자", "은퇴"],
     slides: [
@@ -250,19 +225,19 @@ export const galleryItems: GalleryItem[] = [
     ],
   },
   /**
-   * v8.3.0 — 가계 1강(고정비·대출 원리금, 가계 현금희름 3줄)과 함께 온 1세트(6장).
-   * 스타일은 v8.2.0과 같은 **손글씨 + 형광팼 + 크림지 + 파스텔 2D**다(렌더 `tmp/clay1222/render_household.py`).
-   * 6장 연속 세트라 분류는 `carousel`이고, 카드 속 금액은 모두 가상 예시다.
+   * v8.3.0 — 가계 1강(고정비·대출 원리금, 가계 현금흐름 3줄)과 함께 온 1세트(6장).
+   * 스타일은 v8.2.0과 같은 **손글씨 + 형광펜 + 크림지 + 파스텔 2D**다(렌더 `tmp/clay1222/render_household.py`).
+   * 6장 연속 세트라 분류는 `cardnews`이고, 카드 속 금액은 모두 가상 예시다.
    */
   {
     id: "household-budget-hand",
     title: "월 500만, 남는 돈은 어디서 줄까",
     tagline: "손글씨 카드 6장 · 실수령 500 · 고정비 160 · 원리금 61",
     summary:
-      "가계 현금희름은 세 줄이면 보입니다. ① 실수령 500만원 ② 고정비 160만원과 대출 원리금 61만원 ③ 남는 돈 139만원. 대출 1억 원을 4%에서 6%로 올리면 원리금이 61만원에서 72만원으로 늘어나는 것까지 한 세트에 담았습니다.",
-    category: "carousel",
+      "가계 현금흐름은 세 줄이면 보입니다. ① 실수령 500만원 ② 고정비 160만원과 대출 원리금 61만원 ③ 남는 돈 139만원. 대출 1억 원을 4%에서 6%로 올리면 원리금이 61만원에서 72만원으로 늘어나는 것까지 한 세트에 담았습니다.",
+    category: "cardnews",
     createdAt: "2026-11-22",
-    tags: ["카드뉴스", "손글씨 다이어그램", "학교 트랙", "가계", "현금희름", "고정비", "대출 원리금"],
+    tags: ["카드뉴스", "손글씨 다이어그램", "학교 트랙", "가계", "현금흐름", "고정비", "대출 원리금"],
     slides: [
       {
         src: "/gallery/3d-household-budget-01.png",
@@ -310,7 +285,7 @@ export const galleryItems: GalleryItem[] = [
     basis:
       "자체 계산 — 원리금균등분할상환 공식(대출 1억원·20년·4%·6%) · 기준일 2026. 11. 22. · 금액은 가상 예시, 실제 금리는 금융감독원 파인에서 확인",
     related: [
-      { label: "가계 1강 — 가계 현금희름 3줄", href: "/academy/school-household-cashflow/" },
+      { label: "가계 1강 — 가계 현금흐름 3줄", href: "/academy/school-household-cashflow/" },
       { label: "대출 원리금 계산기", href: "/apps/loan-repay/run" },
     ],
   },
@@ -318,7 +293,7 @@ export const galleryItems: GalleryItem[] = [
    * v8.2.0 — 「버핏킴즈 금융생활학교」 초등·청소년·첫 월급 3강과 함께 온 3세트(18장).
    * A. 용돈 세 칸 / B. 소액결제와 사기 방어 / C. 첫 월급명세서 3줄.
    * 스타일은 2차 배치와 같은 **손글씨 + 형광펜 + 크림지 + 파스텔 2D**다(렌더 `tmp/clay1222/render_school.py`).
-   * 6장 연속 세트라 분류는 `carousel`이고, 태그 `손글씨 다이어그램`·`학교 트랙`으로 구분한다.
+   * 6장 연속 세트라 분류는 `cardnews`이고, 태그 `손글씨 다이어그램`·`학교 트랙`으로 구분한다.
    * 카드 속 금액은 모두 가상 예시이며, 기준일은 2026. 11. 22.이다.
    */
   {
@@ -327,7 +302,7 @@ export const galleryItems: GalleryItem[] = [
     tagline: "손글씨 카드 6장 · 쓸 돈 3,000 · 모을 돈 3,000 · 남길 돈 1,000",
     summary:
       "용돈을 받은 날 먼저 세 칸으로 나누면 남는 돈을 세지 않아도 됩니다. 7,000원을 ① 쓸 돈 3,000원, ② 모을 돈 3,000원, ③ 남길 돈 1,000원으로 나누고, 목표 30,000원까지 8주를 계산합니다. 물가가 오르면 같은 돈으로 살 수 있는 양이 줄어든다는 한 줄도 담았습니다.",
-    category: "carousel",
+    category: "cardnews",
     createdAt: "2026-11-22",
     tags: ["카드뉴스", "손글씨 다이어그램", "학교 트랙", "초등", "용돈", "저축", "물가"],
     slides: [
@@ -387,7 +362,7 @@ export const galleryItems: GalleryItem[] = [
     tagline: "손글씨 카드 6장 · 구독 12개월 · BNPL 수수료 · 112·1332",
     summary:
       "작은 결제도 12개월로 바꾸면 크기가 보입니다. 월 5,000원 구독은 1년 60,000원, 월 30,000원 소액결제는 1년 360,000원입니다. 200,000원을 3개월로 나눠 갚을 때 수수료 5%면 10,000원이 붙어 총 210,000원을 갚습니다. 송금 요청 앞에서 멈추고 112·1332로 확인하는 순서도 담았습니다.",
-    category: "carousel",
+    category: "cardnews",
     createdAt: "2026-11-22",
     tags: ["카드뉴스", "손글씨 다이어그램", "학교 트랙", "청소년", "소액결제", "BNPL", "금융사기"],
     slides: [
@@ -447,7 +422,7 @@ export const galleryItems: GalleryItem[] = [
     tagline: "손글씨 카드 6장 · 지급 · 공제 33만(가상) · 실수령",
     summary:
       "월급명세서는 세 줄입니다. ① 지급 합계(세전) ② 공제 합계 ③ 실수령입니다. 세전 300만 원에서 4대보험과 세금 33만 원(가상)을 빼면 실수령 267만 원이고, 여기서 고정비·변동비를 빼 남는 돈을 세 칸으로 나눕니다. 4대보험 이름 네 개와 근로자 부담 몫을 카드에 담았습니다.",
-    category: "carousel",
+    category: "cardnews",
     createdAt: "2026-11-22",
     tags: ["카드뉴스", "손글씨 다이어그램", "학교 트랙", "첫 월급", "명세서", "4대보험", "실수령"],
     slides: [
@@ -505,7 +480,7 @@ export const galleryItems: GalleryItem[] = [
    * v8.1.0 — 「한스푼 아카데미」 STEP 1·2 확장과 함께 온 2차 5세트(30장).
    * C. 계좌 배치표 / E. 낙폭과 회복 / G. 퇴직연금 3층 / H. 보장 공백 5칸 / I. 12개월 금융 달력.
    * 스타일은 3D 클레이가 아니라 **손글씨 + 형광펜 + 크림지**다. 파일 이름만 기존 경로 규칙(`3d-`)을 유지했고,
-   * 태그에 '손글씨 다이어그램'을 달아 3D 세트와 구분한다. 6장 연속 세트라 분류는 `carousel`이다.
+   * 태그에 '손글씨 다이어그램'을 달아 3D 세트와 구분한다. 6장 연속 세트라 분류는 `cardnews`이다.
    * 원본: `tmp/gallery_batch2_20261122.json` · 렌더 `tmp/clay1222/render_hand.py` · 기준일 2026. 11. 22.
    */
   {
@@ -514,7 +489,7 @@ export const galleryItems: GalleryItem[] = [
     tagline: "손글씨 카드 6장 · 연금저축 600 → IRP 300 → ISA",
     summary:
       "남는 돈이 생겼을 때 아무 계좌에나 넣으면 세액공제도 유동성도 놓칩니다. 비상금 다음으로 연금저축 600만(16.5%·13.2%) → IRP 300만(합산 900만) → 3년 묶을 돈은 ISA(비과세 400·200만) 순서로 채우는 기준을 6장에 담았습니다.",
-    category: "carousel",
+    category: "cardnews",
     createdAt: "2026-11-22",
     tags: ["카드뉴스", "손글씨 다이어그램", "계좌 순서", "연금저축", "IRP", "ISA", "세액공제"],
     slides: [
@@ -574,7 +549,7 @@ export const galleryItems: GalleryItem[] = [
     tagline: "손글씨 카드 6장 · −10%→+11.1%, −50%→+100%",
     summary:
       "−50%에서 본전이 되려면 +100%가 필요합니다. 낙폭과 회복은 크기가 다른 비대칭이고, 오를수록 기준점이 낮아져 회복은 더뎌집니다. 구간별 회복률과 변동성 끌림, 낙폭을 줄이는 두 장치를 6장으로 정리했습니다.",
-    category: "carousel",
+    category: "cardnews",
     createdAt: "2026-11-22",
     tags: ["카드뉴스", "손글씨 다이어그램", "낙폭", "회복률", "변동성", "리스크 관리"],
     slides: [
@@ -634,7 +609,7 @@ export const galleryItems: GalleryItem[] = [
     tagline: "손글씨 카드 6장 · 임금상승률 vs 운용수익률",
     summary:
       "퇴직금은 다 똑같지 않습니다. 임금상승률이 높고 오래 다니면 DB, 직접 굴리고 이직이 잦으면 DC, 받은 퇴직금과 추가 세액공제는 IRP로 갑니다. 수령할 때 연금으로 나눠 받으면 퇴직소득세를 30~50% 감면받는 것(1~10년 30%·11~20년 40%·21년~ 50%)까지 6장으로 담았습니다.",
-    category: "carousel",
+    category: "cardnews",
     createdAt: "2026-11-22",
     tags: ["카드뉴스", "손글씨 다이어그램", "퇴직연금", "DB", "DC", "IRP", "퇴직소득세"],
     slides: [
@@ -691,7 +666,7 @@ export const galleryItems: GalleryItem[] = [
     tagline: "손글씨 카드 6장 · 면책·감액·지급 기준",
     summary:
       "같은 1억이라도 실제 수령액은 다릅니다. 실손 세대별 자기부담, 면책·감액기간, 유사암·경계성종양과 뇌혈관·허혈성 범위, 수술비 종수, 사적연금 1,500만 원과 건보료 피부양자까지 — 가입금액보다 먼저 볼 약관 5칸을 6장으로 정리했습니다.",
-    category: "carousel",
+    category: "cardnews",
     createdAt: "2026-11-22",
     tags: ["카드뉴스", "손글씨 다이어그램", "보장 공백", "면책기간", "감액기간", "유사암", "수술비", "피부양자"],
     slides: [
@@ -748,7 +723,7 @@ export const galleryItems: GalleryItem[] = [
     tagline: "손글씨 카드 6장 · 1월·2월·5월·11월·12월",
     summary:
       "연말정산은 12월 31일 하루에 끝나지 않습니다. 1월 15일 간소화 자료, 2월 환급과 4월 건보료 정산, 5월 종합소득세, 여름의 ISA 만기·리밸런싱, 11~12월 연금저축·IRP 900만 마감까지 — 1년에 다섯 번 챙길 달을 6장으로 정리했습니다.",
-    category: "carousel",
+    category: "cardnews",
     createdAt: "2026-11-22",
     tags: ["카드뉴스", "손글씨 다이어그램", "연말정산", "종합소득세", "ISA 만기", "연금저축 900만", "금융 달력"],
     slides: [
@@ -814,7 +789,7 @@ export const galleryItems: GalleryItem[] = [
     tagline: "3D 스토리 카드 6장 · 비상금 · 단기목표 · 장기투자",
     summary:
       "월급이 들어온 날 바로 세 칸으로 나누면 남는 돈이 달라집니다. 비상금(생활비 3~6개월) → 단기목표(1~3년) → 장기투자(5년 이상·절세계좌) 순서와, 오늘 자동이체 3줄로 끝내는 방법까지 6장으로 정리했습니다.",
-    category: "carousel",
+    category: "cardnews",
     createdAt: "2026-11-22",
     tags: ["월급관리", "비상금", "단기목표", "장기투자", "자동이체", "3D 카드"],
     slides: [
@@ -874,7 +849,7 @@ export const galleryItems: GalleryItem[] = [
     tagline: "3D 스토리 카드 6장 · 이자·중도해지·연금수령",
     summary:
       "세금은 세 번의 순간에 떼어집니다. 일반계좌 이자·배당 15.4%(원천징수), 연금계좌 중도해지 16.5%(기타소득세), 연금수령 5.5~3.3%. 세액공제를 받았으니 이득이라는 착각과, 꺼낼 돈·묶을 돈을 가르는 기준까지 6장으로 담았습니다.",
-    category: "carousel",
+    category: "cardnews",
     createdAt: "2026-11-22",
     tags: ["세금", "15.4%", "16.5%", "연금소득세", "중도해지", "3D 카드"],
     slides: [
@@ -934,7 +909,7 @@ export const galleryItems: GalleryItem[] = [
     tagline: "3D 스토리 카드 6장 · 비용·유동성·추적",
     summary:
       "같은 지수를 따라가는 ETF라도 실제로 내는 돈은 다릅니다. 순자산총액·거래량(유동성), 총보수+기타비용(실부담 비용), 추적오차·괴리율까지 여섯 숫자를 보고, 매수 전 10초 점검 3가지로 끝내는 순서를 6장으로 정리했습니다.",
-    category: "carousel",
+    category: "cardnews",
     createdAt: "2026-11-22",
     tags: ["ETF", "총보수", "기타비용", "추적오차", "괴리율", "3D 카드"],
     slides: [
@@ -993,7 +968,7 @@ export const galleryItems: GalleryItem[] = [
     tagline: "3D 스토리 카드 6장 · 분리과세 vs 종합과세",
     summary:
       "사적연금은 연 1,500만 원까지 3.3~5.5% 저율 분리과세로 끝납니다. 무엇이 1,500만 원에 포함되는지, 넘었을 때 16.5% 분리과세와 종합과세 중 고르는 기준, 10년 이상 나눠 받는 인출 속도까지 6장으로 정리했습니다.",
-    category: "carousel",
+    category: "cardnews",
     createdAt: "2026-11-22",
     tags: ["사적연금", "1500만원", "분리과세", "종합과세", "연금수령", "3D 카드"],
     slides: [
@@ -1058,7 +1033,7 @@ export const galleryItems: GalleryItem[] = [
     tagline: "3D 스토리 카드 6장 · 11. 23. 시행 계약전환",
     summary:
       "11월 23일부터 1·2세대 실손을 5세대로 바꾸면 3년간 5세대 보험료의 50%를 깎아 줍니다. 대상 조건부터 비중증 비급여 자기부담률, 선택형 특약의 1회 제한, 기존 계약을 해지했을 때 할인이 끝나는 조건까지 6장으로 정리했습니다.",
-    category: "carousel",
+    category: "cardnews",
     createdAt: "2026-11-22",
     tags: ["실손보험", "계약전환", "선택형 할인", "5세대 실손", "3D 카드"],
     slides: [
@@ -1118,7 +1093,7 @@ export const galleryItems: GalleryItem[] = [
     tagline: "3D 스토리 카드 6장 · 연금저축 600 → IRP 300 → ISA 300",
     summary:
       "900만 원은 목표가 아니라 한도입니다. 연금저축 600만 원 → IRP 300만 원 → ISA 전환 300만 원 순서로 채우고, 내 공제율 16.5%·13.2%와 12월 31일 마감까지 6장으로 담았습니다.",
-    category: "carousel",
+    category: "cardnews",
     createdAt: "2026-11-22",
     tags: ["연말정산", "연금저축", "IRP", "ISA 전환", "세액공제", "3D 카드"],
     slides: [
@@ -1172,78 +1147,13 @@ export const galleryItems: GalleryItem[] = [
       { label: "연금저축·IRP 세액공제 계산기", href: "/apps/pension-tax/run" },
     ],
   },
-  /**
-   * v7.5.0 — 3D 클레이 스토리 캐러셀(세트당 6장).
-   * 일러스트에는 글자를 넣지 않고(NO text), 하단 38% 그라데이션 패널에 한글 타이포를 합성했다.
-   * 렌더: `python3 scripts/render_gallery_3d.py`
-   */
-  {
-    id: "yearend-order-3d",
-    title: "연말정산 148만 원, 연금 순서",
-    tagline: "3D 스토리 카드 6장 · 연금저축 600 → IRP 300",
-    summary:
-      "같은 월급인데 환급액이 달라지는 이유를 6장의 3D 스토리로 따라갑니다. 연금저축 600만 원 → IRP 300만 원 → 16.5% 환급 → 해지 주의 → 12월 31일 마감 순서입니다.",
-    category: "carousel",
-    createdAt: "2026-11-22",
-    tags: ["연말정산", "연금저축", "IRP", "세액공제", "3D 카드"],
-    slides: [
-      {
-        src: "/gallery/3d-yearend-order-01.png",
-        width: W,
-        height: H,
-        alt: "표지 — 서류 두 장을 든 안경 쓴 너구리 캐릭터와 '똑같은 월급인데 연말정산이 다른 이유'",
-        caption: "표지 — 같은 월급, 다른 연말정산",
-      },
-      {
-        src: "/gallery/3d-yearend-order-02.png",
-        width: W,
-        height: H,
-        alt: "연금저축 600만 원 — 유리병에 동전을 넣는 캐릭터와 '연금저축 먼저 600만 원'",
-        caption: "1단계 — 연금저축 600만 원",
-      },
-      {
-        src: "/gallery/3d-yearend-order-03.png",
-        width: W,
-        height: H,
-        alt: "IRP 300만 원 — 금고에 동전을 채우는 캐릭터와 'IRP로 300만 원 더 채우기'",
-        caption: "2단계 — IRP로 300만 원",
-      },
-      {
-        src: "/gallery/3d-yearend-order-04.png",
-        width: W,
-        height: H,
-        alt: "환급 — 봉투를 안고 웃는 캐릭터와 '총급여 5,500만 이하 환급률 16.5%'",
-        caption: "3단계 — 16.5%, 최대 148만 5천 원",
-      },
-      {
-        src: "/gallery/3d-yearend-order-05.png",
-        width: W,
-        height: H,
-        alt: "주의 — 유리 돔과 자물쇠에 갇힌 저금통, '55세 전 해지하면 16.5% 추징'",
-        caption: "주의 — 55세 전 해지 16.5%",
-      },
-      {
-        src: "/gallery/3d-yearend-order-06.png",
-        width: W,
-        height: H,
-        alt: "마감 — 달력에 동그라미를 치는 캐릭터와 '올해 12월 31일 입금분까지 적용'",
-        caption: "클로징 — 12월 31일 입금분까지",
-      },
-    ],
-    basis:
-      "소득세법 제59조의3·제21조, 국세청 연말정산·연금계좌 세액공제 안내 · 기준 2026. 11. 22. · 총급여 5,500만 원 이하 16.5%(지방소득세 포함) 가정",
-    related: [
-      { label: "3편 — 연말 연금저축 600·IRP 900·ISA 전환 300", href: "/posts/pension-master-03-yearend-900" },
-      { label: "연금저축·IRP 세액공제 계산기", href: "/apps/pension-tax/run" },
-    ],
-  },
   {
     id: "isa-basics-3d",
     title: "ISA 5분 정리, 핵심 네 가지",
     tagline: "3D 스토리 카드 6장 · 비과세·손익통산·한도·전환",
     summary:
       "이자·배당에 붙는 15.4%를 그냥 내지 않으려면 ISA부터 봅니다. 비과세 한도 → 손익통산 → 납입한도 → 연금계좌 전환까지 6장으로 정리했습니다.",
-    category: "carousel",
+    category: "cardnews",
     createdAt: "2026-11-22",
     tags: ["ISA", "비과세", "손익통산", "납입한도", "연금전환", "3D 카드"],
     slides: [
@@ -1303,7 +1213,7 @@ export const galleryItems: GalleryItem[] = [
     tagline: "일반·ISA·연금저축·IRP 세후 비교",
     summary:
       "같은 5,000만원 수익이 네 계좌에서 얼마씩 남는지 4장으로 정리했습니다. 계좌별 세금 시점 → 세후 숫자 → 비교할 때의 조건 순서로, 한 장에 한 가지만 담았습니다.",
-    category: "carousel",
+    category: "cardnews",
     createdAt: "2026-11-22",
     tags: ["4대 계좌", "ISA", "연금저축", "IRP", "세후 비교"],
     slides: accountsSlides,
@@ -1311,22 +1221,6 @@ export const galleryItems: GalleryItem[] = [
     related: [
       { label: "2편 — 5,000만원 수익 시 4계좌 세후 차이", href: "/posts/pension-master-02-tax-compare" },
       { label: "4대 계좌 세후 비교 시뮬레이터", href: "/apps/account-tax-compare/run" },
-    ],
-  },
-  {
-    id: "pension-yearend",
-    title: "12월의 세 숫자, 600 · 900 · 300",
-    tagline: "연금저축·IRP 한도와 ISA 전환",
-    summary:
-      "연말정산 전에 확인할 세 숫자를 3장으로 끊었습니다. 600과 900은 공제대상 납입액, 300은 ISA에서 옮겼을 때 늘어나는 공제대상 한도입니다.",
-    category: "cardnews",
-    createdAt: "2026-11-22",
-    tags: ["세액공제", "연금저축", "IRP", "ISA 전환", "연말정산"],
-    slides: yearendSlides,
-    basis: "소득세법 제59조의3·시행령 제118조의2·제118조의3 · 기준 2026. 11. 22.",
-    related: [
-      { label: "3편 — 연말 연금저축 600·IRP 900·ISA 전환 300", href: "/posts/pension-master-03-yearend-900" },
-      { label: "연금저축·IRP 세액공제 계산기", href: "/apps/pension-tax/run" },
     ],
   },
   {

@@ -147,7 +147,6 @@ export type App = {
     | "text-counter"
     | "privacy-masker"
     | "json-csv-formatter"
-    | "password-generator"
     | "diff-checker"
     | "color-extractor"
     | "text-to-card"
@@ -177,8 +176,7 @@ export type App = {
     | "unemployment"
     | "freelancer-tax"
     | "overseas-tax"
-    | "deposit-compare"
-    | "stock-average";
+    | "deposit-compare";
   /** 관련 글 태그 (검색 보조) */
   tags: string[];
 };
@@ -254,7 +252,7 @@ export const apps: App[] = [
     question: "먼저 확인할 담보 항목은 무엇인가",
     kind: "보험",
     madeIn: "2026년 11월",
-    status: "preview",
+    status: "live",
     oneLine:
       "가진 담보 금액과 기준점을 나란히 놓고, 비어 있는 칸을 확인 순서대로 정리합니다.",
     why: [
@@ -303,7 +301,7 @@ export const apps: App[] = [
     question: "내 이력으로 어디까지 고지해야 하나",
     kind: "보험",
     madeIn: "2026년 11월",
-    status: "preview",
+    status: "live",
     oneLine:
       "최근 입원·수술·진단 이력을 기준 기간에 대입해, 어느 유형의 질문까지 해당되는지 정리합니다.",
     why: [
@@ -352,7 +350,7 @@ export const apps: App[] = [
     question: "내 실손은 이 병원비에서 얼마를 돌려받을까",
     kind: "보험",
     madeIn: "2026년 11월",
-    status: "preview",
+    status: "live",
     oneLine:
       "급여·중증 비급여·비중증 비급여를 나눠 입력하고, 세대별 자기부담금과 예상 환급액을 나란히 봅니다.",
     why: [
@@ -402,7 +400,7 @@ export const apps: App[] = [
     question: "올해 연금계좌로 얼마를 돌려받을 수 있을까",
     kind: "연금·절세",
     madeIn: "2026년 11월",
-    status: "preview",
+    status: "live",
     oneLine:
       "총급여 구간과 납입액을 넣으면 예상 세액공제액과 12월 31일 전에 채울 금액을 계산합니다.",
     why: [
@@ -451,7 +449,7 @@ export const apps: App[] = [
     question: "연금을 받으면 세금이 얼마나 붙나",
     kind: "연금·세제",
     madeIn: "2026년 11월",
-    status: "preview",
+    status: "live",
     oneLine: "적립 다음 칸 — 인출의 세금을 계산합니다.",
     why: [
       "세액공제 계산기는 납입까지만 답합니다. 그다음 질문은 '받을 때 얼마를 떼나'인데, 그 숫자는 다른 곳에서 찾아야 했습니다.",
@@ -518,7 +516,7 @@ export const apps: App[] = [
     question: "은퇴하면 매달 얼마를 쓸 수 있나",
     kind: "금융·연금",
     madeIn: "2026년 11월",
-    status: "preview",
+    status: "live",
     oneLine:
       "나이와 적립금, 매달 넣는 돈을 입력하면 은퇴 시점의 월 수령액과 오늘 가치, 목표 대비 차이를 함께 보여 줍니다.",
     why: [
@@ -600,7 +598,7 @@ export const apps: App[] = [
     question: "매달 적립하면 20년 뒤 얼마가 남나",
     kind: "투자·절세",
     madeIn: "2026년 11월",
-    status: "preview",
+    status: "live",
     oneLine:
       "납입 원금과 세전 평가액, 세후 평가액을 나란히 놓아 수익률이 실제로 남는 금액을 보여 줍니다.",
     why: [

@@ -20,8 +20,8 @@ import { today as hub, hubBasisLine, hubNotice } from "@/data/today";
 import { asOfLabel, clockLabel, freshnessOf } from "@/lib/fresh";
 import { ddayOf, isUpcoming } from "@/lib/dday";
 import { galleryCount, gallerySlideCount } from "@/data/gallery";
+import { calendar } from "@/data/calendar";
 import MarketBoard from "@/components/home/MarketBoard.astro";
-import WeekMoney from "@/components/home/WeekMoney.astro";
 import SimTop3 from "@/components/home/SimTop3.astro";
 import BriefTabs from "@/components/home/BriefTabs.astro";
 
@@ -50,6 +50,23 @@ const items = hub.items.slice(0, 3).map((item) => ({
   ),
   dday: item.dueDate ? ddayOf(item.dueDate, site.today) : undefined,
 }));
+
+/**
+ * v8.7.0 — 허브와 금융 달력의 같은 사건을 두 번 쓰지 않는다(감사 D11·G4).
+ *   허브 항목의 기한(dueDate)과 `calendar.ts` 항목의 기한이 같으면 허브는 달력 제목을 한 줄로 인용하고,
+ *   카드 본문은 달력에 없는 항목에만 쓴다. 문장을 새로 쓰지 않으므로 숫자가 서로 다른 말을 할 수 없다.
+ */
+const calendarByDue = new Map<string, (typeof calendar)[number]>();
+for (const entry of calendar) {
+  if (!entry.dueDate) continue;
+  const picked = calendarByDue.get(entry.dueDate);
+  // 같은 기한이 둘이면 달력에서 `key`로 표시한 대표 사건을 인용한다(12/31: 연금 마감 > 보장성 한도).
+  if (!picked || (!picked.key && entry.key)) calendarByDue.set(entry.dueDate, entry);
+}
+const citedItems = items
+  .map((item) => ({ item, entry: item.dueDate ? calendarByDue.get(item.dueDate) : undefined }))
+  .filter((row) => Boolean(row.entry));
+const calendarCards = items.filter((item) => !(item.dueDate && calendarByDue.has(item.dueDate)));
 
 const ddayClass: Record<string, string> = {
   later: "dday dday--later",
@@ -131,7 +148,7 @@ const ddayClass: Record<string, string> = {
         </a>
       </li>
       <li>
-        <a href="#mod-money" data-mod="money">
+        <a href={withBase("/calendar")} data-mod="money">
           <span class="hub-modgrid-name">돈의 일정</span>
           <span class="hub-modgrid-note">
             {items.filter((i) => i.dday).map((i) => (i.dday as NonNullable<typeof i.dday>).label).join(" · ") || "기한 3건"}
@@ -228,19 +245,47 @@ const ddayClass: Record<string, string> = {
       </div>
 
       <aside class="hub-side">
-        <WeekMoney />
+        {/* v8.7.0 — '다가오는 돈의 일정' 카드 3장은 아래 '오늘 확인할 것'의 달력 인용 1줄과 같은 사건이라 내렸다. */}
         <SimTop3 />
       </aside>
     </div>
 
-    {/* 오늘 확인할 것 — 세로 최대 3건 */}
+    {/* 오늘 확인할 것 — 기한은 달력에서 한 줄로 인용하고, 카드는 달력에 없는 항목만 남긴다(v8.7.0) */}
     <div class="hub-items-head">
       <h3 class="hub-items-title">오늘 확인할 것</h3>
       <p class="mono hub-items-note">기한·금액·출처를 함께 남깁니다</p>
     </div>
-    <ol class="hub-items mt-3" data-hub-items>
-      {
-        items.map((item) => (
+
+    {
+      citedItems.length > 0 && (
+        <ul class="hub-cites mt-3" data-hub-calendar-cites aria-label="기한이 있는 일정 — 골든타임에서 인용">
+          {citedItems.map(({ item, entry }) => {
+            const dday = item.dday;
+            return (
+              <li data-hub-calendar-cite={item.id}>
+                <a href={withBase(`/calendar#m${entry!.month}`)} class="hub-cite-link">
+                  {dday && isUpcoming(item.dueDate as string, site.today) && (
+                    <span class={ddayClass[dday.tone]} aria-label={dday.aria}>
+                      {dday.label}
+                    </span>
+                  )}
+                  <span class="hub-cite-title">{entry!.title}</span>
+                  <span class="mono hub-cite-when">{entry!.when}</span>
+                  <span class="hub-cite-go" aria-hidden="true">
+                    골든타임 →
+                  </span>
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+      )
+    }
+
+    {
+      calendarCards.length > 0 && (
+        <ol class="hub-items mt-3" data-hub-items>
+          {calendarCards.map((item) => (
           <li
             class="hub-item"
             data-hub-item={item.id}
@@ -298,9 +343,10 @@ const ddayClass: Record<string, string> = {
               <span class="hub-fresh-detail">{item.fresh.detail}</span>
             </p>
           </li>
-        ))
-      }
-    </ol>
+          ))}
+        </ol>
+      )
+    }
 
     {/* 대표 도구 — 이 구역에서 도구로 가는 큰 버튼 하나 */}
     <div class="hub-tool mt-3" data-hub-tool>
