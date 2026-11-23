@@ -181,7 +181,7 @@ export default function FreelancerTaxCalc({
     </>
   );
 
-  if (embedded) return content;
+  if (embedded) return <div data-util="freelancer-tax">{content}</div>;
 
   return (
     <UtilShell

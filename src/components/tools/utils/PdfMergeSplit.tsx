@@ -519,7 +519,7 @@ export default function PdfMergeSplit({
     </>
   );
 
-  if (embedded) return content;
+  if (embedded) return <div data-util="pdf-merge-split">{content}</div>;
 
   return (
     <UtilShell

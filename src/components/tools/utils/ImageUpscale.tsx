@@ -649,7 +649,7 @@ export default function ImageUpscale({
     </>
   );
 
-  if (embedded) return content;
+  if (embedded) return <div data-util="image-upscale">{content}</div>;
 
   return (
     <UtilShell

@@ -345,8 +345,16 @@ export const toolCount = fromApps.length;
 /** 보관함(직접 주소로만 열리는) 도구 수 — 화면에는 쓰지 않고 검수·보고에서 센다. */
 export const archivedCount = apps.filter((a) => a.archived).length;
 
-/** 진열대 구성 설명 — '도구 N종 + 금융 일정 달력 + 자료앨범' */
-export const storeBreakdown = `도구 ${toolCount}종 + 금융 일정 달력 + 자료앨범(내려받기 전용)`;
+/**
+ * 진열대 구성 설명 — v8.8.0.
+ *
+ * 예전 문구('도구 49종 + 금융 일정 달력 + 자료앨범')는 달력·앨범이 도구처럼 읽혀
+ * '51종'이라는 잘못된 수가 나왔다(감사 V1). 이제 도구 수와 보조 페이지 수를 이름으로 나눠 적는다.
+ */
+export const storeAuxCount = storeCount - toolCount;
+export const storeBreakdown = `도구 ${toolCount}종 + 보조 페이지 ${storeAuxCount}개(금융 일정 달력·자료앨범)`;
+/** 진열대 칸 수와 그 구성 — 화면의 '진열대 N칸' 옆에 같은 말로 붙인다. */
+export const storeSlotsNote = `진열대 ${storeCount}칸 = 도구 ${toolCount}종 + 보조 페이지 ${storeAuxCount}개`;
 
 /** 홈 '추천 앱' — 다섯 종. 카테고리마다 하나씩, 금융은 두 개. */
 export const featuredStore: StoreItem[] = [

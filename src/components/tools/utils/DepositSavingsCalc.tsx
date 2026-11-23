@@ -200,7 +200,7 @@ export default function DepositSavingsCalc({
     </>
   );
 
-  if (embedded) return content;
+  if (embedded) return <div data-util="deposit-savings">{content}</div>;
 
   return (
     <UtilShell

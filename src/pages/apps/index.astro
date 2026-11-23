@@ -16,7 +16,7 @@ import HomePill from "@/components/HomePill.astro";
 import AppStoreIcon from "@/components/apps/AppStoreIcon.astro";
 import { withBase, site, menuLabel } from "@/config/site";
 import { APP_CATEGORIES } from "@/data/apps";
-import { categoryCount, storeBreakdown, storeByCategory, storeById, storeCount, toolCount } from "@/data/store";
+import { categoryCount, storeBreakdown, storeByCategory, storeById, storeCount, storeSlotsNote, toolCount } from "@/data/store";
 import { breadcrumbList, graph, pageUrl, partOfWebsite } from "@/lib/schema";
 
 const externalCount = storeByCategory.reduce(
@@ -171,6 +171,10 @@ const jsonLd = graph([
         }
         <a class="store-tab-link" href="#store-guide">고르는 기준</a>
       </div>
+      <p class="store-tabs-note" data-store-count-note>
+        {storeSlotsNote}. 탭과 섹션의 숫자는 칸 수이고, 그중 도구가 아닌 것은 금융 일정 달력과
+        자료앨범 두 개뿐입니다.
+      </p>
     </div>
   </div>
 
@@ -179,7 +183,7 @@ const jsonLd = graph([
     <div class="wrap">
       <div class="store-quick-head">
         <h2 class="store-quick-title" id="store-quick-title">자주 쓰는 앱</h2>
-        <p class="store-quick-note">고르지 않고 바로 엽니다. 진열대 {storeCount}칸 전체는 아래에서 찾습니다.</p>
+        <p class="store-quick-note">고르지 않고 바로 엽니다. 나머지 칸은 아래 진열대에서 찾습니다.</p>
       </div>
       <ul class="store-quick-grid">
         {
