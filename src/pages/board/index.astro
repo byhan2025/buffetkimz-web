@@ -1,0 +1,568 @@
+---
+/**
+ * 데일리 브리프 게시판 — `/board/` (v9.2.0, 2026-11-24 신설).
+ *
+ * 무엇을 담나
+ *  · 하루 세 번(06:00 · 13:00 · 19:00) 자료를 확인하면서 남은 메모 중, 정식 글로 키우기엔 짧고
+ *    '오늘 확인 허브'(/ 홈)에 자리를 내주기엔 아까운 것을 회차·분류·출처와 함께 쌓는다.
+ *    데이터는 `src/data/board.ts` 한 파일 — 화면은 그 값만 그린다(숫자를 손으로 적지 않는다).
+ *
+ * 읽는 방식
+ *  · 분류 알약(전체 / 시황 / 제도·보험 / AI·실무 / 트렌드)으로 거르고, 그날 회차별로 위에서 아래로 읽는다.
+ *  · 모든 카드에 확인 날짜·회차·출처 링크·정리 주체가 붙는다. 출처가 없으면 카드도 없다.
+ *  · '실시간'·'속보'·'긴급'은 쓰지 않는다(데이터 검사가 빌드에서 막는다). 영업성 CTA도 두지 않는다.
+ */
+import Base from "@/layouts/Base.astro";
+import HomePill from "@/components/HomePill.astro";
+import { withBase, site } from "@/config/site";
+import {
+  BOARD_CATEGORIES,
+  boardByDate,
+  boardCountByCategory,
+  boardDateLabel,
+  boardEntries,
+  validateBoard,
+} from "@/data/board";
+import { breadcrumbList, graph, pageUrl, partOfWebsite } from "@/lib/schema";
+
+validateBoard(boardEntries);
+
+const groups = boardByDate(boardEntries);
+const counts = boardCountByCategory(boardEntries);
+const latestDate = boardEntries[0]?.date ?? site.baseDate;
+
+/** 분류 색 — 카드 좌측 띠와 알약이 같은 값을 쓴다(data-cat 속성 → 페이지 <style>) */
+const catKey: Record<string, string> = {
+  시황: "market",
+  "제도·보험": "system",
+  "AI·실무": "ai",
+  트렌드: "trend",
+};
+
+const jsonLd = graph([
+  {
+    "@type": "CollectionPage",
+    "@id": `${pageUrl("/board")}#webpage`,
+    name: "데일리 브리프 게시판 — buffetkimz",
+    description:
+      "하루 세 번(06:00·13:00·19:00) 확인한 시황·제도·보험·AI 메모를 회차와 출처를 붙여 쌓는 게시판.",
+    url: pageUrl("/board"),
+    inLanguage: "ko-KR",
+    isPartOf: partOfWebsite,
+    mainEntity: {
+      "@type": "ItemList",
+      itemListElement: boardEntries.map((e, i) => ({
+        "@type": "ListItem",
+        position: i + 1,
+        name: e.title,
+        url: `${pageUrl("/board")}#${e.id}`,
+      })),
+    },
+  },
+  breadcrumbList([
+    { name: "홈", path: "/" },
+    { name: "자산리포트", path: "/posts" },
+    { name: "데일리 브리프 게시판", path: "/board" },
+  ]),
+]);
+---
+
+<Base
+  title="데일리 브리프 게시판 — 하루 세 번 확인한 시황·제도·AI 메모"
+  description={`시황·제도·보험·AI를 하루 세 번(06:00·13:00·19:00) 확인하고, 그중 글과 오늘 허브에 담지 못한 것을 회차·출처와 함께 쌓습니다. 현재 ${boardEntries.length}건.`}
+  path="/board"
+  jsonLd={jsonLd}
+>
+  <!-- ① 머리 -->
+  <section class="scene-sky border-b border-line/70">
+    <div class="wrap py-9 md:py-12">
+      <HomePill />
+      <nav class="flex flex-wrap items-center gap-2 text-[12px] text-ink-faint" aria-label="위치">
+        <a href={withBase("/")} class="inline-flex min-h-[44px] items-center hover:text-ink md:min-h-[24px]">홈</a>
+        <span aria-hidden="true">/</span>
+        <a href={withBase("/posts")} class="inline-flex min-h-[44px] items-center hover:text-ink md:min-h-[24px]"
+          >자산리포트</a
+        >
+        <span aria-hidden="true">/</span>
+        <span class="text-ink-muted">데일리 브리프 게시판</span>
+      </nav>
+
+      <div class="mt-5 max-w-[62ch]">
+        <p class="mono text-[11.5px] font-semibold tracking-[0.18em] text-brand">BOARD · 데일리 브리프</p>
+        <h1 class="h-display mt-2 text-ink">하루 세 번,<br />확인한 것만 쌓습니다</h1>
+        <p class="lede mt-4 max-w-[56ch]">
+          아침 6시, 낮 1시, 저녁 7시에 시장과 제도, 도구 소식을 확인합니다. 정식 리포트로 키우기엔 짧고
+          오늘 허브에 다 담지 못한 메모를, 확인한 날짜와 회차, 원문 링크와 함께 이곳에 남깁니다.
+        </p>
+
+        <ul class="mt-5 flex flex-wrap gap-2">
+          <li class="chip">확인 기록 {boardEntries.length}건</li>
+          <li class="chip">매일 3회 · 06:00 · 13:00 · 19:00</li>
+          <li class="chip">최근 확인 {boardDateLabel(latestDate)}</li>
+          <li class="chip">카드마다 원문 출처</li>
+        </ul>
+      </div>
+
+      <div class="note-box mt-6 flex flex-col gap-1.5 md:flex-row md:items-start md:gap-6">
+        <p class="shrink-0 text-[12px] font-bold text-ink">읽는 법</p>
+        <p class="text-[12.5px] leading-[1.7] text-ink-muted">
+          한 카드는 한 가지 확인 사항입니다. 제목 아래 요약과 핵심 포인트 2~3줄을 먼저 읽고, 판단이 필요한
+          숫자는 카드 하단 원문 링크에서 대조해 주세요. 확인 시점이 지난 내용은 그대로 두고, 새 회차를
+          위에 더합니다.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ② 분류 필터 -->
+  <section class="scene-white border-b border-line">
+    <div class="wrap py-4 md:py-5">
+      <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div class="flex flex-wrap items-center gap-1.5" role="group" aria-label="분류 필터" data-board-tabs>
+            <button
+              type="button"
+              class="tab"
+              data-board-tab="all"
+              aria-pressed="true"
+              aria-controls="board-list"
+            >
+              전체
+              <span class="mono ml-1.5 text-[12px] text-ink-faint">{boardEntries.length}</span>
+            </button>
+            {
+              BOARD_CATEGORIES.map((c) => (
+                <button
+                  type="button"
+                  class="tab"
+                  data-board-tab={c}
+                  aria-pressed="false"
+                  aria-controls="board-list"
+                >
+                  {c}
+                  <span class="mono ml-1.5 text-[12px] text-ink-faint">{counts.get(c) ?? 0}</span>
+                </button>
+              ))
+            }
+        </div>
+
+        <p class="text-[12px] text-ink-faint" aria-live="polite">
+          <span class="mono font-semibold text-ink" data-board-count>{boardEntries.length}</span>건 표시 중 ·
+          분류를 눌러 걸러 봅니다
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ③ 날짜 · 회차별 목록 -->
+  <section class="scene-cream">
+    <div class="wrap py-8 md:py-12" id="board-list">
+      {
+        groups.map((g) => (
+          <section class="br-day" data-board-day aria-labelledby={`day-${g.date}`}>
+            <header class="br-day-head">
+              <h2 id={`day-${g.date}`} class="br-day-title">
+                {boardDateLabel(g.date)}
+              </h2>
+              <p class="mono br-day-meta">
+                {g.items.length}건 ·{" "}
+                {[...new Set(g.items.map((i) => i.slot))].sort().join(" · ")} 회차
+              </p>
+            </header>
+
+            <ol class="br-list">
+              {g.items.map((e) => (
+                <li class="br-item" data-board-entry data-category={e.category} id={e.id}>
+                  <article class="br-card" aria-labelledby={`${e.id}-title`}>
+                    <div class="br-head">
+                      <span class="br-cat" data-cat={catKey[e.category]}>
+                        {e.category}
+                      </span>
+                      <span class="br-slot mono">
+                        <time datetime={`${e.date}T${e.slot}:00+09:00`}>
+                          {boardDateLabel(e.date)} {e.slot}
+                        </time>
+                      </span>
+                    </div>
+
+                    <h3 class="br-title" id={`${e.id}-title`}>
+                      {e.title}
+                    </h3>
+                    <p class="br-summary">{e.summary}</p>
+                    <ul class="br-points">
+                      {e.bullets.map((b) => (
+                        <li>{b}</li>
+                      ))}
+                    </ul>
+
+                    <div class="br-foot">
+                      <p class="br-source">
+                        <span class="br-foot-label">출처</span>
+                        <span class="br-source-name">{e.source}</span>
+                      </p>
+                      <a
+                        class="br-link"
+                        href={e.sourceUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={`${e.title} — 원문 열기 (새 창)`}
+                      >
+                        원문 보기
+                        <span aria-hidden="true">↗</span>
+                      </a>
+                      <p class="br-curator mono">정리 {e.curator}</p>
+                    </div>
+                  </article>
+                </li>
+              ))}
+            </ol>
+          </section>
+        ))
+      }
+
+      <p class="py-12 text-center text-[14px] text-ink-muted" data-board-empty hidden>
+        아직 이 분류로 남긴 확인 기록이 없습니다. 전체를 눌러 다른 분류를 보세요.
+      </p>
+
+      <!-- 편집 기준 — 게시판이 약속하지 않는 것을 분명히 적는다 -->
+      <div class="br-rule">
+        <p class="br-rule-title">이 게시판의 기준</p>
+        <ul class="br-rule-list">
+          <li>
+            <b>확인한 시각과 출처를 적습니다.</b> 확인한 시점을 흐리거나 긴장을 파는 표현 대신, 언제 무엇을 보고
+            적었는지 남깁니다. 숫자는 카드 하단 원문에서 다시 대조해 주세요.
+          </li>
+          <li>
+            <b>지난 회차를 지우지 않습니다.</b> 상황이 바뀌면 새 회차로 덧붙입니다. 그때 무엇을 보고 판단했는지가
+            남아야 나중에 검증할 수 있습니다.
+          </li>
+          <li>
+            <b>권하지 않습니다.</b> 이곳에는 가입·상담·매수를 부르는 문구를 두지 않습니다. 기록과 원문 링크만
+            놓습니다.
+          </li>
+        </ul>
+        <p class="br-rule-links">
+          <a href={withBase("/principles")}>편집 원칙 보기</a>
+          <span aria-hidden="true">·</span>
+          <a href={withBase("/posts")}>자산리포트 전체</a>
+          <span aria-hidden="true">·</span>
+          <a href={withBase("/calendar")}>골든타임 일정</a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const buttons = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-board-tab]"));
+    const cards = Array.from(document.querySelectorAll<HTMLElement>("[data-board-entry]"));
+    const days = Array.from(document.querySelectorAll<HTMLElement>("[data-board-day]"));
+    const empty = document.querySelector<HTMLElement>("[data-board-empty]");
+    const countEl = document.querySelector<HTMLElement>("[data-board-count]");
+
+    let active = "all";
+
+    function apply() {
+      let shown = 0;
+      for (const card of cards) {
+        const on = active === "all" || card.dataset.category === active;
+        card.hidden = !on;
+        if (on) shown += 1;
+      }
+      for (const day of days) {
+        const any = Array.from(day.querySelectorAll<HTMLElement>("[data-board-entry]")).some((c) => !c.hidden);
+        day.hidden = !any;
+      }
+      buttons.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.boardTab === active)));
+      if (countEl) countEl.textContent = String(shown);
+      if (empty) empty.hidden = shown > 0;
+    }
+
+    buttons.forEach((button) => {
+      button.addEventListener("click", () => {
+        active = button.dataset.boardTab ?? "all";
+        apply();
+      });
+    });
+
+    apply();
+  </script>
+</Base>
+
+<style>
+  .br-day + .br-day {
+    margin-top: 28px;
+    padding-top: 24px;
+    border-top: 1px solid var(--color-line);
+  }
+
+  .br-day-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 4px 12px;
+    margin-bottom: 12px;
+  }
+
+  .br-day-title {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--color-ink);
+  }
+
+  .br-day-meta {
+    font-size: 11.5px;
+    color: var(--color-ink-faint);
+  }
+
+  .br-list {
+    display: grid;
+    gap: 10px;
+  }
+
+  @media (min-width: 768px) {
+    .br-list {
+      gap: 12px;
+    }
+  }
+
+  .br-card {
+    position: relative;
+    display: block;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-card);
+    background: #fff;
+    padding: 16px 16px 14px;
+    box-shadow: 0 1px 2px rgb(11 27 41 / 0.04);
+    overflow: hidden;
+  }
+
+  @media (min-width: 768px) {
+    .br-card {
+      padding: 20px 22px 18px;
+    }
+  }
+
+  /* 분류 띠 — 카드 왼쪽 한 줄로 분류를 색으로도 알린다(색만으로 구분하지 않도록 알약 글자도 함께 둔다) */
+  .br-card::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 3px;
+    background: var(--color-brand-glow);
+  }
+
+  .br-cat[data-cat="market"] {
+    color: var(--color-brand-deep);
+    background: var(--color-brand-soft);
+  }
+
+  .br-cat[data-cat="system"] {
+    color: var(--color-jade);
+    background: var(--color-jade-soft);
+  }
+
+  .br-cat[data-cat="ai"] {
+    color: #1d5fa8;
+    background: var(--color-sky);
+  }
+
+  .br-cat[data-cat="trend"] {
+    color: var(--color-clay);
+    background: #f7eae2;
+  }
+
+  .br-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .br-cat {
+    display: inline-flex;
+    align-items: center;
+    min-height: 22px;
+    padding: 0 8px;
+    border-radius: 6px;
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+  }
+
+  .br-slot {
+    font-size: 11.5px;
+    color: var(--color-ink-faint);
+    overflow-wrap: anywhere;
+  }
+
+  .br-title {
+    margin-top: 10px;
+    font-size: clamp(17px, 2vw, 19px);
+    font-weight: 700;
+    line-height: 1.4;
+    letter-spacing: -0.03em;
+    color: var(--color-ink);
+    text-wrap: pretty;
+  }
+
+  .br-summary {
+    margin-top: 8px;
+    max-width: 66ch;
+    font-size: 13.5px;
+    line-height: 1.75;
+    color: var(--color-ink-muted);
+    overflow-wrap: anywhere;
+  }
+
+  .br-points {
+    margin-top: 12px;
+    display: grid;
+    gap: 6px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: var(--color-paper);
+    border: 1px solid var(--color-line-soft);
+  }
+
+  .br-points li {
+    position: relative;
+    padding-left: 12px;
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: var(--color-ink-soft);
+    overflow-wrap: anywhere;
+  }
+
+  .br-points li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.66em;
+    width: 4px;
+    height: 4px;
+    border-radius: 999px;
+    background: var(--color-brand);
+    opacity: 0.55;
+  }
+
+  .br-foot {
+    margin-top: 14px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 14px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--color-line);
+    font-size: 12px;
+  }
+
+  .br-source {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 6px;
+    min-width: 0;
+    flex: 1 1 220px;
+    color: var(--color-ink-muted);
+  }
+
+  .br-foot-label {
+    flex: none;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--color-ink-faint);
+  }
+
+  .br-source-name {
+    overflow-wrap: anywhere;
+  }
+
+  .br-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    min-height: 44px;
+    padding: 0 12px;
+    border-radius: 999px;
+    border: 1px solid var(--color-line);
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--color-brand-deep);
+    white-space: nowrap;
+    transition: border-color 160ms ease, background-color 160ms ease;
+  }
+
+  .br-link:hover,
+  .br-link:focus-visible {
+    border-color: var(--color-brand-glow);
+    background: var(--color-brand-soft);
+  }
+
+  .br-curator {
+    font-size: 11.5px;
+    color: var(--color-ink-faint);
+    white-space: nowrap;
+  }
+
+  .br-rule {
+    margin-top: 32px;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-card);
+    background: #fff;
+    padding: 18px 16px;
+  }
+
+  @media (min-width: 768px) {
+    .br-rule {
+      padding: 22px 24px;
+    }
+  }
+
+  .br-rule-title {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: var(--color-ink-faint);
+  }
+
+  .br-rule-list {
+    margin-top: 10px;
+    display: grid;
+    gap: 8px;
+    max-width: 72ch;
+  }
+
+  .br-rule-list li {
+    font-size: 13px;
+    line-height: 1.75;
+    color: var(--color-ink-muted);
+    overflow-wrap: anywhere;
+  }
+
+  .br-rule-list b {
+    color: var(--color-ink);
+    font-weight: 700;
+  }
+
+  .br-rule-links {
+    margin-top: 14px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    font-size: 12.5px;
+    color: var(--color-ink-faint);
+  }
+
+  .br-rule-links a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    font-weight: 600;
+    color: var(--color-brand-deep);
+  }
+</style>

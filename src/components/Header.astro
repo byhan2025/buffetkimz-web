@@ -27,6 +27,7 @@ import {
   galleryCount,
   gallerySlideCount,
 } from "@/data/gallery";
+import { boardEntries } from "@/data/board";
 
 const path = stripBase(Astro.url.pathname);
 const isActive = (match: string) =>
@@ -48,6 +49,7 @@ function chipFor(href?: string): string {
   if (href === "/gallery") return `${galleryCount}세트 · ${gallerySlideCount}장`;
   if (href.startsWith("/gallery/?cat=")) return `${galleryCategoryCount(href.split("=")[1] ?? "")}세트`;
   if (href === "/calendar") return `${calendar.length}건`;
+  if (href === "/board") return `${boardEntries.length}건`;
   return "";
 }
 
@@ -62,7 +64,8 @@ const splitMenu = (children: NavChild[]) => ({
  * 자산리포트는 하위 메뉴가 곧 분류, 나머지는 항목이다.
  */
 const menuCountText = (item: (typeof nav)[number], menu: { live: NavChild[] }) => {
-  const n = menu.live.filter((c) => c.href !== item.href).length;
+  // v9.2.0 — 게시판(kind: "board")은 분류가 아닌 별도 코너이므로 'N개 분류'에 세지 않는다
+  const n = menu.live.filter((c) => c.href !== item.href && c.kind !== "board").length;
   return item.match === "/posts" ? `${n}개 분류` : `${n}개 항목`;
 };
 ---

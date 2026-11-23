@@ -133,6 +133,11 @@ export type NavChild = {
   soon?: boolean;
   /** 사이트 밖 주소(예: 1:1 상담문의) — 새 창으로 연다 */
   external?: boolean;
+  /**
+   * 분류가 아닌 별도 코너(예: /board 데일리 브리프 게시판).
+   * 메뉴판 머리의 'N개 분류'에는 세지 않는다 — 게시판은 분류가 아니라 다른 발행물이다.
+   */
+  kind?: "board";
 };
 export type NavItem = {
   href: string;
@@ -164,6 +169,7 @@ export const nav: NavItem[] = [
     match: "/posts",
     children: [
       { href: "/posts", label: "전체 리포트", note: "기준일·출처를 붙인 글 전체" },
+      { href: "/board", label: "데일리 브리프 게시판", note: "매일 3회 모이는 시황·제도·AI 메모", kind: "board" },
       { href: "/posts/pension/", label: "연금", note: "마스터 6편 · 연금 지도 3편" },
       { href: "/posts/finance/", label: "금융", note: "금리·환율·제도" },
       { href: "/posts/invest/", label: "투자", note: "배분·복리·규칙" },

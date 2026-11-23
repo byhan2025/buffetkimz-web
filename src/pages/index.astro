@@ -14,6 +14,7 @@ import { APP_CATEGORIES } from "@/data/apps";
 import { categoryCount, storeCount, toolCount } from "@/data/store";
 import { calendar } from "@/data/calendar";
 import { galleryCount, gallerySlideCount } from "@/data/gallery";
+import { boardEntries } from "@/data/board";
 import { allPosts } from "@/lib/posts";
 import { graph, organizationNode, personNode, websiteNode } from "@/lib/schema";
 
@@ -100,6 +101,23 @@ const jsonLd = graph([websiteNode(), organizationNode(), personNode()]);
   <!-- ② 오늘 확인 허브 — 필름 아래 첫 화면. 지표 4 · 3줄 · 기한 인용 · 확인 카드 -->
   <TodayHub />
 
+  <!-- ②-1 데일리 브리프 게시판 — 허브에 다 담지 못한 확인 메모로 가는 한 줄 (v9.2.0) -->
+  <section class="scene-white border-b border-line" aria-label="데일리 브리프 게시판 안내">
+    <div class="wrap pb-8 md:pb-10">
+      <div class="board-entry">
+        <p class="board-entry-text">
+          <span class="board-entry-kicker">데일리 브리프</span>
+          오늘 허브에 다 담지 못한 시황·제도·AI 메모를 하루 세 번(06:00 · 13:00 · 19:00) 확인해 쌓아 둡니다.
+          지금 <b class="mono text-ink">{boardEntries.length}</b>건.
+        </p>
+        <a class="btn btn-secondary btn-sm board-entry-link" href={withBase("/board")}>
+          데일리 브리프 게시판 보기
+          <span aria-hidden="true">→</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
   <!-- ③ 읽고 열어 보기 — 자산리포트 최신 3편 + 앱스토어 추천 4종 -->
   <PortalPicks />
 
@@ -168,3 +186,46 @@ const jsonLd = graph([websiteNode(), organizationNode(), personNode()]);
   <!-- 첫 방문 3스텝 스포트라이트 투어 + `? 가이드` (driver.js) -->
   <Guide mode="home" />
 </Base>
+
+<style>
+  /* 허브 아래 한 줄 — 새 구역을 만들지 않고 '게시판으로 가는 문'만 놓는다 */
+  .board-entry {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px 18px;
+    border: 1px solid var(--color-line);
+    border-radius: 14px;
+    background: linear-gradient(180deg, #fff 0%, var(--color-paper-deep) 100%);
+    padding: 12px 14px;
+  }
+
+  @media (min-width: 768px) {
+    .board-entry {
+      padding: 12px 18px;
+    }
+  }
+
+  .board-entry-text {
+    flex: 1 1 320px;
+    min-width: 0;
+    font-size: 12.5px;
+    line-height: 1.65;
+    color: var(--color-ink-muted);
+    overflow-wrap: anywhere;
+  }
+
+  .board-entry-kicker {
+    display: inline-block;
+    margin-right: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    color: var(--color-brand);
+  }
+
+  .board-entry-link {
+    flex: none;
+  }
+</style>
