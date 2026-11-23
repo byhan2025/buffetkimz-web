@@ -28,6 +28,8 @@ import { GALLERY_CATEGORIES, galleryItems, type GalleryItem } from "@/data/galle
 import { allPosts, postPath, formatDate, categoryLabel } from "@/lib/posts";
 import { cardThumb, existsInPublic } from "@/lib/card-assets";
 import { cardSetsOfPost } from "@/lib/gallery";
+import { stageOfCard } from "@/lib/tracks";
+import { stageView, trackHref } from "@/lib/track-view";
 import { AUTHOR_ID, ORG_ID, breadcrumbList, graph, pageUrl, partOfWebsite } from "@/lib/schema";
 
 export async function getStaticPaths() {
@@ -68,6 +70,18 @@ const relatedPostLink = relatedPost
 const relatedTool = item.related?.find((r) => r.href.startsWith("/apps/") || r.href.startsWith("/tools/") || r.href.startsWith("/calendar"));
 
 const siblingSets = post ? cardSetsOfPost(post.id).filter((s) => s.id !== item.id) : [];
+
+/**
+ * v9.1.0 P2 — 카드 → 글 역링크 1줄 (양방향 순환의 남은 반쪽).
+ *
+ * 글 → 카드 방향은 글 말미의 '이 글의 카드'가 이미 잇고 있고, 짝(post)이 있는 세트는 아래
+ * '이 카드의 글 읽기' 카드가 잇는다. 그러나 **짝이 없는 세트**(트랙의 보조 카드)는 여기서 끊겼다 —
+ * 그 세트가 어느 단계에 쓰이는지, 그 단계의 첫 글이 무엇인지 한 줄로 밝혀 순환을 닫는다.
+ */
+const stageRef = stageOfCard(item.id);
+const cardStage = stageRef ? await stageView(stageRef.track, stageRef.stage) : undefined;
+const cardStageFirstPost = cardStage?.posts[0];
+const cardStageHref = cardStage ? trackHref(cardStage.track, cardStage.stage) : undefined;
 
 const jsonLd = graph([
   {
@@ -266,6 +280,35 @@ const description = `${item.tagline} ${item.summary}`.slice(0, 155);
               ))
             }
           </div>
+
+          {/* 카드 → 트랙 단계·글 역링크 1줄 (v9.1.0 P2) */}
+          {
+            cardStage && (
+              <p class="cnp-track-line" data-card-track-link={cardStage.track.id}>
+                <span class="cnp-track-tag">
+                  {cardStage.track.name} · {cardStage.stage.no}단계
+                </span>
+                <span class="min-w-0">
+                  이 카드는 「{cardStage.stage.name}」 단계의 보조 세트입니다.{" "}
+                  {!relatedPost && cardStageFirstPost && (
+                    <>
+                      <a
+                        href={withBase(cardStageFirstPost.href)}
+                        class="link font-semibold text-brand-deep"
+                        title={cardStageFirstPost.title}
+                      >
+                        글 읽기 →
+                      </a>
+                      <span aria-hidden="true" class="text-ink-faint"> · </span>
+                    </>
+                  )}
+                  <a href={withBase(cardStageHref!)} class="link font-semibold text-brand-deep">
+                    단계 전체 보기 →
+                  </a>
+                </span>
+              </p>
+            )
+          }
 
           {/* 이어지는 곳 — 글 1 + 계산기 1 */}
           {

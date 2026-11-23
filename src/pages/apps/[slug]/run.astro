@@ -1,6 +1,7 @@
 ---
 import Base from "@/layouts/Base.astro";
 import ToolRunner from "@/components/tools/ToolRunner.tsx";
+import RunExit from "@/components/learn/RunExit.astro";
 import HomePill from "@/components/HomePill.astro";
 import { withBase, site } from "@/config/site";
 import { apps } from "@/data/apps";
@@ -66,6 +67,15 @@ const { app } = Astro.props;
     <div class="wrap pb-28 pt-6 md:pb-10 md:pt-10">
       <div class="mx-auto max-w-[920px]" data-tool-input-area="true" data-nosnippet>
         <ToolRunner slug={app.slug} client:load />
+      </div>
+
+      {/*
+        v9.1.0 P2 — 계산을 마친 뒤의 출구. 이 화면은 브레드크럼·소개 페이지 말고는 갈 곳이 없었다.
+        트랙에 속한 도구는 '설명한 글 → 단계 안내·강의 → 다음 단계 도구', 트랙 밖 도구는 '다음 도구 → 도구 목록'.
+        본문 흐름 안에 두어 모바일 하단 요약 바(.sticky-summary)와 겹치지 않는다.
+      */}
+      <div class="mx-auto max-w-[920px]">
+        <RunExit slug={app.slug} name={app.name} />
       </div>
 
       <div class="mx-auto mt-6 grid max-w-[920px] gap-3 md:grid-cols-2">

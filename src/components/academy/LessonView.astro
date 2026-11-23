@@ -16,11 +16,13 @@ import Base from "@/layouts/Base.astro";
 import HomePill from "@/components/HomePill.astro";
 import SheetSlot from "@/components/academy/SheetSlot.astro";
 import LiveMetricBadge from "@/components/metrics/LiveMetricBadge.astro";
+import TrackDock from "@/components/learn/TrackDock.astro";
 import CardNewsViewer from "@/components/academy/CardNewsViewer.astro";
 import { withBase, site } from "@/config/site";
 import { ACADEMY, stepByNo, openLessonsOfStep } from "@/data/academy";
 import { LESSON_CHARS, LESSON_SPEC, type AcademyLesson } from "@/data/academy-lessons";
 import { availableCount, availableSlides } from "@/lib/card-assets";
+import { stageOfLesson } from "@/lib/tracks";
 import { breadcrumbList, graph } from "@/lib/schema";
 
 interface Props {
@@ -29,6 +31,9 @@ interface Props {
 const { lesson } = Astro.props;
 
 const step = stepByNo(lesson.step)!;
+/** v9.1.0 P2 — 이 강의가 3단계 트랙의 한 단계면 하단 순환 독을 붙인다 */
+const trackRef = stageOfLesson(lesson.slug);
+const liveTrackRef = trackRef && trackRef.track.status === "live" ? trackRef : undefined;
 const path = `/academy/${lesson.slug}`;
 const chars = LESSON_CHARS[lesson.slug];
 const cardCount = availableCount(lesson.cardSet);
@@ -462,6 +467,8 @@ const jsonLd = graph([
       </div>
     </div>
   </section>
+
+  {liveTrackRef && <TrackDock track={liveTrackRef.track} stage={liveTrackRef.stage} />}
 </Base>
 
 <style>

@@ -1,0 +1,279 @@
+---
+/**
+ * RunExit — 도구 실행 화면의 출구 (v9.1.0 P2 신설).
+ *
+ * 설계: reports/buffetkimz-web/learning-blueprint-v1-20261123.md §5-4
+ *
+ * 왜 필요한가
+ *  · 08:20~지금까지 `/apps/{slug}/run`에서 계산을 마친 사람이 갈 곳은 브레드크럼과 하단의 '소개 페이지'뿐이었다.
+ *    학습 순환의 '적용 → 심화'가 여기서 끊겼다(막다른 길).
+ *  · 그래서 계산기 아래에 **이 계산을 설명한 글 → 이 단계의 강의·카드 → 다음 단계 도구** 순서로 세 줄을 둔다.
+ *    트랙에 속한 도구는 `stageOfTool()`이 찾아 주고, 트랙 밖 도구는 기존 `nextTool()`(도구→도구)을 그대로 쓴다.
+ *
+ * 지키는 것
+ *  ① `.sticky-summary`(모바일 하단 요약 바) **위에 겹쳐 띄우지 않는다** — 본문 흐름 안에 둔다.
+ *     실행 화면은 `pb-28` 여백이 있어 마지막 줄이 요약 바에 가리지 않는다.
+ *  ② 링크는 44px 이상. 한 줄에 하나씩, 이름과 이유를 함께 적는다.
+ *  ③ 없는 것은 그리지 않는다 — 트랙이 없으면 트랙 줄이, 도구가 없으면 도구 줄이 빠진다.
+ */
+import { withBase } from "@/config/site";
+import { stageOfTool } from "@/lib/tracks";
+import { stageView, trackHref } from "@/lib/track-view";
+import { appBySlug } from "@/data/apps";
+import { nextTool } from "@/data/journey";
+
+interface Props {
+  slug: string;
+  /** 도구 이름 — 없으면 트랙 문구에서 이름을 쓰지 않는다 */
+  name?: string;
+}
+
+const { slug, name } = Astro.props;
+
+const ref = stageOfTool(slug);
+const view = ref ? await stageView(ref.track, ref.stage) : undefined;
+/** 다음 단계 도구의 이름 — slug를 화면에 그대로 쓰지 않는다 */
+const nextToolName = view?.next ? appBySlug(view.next.tool)?.name ?? "다음 단계 도구" : undefined;
+/** 트랙 밖 도구 — 도구→도구 여정(기존 규칙)을 그대로 쓴다 */
+const after = ref ? undefined : nextTool(slug);
+---
+
+{
+  view ? (
+    <section class="run-exit" data-run-exit="track" aria-labelledby="run-exit-title">
+      <p class="re-kicker">계산을 마쳤습니다</p>
+      <h2 class="re-title" id="run-exit-title">
+        이 계산은 「{view.track.name}」 {view.stage.no}단계 · {view.stage.name}에 있습니다
+      </h2>
+      <p class="re-lead">
+        결과 숫자를 읽는 것과, 그 숫자가 어디서 나왔는지 아는 것은 다릅니다. 같은 기준을 설명한 글에서 근거를
+        확인하고, 다음 단계로 넘어가세요.
+      </p>
+
+      {view.posts.length > 0 && (
+        <div class="re-block">
+          <p class="re-label">이 계산을 설명한 글 {view.posts.length}편</p>
+          <ul class="re-posts">
+            {view.posts.map((post) => (
+              <li>
+                <a class="re-post" href={withBase(post.href)}>
+                  <span class="re-post-title">{post.title}</span>
+                  <span class="re-post-meta mono">{post.meta}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      <div class="re-links">
+        <a class="re-link" href={withBase(trackHref(view.track, view.stage))}>
+          <span class="re-link-kicker">{view.stage.no}단계 안내</span>
+          <span class="re-link-title">
+            {view.stage.question}
+            <span aria-hidden="true">→</span>
+          </span>
+        </a>
+        {view.lesson && (
+          <a class="re-link" href={withBase(view.lesson.href)}>
+            <span class="re-link-kicker">이 단계의 강의</span>
+            <span class="re-link-title">
+              {view.lesson.label} · {view.lesson.title}
+              <span aria-hidden="true">→</span>
+            </span>
+          </a>
+        )}
+        {view.next ? (
+          <a class="re-link is-next" href={withBase(`/apps/${view.next.tool}/run`)} data-run-exit-next={view.next.tool}>
+            <span class="re-link-kicker">다음 단계 도구 — {view.next.no}단계 {view.next.name}</span>
+            <span class="re-link-title">
+              {nextToolName}
+              <span aria-hidden="true">→</span>
+            </span>
+          </a>
+        ) : (
+          <a class="re-link is-next" href={withBase("/academy/#roadmap")}>
+            <span class="re-link-kicker">다음 트랙 — 준비 중</span>
+            <span class="re-link-title">
+              아카데미 로드맵 보기
+              <span aria-hidden="true">→</span>
+            </span>
+          </a>
+        )}
+      </div>
+
+      <p class="re-note">
+        {view.track.promise}
+      </p>
+    </section>
+  ) : (
+    <section class="run-exit" data-run-exit="tool" aria-labelledby="run-exit-title">
+      <p class="re-kicker">계산을 마쳤습니다</p>
+      <h2 class="re-title" id="run-exit-title">
+        다음에 이어서 볼 것
+      </h2>
+      <div class="re-links">
+        <a class="re-link is-next" href={withBase(after!.href)}>
+          <span class="re-link-kicker">이 다음으로 많이 쓰는 도구</span>
+          <span class="re-link-title">
+            {after!.name}
+            <span aria-hidden="true">→</span>
+          </span>
+        </a>
+        <a class="re-link" href={withBase("/academy")}>
+          <span class="re-link-kicker">같은 기준을 글로 읽기</span>
+          <span class="re-link-title">
+            금융생활학교 — 3단계 트랙과 강의
+            <span aria-hidden="true">→</span>
+          </span>
+        </a>
+      </div>
+      {name && (
+        <p class="re-note">결과의 기준일과 출처는 위 '계산 기준·출처'에 있습니다. 숫자가 바뀌면 이 화면도 다시 만듭니다.</p>
+      )}
+    </section>
+  )
+}
+
+<style>
+  .run-exit {
+    margin-top: 18px;
+    padding: 16px;
+    border: 1px solid var(--color-line);
+    border-radius: 16px;
+    background-color: var(--color-paper);
+  }
+
+  @media (min-width: 768px) {
+    .run-exit {
+      padding: 22px;
+    }
+  }
+
+  .re-kicker {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    color: var(--color-brand-deep);
+  }
+
+  .re-title {
+    margin-top: 4px;
+    font-size: 16.5px;
+    font-weight: 700;
+    line-height: 1.45;
+    letter-spacing: -0.028em;
+    color: var(--color-ink);
+    text-wrap: pretty;
+  }
+
+  .re-lead {
+    margin-top: 6px;
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: var(--color-ink-muted);
+  }
+
+  .re-block {
+    margin-top: 12px;
+  }
+
+  .re-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--color-ink-faint);
+  }
+
+  .re-posts {
+    display: grid;
+    gap: 2px;
+    margin-top: 4px;
+  }
+
+  .re-post {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-height: 44px;
+    padding: 8px 2px;
+    border-bottom: 1px solid var(--color-line-soft);
+    text-decoration: none;
+  }
+
+  .re-post:hover .re-post-title {
+    color: var(--color-brand-deep);
+  }
+
+  .re-post-title {
+    font-size: 13.5px;
+    font-weight: 600;
+    line-height: 1.45;
+    color: var(--color-ink);
+  }
+
+  .re-post-meta {
+    font-size: 11px;
+    color: var(--color-ink-faint);
+  }
+
+  .re-links {
+    display: grid;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  @media (min-width: 700px) {
+    .re-links {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .re-link {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-height: 44px;
+    padding: 10px 12px;
+    border: 1px solid var(--color-line);
+    border-radius: 12px;
+    background-color: #ffffff;
+    text-decoration: none;
+  }
+
+  .re-link:hover {
+    border-color: var(--color-brand);
+  }
+
+  .re-link.is-next {
+    border-color: rgb(26 79 253 / 0.35);
+    background-color: var(--color-brand-soft);
+  }
+
+  .re-link-kicker {
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--color-ink-faint);
+  }
+
+  .re-link.is-next .re-link-kicker {
+    color: var(--color-brand-deep);
+  }
+
+  .re-link-title {
+    font-size: 13.5px;
+    font-weight: 650;
+    line-height: 1.5;
+    color: var(--color-ink);
+  }
+
+  .re-note {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--color-line);
+    font-size: 11.5px;
+    line-height: 1.65;
+    color: var(--color-ink-faint);
+  }
+</style>

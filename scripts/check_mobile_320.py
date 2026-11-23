@@ -62,6 +62,14 @@ ROUTES = [
     ("post-badge", "/posts/pension-master-02-tax-compare/"),
     ("post-badge-3", "/posts/pension-master-05-draw-1500/"),
     ("lesson-badge", "/academy/step2-pension-tax-limit/"),
+    # v9.1.0 P2 — 3단계 트랙 화면 · 하단 독 · 도구 출구 · 카드 역링크
+    ("track-overview", "/academy/track/pension-tax/"),
+    ("track-stage-1", "/academy/track/pension-tax/1/"),
+    ("track-stage-3", "/academy/track/pension-tax/3/"),
+    ("post-dock", "/posts/pension-master-05-draw-1500/"),
+    ("lesson-dock", "/academy/step2-account-order/"),
+    ("run-exit", "/apps/pension-draw/run/"),
+    ("gallery-reverse", "/gallery/three-buckets-3d/"),
 ]
 
 # 문장 속 인라인 링크는 WCAG 2.5.8(최소 24px) 예외다 — 목록에는 남기되 실패로 세지 않는다.

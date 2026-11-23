@@ -6,6 +6,7 @@ import ArticleToc from "@/components/ArticleToc.astro";
 import BrandLockup from "@/components/BrandLockup.astro";
 import CompareCard from "@/components/CompareCard.astro";
 import LiveMetricBadge from "@/components/metrics/LiveMetricBadge.astro";
+import TrackDock from "@/components/learn/TrackDock.astro";
 import { affiliateDisclosure } from "@/config/monetization";
 import HomePill from "@/components/HomePill.astro";
 import Guide from "@/components/guide/Guide.astro";
@@ -16,6 +17,7 @@ import { allPosts, postPath, formatDate, summaryOf, toolOf, seriesOf, nextInSeri
 import { thumbOf, thumbAltOf, thumbSize } from "@/lib/thumbs";
 import { cardThumb } from "@/lib/card-assets";
 import { cardSetsOfPost, validatePairs } from "@/lib/gallery";
+import { stageOfPost } from "@/lib/tracks";
 import { AUTHOR_ID, ORG_ID, breadcrumbList, graph, pageUrl, partOfWebsite } from "@/lib/schema";
 
 export async function getStaticPaths() {
@@ -118,6 +120,13 @@ const readingJourney = {
   storageKey: "bk_read_guide_v1",
   skipLabel: "필요 없어요",
 };
+
+/**
+ * v9.1.0 P2 — 이 글이 속한 학습 트랙(있으면 하단 순환 독을 붙인다).
+ * 트랙 소속은 글 frontmatter가 아니라 `data/tracks.ts`가 정한다 — 화면은 그 순서를 그릴 뿐이다.
+ */
+const trackRef = stageOfPost(post.id);
+const liveTrackRef = trackRef && trackRef.track.status === "live" ? trackRef : undefined;
 
 const jsonLd = graph([
   {
@@ -586,6 +595,12 @@ const jsonLd = graph([
       </div>
     </div>
   </article>
+
+  {/*
+    v9.1.0 P2 — 학습 트랙 하단 순환 독. 이 글이 3단계 트랙에 속할 때만 붙는다.
+    같은 자리의 읽기 여정 바는 독이 있는 화면에서 감춘다(guide.css) — 두 바가 겹치지 않는다.
+  */}
+  {liveTrackRef && <TrackDock track={liveTrackRef.track} stage={liveTrackRef.stage} />}
 
   <!-- v6.1 읽기 여정 바 — 다음 글/도구로 이어 주고, '필요 없어요'로 접는다 -->
   <Guide mode="post" journey={readingJourney} />

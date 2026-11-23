@@ -39,6 +39,37 @@ v3: 20개 대표 사이트 벤치마킹(보고서 `reports/buffetkimz-web/benchm
 - **검증** — `npm run build` 306 HTML · `verify:tracks` 19/19 · `verify:metrics` 5/5(배지 5페이지·17개) ·
   `verify:tax` 22/22 · `verify_v77` 32/32 · `check_mobile_320` 320·390 넘침 0 · 44px 미만 0.
 
+### v9.1.0 — 학습순환 P2: 3단계 트랙 화면 · 하단 순환 독 · 도구 출구 · 카드 역링크
+
+P1까지는 배지가 숫자를 글까지 끌고 왔지만, **처음부터 순서대로 완주하는 길**과 **도구에서 나오는 문**이 없었다.
+P2는 그 네 곳을 이었다(새 도구·새 메뉴·새 카드 0 — 기존 28종·31편 재배치).
+
+- **3단계 트랙 화면** — `/academy/track/pension-tax/`(트랙 첫 화면) + `/academy/track/pension-tax/{1,2,3}/`(단계 화면).
+  단계 화면은 그 단계의 **글 → 계산기 → 카드 → 강의**를 순서로 놓고, 머리에 `stage.badges`를 P1의
+  `LiveMetricBadge`로 그대로 붙인다. 마지막에 '다음 단계로 넘기는 질문'(`nextQuestion`)이 다음 단계의 첫 화면을 연다.
+  순서·도구·카드는 `data/tracks.ts` 하나가 정하고, 글 제목·주소는 빌드할 때 컬렉션에서 가져온다(손으로 적은 제목 0).
+- **하단 순환 독 `components/learn/TrackDock.astro`** — 2px 진행선 + `이전 / 지금 단계 / 도구 / 다음` 네 칸 +
+  손실 질문 한 줄. 트랙에 속한 글 11편과 강의 3개 하단에 붙는다. 모두 `min-h-[44px]`이고,
+  **같은 자리에 있던 읽기 여정 바는 독이 있는 화면에서 감춘다**(독이 더 정확한 안내를 한다) — 390px에서 두 바가 쌓이면
+  화면 아래 1/4이 안내 바가 된다. `? 가이드` 버튼은 독 위로 올라선다. 3단계에서는 오른쪽 칸이 '다음 트랙'(준비 중)이 된다.
+- **도구 출구 `components/learn/RunExit.astro`** — `/apps/{slug}/run`에서 계산을 마친 사람에게
+  **이 계산을 설명한 글 → 그 단계 안내·강의 → 다음 단계 도구** 세 줄을 준다. 트랙 밖 도구는 기존 `nextTool()`
+  (도구→도구)로 잇는다 — 정예 도구 27종 실행 화면 전부에 출구가 생겼다(막다른 길 0). 본문 흐름 안에 두어
+  모바일 하단 요약 바(`.sticky-summary`)와 겹치지 않는다.
+- **카드 → 글 역링크 1줄** — `/gallery/{id}/`에 그 세트가 쓰이는 트랙 단계와 그 단계의 첫 글을 한 줄로 밝힌다.
+  짝 글(`post`)이 있는 세트는 이미 '이 카드의 글 읽기'가 있었고, **짝이 없는 세트**(트랙 보조 카드 3세트)가
+  여기서 순환에 들어온다.
+- **보너스** — 본문이 2,000만·7.19%를 말하는 `pension-master-06-healthcheck`에
+  `public-pension-health-limit`·`health-rate` 배지를 붙였다(P1에서 화면이 없던 두 배지가 처음 나온다).
+  계산기 탭(`ModeTabs`) 버튼 40→44px.
+- **새 검사 3종** — `scripts/verify_loop.py`(`npm run verify:loop`, dist 14항목) ·
+  `scripts/check_dock_collision.py`(독·가이드 버튼·여정 바·요약 바 겹침 px² = 0) ·
+  `scripts/capture_loop_p2.py`(390·1280 캡처). `check_mobile_320.py` 점검 목록에 트랙 3화면·독 글·독 강의·
+  도구 출구·카드 역링크를 더했다.
+- **검증** — `npm run build` 277 page · HTML 310 · `verify:tracks` 19/19 · `verify:metrics` 5/5(배지 9페이지·30개) ·
+  `verify:loop` 14/14 · `verify:tax` 22/22 · `verify_v77` 32/32 · `check_dock_collision` 겹침 0px² ·
+  `check_mobile_320` 320·390 넘침 0 · 44px 미만 0.
+
 ### v8.9.1 — 모바일 320px 넘침·터치 타깃 44px·초등 1강 가상 금액 표기
 
 16:00 모바일 점검에서 올라온 세 건을 고쳤다. 화면 글자와 정보 구조는 그대로 두고, 손가락이 닿는

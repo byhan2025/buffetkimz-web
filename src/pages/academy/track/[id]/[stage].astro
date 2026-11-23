@@ -1,0 +1,590 @@
+---
+/**
+ * /academy/track/{id}/{no} — 3단계 트랙의 단계 화면 (v9.1.0 P2 신설).
+ *
+ * 설계: reports/buffetkimz-web/learning-blueprint-v1-20261123.md §2-2·§3·§5-5
+ *
+ * 왜 이 화면인가
+ *  · `/posts`(심층 백과)와 `/academy`(강의)는 있었지만, '처음부터 순서대로 완주하는 길'이 없었다.
+ *    이 화면이 그 길이다 — 1단계의 글을 읽고 도구로 계산하면 2단계가 열린다.
+ *  · 순서·도구·카드·배지는 `data/tracks.ts` 하나가 정한다. 이 파일은 그 값을 그리기만 하고,
+ *    글 제목은 빌드할 때 글 컬렉션에서 가져온다(손으로 적은 제목 0).
+ *  · 하단 독(`TrackDock`)이 같은 순서를 화면 아래에 고정해, 어디서 들어와도 1→2→3을 클릭만으로 지나간다.
+ */
+import Base from "@/layouts/Base.astro";
+import HomePill from "@/components/HomePill.astro";
+import LiveMetricBadge from "@/components/metrics/LiveMetricBadge.astro";
+import TrackDock from "@/components/learn/TrackDock.astro";
+import { withBase, site, absolute } from "@/config/site";
+import { TRACKS, type Track, type TrackStage } from "@/data/tracks";
+import { ACADEMY } from "@/data/academy";
+import { stageView, trackHref } from "@/lib/track-view";
+import { breadcrumbList, graph, partOfWebsite } from "@/lib/schema";
+
+export function getStaticPaths() {
+  return TRACKS.filter((track) => track.status === "live").flatMap((track) =>
+    track.stages.map((stage) => ({
+      params: { id: track.id, stage: String(stage.no) },
+      props: { track, stage },
+    })),
+  );
+}
+
+interface Props {
+  track: Track;
+  stage: TrackStage;
+}
+
+const { track, stage } = Astro.props;
+const view = await stageView(track, stage);
+const path = trackHref(track, stage);
+
+const jsonLd = graph([
+  breadcrumbList([
+    { name: "홈", path: "/" },
+    { name: "금융생활학교", path: "/academy" },
+    { name: `${track.name} 트랙`, path: trackHref(track) },
+    { name: `${stage.no}단계 ${stage.name}`, path },
+  ]),
+  {
+    "@type": "LearningResource",
+    "@id": `${absolute(path)}#stage`,
+    name: `${track.name} ${stage.no}단계 — ${stage.name}`,
+    description: stage.question,
+    inLanguage: "ko",
+    learningResourceType: "3단계 학습 트랙",
+    educationalLevel: "입문",
+    isPartOf: { "@id": `${site.url}/academy/#course` },
+    provider: { "@id": `${site.url}/#organization` },
+    dateModified: site.baseDate,
+    teaches: [stage.question, ...view.posts.map((post) => post.title)],
+  },
+]);
+---
+
+<Base
+  title={`${track.name} ${stage.no}단계 — ${stage.name} | ${ACADEMY.name}`}
+  description={`${stage.question} — ${track.name} 3단계 트랙의 ${stage.no}단계입니다. 글 ${view.posts.length}편과 도구 1개, 카드 ${view.card?.count ?? 0}장으로 이어집니다. 기준일 ${site.baseDateLabel}`}
+  path={path}
+  type="article"
+  publishedTime={site.baseDate}
+  jsonLd={jsonLd}
+>
+  <!-- 히어로 -->
+  <section class="scene-sky border-b border-line/70">
+    <div class="wrap py-6 md:py-10">
+      <HomePill />
+      <nav class="flex flex-wrap items-center gap-2 text-[12px] text-ink-faint" aria-label="위치">
+        <a href={withBase("/")} class="inline-flex min-h-[44px] items-center hover:text-ink md:min-h-[24px]">홈</a>
+        <span aria-hidden="true">/</span>
+        <a href={withBase("/academy")} class="inline-flex min-h-[44px] items-center hover:text-ink md:min-h-[24px]">
+          아카데미
+        </a>
+        <span aria-hidden="true">/</span>
+        <a
+          href={withBase(trackHref(track))}
+          class="inline-flex min-h-[44px] items-center hover:text-ink md:min-h-[24px]"
+        >
+          {track.name} 트랙
+        </a>
+        <span aria-hidden="true">/</span>
+        <span class="text-ink-muted">{stage.no}단계</span>
+      </nav>
+
+      <div class="mt-4 max-w-[68ch]">
+        <div class="flex flex-wrap items-center gap-1.5">
+          <span class="chip !border-brand/30 !bg-brand-soft !text-brand-deep">{track.name} · 3단계 트랙</span>
+          <span class="chip mono">{stage.no} / {view.total}단계</span>
+          <span class="chip">글 {view.posts.length}편</span>
+          {view.tool && <span class="chip">계산기 1개</span>}
+          {view.card && <span class="chip">카드 {view.card.count}장</span>}
+          <span class="chip mono">기준일 {site.baseDateLabel}</span>
+        </div>
+
+        <h1 class="mt-3 text-[27px] font-bold leading-[1.28] tracking-[-0.042em] text-ink md:text-[38px]">
+          {stage.no}단계 — {stage.name}
+        </h1>
+        <p class="mt-2 text-[15px] leading-[1.8] text-ink-soft">{stage.question}</p>
+        <p class="mt-1.5 text-[12.5px] leading-[1.7] text-ink-faint">
+          {track.name} 트랙의 {stage.no}번째 단계입니다. 이 단계를 마치면 {view.next ? `${view.next.no}단계 「${view.next.name}」` : "트랙이 끝나고 다음 확인 날짜가 남습니다"}로 넘어갑니다.
+        </p>
+      </div>
+
+      {/* 단계 머리 배지 — 값·등락·기준 시각·출처가 한 상자에 (P1 컴포넌트 그대로) */}
+      <div class="max-w-[68ch]">
+        <LiveMetricBadge
+          market={stage.badges.market}
+          rules={stage.badges.rules}
+          variant="panel"
+          place="track"
+        />
+      </div>
+    </div>
+  </section>
+
+  <!-- 3단계 진행선 -->
+  <section class="border-b border-line bg-surface">
+    <div class="wrap py-3">
+      <ol class="stage-rail" aria-label={`${track.name} 3단계`}>
+        {
+          track.stages.map((item) => {
+            const current = item.no === stage.no;
+            const done = item.no < stage.no;
+            return (
+              <li>
+                <a
+                  href={withBase(trackHref(track, item))}
+                  class:list={["stage-step", current && "is-current", done && "is-done"]}
+                  aria-current={current ? "step" : undefined}
+                >
+                  <span class="stage-no mono">{item.no}단계</span>
+                  <span class="stage-name">{item.name}</span>
+                </a>
+              </li>
+            );
+          })
+        }
+      </ol>
+    </div>
+  </section>
+
+  <section class="scene-white">
+    <div class="wrap py-9 md:py-14">
+      <div class="grid gap-10 lg:grid-cols-[minmax(0,1fr)_286px] lg:gap-14">
+        <div class="min-w-0">
+          <!-- ① 이 단계의 글 -->
+          <div id="posts">
+            <div class="flex flex-wrap items-end justify-between gap-2 border-b border-line pb-3">
+              <div>
+                <p class="eyebrow">① 이 단계의 글</p>
+                <h2 class="mt-1 text-[22px] font-bold tracking-[-0.035em] text-ink md:text-[26px]">
+                  순서대로 읽으면 {view.posts.length}편
+                </h2>
+              </div>
+              <p class="mono text-[11.5px] text-ink-faint">클릭하면 글로 이동</p>
+            </div>
+
+            <ul class="stage-posts mt-4">
+              {
+                view.posts.map((post, i) => (
+                  <li>
+                    <a class="stage-post" href={withBase(post.href)}>
+                      <span class="stage-post-no mono" aria-hidden="true">
+                        {String(i + 1).padStart(2, "0")}
+                      </span>
+                      <span class="min-w-0">
+                        <span class="stage-post-title">{post.title}</span>
+                        <span class="stage-post-meta mono">{post.meta}</span>
+                      </span>
+                      <span class="stage-post-go" aria-hidden="true">→</span>
+                    </a>
+                  </li>
+                ))
+              }
+            </ul>
+
+            {view.planned.length > 0 && (
+              <div class="note-box mt-3">
+                <p class="text-[12px] font-semibold text-ink">이 단계를 채울 다음 글</p>
+                <ul class="mt-1.5 space-y-1">
+                  {view.planned.map((item) => (
+                    <li class="text-[12.5px] leading-[1.65] text-ink-muted">
+                      {item.title} <span class="chip !min-h-[22px] !px-2 !text-[10.5px]">준비 중</span>
+                    </li>
+                  ))}
+                </ul>
+                <p class="mt-1.5 text-[11.5px] leading-[1.6] text-ink-faint">
+                  발행되면 위 목록에 들어가고, 이 단계의 순서도 그때 함께 다시 잡습니다.
+                </p>
+              </div>
+            )}
+          </div>
+
+          <!-- ② 이 단계의 계산기 -->
+          {
+            view.tool && (
+              <div id="tool" class="mt-12">
+                <div class="border-b border-line pb-3">
+                  <p class="eyebrow">② 이 단계의 계산기</p>
+                  <h2 class="mt-1 text-[22px] font-bold tracking-[-0.035em] text-ink md:text-[26px]">
+                    읽은 기준을 내 숫자로
+                  </h2>
+                </div>
+                <div class="card mt-4 p-5">
+                  <p class="text-[16.5px] font-bold tracking-[-0.028em] text-ink">{view.tool.name}</p>
+                  <p class="mt-1.5 text-[13px] leading-[1.7] text-ink-muted">{view.tool.oneLine}</p>
+                  <div class="mt-4 flex flex-wrap gap-2">
+                    <a href={withBase(view.tool.runHref)} class="btn btn-primary min-h-[44px]">
+                      계산기 열기 <span aria-hidden="true" class="ml-1.5">→</span>
+                    </a>
+                    <a href={withBase(view.tool.href)} class="btn btn-secondary min-h-[44px]">
+                      설명 먼저 보기
+                    </a>
+                  </div>
+                  <p class="mt-3 border-t border-line-soft pt-2.5 text-[11.5px] leading-[1.65] text-ink-faint">
+                    입력값은 서버로 전송되지 않고 브라우저 안에서만 계산됩니다. 계산을 마치면 그 화면 아래에서 이 단계의
+                    글로 다시 돌아올 수 있습니다.
+                  </p>
+                </div>
+              </div>
+            )
+          }
+
+          <!-- ③ 이 단계의 카드 -->
+          {
+            view.card && (
+              <div id="card" class="mt-12">
+                <div class="border-b border-line pb-3">
+                  <p class="eyebrow">③ 이 단계의 카드</p>
+                  <h2 class="mt-1 text-[22px] font-bold tracking-[-0.035em] text-ink md:text-[26px]">
+                    한 장씩 넘겨 보는 요약
+                  </h2>
+                </div>
+                <a class="card card-lift stage-card mt-4" href={withBase(view.card.href)}>
+                  <span class="stage-card-thumb" aria-hidden="true">
+                    <span class="mono">3D</span>
+                    <strong>{view.card.count}</strong>
+                  </span>
+                  <span class="min-w-0">
+                    <span class="block text-[15.5px] font-bold tracking-[-0.025em] text-ink">{view.card.title}</span>
+                    <span class="mt-0.5 block text-[12.5px] text-ink-muted">{view.card.tagline}</span>
+                    <span class="mt-1 block text-[11.5px] text-ink-faint">
+                      카드 페이지에서 장마다 한 줄 설명과 기준일을 함께 확인할 수 있습니다.
+                    </span>
+                  </span>
+                  <span class="btn btn-secondary btn-sm stage-card-btn">카드 {view.card.count}장 보기 →</span>
+                </a>
+              </div>
+            )
+          }
+
+          <!-- ④ 이 단계의 강의 -->
+          {
+            view.lesson && (
+              <div id="lesson" class="mt-12">
+                <div class="border-b border-line pb-3">
+                  <p class="eyebrow">④ 이 단계의 강의</p>
+                  <h2 class="mt-1 text-[22px] font-bold tracking-[-0.035em] text-ink md:text-[26px]">
+                    같은 순서를 한 번 더
+                  </h2>
+                </div>
+                <a class="card card-lift mt-4 flex flex-wrap items-center gap-3 p-5" href={withBase(view.lesson.href)}>
+                  <span class="min-w-0 flex-1">
+                    <span class="block text-[11px] font-bold tracking-[0.14em] text-brand-deep">{view.lesson.label}</span>
+                    <span class="mt-0.5 block text-[15.5px] font-bold tracking-[-0.025em] text-ink">
+                      {view.lesson.title}
+                    </span>
+                    <span class="mt-1 block text-[12px] text-ink-muted">
+                      5분 읽기 · 카드뉴스 · 계산기 실습 · 운영표 1칸
+                    </span>
+                  </span>
+                  <span class="btn btn-secondary btn-sm">강의 열기 →</span>
+                </a>
+              </div>
+            )
+          }
+
+          <!-- 손실 질문 — 다음 단계로 넘기는 고리 -->
+          <div class="stage-question mt-12" data-stage-question>
+            <p class="text-[11px] font-bold tracking-[0.16em] text-ink-faint">
+              {view.next ? `다음 단계로 넘기는 질문 — ${view.next.no}단계 ${view.next.name}` : "트랙을 마치며 남는 질문"}
+            </p>
+            <p class="mt-2 text-[15px] font-semibold leading-[1.75] tracking-[-0.012em] text-ink">
+              {stage.nextQuestion}
+            </p>
+            <div class="mt-4 flex flex-wrap gap-2">
+              {view.next ? (
+                <a href={withBase(trackHref(track, view.next))} class="btn btn-primary min-h-[44px]">
+                  {view.next.no}단계 · {view.next.name}로
+                  <span aria-hidden="true" class="ml-1.5">→</span>
+                </a>
+              ) : (
+                <a href={withBase("/academy/#roadmap")} class="btn btn-primary min-h-[44px]">
+                  다음 트랙 로드맵 보기
+                  <span aria-hidden="true" class="ml-1.5">→</span>
+                </a>
+              )}
+              {view.prev && (
+                <a href={withBase(trackHref(track, view.prev))} class="btn btn-secondary min-h-[44px]">
+                  {view.prev.no}단계 다시 보기
+                </a>
+              )}
+            </div>
+          </div>
+
+          <p class="mt-8 border-t border-line pt-4 text-[12px] leading-[1.7] text-ink-faint">
+            이 트랙은 특정 상품을 권하지 않습니다. 모든 숫자에 조문·기관과 기준일을 붙였고, 확인하지 못한 조문은
+            쓰지 않았습니다. 기준일 {site.baseDateLabel}.{" "}
+            <a href={withBase("/principles")} class="link font-semibold text-ink-soft">편집 원칙</a>
+          </p>
+
+          <HomePill position="bottom" />
+        </div>
+
+        <!-- 사이드 — 트랙 지도 -->
+        <aside class="min-w-0 lg:sticky lg:top-[calc(var(--header-h)+16px)] lg:self-start">
+          <div class="card p-4 md:p-5">
+            <p class="text-[11px] font-bold tracking-[0.16em] text-brand-deep">{track.name} 트랙</p>
+            <p class="mt-1.5 text-[13px] leading-[1.7] text-ink-muted">{track.promise}</p>
+            <ol class="track-map mt-3">
+              {
+                track.stages.map((item) => {
+                  const current = item.no === stage.no;
+                  return (
+                    <li>
+                      <a
+                        href={withBase(trackHref(track, item))}
+                        class:list={["track-map-row", current && "is-current"]}
+                        aria-current={current ? "step" : undefined}
+                      >
+                        <span class="track-map-no mono">{item.no}</span>
+                        <span class="min-w-0">
+                          <span class="track-map-name">{item.name}</span>
+                          <span class="track-map-q">{item.question}</span>
+                        </span>
+                      </a>
+                    </li>
+                  );
+                })
+              }
+            </ol>
+            <p class="mt-3 border-t border-line-soft pt-2.5 text-[11.5px] leading-[1.65] text-ink-faint">
+              글 {view.trackPostCount}편 · 계산기 {new Set(track.stages.map((s) => s.tool)).size}개 · 카드
+              {new Set(track.stages.map((s) => s.card)).size}세트
+            </p>
+          </div>
+
+          <div class="note-box mt-3">
+            <p class="text-[12px] font-semibold text-ink">이 단계를 쓰는 법</p>
+            <p class="mt-1.5">
+              글을 읽고(①), 계산기로 내 숫자를 넣어 보고(②), 카드로 요약을 남기고(③), 강의로 한 번 더 확인합니다(④).
+              순서를 바꿔도 되지만, ① 없이 ②를 먼저 열면 결과 숫자가 무엇을 뜻하는지 모르는 채 끝납니다.
+            </p>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <TrackDock track={track} stage={stage} />
+</Base>
+
+<style>
+  .stage-rail {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .stage-step {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-height: 48px;
+    padding: 6px 8px;
+    border: 1px solid var(--color-line);
+    border-radius: 10px;
+    background-color: #ffffff;
+    text-decoration: none;
+  }
+
+  .stage-step:hover {
+    border-color: var(--color-brand);
+  }
+
+  .stage-no {
+    font-size: 10.5px;
+    font-weight: 700;
+    color: var(--color-ink-faint);
+  }
+
+  .stage-name {
+    overflow: hidden;
+    font-size: 12px;
+    font-weight: 650;
+    line-height: 1.3;
+    color: var(--color-ink-soft);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .stage-step.is-done .stage-no {
+    color: var(--color-brand-deep);
+  }
+
+  .stage-step.is-current {
+    border-color: var(--color-brand);
+    background-color: var(--color-brand-soft);
+  }
+
+  .stage-step.is-current .stage-no,
+  .stage-step.is-current .stage-name {
+    color: var(--color-brand-deep);
+  }
+
+  /* ---- ① 글 목록 ---- */
+  .stage-posts {
+    display: grid;
+    gap: 2px;
+  }
+
+  .stage-post {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    min-height: 44px;
+    padding: 10px 2px;
+    border-bottom: 1px solid var(--color-line-soft);
+    text-decoration: none;
+  }
+
+  .stage-post:hover .stage-post-title {
+    color: var(--color-brand-deep);
+  }
+
+  .stage-post-no {
+    flex: none;
+    padding-top: 2px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--color-brand);
+  }
+
+  .stage-post-title {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.5;
+    color: var(--color-ink);
+    text-wrap: pretty;
+  }
+
+  .stage-post-meta {
+    display: block;
+    margin-top: 2px;
+    font-size: 11px;
+    color: var(--color-ink-faint);
+  }
+
+  .stage-post-go {
+    flex: none;
+    align-self: center;
+    color: var(--color-ink-faint);
+  }
+
+  /* ---- ③ 카드 ---- */
+  .stage-card {
+    display: grid;
+    grid-template-columns: 56px minmax(0, 1fr);
+    gap: 12px;
+    align-items: start;
+    padding: 16px;
+    text-decoration: none;
+  }
+
+  .stage-card-thumb {
+    display: grid;
+    place-items: center;
+    width: 56px;
+    height: 70px;
+    border-radius: 9px;
+    background-image: linear-gradient(160deg, #2a5bff 0%, #1233b8 100%);
+    color: #ffffff;
+  }
+
+  .stage-card-thumb .mono {
+    font-size: 9.5px;
+    opacity: 0.85;
+  }
+
+  .stage-card-thumb strong {
+    font-size: 20px;
+    line-height: 1;
+  }
+
+  .stage-card-btn {
+    grid-column: 1 / -1;
+    justify-self: stretch;
+    text-align: center;
+  }
+
+  @media (min-width: 768px) {
+    .stage-card {
+      grid-template-columns: 64px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 16px;
+      padding: 20px 22px;
+    }
+
+    .stage-card-btn {
+      grid-column: auto;
+      justify-self: end;
+    }
+  }
+
+  /* ---- 손실 질문 ---- */
+  .stage-question {
+    padding: 16px;
+    border: 1px solid var(--color-line);
+    border-left: 2px solid var(--color-brand);
+    border-radius: 0 14px 14px 0;
+    background-color: var(--color-paper);
+  }
+
+  /* ---- 사이드 트랙 지도 ---- */
+  .track-map {
+    display: grid;
+    gap: 2px;
+  }
+
+  .track-map-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    min-height: 44px;
+    padding: 7px 6px;
+    border-radius: 8px;
+    text-decoration: none;
+  }
+
+  .track-map-row:hover {
+    background-color: var(--color-brand-soft);
+  }
+
+  .track-map-row.is-current {
+    background-color: var(--color-brand-soft);
+  }
+
+  .track-map-no {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 999px;
+    background-color: var(--color-paper-deep);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--color-ink-soft);
+  }
+
+  .track-map-row.is-current .track-map-no {
+    background-color: var(--color-brand);
+    color: #ffffff;
+  }
+
+  .track-map-name {
+    display: block;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--color-ink);
+  }
+
+  .track-map-q {
+    display: block;
+    margin-top: 1px;
+    font-size: 11px;
+    line-height: 1.5;
+    color: var(--color-ink-faint);
+  }
+</style>

@@ -76,7 +76,7 @@ export function ModeTabs<T extends string>({
               data-on={active ? "1" : "0"}
               onClick={() => onChange(o.value)}
               className={
-                "min-h-[40px] flex-1 basis-[calc(50%-0.375rem)] rounded-lg px-3 text-[13px] font-semibold transition-colors sm:basis-0 " +
+                "min-h-[44px] flex-1 basis-[calc(50%-0.375rem)] rounded-lg px-3 text-[13px] font-semibold transition-colors sm:basis-0 " +
                 (active
                   ? "bg-brand text-white shadow-[0_6px_16px_-12px_rgba(15,53,80,0.9)]"
                   : "text-ink-soft hover:bg-paper-deep hover:text-brand")

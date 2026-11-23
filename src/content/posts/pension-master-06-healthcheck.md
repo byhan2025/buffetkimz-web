@@ -15,6 +15,10 @@ series:
 app: "account-tax-compare"
 tags: ["건강보험료", "IRP 중도인출", "피부양자"]
 cards: ["pension-retire-checklist"]
+# v9.1.0 P2 — 본문의 두 숫자(피부양자 소득 2,000만원 · 2026년 보험료율 7.19%)를 배지로도 보여 준다.
+# 값은 tax-rules.ts 상수에서만 나오고, 배지가 말하는 숫자와 본문이 말하는 숫자가 같을 때만 붙인다.
+metrics:
+  rules: ["public-pension-health-limit", "health-rate"]
 compare:
   title: "직장가입자 피부양자 vs 지역가입자 — 은퇴 후 내 자리"
   asOfLabel: "국민건강보험법 시행규칙 별표 1의2 · 제44조 · 2026년 보험료율 7.19%"
