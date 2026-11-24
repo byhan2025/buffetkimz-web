@@ -11,7 +11,8 @@
 
 사용:
   npm run build   # 또는 bash scripts/build_with_lock.sh build-pages
-  python3 scripts/capture_ux3_20261125.py
+  python3 scripts/capture_ux3_20261125.py            # 로컬 dist
+  python3 scripts/capture_ux3_20261125.py --live     # 라이브(gh-pages)
 결과: /workspace/reports/buffetkimz-web/ux3-20261125/ (shots/*.png, check.json)
 """
 from __future__ import annotations
@@ -33,7 +34,8 @@ ensure_browser_libs()
 
 from playwright.sync_api import sync_playwright  # noqa: E402
 
-OUT = pathlib.Path("/workspace/reports/buffetkimz-web/ux3-20261125")
+LIVE = "--live" in sys.argv
+OUT = pathlib.Path("/workspace/reports/buffetkimz-web/ux3-20261125") / ("live" if LIVE else "local")
 SHOTS = OUT / "shots"
 SHOTS.mkdir(parents=True, exist_ok=True)
 CHROME = os.environ.get("PW_CHROME") or (
@@ -60,10 +62,13 @@ class _Handler(http.server.SimpleHTTPRequestHandler):
         pass
 
 
-socketserver.TCPServer.allow_reuse_address = True
-httpd = socketserver.TCPServer(("127.0.0.1", PORT), _Handler)
-threading.Thread(target=httpd.serve_forever, daemon=True).start()
-BASE = f"http://127.0.0.1:{PORT}/buffetkimz-web"
+if LIVE:
+    BASE = "https://byhan2025.github.io/buffetkimz-web"
+else:
+    socketserver.TCPServer.allow_reuse_address = True
+    httpd = socketserver.TCPServer(("127.0.0.1", PORT), _Handler)
+    threading.Thread(target=httpd.serve_forever, daemon=True).start()
+    BASE = f"http://127.0.0.1:{PORT}/buffetkimz-web"
 
 OVERFLOW_JS = """() => ({
   overflow: document.documentElement.scrollWidth - window.innerWidth,
@@ -95,7 +100,7 @@ with sync_playwright() as pw:
         page.on("console", lambda m: errors.append(m.text) if m.type == "error" else None)
         page.on("pageerror", lambda e: errors.append(str(e)))
 
-        resp = page.goto(f"{BASE}/", wait_until="networkidle")
+        resp = page.goto(f"{BASE}/?v=ux3", wait_until="networkidle")
         check(f"{label} 홈 HTTP 200", resp is not None and resp.status == 200, resp.status if resp else "no response")
         page.wait_for_timeout(1200)
 
@@ -141,7 +146,7 @@ with sync_playwright() as pw:
         shot(page, f"{label}-04-tools")
 
         # ── C. 상황별 맞춤 ────────────────────────────────────────────
-        page.goto(f"{BASE}/", wait_until="networkidle")
+        page.goto(f"{BASE}/?v=ux3", wait_until="networkidle")
         page.wait_for_timeout(400)
         state = page.evaluate(
             """() => ({
@@ -240,7 +245,7 @@ with sync_playwright() as pw:
     # ── 자바스크립트 없이도 상황 전환이 되는가 ──────────────────────
     ctx = browser.new_context(viewport={"width": 390, "height": 844}, java_script_enabled=False)
     page = ctx.new_page()
-    page.goto(f"{BASE}/", wait_until="load")
+    page.goto(f"{BASE}/?v=ux3", wait_until="load")
     page.locator('label[for="aud-retiree"]').click()
     page.wait_for_timeout(300)
     nojs = page.evaluate(
@@ -259,13 +264,18 @@ with sync_playwright() as pw:
     check("자바스크립트 없이 사용법 첫 패널 보임", nojs["firstPanelVisible"] is True, nojs)
     ctx.close()
 
-    # ── /posts 카드 캡처 ────────────────────────────────────────────
-    ctx = browser.new_context(viewport={"width": 1440, "height": 900}, device_scale_factor=1)
-    page = ctx.new_page()
-    page.goto(f"{BASE}/posts/", wait_until="networkidle")
-    page.wait_for_timeout(600)
-    shot(page, "desk-06-posts-cards")
-    ctx.close()
+    # ── /posts 카드 캡처 (깊이 표시가 목록 카드에도 붙는지) ────────────
+    for tag, width, height in (("desk", 1440, 900), ("mobile", 390, 844)):
+        ctx = browser.new_context(viewport={"width": width, "height": height}, device_scale_factor=1)
+        page = ctx.new_page()
+        page.goto(f"{BASE}/posts/?v=ux3", wait_until="networkidle")
+        page.wait_for_timeout(600)
+        page.locator("[data-post-cards]").first.scroll_into_view_if_needed()
+        page.wait_for_timeout(300)
+        shot(page, f"{tag}-06-posts-cards")
+        over = page.evaluate(OVERFLOW_JS)
+        check(f"{tag} /posts 가로 넘침 0", over["overflow"] <= 0, over)
+        ctx.close()
 
     browser.close()
 
