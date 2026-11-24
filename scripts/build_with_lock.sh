@@ -19,6 +19,11 @@
 #   bash scripts/build_with_lock.sh verify              # npm run verify:tax + dist 준비 검사
 #   bash scripts/build_with_lock.sh deploy              # verify:tax → dist 검사 → npm run deploy:pages
 #   bash scripts/build_with_lock.sh all                 # build → verify:tax → deploy:pages (S6 표준)
+#
+# 종료 코드는 **처음 실패한 단계**의 값을 그대로 낸다. v9.4.0(2026-11-24 전수 감사) 이전에는
+#   `step_deploy`가 실패한 deploy:pages 뒤에도 "배포 후 dist 재확인"을 계속 돌고 그 성공(0)을
+#   스크립트 종료값으로 내보내서, gh-pages 푸시가 403으로 막혀도 화면에는 "■ deploy 성공"이 찍혔다.
+#   스케줄 액션이 그 문구를 믿고 "배포 완료"로 기록하는 사고가 실제로 났다(S2~S6 노트 11-23 3항).
 #   bash scripts/build_with_lock.sh run -- python3 scripts/publish_pipeline.py validate
 #   bash scripts/build_with_lock.sh deploy --dry-run    # 실행 계획만 출력(부작용 없음)
 #
@@ -180,26 +185,26 @@ step_verify_tax() {
 }
 
 step_deploy() {
-  step_verify_tax
+  step_verify_tax || return $?
   hr
   say "▶ dist 준비 검사(배포 직전)"
-  if [ "$DRY_RUN" -eq 1 ]; then say "   (dry-run — 검사 생략)"; else assert_dist_ready "배포 직전"; fi
-  run_step "npm run deploy:pages (gh-pages 델타 미러)" npm run deploy:pages
+  if [ "$DRY_RUN" -eq 1 ]; then say "   (dry-run — 검사 생략)"; else assert_dist_ready "배포 직전" || return $?; fi
+  run_step "npm run deploy:pages (gh-pages 델타 미러)" npm run deploy:pages || return $?
   hr
   say "▶ 배포 후 dist 재확인"
-  if [ "$DRY_RUN" -eq 1 ]; then say "   (dry-run — 검사 생략)"; else assert_dist_ready "배포 후"; fi
+  if [ "$DRY_RUN" -eq 1 ]; then say "   (dry-run — 검사 생략)"; else assert_dist_ready "배포 후" || return $?; fi
 }
 
 step_all() {
-  step_build
-  step_verify_tax
+  step_build || return $?
+  step_verify_tax || return $?
   hr
   say "▶ dist 준비 검사"
-  assert_dist_ready "배포 직전"
-  run_step "npm run deploy:pages (gh-pages 델타 미러)" npm run deploy:pages
+  assert_dist_ready "배포 직전" || return $?
+  run_step "npm run deploy:pages (gh-pages 델타 미러)" npm run deploy:pages || return $?
   hr
   say "▶ 배포 후 dist 재확인"
-  assert_dist_ready "배포 후"
+  assert_dist_ready "배포 후" || return $?
 }
 
 cmd_status() {

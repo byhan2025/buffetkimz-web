@@ -118,7 +118,13 @@ const main = async () => {
 
   if (mode === "check") {
     const mod = await readFile(OUT_FILE, "utf8");
-    const json = mod.slice(mod.indexOf("= {") + 2, mod.lastIndexOf(";")).trim();
+    /*
+     * v9.4.0(2026-11-24 전수 감사) — 예전에는 `indexOf("= {")`로 첫 `= {`를 찾았다.
+     * 그런데 생성 파일 맨 위 주석 아래 `export type VaultPayload = {` 가 먼저 걸려서
+     * JSON.parse가 늘 실패했다(`vault:check`가 무조건 FAIL). 값 대입문(`= {`)의 **마지막**으로 집는다.
+     */
+    const eq = mod.lastIndexOf("= {");
+    const json = mod.slice(eq + 2, mod.lastIndexOf(";")).trim();
     const payload = JSON.parse(json);
     const plain = await decrypt(payload, password);
     const a = JSON.parse(plain);

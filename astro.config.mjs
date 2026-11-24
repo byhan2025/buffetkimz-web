@@ -132,7 +132,9 @@ export default defineConfig({
         !page.includes('/topics') &&
         !ARCHIVED_PATHS.some((p) => page.includes(p)),
       changefreq: 'weekly',
-      lastmod: new Date('2026-11-23'),
+      // v9.4.0 — 글·카드가 들어온 날(사이트 공통 기준일)로 맞춘다. 사이트맵 lastmod는
+      //   실제로 내용을 확인한 날이어야 하므로, 새 콘텐츠를 내보내는 날 `site.baseDate`와 함께 올린다.
+      lastmod: new Date('2026-11-24'),
     }),
   ],
   markdown: {
