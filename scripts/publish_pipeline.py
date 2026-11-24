@@ -554,6 +554,26 @@ def check_body(post: Post, cfg, mode: str) -> list[Finding]:
     elif density > lim["bold_per_1000_warn"]:
         out.append(Finding("warn", "style-bold", f"굵게 표시가 1,000자당 {density:.1f}개 — 조금 줄이면 읽기 편합니다."))
 
+    # 줄표(—) 상한 — 만능 연결부로 쓰면 문장 리듬이 기계적으로 읽힌다(2026-11-24 전수 감사 §5-1)
+    dashes = body.count("—")
+    dash_density = dashes * 1000 / max(chars, 1)
+    if dashes > lim.get("dash_total_warn", 3):
+        out.append(
+            Finding(
+                "warn",
+                "style-dash",
+                f"줄표(—) {dashes}개 — 편당 {lim.get('dash_total_warn', 3)}개 이하를 권합니다(설명을 덧붙이지 말고 문장을 끊어 보세요).",
+            )
+        )
+    elif dash_density > lim.get("dash_per_1000_warn", 4.0):
+        out.append(
+            Finding(
+                "warn",
+                "style-dash",
+                f"줄표(—)가 1,000자당 {dash_density:.1f}개 — 기준 {lim.get('dash_per_1000_warn', 4.0)}개를 넘습니다.",
+            )
+        )
+
     quotes = len(re.findall(r"[\"“”'‘’]", body))
     if quotes > lim["quotes_error"]:
         out.append(Finding("error", "style-quotes", f"따옴표 {quotes}개 — 아카이브 문체는 인용이 꼭 필요할 때만 씁니다."))
