@@ -137,6 +137,8 @@ def main() -> int:
             if label == "desktop":
                 page.screenshot(path=str(SHOTS / "apps-vault-locked.png"), full_page=False)
                 page.screenshot(path=str(SHOTS / "apps-vault-locked-full.png"), full_page=True)
+            else:
+                page.screenshot(path=str(SHOTS / "apps-vault-locked-390.png"), full_page=False)
 
             # 1) 모달 열기
             btn.click()
@@ -192,7 +194,6 @@ def main() -> int:
                 page.screenshot(path=str(SHOTS / "apps-vault-unlocked-full.png"), full_page=True)
             else:
                 page.screenshot(path=str(SHOTS / "apps-vault-unlocked-390.png"), full_page=False)
-                page.screenshot(path=str(SHOTS / "apps-vault-locked-390.png"), full_page=False)
 
             # 4) 새로고침 — 다시 묻지 않고 열린 상태 복원
             page.reload(wait_until="networkidle")
