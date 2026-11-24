@@ -1,0 +1,132 @@
+{
+  "date": "2026-11-24",
+  "headerDate": "2026.11.24",
+  "cover": {
+    "eyebrow": "버핏킴즈의 생각",
+    "titleA": "4대 시장",
+    "titleB": "퀀트 스크리닝",
+    "lead": "골든 시그널로 본 4종목",
+    "note": "미국 기술주 급반등과 국내 개장 전 갭상승 신호",
+    "boxes": [
+      { "label": "미국 주식", "value": "DIS" },
+      { "label": "미국 ETF", "value": "BIL" },
+      { "label": "국내 주식", "value": "LG유플러스" },
+      { "label": "국내 ETF", "value": "KODEX 인버스2X" }
+    ],
+    "footerLeft": "11월 23일 미국·한국 종가 / 11월 24일 아침 브리핑",
+    "bg": "bg-01-wallstreet-bull.webp"
+  },
+  "screens": [
+    {
+      "badge": "미국 주식 / 제공 스크리닝 1위",
+      "ticker": "NYSE / DIS",
+      "name": "월트 디즈니",
+      "sub": "미디어·엔터·스트리밍",
+      "priceLabel": "11월 23일 종가",
+      "price": "$120.27",
+      "changeLabel": "전일 대비",
+      "change": "+1.94%",
+      "tone": "up",
+      "metrics": [
+        { "label": "거래량", "value": "약 967만 주" },
+        { "label": "RSI / 제공", "value": "61.6" },
+        { "label": "골든 시그널 / 제공", "value": "100점", "emphasis": true }
+      ],
+      "note": "이동평균선 정배열 / AAPL·WMT·MCD 100점 동률",
+      "headline": "엔비디아 복귀로 나스닥 +6.51% 급반등",
+      "body": ["7거래일 연속 하락을 끊으며 S&P500 +4.73%, SOX +14.03% 동반 상승했다."],
+      "source": "시세 Yahoo Finance / 지수 S&P·Nasdaq",
+      "bg": "bg-02-media-streaming.webp"
+    },
+    {
+      "badge": "미국 ETF / 제공 스크리닝 1위",
+      "ticker": "NYSE ARCA / BIL",
+      "name": "미국 초단기 국채 1-3개월",
+      "sub": "SPDR Bloomberg 1-3 Month T-Bill ETF",
+      "priceLabel": "11월 23일 종가",
+      "price": "$91.60",
+      "changeLabel": "전일 대비",
+      "change": "+0.01%",
+      "tone": "up",
+      "metrics": [
+        { "label": "거래량", "value": "안전자산" },
+        { "label": "RSI / 제공", "value": "99.2" },
+        { "label": "골든 시그널 / 제공", "value": "85점", "emphasis": true }
+      ],
+      "note": "참고 섹터 강세 SMH +15.03% / SOXX +13.63%",
+      "headline": "위험선호 복원 속 단기채는 현금성 흐름 유지",
+      "body": ["반도체 ETF가 급등했으나 직전 추세 점수로 단기채가 1위에 올랐다."],
+      "source": "시세 Yahoo Finance / 상품 State Street",
+      "bg": "bg-03-treasury-vault.webp"
+    },
+    {
+      "badge": "국내 주식 / 제공 스크리닝 1위",
+      "ticker": "KRX / 032640",
+      "name": "LG유플러스",
+      "sub": "통신·유무선 네트워크",
+      "priceLabel": "11월 23일 종가",
+      "price": "14,720원",
+      "changeLabel": "전일 대비",
+      "change": "-1.67%",
+      "tone": "down",
+      "metrics": [
+        { "label": "거래량", "value": "약 76.1만 주" },
+        { "label": "RSI / 제공", "value": "52.2" },
+        { "label": "골든 시그널 / 제공", "value": "85점", "emphasis": true }
+      ],
+      "note": "이동평균선 정배열 / 대한항공·우리금융 등 9종목 85점 동률",
+      "headline": "하락장에서도 정배열을 지킨 방어주 흐름",
+      "body": ["11월 23일 코스피 -3.31% 속에서도 5일·20일선 정배열을 유지했다."],
+      "source": "시세 Yahoo Finance·KRX / 업종 통신",
+      "bg": "bg-04-telecom-5g.webp"
+    },
+    {
+      "badge": "국내 ETF / 제공 스크리닝 1위",
+      "ticker": "KRX / 252670",
+      "name": "KODEX 200선물인버스2X",
+      "sub": "코스피200 선물 일간 -2배",
+      "priceLabel": "11월 23일 종가",
+      "price": "140원",
+      "changeLabel": "전일 대비",
+      "change": "+6.06%",
+      "tone": "up",
+      "metrics": [
+        { "label": "거래량", "value": "인버스 2배" },
+        { "label": "RSI / 제공", "value": "70.4" },
+        { "label": "골든 시그널 / 제공", "value": "85점", "emphasis": true }
+      ],
+      "note": "참고 야간선물 +7.06% 반등 — 오늘 개장은 역방향 주의",
+      "headline": "직전일 하락 반영분, 개장 전 시그널은 반대",
+      "body": ["밤사이 야간선물과 프리마켓이 급등해 장 시작 시 변동성에 유의해야 한다."],
+      "source": "시세 Yahoo Finance·KRX / 상품 삼성자산운용",
+      "bg": "bg-05-bear-chart.webp"
+    }
+  ],
+  "closing": {
+    "badge": "11.24 / KRX 정규장 09:00-15:30",
+    "titleA": "개장 전,",
+    "titleB": "세 가지 체크포인트",
+    "items": [
+      {
+        "no": "01",
+        "title": "미국장",
+        "main": "나스닥종합 +6.51% / 엔비디아 +31.48%",
+        "sub": "SOX +14.03%, SK하이닉스 ADR +20.00% 동반 상승."
+      },
+      {
+        "no": "02",
+        "title": "개장 전 시그널",
+        "main": "코스피200 야간선물 777.95 (+7.06%)",
+        "sub": "삼성전자·SK하이닉스 프리마켓 급등, 외국인 현·선물 수급 확인."
+      },
+      {
+        "no": "03",
+        "title": "환율·제도",
+        "main": "역외 원/달러 1,341.28원 (-4.62원)",
+        "sub": "오늘부터 상장사 자사주 1일 매수한도 3개월 완화 시행."
+      }
+    ],
+    "footerLeft": "지수 KRX·Nasdaq / 시세 Yahoo Finance / 환율 08:20 기준",
+    "bg": "bg-06-yeouido-dawn.webp"
+  }
+}
