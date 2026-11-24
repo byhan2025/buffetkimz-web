@@ -781,6 +781,24 @@
       "sub": "900만 원을 채우는 순서와 수수료 조건",
       "date": "2026.11.24",
       "alt": "어두운 원목 책상 위의 두 도자기 그릇, 하나는 열려 있고 하나는 좁은 홈이 난 뚜껑이 덮여 있다"
+    },
+    {
+      "slug": "finance-buy-vs-jeonse-breakeven",
+      "out": "public/thumbs/finance-buy-vs-jeonse-breakeven.webp",
+      "art": "downloads/thumbs-raw/finance-buy-vs-jeonse-breakeven.png",
+      "badge": [
+        "금융 · 주거",
+        "2026.11"
+      ],
+      "accent": "#F2D08C",
+      "headline": [
+        "6억 아파트 5년",
+        "집값 연 2.6%"
+      ],
+      "accentLine": 1,
+      "sub": "전세와 매수, 5년 비용을 같은 화폐로 놓으면",
+      "date": "2026.11.25",
+      "alt": "어두운 나무 탁자 위의 작은 집 모형과 황동 열쇠, 접어 둔 계약서와 계산기 — 매수와 전세의 5년 비용 비교"
     }
   ]
 }
