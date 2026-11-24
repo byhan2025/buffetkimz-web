@@ -37,6 +37,9 @@ os.environ.setdefault(
 from playwright.sync_api import sync_playwright  # noqa: E402
 
 APP = pathlib.Path(__file__).resolve().parent.parent
+# 검사할 빌드 산출물 — 기본은 앱의 dist. 다른 액션이 같은 시각에 빌드하면 `astro build`가 시작할 때
+# outDir(dist)을 비워서 검사 도중 페이지가 404가 된다. BOARD_DIST로 미리 떠 둔 사본을 가리킬 수 있다.
+DIST = pathlib.Path(os.environ.get("BOARD_DIST") or (APP / "dist")).resolve()
 OUT = pathlib.Path("/workspace/reports/buffetkimz-web/board")
 OUT.mkdir(parents=True, exist_ok=True)
 CHROME = os.environ.get("PW_CHROME") or (
@@ -57,7 +60,7 @@ mimetypes.add_type("image/webp", ".webp")
 
 class Handler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *a, **kw):
-        super().__init__(*a, directory=str(APP / "dist"), **kw)
+        super().__init__(*a, directory=str(DIST), **kw)
 
     def translate_path(self, path):
         p = path.split("?", 1)[0].split("#", 1)[0]
