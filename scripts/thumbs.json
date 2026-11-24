@@ -762,6 +762,25 @@
       "sub": "공단이 내는 91.3%, 내 몫은 15~20%",
       "alt": "어두운 탁자 위의 두 봉투와 계산기, 겹쳐 둔 요양 서류 — 20년 보험료와 3년 돌봄비",
       "date": "2026.11.24"
+    },
+    {
+      "slug": "pension-savings-vs-irp-order",
+      "out": "public/thumbs/pension-savings-vs-irp-order.webp",
+      "art": "downloads/thumbs-raw/pension-savings-vs-irp-order.png",
+      "badge": [
+        "연금 · 절세",
+        "2026.11"
+      ],
+      "accent": "#F2D08C",
+      "headline": [
+        "연금저축 600만 원",
+        "IRP 300만 원",
+        "갈리는 세 가지"
+      ],
+      "accentLine": 2,
+      "sub": "900만 원을 채우는 순서와 수수료 조건",
+      "date": "2026.11.24",
+      "alt": "어두운 원목 책상 위의 두 도자기 그릇, 하나는 열려 있고 하나는 좁은 홈이 난 뚜껑이 덮여 있다"
     }
   ]
 }
