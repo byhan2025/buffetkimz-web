@@ -51,9 +51,15 @@ interface Props {
   showControls?: boolean;
   /** 도구 묶음 이름 — 화면 낭독용 */
   label?: string;
+  /**
+   * 이 화면의 글 전체 편수 — 목록 위 대표 카드까지 포함한 수.
+   * v9.5.0: 대표 카드를 위에 따로 그리는 화면(자산리포트·분야 목록)에서 목록만 세어 '0편'·'33편'이
+   * 머리의 '글 N편'과 어긋나던 것을 바로냈다. 넘기지 않으면 목록 길이를 쓴다.
+   */
+  total?: number;
 }
 
-const { items, columns = 3, showControls = true, label = "글 목록" } = Astro.props;
+const { items, columns = 3, showControls = true, label = "글 목록", total = items.length } = Astro.props;
 const grid = columns === 2 ? "sm:grid-cols-2" : "sm:grid-cols-2 lg:grid-cols-3";
 /** 카드 요약은 80자까지만 — 목록에서 같은 리듬으로 읽히게 */
 const brief = (text: string, limit = 80) => {
@@ -62,12 +68,12 @@ const brief = (text: string, limit = 80) => {
 };
 ---
 
-<div data-post-list data-default-view="card">
+<div data-post-list data-default-view="card" data-list-total={total}>
   {
     showControls && (
       <div class="mb-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b border-line pb-3" data-post-toolbar>
         <p class="text-[12px] text-ink-faint" data-post-count>
-          {items.length}편 · 최신순
+          {total}편 · 최신순
         </p>
         <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
           <div class="flex items-center gap-0.5" role="group" aria-label="정렬">
@@ -213,7 +219,7 @@ const brief = (text: string, limit = 80) => {
       let sortMode = saved.sort === "title" ? "title" : "latest";
       let viewMode = saved.view === "text" ? "text" : "card";
 
-      const total = items.length;
+      const total = Number(root.dataset.listTotal || items.length);
 
       const applySort = (mode, remember = true) => {
         sortMode = mode === "title" ? "title" : "latest";

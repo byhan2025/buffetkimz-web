@@ -56,7 +56,8 @@ const { app } = Astro.props;
           <span class="chip">
             {app.category === "utility" ? (app.sendsDataOut ? "단축만 외부 전송" : "서버 미전송") : "브라우저에서 계산"}
           </span>
-          <span class="chip mono">기준일 {site.baseDateLabel}</span>
+          {/* v9.5.0 — 본문 산식의 기준일과 층이 다르다. 페이지 기준선임을 단어로 밝힌다. */}
+          <span class="chip mono">사이트 기준일 {site.baseDateLabel}</span>
         </div>
       </div>
     </div>

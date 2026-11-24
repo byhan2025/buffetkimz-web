@@ -372,4 +372,12 @@ export const storeById = (id: string) => storeItems.find((i) => i.id === id);
 export const categoryCount = (id: string) =>
   storeItems.filter((i) => i.category === (id as AppCategoryId)).length;
 
+/**
+ * 카테고리별 **도구** 수 — 진열대 칸 수(categoryCount)에서 보조 페이지(금융 일정 달력·자료앨범)를 뺀 값.
+ * v9.5.0 — 머리 메뉴는 '전체 앱 28종'인데 분류 칩이 10+3+17=30종으로 보여 합이 맞지 않았다.
+ *   메뉴는 앱(도구) 수를 세고, 앱스토어 화면의 탭은 진열대 칸 수(30)를 센다 — 두 자리의 단위를 나눈다.
+ */
+export const toolCategoryCount = (id: string) =>
+  fromApps.filter((i) => i.category === (id as AppCategoryId)).length;
+
 export const storePath = (item: StoreItem) => item.href;

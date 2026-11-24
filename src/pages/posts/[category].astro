@@ -109,7 +109,8 @@ const jsonLd = graph([
             <h1 class="h-display text-ink">{category.name}</h1>
             <span class="text-[12.5px] text-ink-muted">글 {posts.length}편</span>
           </div>
-          <p class="lede mt-3 max-w-[54ch]">{category.lead}</p>
+          {/* 글 3편 미만인 분야는 서문을 목록 위로 내려 보낸다(아래 category-preface). */}
+          {posts.length > 2 && <p class="lede mt-3 max-w-[54ch]">{category.lead}</p>}
 
           <ul class="mt-5 flex flex-wrap gap-2">
             {category.covers.map((c) => <li class="chip">{c}</li>)}
@@ -135,6 +136,23 @@ const jsonLd = graph([
     <div class="wrap py-8 md:py-12">
       <div class="grid gap-12 lg:grid-cols-[minmax(0,1fr)_220px] lg:gap-14">
         <div class="min-w-0">
+          {/*
+            v9.5.0 — 글이 한두 편뿐인 분야(철학·에세이, AI)의 빈 느낌을 서문으로 채운다.
+            서문은 분야 데이터의 lead 한 문장과 이 칸의 공개 방식뿐이다(없는 글을 있는 것처럼 만들지 않는다).
+          */}
+          {
+            posts.length <= 2 && (
+              <section class="category-preface mb-8" data-category-preface={category.slug} aria-label={`${category.name} 서문`}>
+                <p class="mono text-[11.5px] font-semibold tracking-[0.16em] text-brand">서문</p>
+                <p class="category-preface-lede mt-2">{category.lead}</p>
+                <p class="mt-2.5 text-[12.5px] leading-[1.75] text-ink-muted">
+                  이 칸에는 {category.name}에서 직접 확인한 것만 올립니다. 지금 {posts.length}편이고, 새 글은{" "}
+                  <a href={withBase("/posts")} class="link font-semibold text-ink-soft">자산리포트 전체 목록</a>과
+                  소식지에 함께 실립니다.
+                </p>
+              </section>
+            )
+          }
           {
             masterPosts.length > 0 && (
               <section class="mb-8 rounded-2xl border border-line bg-paper-deep/60 p-5 md:p-6" data-master-series>
@@ -199,7 +217,7 @@ const jsonLd = graph([
                   </div>
                 </a>
                 <div class="mt-4">
-                  <PostCards items={rest.map(toCard)} columns={2} />
+                  <PostCards items={rest.map(toCard)} columns={2} total={posts.length} />
                 </div>
               </>
             ) : (
@@ -231,4 +249,26 @@ const jsonLd = graph([
       </div>
     </div>
   </section>
+
+<style>
+  /* 분야 서문 — 글이 적은 칸에서 목록 위에 한 문단을 놓아 '빈 페이지'로 읽히지 않게 한다 */
+  .category-preface {
+    border-left: 3px solid var(--color-brand);
+    padding: 2px 0 2px 14px;
+  }
+
+  .category-preface-lede {
+    max-width: 56ch;
+    font-size: 16px;
+    line-height: 1.72;
+    letter-spacing: -0.015em;
+    color: var(--color-ink-soft);
+  }
+
+  @media (min-width: 768px) {
+    .category-preface-lede {
+      font-size: 18px;
+    }
+  }
+</style>
 </Base>
