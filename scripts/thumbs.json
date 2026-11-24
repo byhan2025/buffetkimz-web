@@ -799,6 +799,25 @@
       "sub": "전세와 매수, 5년 비용을 같은 화폐로 놓으면",
       "date": "2026.11.25",
       "alt": "어두운 나무 탁자 위의 작은 집 모형과 황동 열쇠, 접어 둔 계약서와 계산기 — 매수와 전세의 5년 비용 비교"
+    },
+    {
+      "slug": "finance-emergency-fund-3-6",
+      "out": "public/thumbs/finance-emergency-fund-3-6.webp",
+      "art": "downloads/thumbs-raw/finance-emergency-fund-3-6.png",
+      "badge": [
+        "금융 · 비상금",
+        "2026.11"
+      ],
+      "accent": "#F2D08C",
+      "headline": [
+        "비상금 3~6개월",
+        "월급이 아니라",
+        "필수 지출입니다"
+      ],
+      "accentLine": 2,
+      "sub": "필수 지출 250만 원이면 3개월 750만 원",
+      "date": "2026.11.25",
+      "alt": "어두운 남색 천 위에 동전이 담긴 유리병, 갈색 봉투 세 장, 접어 둔 우산, 펜을 올려둔 작은 장부 — 비상금을 따로 모아 둔 자리"
     }
   ]
 }

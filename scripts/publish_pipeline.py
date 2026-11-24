@@ -698,24 +698,36 @@ def check_duplicates(post: Post, archive: list[Post], cfg) -> list[Finding]:
     return out
 
 
-def check_concentration(post: Post, archive: list[Post], cfg) -> list[Finding]:
+def check_concentration(post: Post, archive: list[Post], cfg, mode: str = "draft") -> list[Finding]:
+    """같은 분야 연속 발행 — 이 글이 놓인 자리에서 앞으로 이어진 같은 분야 편수를 센다.
+
+    이전 구현은 아카이브의 **최신 구간**만 세고 거기에 +1을 더했다. 그래서 같은 날 같은 분야 글 두 편이
+    발행되면(예: 2026-11-25 금융 2편) 실제로는 두 편인데도 모든 같은 분야 글에 '3편 연속' 오류가 났고,
+    반대로 이 글의 자리에서 실제로 이어진 편수는 보지 못했다.
+
+    판정 수준은 다른 게이트와 같다. 새 초안(mode="draft")은 오류로 막고, 이미 발행된 아카이브(mode="archive")는
+    경고로만 보여 준다. 아카이브에는 예전에 연속 발행한 시리즈(연금 6편 등)가 남아 있어, 소급해 오류로 세우면
+    정상 발행분까지 게이트가 서기 때문이다.
+    """
     out: list[Finding] = []
     conc = cfg["concentration"]
-    ordered = sorted(archive, key=lambda p: ((p.published or date.min), p.slug), reverse=True)
-    same_run = 0
-    for p in ordered:
+    ordered = sorted(archive + [post], key=lambda p: ((p.published or date.min), p.slug), reverse=True)
+    idx = next(i for i, p in enumerate(ordered) if p.slug == post.slug)
+    same_run = 1
+    for p in ordered[idx + 1 :]:
         if p.category == post.category:
             same_run += 1
         else:
             break
-    if same_run + 1 >= conc["error_same_run"]:
+    level = "error" if mode == "draft" else "warn"
+    if same_run >= conc["error_same_run"]:
         out.append(
-            Finding("error", "category-run", f"`{post.category}` 분야가 {same_run + 1}편 연속입니다 — 주제를 분산하세요.")
+            Finding(level, "category-run", f"`{post.category}` 분야가 {same_run}편 연속입니다 — 주제를 분산하세요.")
         )
-    elif same_run + 1 >= conc["warn_same_run"] and same_run > 0:
-        out.append(Finding("warn", "category-run", f"`{post.category}` 분야가 {same_run + 1}편 연속입니다."))
+    elif same_run >= conc["warn_same_run"] and same_run > 1:
+        out.append(Finding("warn", "category-run", f"`{post.category}` 분야가 {same_run}편 연속입니다."))
 
-    window = ordered[: conc["window"]]
+    window = [p for p in ordered if p.slug != post.slug][: conc["window"]]
     if window:
         same = sum(1 for p in window if p.category == post.category)
         if same + 1 >= conc["warn_category_in_window"]:
@@ -997,7 +1009,7 @@ def validate_post(post: Post, cfg, archive: list[Post], mode: str = "archive") -
     findings += check_duplicates(post, archive, cfg)
     findings += check_body_hash(post, archive)
     findings += check_topic_policy(post, cfg)
-    findings += check_concentration(post, archive, cfg)
+    findings += check_concentration(post, archive, cfg, mode)
     # v6.0 게이트 — Answer-First · Information-Gain · 100점 리뷰(해시 결속)
     findings += check_answer_first(post, cfg, mode)
     findings += check_information_gain(post, cfg, mode)

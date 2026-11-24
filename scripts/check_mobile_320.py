@@ -73,6 +73,8 @@ ROUTES = [
     # 2026-11-23 P0 빈틈 2편 — 경제-C·노후-B(숫자 배지·4열 표가 있는 새 글)
     ("post-new-economy", "/posts/economy-fixed-cost-check/"),
     ("post-new-retire", "/posts/retire-pension-timing/"),
+    # 2026-11-25 키링대리 글 — 비상금 3~6개월(비교 카드·표·출처 5건이 한 화면에)
+    ("post-new-emergency", "/posts/finance-emergency-fund-3-6/"),
     # v9.2.0 — 데일리 브리프 게시판(분류 필터 알약·회차 배지·출처 링크가 한 화면에 모인 곳)
     ("board", "/board/"),
 ]

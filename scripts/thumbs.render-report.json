@@ -1,16 +1,21 @@
 [
   {
-    "slug": "finance-buy-vs-jeonse-breakeven",
-    "out": "public/thumbs/finance-buy-vs-jeonse-breakeven.webp",
-    "bytes": 46204,
+    "slug": "finance-emergency-fund-3-6",
+    "out": "public/thumbs/finance-emergency-fund-3-6.webp",
+    "bytes": 52834,
     "lines": [
       {
-        "text": "6억 아파트 5년",
+        "text": "비상금 3~6개월",
         "size": 64,
         "overflow": false
       },
       {
-        "text": "집값 연 2.6%",
+        "text": "월급이 아니라",
+        "size": 64,
+        "overflow": false
+      },
+      {
+        "text": "필수 지출입니다",
         "size": 64,
         "overflow": false
       }
