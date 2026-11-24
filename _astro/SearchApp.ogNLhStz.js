@@ -1,0 +1,1 @@
+export{t as default}from"./SearchApp.g-yrD11s.js";
