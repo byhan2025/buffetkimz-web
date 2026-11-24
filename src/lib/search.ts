@@ -5,7 +5,7 @@
 
 export type SearchDoc = {
   id: string;
-  type: "post" | "app" | "calendar" | "today";
+  type: "post" | "app" | "calendar" | "today" | "academy" | "gallery" | "board";
   title: string;
   description: string;
   body: string;
@@ -25,7 +25,7 @@ export type SearchHit = {
 };
 
 export type SearchOptions = {
-  type?: "all" | "post" | "app" | "calendar";
+  type?: "all" | SearchDoc["type"];
   group?: string;
 };
 
@@ -188,4 +188,7 @@ export const typeLabels: Record<SearchDoc["type"], string> = {
   app: "앱",
   calendar: "골든타임",
   today: "오늘 확인",
+  academy: "아카데미",
+  gallery: "자료앨범",
+  board: "데일리 브리프",
 };

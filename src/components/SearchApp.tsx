@@ -31,11 +31,16 @@ function loadIndex(): Promise<SearchDoc[]> {
   return pending;
 }
 
-type TypeFilter = "all" | "post" | "app" | "calendar";
+type TypeFilter = "all" | SearchDoc["type"];
 
+/* v9.4.0 — 아카데미·자료앨범·데일리 브리프도 검색되므로 탭을 늘린다.
+ *   390px에서 한 줄에 다 들어가지 않으므로 탭 줄은 `flex-wrap`으로 두 줄까지 접힌다(가로 넘침 0). */
 const TYPE_TABS: { value: TypeFilter; label: string }[] = [
   { value: "all", label: "전체" },
   { value: "post", label: "자산리포트" },
+  { value: "academy", label: "아카데미" },
+  { value: "gallery", label: "자료앨범" },
+  { value: "board", label: "브리프" },
   { value: "app", label: "앱" },
   { value: "calendar", label: "골든타임" },
 ];
@@ -98,6 +103,9 @@ function HitRow({
 
 const SECTION_ORDER: { type: SearchDoc["type"]; label: string }[] = [
   { type: "post", label: "자산리포트 글" },
+  { type: "academy", label: "아카데미 강의" },
+  { type: "gallery", label: "자료앨범" },
+  { type: "board", label: "데일리 브리프" },
   { type: "app", label: "앱" },
   { type: "calendar", label: "골든타임" },
 ];
@@ -238,7 +246,7 @@ export default function SearchApp({ variant = "page", onClose, initialQuery = ""
 
       {isPage && (
         <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-y border-line py-1">
-          <div role="tablist" aria-label="결과 종류" className="flex gap-5">
+          <div role="tablist" aria-label="결과 종류" className="flex flex-wrap gap-x-5 gap-y-0">
             {TYPE_TABS.map((t) => (
               <button
                 key={t.value}
