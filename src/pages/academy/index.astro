@@ -36,6 +36,17 @@ const adultOpen = OPEN_LESSONS.filter((l) => (l.track ?? "adult") === "adult").l
 const schoolOpen = OPEN_LESSONS.length - adultOpen;
 
 /**
+ * v9.5.0(2026-11-24 1단계) — '준비 중' 31강은 화면에서 접는다.
+ * 성인 실전 41강 가운데 지금 열린 10강만 카드로 펼치고, 남은 강의는 STEP별 계획 수로 한 번에 접어 둔다.
+ * 닫힌 칸 31개가 한 화면에 깔리면 '아직 없는 학교'로 읽혔다(전수 감사 §2-4-2).
+ */
+const pendingLessons = ACADEMY.counts.lessons - adultOpen;
+const pendingSteps = ACADEMY_STEPS.map((step) => ({
+  ...step,
+  pending: Math.max(0, step.lessons - step.opened),
+})).filter((step) => step.pending > 0);
+
+/**
  * 강의 카드 칩 — 트랙 이름과 회차가 겹치지 않게 한 번만 적는다.
  * v8.6.1 — '은퇴 · 은퇴 1강'처럼 트랙 이름이 회차에 그대로 반복되던 표기를 정리.
  *   '은퇴' + '은퇴 1강' → '은퇴 · 1강',  '성인 실전' + '4-1강' → '성인 실전 · 4-1강'
@@ -166,7 +177,7 @@ const jsonLd = graph([
 
           <ul class="mt-4 flex flex-wrap gap-1.5">
             <li class="chip">{SCHOOL_COUNTS.tracks}트랙 · {SCHOOL_COUNTS.weeks}주</li>
-            <li class="chip">성인 실전 {ACADEMY.counts.steps} STEP · {ACADEMY.counts.lessons}강</li>
+            <li class="chip">성인 실전 {ACADEMY.counts.steps} STEP · 계획 {ACADEMY.counts.lessons}강</li>
             <li class="chip !border-brand/30 !bg-brand-soft !text-brand-deep">
               지금 열린 강의 {openLessonCount}개 (성인 {adultOpen} · 학교 {schoolOpen})
             </li>
@@ -429,9 +440,6 @@ const jsonLd = graph([
                     </li>
                   ))}
                 </ol>
-                <p class="school-week-soon-note">
-                  {t.weeks - weeks.filter((w) => w.lessonSlug).length}주 준비 중
-                </p>
               </section>
             );
           })
@@ -455,12 +463,12 @@ const jsonLd = graph([
       <div class="sec-head">
         <div>
           <p class="eyebrow">성인 실전 심화</p>
-          <h2 class="sec-title">{ACADEMY.counts.steps} STEP · {ACADEMY.counts.lessons}강</h2>
+          <h2 class="sec-title">{ACADEMY.counts.steps} STEP · 계획 {ACADEMY.counts.lessons}강</h2>
         </div>
         <div class="sec-head-side">
           <p class="sec-desc">
             개념(1) → 계좌(2) → 배분(3) → 수령(4) → 보장(5) → 운영(6) 순서입니다.<br />
-            지금은 STEP마다 대표 강의만 열려 있어, 열린 강의와 계획 수만 적습니다.
+            지금은 여섯 STEP에 대표 강의가 하나씩 열려 있고, 남은 강의는 1 → 6 순서로 하나씩 엽니다.
           </p>
         </div>
       </div>
@@ -480,7 +488,7 @@ const jsonLd = graph([
                   <div class="flex flex-wrap items-baseline gap-x-2 gap-y-1">
                     <h3 class="text-[17px] font-bold tracking-[-0.03em] text-ink">{step.name}</h3>
                     <span class={open ? "academy-status is-open" : "academy-status"}>
-                      {open ? `공개 ${step.opened}강 / 계획 ${step.lessons}강` : `계획 ${step.lessons}강 · 준비중`}
+                      {open ? `공개 ${step.opened}강` : `계획 ${step.lessons}강`}
                     </span>
                   </div>
                   <p class="mt-1 text-[13.5px] leading-[1.65] text-ink-muted">{step.question}</p>
@@ -503,6 +511,35 @@ const jsonLd = graph([
           })
         }
       </ol>
+
+      {/* 남은 강의 — 접어 둔다. 열린 강의가 화면의 중심이고, 계획은 한 번 눌러 볼 수 있게만 남긴다. */}
+      {
+        pendingLessons > 0 && (
+          <details class="academy-pending mt-3">
+            <summary>
+              <span class="academy-pending-title">
+                아직 펼치지 않은 {pendingLessons}강
+              </span>
+              <span class="academy-pending-meta mono">{pendingSteps.length}개 STEP · 공개 순서</span>
+            </summary>
+            <ul class="academy-pending-list">
+              {pendingSteps.map((step) => (
+                <li>
+                  <span class="mono academy-pending-no">STEP {step.no}</span>
+                  <span class="academy-pending-name">{step.name}</span>
+                  <span class="academy-pending-num">
+                    공개 {step.opened}강 · 남은 {step.pending}강
+                  </span>
+                </li>
+              ))}
+            </ul>
+            <p class="academy-pending-note">
+              강의는 STEP 1부터 순서대로 열고, 한 강의는 카드뉴스 6장 · 읽기 · 계산기 실습 · 1차 출처를 함께
+              갖춘 뒤 공개합니다. 계획 수는 지금 연재 중인 것이 아니라 열 순서입니다.
+            </p>
+          </details>
+        )
+      }
 
       {/* 처음 나오는 용어 — 초보자가 첫 화면에서 멈추지 않게 한 줄씩 풀어 둔다 */}
       <div class="note-box mt-6" data-academy-glossary>
@@ -602,8 +639,8 @@ const jsonLd = graph([
           <div data-diagnosis-answer="all" hidden>
             <p class="mt-1 text-[14px] font-bold text-ink">6단계 전체 — 41강 중 {adultOpen}강 공개</p>
             <p class="mt-1 text-[12.5px] leading-[1.65] text-ink-muted">
-              순서대로 6장의 문서를 남깁니다. 지금은 6단계 모두에서 {adultOpen}강이 열려 있고, 나머지
-              {ACADEMY.counts.lessons - adultOpen}강은 준비 중입니다.
+              순서대로 6장의 문서를 남깁니다. 지금은 6단계 모두에서 {adultOpen}강이 열려 있고, 남은 강의는
+              1 → 6 순서로 하나씩 엽니다.
             </p>
           </div>
           <noscript>
@@ -1014,12 +1051,95 @@ const jsonLd = graph([
     color: var(--color-brand-deep);
   }
 
-  /* v8.7.0 — 미공개 주는 목록 대신 이 한 줄로만 남긴다(감사 D8). */
-  .school-week-soon-note {
-    margin-top: 10px;
-    padding-top: 8px;
-    border-top: 1px dotted var(--color-line);
+  /*
+   * v9.5.0 — 남은 강의 접기. 열린 10강이 중심이고, 31강은 한 줄 요약 + 한 번 누르면 펼쳐지는 목록이다.
+   * 닫힌 칸 31개를 카드로 늘어놓지 않는다(감사 §2-4-2).
+   */
+  .academy-pending {
+    border: 1px solid var(--color-line);
+    border-radius: 14px;
+    background-color: var(--color-paper-deep);
+  }
+
+  .academy-pending > summary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px 12px;
+    min-height: 48px;
+    padding: 12px 16px;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .academy-pending > summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .academy-pending > summary::before {
+    content: "+";
+    display: inline-block;
+    width: 14px;
+    font-family: var(--font-mono);
+    font-size: 15px;
+    line-height: 1;
+    color: var(--color-ink-faint);
+  }
+
+  .academy-pending[open] > summary::before {
+    content: "−";
+  }
+
+  .academy-pending-title {
+    flex: 1 1 auto;
+    font-size: 13.5px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--color-ink);
+  }
+
+  .academy-pending-meta {
     font-size: 11.5px;
+    color: var(--color-ink-faint);
+  }
+
+  .academy-pending-list {
+    display: grid;
+    gap: 2px;
+    padding: 0 16px 4px 44px;
+  }
+
+  .academy-pending-list li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 2px 8px;
+    padding: 4px 0;
+    font-size: 12.5px;
+    color: var(--color-ink-muted);
+  }
+
+  .academy-pending-no {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--color-brand);
+  }
+
+  .academy-pending-name {
+    font-weight: 600;
+    color: var(--color-ink-soft);
+  }
+
+  .academy-pending-num {
+    font-size: 11.5px;
+    color: var(--color-ink-faint);
+  }
+
+  .academy-pending-note {
+    padding: 4px 16px 14px 44px;
+    font-size: 12px;
+    line-height: 1.7;
     color: var(--color-ink-faint);
   }
 

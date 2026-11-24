@@ -53,7 +53,8 @@ const prevLesson = here > 0 ? siblings[here - 1] : undefined;
 
 const sections = [
   { id: "cardnews", no: "①", label: "카드뉴스 6장", note: "3분" },
-  { id: "read", no: "②", label: "5분 읽기", note: `${chars.toLocaleString("ko-KR")}자` },
+  /* v9.5.0 — 원고 자수는 제작 지표다. 독자에게는 '약 5분'만 남긴다(분량 검사는 빌드에서 그대로). */
+  { id: "read", no: "②", label: "5분 읽기", note: "약 5분" },
   { id: "quiz", no: "③", label: "한 화면 한 질문", note: "3문항" },
   { id: "calc", no: "④", label: "내 숫자 실습", note: "10분" },
   { id: "sheet", no: "⑤", label: "운영표 1칸", note: "완료" },
@@ -93,7 +94,7 @@ const jsonLd = graph([
 
 <Base
   title={`${lesson.label} ${lesson.shortTitle} | ${ACADEMY.name}`}
-  description={`${lesson.question} — ${lesson.hook} 5분 읽기 ${chars.toLocaleString("ko-KR")}자, 한 화면 한 질문 3문항, 내 숫자 실습, 카드 6장, 1차 출처. 기준일 ${site.baseDateLabel}`}
+  description={`${lesson.question} — ${lesson.hook} 5분 읽기, 한 화면 한 질문 3문항, 내 숫자 실습, 카드뉴스 6장, 1차 출처. 기준일 ${site.baseDateLabel}`}
   path={path}
   type="article"
   publishedTime={site.baseDate}
@@ -191,9 +192,7 @@ const jsonLd = graph([
                 <h2 class="mt-2 text-[26px] font-bold tracking-[-0.035em] text-ink md:text-[30px]">
                   {lesson.shortTitle}
                 </h2>
-                <p class="mono mt-2 text-[16px] text-ink-faint">
-                  {chars.toLocaleString("ko-KR")}자 (공백 제외) · 약 {lesson.readingMinutes}분
-                </p>
+                <p class="mono mt-2 text-[16px] text-ink-faint">약 {lesson.readingMinutes}분</p>
               </div>
 
               <p class="read-question mt-5">{lesson.question}?</p>
