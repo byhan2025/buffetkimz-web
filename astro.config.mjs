@@ -80,9 +80,9 @@ export default defineConfig({
     '/apps/deposit-savings/run': redirectTo('/apps/compound-return/run?mode=deposit'),
     '/tools/deposit-savings': redirectTo('/apps/compound-return?mode=deposit'),
 
-    '/apps/bojang-counsel-guide': redirectTo('/apps/coverage-check'),
-    '/apps/bojang-counsel-guide/run': redirectTo('/apps/coverage-check/run'),
-    '/tools/bojang-counsel-guide': redirectTo('/apps/coverage-check'),
+    /* 2026-11-24 — 실무자용 보장분석 상담 가이드는 전용 도구실(비밀번호 잠금)로 옮겼다.
+     * 옛 주소는 안내 페이지 없이 404 로 둔다: 리다이렉트를 만들면 그 주소가 다시 공개 지도에
+     * 남고, 빌드 결과에 도구 이름이 평문으로 다시 실린다. */
 
     '/apps/hourly-wage': redirectTo('/apps/salary-net?mode=hourly'),
     '/apps/hourly-wage/run': redirectTo('/apps/salary-net/run?mode=hourly'),

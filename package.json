@@ -1,7 +1,7 @@
 {
   "name": "buffetkimz-web",
   "type": "module",
-  "version": "9.1.0",
+  "version": "9.2.0",
   "private": true,
   "scripts": {
     "dev": "astro dev",
@@ -17,7 +17,10 @@
     "verify:tracks": "python3 scripts/verify_tracks.py",
     "verify:metrics": "python3 scripts/verify_metrics.py",
     "verify:learning": "python3 scripts/verify_tracks.py && python3 scripts/verify_metrics.py && python3 scripts/verify_loop.py",
-    "verify:loop": "python3 scripts/verify_loop.py"
+    "verify:loop": "python3 scripts/verify_loop.py",
+    "verify:vault": "python3 scripts/verify_vault_20261124.py",
+    "vault:build": "node scripts/vault_encrypt.mjs",
+    "vault:check": "node scripts/vault_encrypt.mjs --check"
   },
   "dependencies": {
     "@astrojs/markdown-remark": "^7.3.10",

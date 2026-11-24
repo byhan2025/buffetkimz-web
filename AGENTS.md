@@ -1,6 +1,6 @@
 # buffetkimz-web — 작업 규칙
 
-통합 개인 브랜드 사이트(`buffetkimz.com`, GitHub Pages). Astro 기반. 2026-11-23 현재 `package.json` 버전 `9.1.0`(학습순환 P2 — 3단계 트랙·하단 순환 독·도구 출구).
+통합 개인 브랜드 사이트(`buffetkimz.com`, GitHub Pages). Astro 기반. 2026-11-24 현재 `package.json` 버전 `9.2.0`(전용 도구실 — 비밀번호 잠금 방).
 
 > 설치 시점: v8.6.0 작업이 끝나고 `main` 이 정리된 뒤에 이 파일을 `apps/buffetkimz-web/AGENTS.md` 로 넣는다. `scripts/apply-agents-md.sh --app buffetkimz-web --force`.
 
@@ -9,6 +9,7 @@
 ```bash
 scripts/dev-gate.sh --app buffetkimz-web --fast                  # astro check + verify:tax + verify:v77
 scripts/dev-gate.sh --app buffetkimz-web --full --allow-build    # 빌드까지
+npm run verify:vault                                            # 전용 도구실(잠금·복호화·평문 0) 1440·390 실측
 ```
 
 - 라이브 확인은 `scripts/capture_live_v*.py` 계열 캡처로 남긴다. 캡처 경로를 보고에 적는다.
@@ -17,6 +18,11 @@ scripts/dev-gate.sh --app buffetkimz-web --full --allow-build    # 빌드까지
 
 ## 경계
 
+- **전용 도구실(`/apps/` 안 `🔒`)**: 내부·실무 도구 3종은 이 방에만 둔다.
+  · 도감 목록 원문은 `apps/buffetkimz-web/.vault/tools.source.json`, 비밀번호는 `.vault/pass.txt`(둘 다 gitignore).
+  · 고칠 때는 원문 수정 → `npm run vault:build`(PBKDF2 310,000회 + AES-256-GCM 암호문 재생성) → `npm run vault:check` → `npm run verify:vault`.
+  · 도구 이름·주소가 `src/` 나 `dist/` 에 평문으로 나오면 그 자체가 사고다. 진열대·검색·사이트맵·글에는 절대 올리지 않는다(콘텐츠로 홍보하는 글도 만들지 않는다).
+  · 옛 `/apps/bojang-counsel-guide` 등 옛 주소는 리다이렉트를 만들지 않고 404 로 둔다.
 - `deploy_domain.sh`, `deploy_pages.sh` 는 도메인·DNS·라이브를 건드린다. 승인 없이 실행하지 않는다(단방향 문).
 - 카드 이미지는 **WebP만 배포한다**(`public/gallery/*.webp` + `public/gallery/thumbs/`). 새 카드를 PNG로 렌더했다면
   `python3 scripts/make_gallery_webp.py`로 변환해야 화면에 나타난다(원본 PNG는 `assets/gallery-png/`로 이동).

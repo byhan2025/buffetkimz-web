@@ -43,9 +43,10 @@ import OverseasStockTaxCalc from "./utils/OverseasStockTaxCalc";
  * 실행 화면이 있는 도구 → 컴포넌트.
  *
  * v8.8.0 — 흡수된 11종(korean-age-pension · deposit-savings · hourly-wage · freelancer-tax ·
- * image-resize · image-upscale · watermark · exif-mosaic · pdf-merge-split · moving-dday ·
- * bojang-counsel-guide)은 자기 주소를 잃고 통합 도구의 탭으로 들어갔다. 그래서 이 표에서도 빠진다.
+ * image-resize · image-upscale · watermark · exif-mosaic · pdf-merge-split · moving-dday)은
+ * 자기 주소를 잃고 통합 도구의 탭으로 들어갔다. 그래서 이 표에서도 빠진다.
  * 옛 주소는 `astro.config.mjs`의 redirects가 통합 도구로 넘긴다.
+ * (실무자용 보상분석 가이드는 2026-11-24 전용 도구실로 옮겼다 — 일반 도구 표에는 두지 않는다.)
  */
 const MAP: Record<string, (props: { compact?: boolean }) => React.ReactElement> = {
   "pension-tax": PensionTax,

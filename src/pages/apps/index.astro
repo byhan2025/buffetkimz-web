@@ -14,6 +14,7 @@ import Base from "@/layouts/Base.astro";
 import AdSlot from "@/components/AdSlot.astro";
 import HomePill from "@/components/HomePill.astro";
 import AppStoreIcon from "@/components/apps/AppStoreIcon.astro";
+import VaultRoom from "@/components/apps/VaultRoom.astro";
 import { withBase, site, menuLabel } from "@/config/site";
 import { APP_CATEGORIES } from "@/data/apps";
 import { categoryCount, storeBreakdown, storeByCategory, storeById, storeCount, storeSlotsNote, toolCount } from "@/data/store";
@@ -103,6 +104,9 @@ const jsonLd = graph([
           <li class="store-hero-chip-plain">외부 웹앱 {externalCount}종</li>
           {practitionerCount > 0 && <li class="store-hero-chip-plain">실무자용 {practitionerCount}종</li>}
         </ul>
+
+        {/* v9.2.0 — 내부·실무 도구는 진열대가 아니라 비밀번호 잠금 방에만 둔다. */}
+        <VaultRoom />
 
         <p class="store-hero-meta mono">
           기준일 <time datetime={site.baseDate}>{site.baseDateLabel}</time> · 입력값은 브라우저에서 계산

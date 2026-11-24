@@ -37,3 +37,6 @@ automation/output/collected-*.md
 
 # 배포 임시 폴더(v7.5 — 스크립트 타임스탬프 폴더)
 .deploy-gh-*/
+
+# 전용 도구실 평문 원문·비밀번호 — 절대 커밋하지 않는다
+.vault/

@@ -330,15 +330,9 @@ export default function CoverageCheck({ compact = false }: { compact?: boolean }
             기준점은 {COVERAGE_BASIS_LABEL}입니다. 담보 이름이 같아도 가입 시기·상품·특약에 따라 지급 조건이
             다르므로, 표는 판정이 아니라 확인의 출발선입니다.
           </p>
-          <p className="mt-2">
-            <a
-              href="https://byhan2025.github.io/bojang-counsel-guide/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex min-h-[44px] items-center text-[13px] font-semibold text-brand-deep link"
-            >
-              상담 자리에서 기록하는 5대 담보 확인 가이드 열기 →
-            </a>
+          <p className="mt-2 text-[12px] leading-relaxed text-ink-faint">
+            상담 자리에서 쓰는 실무자용 가이드는 별도로 운영합니다. 이 화면은 내 담보 금액을 직접
+            넣어 보는 자가점검용입니다.
           </p>
         </div>
       )}

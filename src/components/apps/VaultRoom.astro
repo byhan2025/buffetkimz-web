@@ -1,0 +1,725 @@
+---
+/**
+ * 🔒 전용 도구실 — 2026-11-24.
+ *
+ * `/apps/` 안에 두는 비밀번호 잠금 방. 내부·실무 도구 3종은 이 방에만 있고,
+ * 일반 진열대·검색·사이트맵·글 어디에도 이름도 주소도 나오지 않는다.
+ *
+ * 잠금 방식
+ *   · 도구 목록 JSON 은 빌드 전에 PBKDF2-SHA256(310,000회) + AES-256-GCM 으로 암호화돼
+ *     `vault.generated.ts` 의 cipherPayload(salt·iv·ct)로만 페이지에 실린다.
+ *   · 비밀번호는 사이트 어디에도 없다. 방문자가 입력한 값으로 브라우저 Web Crypto 가
+ *     키를 유도해 그 자리에서 복호화한다(서버 전송 0).
+ *   · 열린 상태는 sessionStorage 에만 남는다 — 같은 탭에서만 유지되고, [잠그기]로 즉시 지운다.
+ */
+import { vaultPayload } from "@/data/vault.generated";
+
+const payloadJson = JSON.stringify(vaultPayload);
+---
+
+<div class="vault-entry" data-vault-root data-state="locked">
+  <button
+    type="button"
+    class="vault-entry-btn"
+    data-vault-open
+    aria-haspopup="dialog"
+    aria-controls="vault-dialog"
+  >
+    <span class="vault-entry-icon" aria-hidden="true" data-vault-icon>🔒</span>
+    <span data-vault-label>전용 도구실</span>
+  </button>
+  <span class="vault-entry-hint" data-vault-hint>비밀번호</span>
+</div>
+
+<dialog class="vault-dialog" id="vault-dialog" data-vault-dialog aria-labelledby="vault-title">
+  <!-- ① 잠긴 화면 — 비밀번호만 묻는다. 도구 이름·개수·주소는 여기에도 없다. -->
+  <form class="vault-lock" data-vault-form novalidate>
+    <div class="vault-head">
+      <h2 class="vault-title" id="vault-title">
+        <span aria-hidden="true">🔒</span> 전용 도구실
+      </h2>
+      <button type="button" class="vault-x" data-vault-close aria-label="닫기">×</button>
+    </div>
+
+    <p class="vault-lede">
+      운영·실무용 도구가 모여 있습니다. 비밀번호를 넣으면 이 탭에서만 열리고, 탭을 닫으면 다시
+      잠깁니다.
+    </p>
+
+    <label class="vault-field">
+      <span class="vault-field-label">비밀번호</span>
+      <input
+        type="password"
+        class="vault-input"
+        data-vault-pass
+        name="vault-pass"
+        autocomplete="off"
+        spellcheck="false"
+        enterkeyhint="go"
+      />
+    </label>
+
+    <p class="vault-error" data-vault-error role="alert" hidden></p>
+
+    <div class="vault-lock-actions">
+      <button type="submit" class="vault-submit" data-vault-submit>열기</button>
+    </div>
+
+    <p class="vault-fine">
+      비밀번호는 서버로 보내지 않습니다. 입력한 값으로 이 브라우저에서만 잠금을 풉니다.
+    </p>
+  </form>
+
+  <!-- ② 열린 화면 — 복호화한 도구 카드를 그린다(잠그면 DOM 에서 지운다). -->
+  <div class="vault-room" data-vault-room hidden>
+    <div class="vault-head">
+      <h2 class="vault-title">
+        <span aria-hidden="true" data-vault-room-icon>🔓</span> 전용 도구실
+        <span class="vault-room-state" data-vault-room-state>이 탭에서 열림</span>
+      </h2>
+      <div class="vault-head-actions">
+        <button type="button" class="vault-lock-btn" data-vault-lock>🔒 잠그기</button>
+        <button type="button" class="vault-x" data-vault-close aria-label="닫기">×</button>
+      </div>
+    </div>
+
+    <ul class="vault-list" data-vault-list></ul>
+
+    <p class="vault-fine">
+      탭을 닫거나 [잠그기]를 누르면 화면에서 즉시 사라집니다. 이 목록은 공개 페이지·검색·사이트맵에
+      나오지 않습니다.
+    </p>
+  </div>
+</dialog>
+
+<script type="application/json" id="vault-payload" is:inline set:html={payloadJson}></script>
+
+<script>
+  type VaultTool = {
+    id: string;
+    kind: string;
+    name: string;
+    tagline: string;
+    summary: string;
+    href: string;
+    action: string;
+    meta: string;
+    steps?: string[];
+    note?: string;
+  };
+
+  const STORE_KEY = "bk-vault-v1";
+
+  const root = document.querySelector<HTMLElement>("[data-vault-root]");
+  const dialog = document.querySelector<HTMLDialogElement>("[data-vault-dialog]");
+  const form = document.querySelector<HTMLFormElement>("[data-vault-form]");
+  const room = document.querySelector<HTMLElement>("[data-vault-room]");
+  const list = document.querySelector<HTMLElement>("[data-vault-list]");
+  const pass = document.querySelector<HTMLInputElement>("[data-vault-pass]");
+  const errorEl = document.querySelector<HTMLElement>("[data-vault-error]");
+  const submit = document.querySelector<HTMLButtonElement>("[data-vault-submit]");
+  const label = document.querySelector<HTMLElement>("[data-vault-label]");
+  const icon = document.querySelector<HTMLElement>("[data-vault-icon]");
+  const hint = document.querySelector<HTMLElement>("[data-vault-hint]");
+  const payloadEl = document.getElementById("vault-payload");
+
+  if (root && dialog && form && room && list && pass && errorEl && submit && label && icon && hint && payloadEl) {
+    const payload = JSON.parse(payloadEl.textContent || "{}") as {
+      iter: number;
+      salt: string;
+      iv: string;
+      ct: string;
+    };
+
+    const toBytes = (s: string) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
+
+    const say = (msg: string) => {
+      errorEl.textContent = msg;
+      errorEl.hidden = !msg;
+    };
+
+    /** 카드 한 장 — 문자열은 전부 textContent 로 넣는다(복호화 결과를 HTML 로 해석하지 않는다). */
+    const card = (tool: VaultTool) => {
+      const li = document.createElement("li");
+      li.className = "vault-card";
+
+      const top = document.createElement("div");
+      top.className = "vault-card-top";
+      const kind = document.createElement("span");
+      kind.className = "vault-card-kind";
+      kind.textContent = tool.kind;
+      const head = document.createElement("div");
+      head.className = "vault-card-head";
+      const name = document.createElement("h3");
+      name.className = "vault-card-name";
+      name.textContent = tool.name;
+      const tagline = document.createElement("p");
+      tagline.className = "vault-card-tagline";
+      tagline.textContent = tool.tagline;
+      head.append(name, tagline);
+      top.append(kind, head);
+
+      const summary = document.createElement("p");
+      summary.className = "vault-card-summary";
+      summary.textContent = tool.summary;
+
+      const meta = document.createElement("p");
+      meta.className = "vault-card-meta mono";
+      meta.textContent = tool.meta;
+
+      const actions = document.createElement("div");
+      actions.className = "vault-card-actions";
+      const open = document.createElement("a");
+      open.className = "vault-card-open";
+      open.href = tool.href;
+      open.target = "_blank";
+      open.rel = "noopener noreferrer";
+      open.textContent = `${tool.action} ↗`;
+      actions.append(open);
+
+      li.append(top, summary, meta, actions);
+
+      if (tool.steps?.length) {
+        const details = document.createElement("details");
+        details.className = "vault-card-steps";
+        const sum = document.createElement("summary");
+        sum.textContent = "실행 순서";
+        const ol = document.createElement("ol");
+        tool.steps.forEach((s) => {
+          const step = document.createElement("li");
+          step.textContent = s;
+          ol.append(step);
+        });
+        details.append(sum, ol);
+        li.append(details);
+      }
+
+      if (tool.note) {
+        const note = document.createElement("p");
+        note.className = "vault-card-note";
+        note.textContent = tool.note;
+        li.append(note);
+      }
+
+      return li;
+    };
+
+    const render = (tools: VaultTool[]) => {
+      list.replaceChildren(...tools.map(card));
+      form.hidden = true;
+      room.hidden = false;
+      root.dataset.state = "unlocked";
+      label.textContent = "전용 도구실 · 열림";
+      icon.textContent = "🔓";
+      hint.textContent = "다시 열기";
+    };
+
+    const lock = () => {
+      try {
+        sessionStorage.removeItem(STORE_KEY);
+      } catch {
+        /* 저장소를 막은 브라우저 — 메모리 상태만 되돌린다 */
+      }
+      list.replaceChildren();
+      room.hidden = true;
+      form.hidden = false;
+      pass.value = "";
+      say("");
+      root.dataset.state = "locked";
+      label.textContent = "전용 도구실";
+      icon.textContent = "🔒";
+      hint.textContent = "비밀번호";
+      if (dialog.open) dialog.close();
+    };
+
+    /** 브라우저 Web Crypto 로 복호화 — 비밀번호는 이 함수 밖으로 나가지 않는다. */
+    const unlock = async (password: string): Promise<VaultTool[]> => {
+      const subtle = window.crypto?.subtle;
+      if (!subtle) throw new Error("insecure");
+      const material = await subtle.importKey("raw", new TextEncoder().encode(password), "PBKDF2", false, [
+        "deriveKey",
+      ]);
+      const key = await subtle.deriveKey(
+        { name: "PBKDF2", salt: toBytes(payload.salt), iterations: payload.iter, hash: "SHA-256" },
+        material,
+        { name: "AES-GCM", length: 256 },
+        false,
+        ["decrypt"],
+      );
+      const plain = await subtle.decrypt({ name: "AES-GCM", iv: toBytes(payload.iv) }, key, toBytes(payload.ct));
+      const data = JSON.parse(new TextDecoder().decode(plain)) as { tools: VaultTool[] };
+      return data.tools;
+    };
+
+    /* ── 열린 상태 복원 — 같은 탭에서 새로고침해도 다시 묻지 않는다 ── */
+    try {
+      const saved = sessionStorage.getItem(STORE_KEY);
+      if (saved) render((JSON.parse(saved) as { tools: VaultTool[] }).tools);
+    } catch {
+      sessionStorage.removeItem(STORE_KEY);
+    }
+
+    document.querySelectorAll<HTMLElement>("[data-vault-open]").forEach((btn) =>
+      btn.addEventListener("click", () => {
+        say("");
+        if (!dialog.open) dialog.showModal();
+        if (root.dataset.state !== "unlocked") window.setTimeout(() => pass.focus(), 30);
+      }),
+    );
+
+    document.querySelectorAll<HTMLElement>("[data-vault-close]").forEach((btn) =>
+      btn.addEventListener("click", () => dialog.close()),
+    );
+
+    /* 바깥(백드롭)을 눌러도 닫는다 — 안쪽 클릭은 좌표로 구분한다. */
+    dialog.addEventListener("click", (e) => {
+      if (e.target !== dialog) return;
+      const r = dialog.getBoundingClientRect();
+      const outside =
+        e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom;
+      if (outside) dialog.close();
+    });
+
+    document.querySelectorAll<HTMLElement>("[data-vault-lock]").forEach((btn) =>
+      btn.addEventListener("click", lock),
+    );
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const password = pass.value;
+      if (!password) {
+        say("비밀번호를 입력해 주세요.");
+        pass.focus();
+        return;
+      }
+      say("");
+      submit.disabled = true;
+      submit.textContent = "여는 중…";
+      try {
+        const tools = await unlock(password);
+        if (!Array.isArray(tools) || tools.length === 0) throw new Error("empty");
+        try {
+          sessionStorage.setItem(STORE_KEY, JSON.stringify({ tools }));
+        } catch {
+          /* 저장 실패해도 이번 탭에서는 열어 둔다 */
+        }
+        pass.value = "";
+        render(tools);
+      } catch (err) {
+        const code = err instanceof Error ? err.message : "";
+        if (code === "insecure") {
+          say("보안 연결(https)에서만 열 수 있습니다.");
+        } else if (err instanceof DOMException && err.name === "OperationError") {
+          say("비밀번호가 맞지 않습니다.");
+          form.classList.remove("is-wrong");
+          void form.offsetWidth;
+          form.classList.add("is-wrong");
+        } else {
+          say("여는 중 문제가 생겼습니다. 잠시 뒤 다시 시도해 주세요.");
+        }
+        pass.select();
+      } finally {
+        submit.disabled = false;
+        submit.textContent = "열기";
+      }
+    });
+  }
+</script>
+
+<style>
+  /* ── 히어로 안의 작은 잠금 버튼 — 눈에 띄지 않게, 그러나 찾을 수 있게 ── */
+  .vault-entry {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 2px;
+  }
+
+  .vault-entry-btn {
+    display: inline-flex;
+    min-height: 36px;
+    align-items: center;
+    gap: 8px;
+    padding: 0 13px;
+    border: 1px solid rgb(255 255 255 / 0.28);
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.1);
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #e7ecff;
+    transition: border-color 180ms var(--ease-out-soft), color 180ms var(--ease-out-soft),
+      background-color 180ms var(--ease-out-soft);
+  }
+
+  .vault-entry-btn:hover {
+    border-color: rgb(163 184 255 / 0.7);
+    background: rgb(163 184 255 / 0.18);
+    color: #ffffff;
+  }
+
+  .vault-entry-btn:focus-visible {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 2px;
+  }
+
+  .vault-entry-icon {
+    font-size: 12px;
+    line-height: 1;
+  }
+
+  .vault-entry-hint {
+    font-size: 11.5px;
+    color: #8a92a7;
+  }
+
+  .vault-entry[data-state="unlocked"] .vault-entry-hint {
+    color: #e8c884;
+  }
+
+  /* ── 모달 ── */
+  .vault-dialog {
+    margin: auto;
+    width: min(94vw, 640px);
+    max-height: min(88vh, 760px);
+    padding: 0;
+    border: 1px solid var(--color-line);
+    border-radius: 18px;
+    background-color: var(--color-paper, #ffffff);
+    color: var(--color-ink);
+    overflow: auto;
+    overscroll-behavior: contain;
+  }
+
+  .vault-dialog::backdrop {
+    background-color: rgb(15 22 32 / 0.44);
+    backdrop-filter: blur(2px);
+  }
+
+  .vault-dialog[open] {
+    animation: vault-in 180ms var(--ease-out-soft, ease-out);
+  }
+
+  @keyframes vault-in {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .vault-head {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 16px 18px 10px;
+    background-color: var(--color-paper, #ffffff);
+  }
+
+  .vault-title {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 8px;
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--color-ink);
+  }
+
+  .vault-room-state {
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0;
+    color: var(--color-brand-deep);
+  }
+
+  .vault-head-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .vault-x {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 999px;
+    border: 1px solid var(--color-line);
+    background-color: #ffffff;
+    font-size: 18px;
+    line-height: 1;
+    color: var(--color-ink-muted);
+  }
+
+  .vault-x:hover {
+    color: var(--color-ink);
+    border-color: var(--color-ink-faint);
+  }
+
+  .vault-lock-btn {
+    min-height: 32px;
+    padding: 0 10px;
+    border: 1px solid var(--color-line);
+    border-radius: 999px;
+    background-color: #ffffff;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--color-ink-soft);
+  }
+
+  .vault-lock-btn:hover {
+    border-color: var(--color-brand);
+    color: var(--color-brand-deep);
+  }
+
+  .vault-lock {
+    display: grid;
+    gap: 12px;
+    padding-bottom: 18px;
+  }
+
+  .vault-lede {
+    margin: 8px 18px 0;
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--color-ink-muted);
+  }
+
+  .vault-field {
+    display: grid;
+    gap: 6px;
+    margin: 2px 18px 0;
+  }
+
+  .vault-field-label {
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--color-ink-faint);
+  }
+
+  .vault-input {
+    min-height: 46px;
+    padding: 0 12px;
+    border: 1px solid var(--color-line);
+    border-radius: 12px;
+    background-color: #ffffff;
+    font-size: 15px;
+    letter-spacing: 0.06em;
+    color: var(--color-ink);
+  }
+
+  .vault-input:focus {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 1px;
+  }
+
+  .vault-error {
+    margin: 0 18px;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #a8455c;
+  }
+
+  .vault-lock-actions {
+    margin: 2px 18px 0;
+  }
+
+  .vault-submit {
+    min-height: 46px;
+    width: 100%;
+    border-radius: 12px;
+    border: 1px solid var(--color-brand-deep);
+    background-color: var(--color-brand-deep);
+    font-size: 14px;
+    font-weight: 800;
+    color: #ffffff;
+  }
+
+  .vault-submit:disabled {
+    opacity: 0.7;
+  }
+
+  .vault-fine {
+    margin: 2px 18px 0;
+    font-size: 11.5px;
+    line-height: 1.65;
+    color: var(--color-ink-faint);
+  }
+
+  .is-wrong {
+    animation: vault-shake 260ms ease-in-out;
+  }
+
+  @keyframes vault-shake {
+    0%,
+    100% {
+      transform: none;
+    }
+    25% {
+      transform: translateX(-4px);
+    }
+    75% {
+      transform: translateX(4px);
+    }
+  }
+
+  /* ── 열린 방 ── */
+  .vault-room {
+    padding-bottom: 16px;
+  }
+
+  :global(.vault-list) {
+    display: grid;
+    gap: 12px;
+    margin: 14px 18px 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  :global(.vault-card) {
+    display: grid;
+    gap: 8px;
+    padding: 14px;
+    border: 1px solid var(--color-line);
+    border-radius: 14px;
+    background-color: var(--color-cream, #faf9f6);
+  }
+
+  :global(.vault-card-top) {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  :global(.vault-card-kind) {
+    flex: none;
+    margin-top: 2px;
+    padding: 2px 7px;
+    border-radius: 999px;
+    background-color: #ffffff;
+    border: 1px solid var(--color-line);
+    font-size: 10.5px;
+    font-weight: 700;
+    color: var(--color-ink-faint);
+  }
+
+  :global(.vault-card-head) {
+    min-width: 0;
+  }
+
+  :global(.vault-card-name) {
+    font-size: 14.5px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--color-ink);
+  }
+
+  :global(.vault-card-tagline) {
+    margin-top: 2px;
+    font-size: 12px;
+    color: var(--color-ink-muted);
+  }
+
+  :global(.vault-card-summary) {
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: var(--color-ink-soft);
+  }
+
+  :global(.vault-card-meta) {
+    font-size: 11px;
+    color: var(--color-ink-faint);
+  }
+
+  :global(.vault-card-actions) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  :global(.vault-card-open) {
+    display: inline-flex;
+    min-height: 38px;
+    align-items: center;
+    padding: 0 14px;
+    border-radius: 10px;
+    border: 1px solid var(--color-brand-deep);
+    background-color: var(--color-brand-deep);
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #ffffff;
+  }
+
+  :global(.vault-card-steps) {
+    border-top: 1px dashed var(--color-line);
+    padding-top: 8px;
+  }
+
+  :global(.vault-card-steps) summary {
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--color-ink-soft);
+  }
+
+  :global(.vault-card-steps) ol {
+    display: grid;
+    gap: 5px;
+    margin: 8px 0 0;
+    padding-left: 18px;
+    font-size: 12px;
+    line-height: 1.65;
+    color: var(--color-ink-muted);
+  }
+
+  :global(.vault-card-note) {
+    font-size: 11.5px;
+    line-height: 1.65;
+    color: var(--color-ink-faint);
+  }
+
+  @media (max-width: 639px) {
+    .vault-dialog {
+      width: 100vw;
+      max-width: 100vw;
+      max-height: 92vh;
+      border-radius: 16px 16px 0 0;
+      margin: auto auto 0;
+    }
+
+    .vault-head {
+      padding: 14px 14px 10px;
+    }
+
+    .vault-lede,
+    .vault-fine {
+      margin-inline: 14px;
+    }
+
+    .vault-field,
+    .vault-lock-actions,
+    .vault-error {
+      margin-inline: 14px;
+    }
+
+    .vault-list {
+      margin-inline: 14px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .vault-dialog[open],
+    .is-wrong {
+      animation: none;
+    }
+  }
+</style>

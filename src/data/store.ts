@@ -192,7 +192,6 @@ const orderBySlug: Record<string, number> = {
   "coverage-check": 10,
   "silson-compare": 20,
   "disclosure-check": 30,
-  "bojang-counsel-guide": 40,
   "exif-mosaic": 30,
   "url-cleaner": 40,
   "pdf-image": 50,
