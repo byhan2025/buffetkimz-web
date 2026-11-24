@@ -135,15 +135,17 @@ def main() -> int:
                 status = resp.status if resp else None
                 over = page.evaluate(OVERFLOW_JS)
                 broken = page.evaluate(BROKEN_IMG_JS)
-                ok = status in (200, 404) and over["doc"] <= 0 and not broken and not errors
+                # 404 화면은 문서 자체가 404라 브라우저가 그 요청을 콘솔 오류로 남긴다 — 그 한 줄은 정상이다.
+                real_errors = [e for e in errors if "status of 404" not in e]
+                ok = status in (200, 404) and over["doc"] <= 0 and not broken and not real_errors
                 if name == "404":
-                    ok = status in (200, 404) and over["doc"] <= 0 and not errors
+                    ok = status in (200, 404) and over["doc"] <= 0 and not real_errors
                 check(
-                    f"A {w} {name} — {status} · hOverflow {over['doc']} · 깨진 이미지 {len(broken)} · 콘솔 {len(errors)}",
+                    f"A {w} {name} — {status} · hOverflow {over['doc']} · 깨진 이미지 {len(broken)} · 콘솔 {len(real_errors)}",
                     ok,
-                    f"{over['items']} {broken[:2]} {errors[:2]}",
+                    f"{over['items']} {broken[:2]} {real_errors[:2]}",
                 )
-                page.screenshot(path=str(OUT / f"{w}-{name}.png"), full_page=False)
+                page.screenshot(path=str(OUT / f"{w}-{name}{'-live' if LIVE else ''}.png"), full_page=False)
                 errors.clear()
             ctx.close()
 
