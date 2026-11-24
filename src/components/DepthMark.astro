@@ -1,0 +1,28 @@
+---
+/**
+ * 읽기 깊이 표시 — 입문 · 실무 · 심화 (2026-11-25 깃밥 벤치마킹 3항).
+ *
+ * 이모지 대신 단색 3칸 막대로 그린다. 칸이 차오를수록 깊고, 글자는 12px 한 줄이다.
+ * 색은 잉크 계열만 쓴다(파랑은 누를 수 있는 것에만 — DESIGN §1-1-2).
+ * 값을 정하는 규칙은 `src/data/depth.ts` 하나에 있다.
+ */
+import { DEPTH_LEVEL, type Depth } from "@/data/depth";
+
+interface Props {
+  depth: Depth;
+  /** 바깥 여백·정렬을 카드가 정할 때 */
+  class?: string;
+}
+
+const { depth, class: cls = "" } = Astro.props;
+const level = DEPTH_LEVEL[depth];
+---
+
+<span class:list={["depth", cls]} data-depth={depth} data-level={level}>
+  <span class="sr-only">읽기 깊이 </span>
+  <span class="depth-bars" aria-hidden="true">
+    <i></i><i></i><i></i>
+  </span>
+  <span class="depth-label">{depth}</span>
+</span>
+

@@ -2,6 +2,9 @@
 import Base from "@/layouts/Base.astro";
 import BrandFilm from "@/components/home/BrandFilm.tsx";
 import TodayHub from "@/components/home/TodayHub.astro";
+import AudiencePick from "@/components/home/AudiencePick.astro";
+import UsageGuide from "@/components/home/UsageGuide.astro";
+import DepthMark from "@/components/DepthMark.astro";
 import TrustSplit from "@/components/home/TrustSplit.astro";
 import ChannelBand from "@/components/home/ChannelBand.astro";
 import PortalPicks from "@/components/home/PortalPicks.astro";
@@ -12,6 +15,8 @@ import { channels } from "@/data/channels";
 import { mainTools } from "@/data/tools";
 import { APP_CATEGORIES } from "@/data/apps";
 import { categoryCount, storeCount, toolCount } from "@/data/store";
+import { today as hub } from "@/data/today";
+import { depthOfTool } from "@/data/depth";
 import { calendar } from "@/data/calendar";
 import { galleryCount, gallerySlideCount } from "@/data/gallery";
 import { boardEntries } from "@/data/board";
@@ -68,6 +73,22 @@ const previewVariant: Record<string, "pension" | "pension-draw" | "retirement" |
   "compound-return": "compound",
 };
 
+/**
+ * 일간 머리글(2026-11-25 깃밥 벤치마킹 3항) — 날짜와 확인 시각은 손으로 적지 않는다.
+ *  · 날짜: site.baseDate(글·게시판·허브의 가장 늦은 확인 날짜, 빌드마다 자동 승계)
+ *  · 요일: 그 날짜의 한국 요일
+ *  · 확인: 허브가 마지막으로 값을 확인한 시각(today.asOf)의 시·분
+ */
+const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"] as const;
+const [baseYear, baseMonth, baseDay] = site.baseDate.split("-").map(Number);
+const weekdayLabel = `${WEEKDAYS[new Date(Date.UTC(baseYear, baseMonth - 1, baseDay)).getUTCDay()]}요일`;
+const checkClock = new Intl.DateTimeFormat("ko-KR", {
+  timeZone: "Asia/Seoul",
+  hour: "2-digit",
+  minute: "2-digit",
+  hour12: false,
+}).format(new Date(hub.asOf));
+
 const jsonLd = graph([websiteNode(), organizationNode(), personNode()]);
 ---
 
@@ -88,6 +109,17 @@ const jsonLd = graph([websiteNode(), organizationNode(), personNode()]);
         정의문은 전수 감사 §2-4의 B안 — 이 사이트가 미리 계산해 두는 곳이라는 약속만 말한다.
     -->
     <div class="film-credits" id="film-credits">
+      {/* 일간 머리글 — 날짜 · 무엇을 하는 곳인지 · 확인 시각 (v9.7.0 깃밥 벤치마킹 3항) */}
+      <div class="daily-head">
+        <p class="daily-date">
+          <span class="daily-date-label">기준일</span>
+          <time datetime={site.baseDate}>{site.baseDateLabel}</time>
+          <span class="daily-weekday">{weekdayLabel}</span>
+        </p>
+        <p class="daily-line">금융과 투자, 연금과 재무를 원문과 계산으로 확인하는 기록</p>
+        <p class="daily-check mono">확인 {checkClock}</p>
+      </div>
+
       <div class="hero-def" id="hero-def">
         {/*
           v9.6.0(2026-11-25) — 첫 화면의 h1.
@@ -110,9 +142,11 @@ const jsonLd = graph([websiteNode(), organizationNode(), personNode()]);
         <span aria-hidden="true">·</span>
         <a href={withBase("/calendar")}><b>{sourcedCalendar.length}</b>건 일정</a>
       </p>
-      <p class="film-credit-note">기준일 {site.baseDateLabel}</p>
     </div>
   </section>
+
+  <!-- ①-2 상황별 맞춤 — 한 번 고르면 그 상황의 계산기·글이 바뀐다 (깃밥 벤치마킹 1항) -->
+  <AudiencePick />
 
   <!-- ② 오늘 확인 허브 — 필름 아래 첫 화면. 지표 4 · 3줄 · 기한 인용 · 확인 카드 -->
   <TodayHub />
@@ -132,6 +166,9 @@ const jsonLd = graph([websiteNode(), organizationNode(), personNode()]);
       </div>
     </div>
   </section>
+
+  <!-- ②-2 사용법 5탭 안내 — 왼쪽 설명, 오른쪽 화면 예시, 자동 순환 (깃밥 벤치마킹 2항) -->
+  <UsageGuide />
 
   <!-- ③ 읽고 열어 보기 — 자산리포트 최신 3편 + 앱스토어 추천 4종 -->
   <PortalPicks />
@@ -162,8 +199,9 @@ const jsonLd = graph([websiteNode(), organizationNode(), personNode()]);
           homeTools.map((t) => (
             <li class="card card-lift flex flex-col p-4 md:p-5">
               <div>
-                <div class="flex items-baseline justify-end gap-2">
-                  <span class="text-[12px] text-ink-faint">{t.meta}</span>
+                <div class="flex items-center justify-between gap-2">
+                  {depthOfTool(t.key) && <DepthMark depth={depthOfTool(t.key)!} />}
+                  <span class="min-w-0 text-right text-[12px] leading-snug text-ink-faint">{t.meta}</span>
                 </div>
                 <h3 class="mt-1 text-[15px] font-bold leading-snug tracking-[-0.025em] text-ink">{t.name}</h3>
                 <p class="clamp-2 mt-1.5 text-[12.5px] leading-[1.6] text-ink-muted">{t.short}</p>
@@ -212,15 +250,87 @@ const jsonLd = graph([websiteNode(), organizationNode(), personNode()]);
      * 이 값은 .hero-def 띠의 **실제 높이**여야 한다.
      * 필름 높이(calc(100svh - 헤더 - 이 값))가 이 값을 빼고 그리므로, 실제 높이보다 작으면
      * 히어로가 첫 화면을 넘고(감사 44c·44d), 크면 필름 아래에 흰 여백이 남는다.
-     * 2026-11-25 실측: 390 = 238px · 1440 = 199px (h1 3행/2행 + 크레딧 2줄).
-     * 2px은 서브픽셀 반올림 여유 — 히어로가 첫 화면을 1px이라도 넘지 않게.
+     * 2026-11-25 실측(깃밥 벤치마킹 3항으로 일간 머리글을 더한 뒤):
+     *   390 = 245px(머리글 38 + 정의 띠 167 + 크레딧 2줄 38 + 괘선) · 1440 = 209px(머리글 42 + 띠 128 + 크레딧 38 + 괘선).
+     *   2px은 서브픽셀 반올림 여유 — 히어로가 첫 화면을 1px이라도 넘지 않게.
+     *   이 띠의 문구·크기를 고치면 1440·390에서 `.film-credits` 높이를 다시 재서 이 값을 고친다.
      */
-    --hero-def-h: 240px;
+    --hero-def-h: 247px;
   }
 
   @media (min-width: 768px) {
     .hero-film {
-      --hero-def-h: 202px;
+      --hero-def-h: 211px;
+    }
+  }
+
+  /*
+   * 일간 머리글 — 신문 1면의 날짜 줄처럼. 왼쪽 날짜, 가운데 한 줄, 오른쪽 확인 시각.
+   * 390에서는 가운데 줄을 접어 높이를 아끼고 날짜·확인 시각만 남긴다(첫 화면 안에 히어로가 끝나야 한다).
+   */
+  .daily-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 4px 16px;
+    max-width: 1200px;
+    margin-inline: auto;
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--color-line);
+  }
+
+  .daily-date {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 8px;
+    color: var(--color-ink);
+  }
+
+  .daily-date-label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0;
+    color: var(--color-ink-faint);
+  }
+
+  .daily-date time {
+    font-family: var(--font-serif);
+    font-size: 17px;
+    line-height: 1.1;
+    letter-spacing: 0.01em;
+    color: var(--color-ink);
+  }
+
+  .daily-weekday {
+    font-size: 12.5px;
+    color: var(--color-ink-muted);
+  }
+
+  .daily-line {
+    flex: 1 1 auto;
+    text-align: center;
+    font-size: 12.5px;
+    line-height: 1.4;
+    color: var(--color-ink-faint);
+    word-break: keep-all;
+  }
+
+  .daily-check {
+    font-size: 12px;
+    color: var(--color-ink-faint);
+    white-space: nowrap;
+  }
+
+  @media (min-width: 768px) {
+    .daily-head {
+      padding: 12px 16px 8px;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .daily-line {
+      display: none;
     }
   }
 

@@ -6660,6 +6660,50 @@
 
 }
 
+/* ---------- 읽기 깊이 (입문 · 실무 · 심화) — 2026-11-25 깃밥 벤치마킹 3항 ---------- */
+@layer components {
+  .depth {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex: none;
+    white-space: nowrap;
+    vertical-align: middle;
+  }
+
+  .depth-bars {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    height: 11px;
+  }
+
+  .depth-bars i {
+    display: block;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background-color: var(--color-line);
+  }
+
+  .depth[data-level="1"] .depth-bars i:nth-child(1),
+  .depth[data-level="2"] .depth-bars i:nth-child(-n + 2),
+  .depth[data-level="3"] .depth-bars i {
+    background-color: var(--color-ink);
+  }
+
+  .depth-label {
+    font-size: 12px;
+    line-height: 1;
+    letter-spacing: 0;
+    color: var(--color-ink-faint);
+  }
+
+  .depth[data-level="3"] .depth-label {
+    color: var(--color-ink-soft);
+  }
+}
+
 /* ---------- v7.0 포털 픽 (금융지식 + 앱스토어) ---------- */
 @layer components {
   .picks-head {

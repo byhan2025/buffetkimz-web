@@ -11,6 +11,8 @@
 import { shouldShowQuestion } from "@/lib/posts";
 import { thumbSize } from "@/lib/thumbs";
 import { withBase } from "@/config/site";
+import DepthMark from "@/components/DepthMark.astro";
+import { depthOfPost } from "@/data/depth";
 
 export type PostCard = {
   url: string;
@@ -62,6 +64,9 @@ interface Props {
 const { items, columns = 3, showControls = true, label = "글 목록", total = items.length } = Astro.props;
 const grid = columns === 2 ? "sm:grid-cols-2" : "sm:grid-cols-2 lg:grid-cols-3";
 /** 카드 요약은 80자까지만 — 목록에서 같은 리듬으로 읽히게 */
+/** 카드 주소('/posts/{id}')에서 글 id를 되찾는다 — 깊이 규칙의 예외표가 slug로 적혀 있다 */
+const postIdOf = (url: string) => url.replace(/^.*\/posts\//, "").replace(/\/+$/, "");
+
 const brief = (text: string, limit = 80) => {
   const t = (text ?? "").replace(/\s+/g, " ").trim();
   return t.length <= limit ? t : `${t.slice(0, limit).trimEnd()}…`;
@@ -144,6 +149,7 @@ const brief = (text: string, limit = 80) => {
                     </span>
                   </span>
                 )}
+                <DepthMark depth={depthOfPost({ id: postIdOf(item.url), readingMinutes: item.readingMinutes })} />
               </span>
               <span class="mono shrink-0 text-[12px] text-ink-faint">{item.date}</span>
             </div>
