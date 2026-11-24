@@ -1,0 +1,132 @@
+{
+  "date": "2026-11-25",
+  "headerDate": "2026.11.25",
+  "cover": {
+    "eyebrow": "버핏킴즈의 생각",
+    "titleA": "4대 시장",
+    "titleB": "퀀트 스크리닝",
+    "lead": "골든 시그널로 본 4종목",
+    "note": "미국 반도체 급락 속 필수소비재·국내 은행주 강세",
+    "boxes": [
+      { "label": "미국 주식", "value": "CMCSA" },
+      { "label": "미국 ETF", "value": "XLP" },
+      { "label": "국내 주식", "value": "하나금융지주" },
+      { "label": "국내 ETF", "value": "KODEX 은행" }
+    ],
+    "footerLeft": "11월 24일 미국·한국 종가 / 11월 25일 아침 브리핑",
+    "bg": "bg-01-wallstreet-bull.webp"
+  },
+  "screens": [
+    {
+      "badge": "미국 주식 / 제공 스크리닝 1위",
+      "ticker": "NASDAQ / CMCSA",
+      "name": "컴캐스트",
+      "sub": "미디어·통신·브로드밴드",
+      "priceLabel": "11월 24일 종가",
+      "price": "$25.38",
+      "changeLabel": "전일 대비",
+      "change": "+2.67%",
+      "tone": "up",
+      "metrics": [
+        { "label": "거래량", "value": "약 2,675만 주" },
+        { "label": "RSI / 제공", "value": "56.7" },
+        { "label": "골든 시그널 / 제공", "value": "100점", "emphasis": true }
+      ],
+      "note": "이동평균선 정배열 / 홈디포(HD) +2.20% 100점 동률",
+      "headline": "반도체 차익실현 속 통신·가치주로 순환매",
+      "body": ["나스닥 -1.48%·SOX -7.88% 하락 속 다우(+0.85%)와 방어·가치주가 올랐다."],
+      "source": "시세 Yahoo Finance / 지수 S&P·Nasdaq",
+      "bg": "bg-02-media-streaming.webp"
+    },
+    {
+      "badge": "미국 ETF / 제공 스크리닝 1위",
+      "ticker": "NYSE ARCA / XLP",
+      "name": "미국 필수소비재 섹터",
+      "sub": "Consumer Staples Select Sector SPDR",
+      "priceLabel": "11월 24일 종가",
+      "price": "$91.88",
+      "changeLabel": "전일 대비",
+      "change": "+1.66%",
+      "tone": "up",
+      "metrics": [
+        { "label": "거래량", "value": "약 2,166만 주" },
+        { "label": "RSI / 제공", "value": "49.7" },
+        { "label": "골든 시그널 / 제공", "value": "100점", "emphasis": true }
+      ],
+      "note": "이동평균선 정배열 / 11월 소비자신뢰지수 103.3 최고",
+      "headline": "기술주 변동성 커지자 필수소비재로 자금 이동",
+      "body": ["AI·메모리 급락과 대조적으로 안정적 현금흐름 섹터가 정배열 1위에 올랐다."],
+      "source": "시세 Yahoo Finance / 상품 State Street",
+      "bg": "bg-consumer-staples.png"
+    },
+    {
+      "badge": "국내 주식 / 제공 스크리닝 1위",
+      "ticker": "KRX / 086790",
+      "name": "하나금융지주",
+      "sub": "금융지주·은행·배당주",
+      "priceLabel": "11월 24일 종가",
+      "price": "123,100원",
+      "changeLabel": "전일 대비",
+      "change": "+4.94%",
+      "tone": "up",
+      "metrics": [
+        { "label": "거래량", "value": "약 67.8만 주" },
+        { "label": "RSI / 제공", "value": "58.7" },
+        { "label": "골든 시그널 / 제공", "value": "100점", "emphasis": true }
+      ],
+      "note": "이동평균선 정배열 / 카카오뱅크(323410) +2.65% 100점 동률",
+      "headline": "코스피 5천피 회복일 외국인·기관 동반 매수 유입",
+      "body": ["11월 24일 코스피 +6.32% 반등 속 금융·밸류업 업종이 강세를 보였다."],
+      "source": "시세 Yahoo Finance·KRX / 업종 금융",
+      "bg": "bg-kr-finance.png"
+    },
+    {
+      "badge": "국내 ETF / 제공 스크리닝 1위",
+      "ticker": "KRX / 091170",
+      "name": "KODEX 은행",
+      "sub": "KRX 은행 지수 추종",
+      "priceLabel": "11월 24일 종가",
+      "price": "14,420원",
+      "changeLabel": "전일 대비",
+      "change": "+3.93%",
+      "tone": "up",
+      "metrics": [
+        { "label": "거래량", "value": "약 29.8만 주" },
+        { "label": "RSI / 제공", "value": "55.4" },
+        { "label": "골든 시그널 / 제공", "value": "100점", "emphasis": true }
+      ],
+      "note": "이동평균선 정배열 / 국내 금융·은행 섹터 동반 100점",
+      "headline": "개별주와 섹터 ETF 모두 정배열 골든 시그널",
+      "body": ["금리·환율 변동성 속에서도 은행 섹터가 단기 상승 추세를 유지했다."],
+      "source": "시세 Yahoo Finance·KRX / 상품 삼성자산운용",
+      "bg": "bg-kr-bank.png"
+    }
+  ],
+  "closing": {
+    "badge": "11.25 / KRX 정규장 09:00-15:30",
+    "titleA": "개장 전,",
+    "titleB": "세 가지 체크포인트",
+    "items": [
+      {
+        "no": "01",
+        "title": "미국장",
+        "main": "다우 +0.85% / 나스닥 -1.48% / SOX -7.88%",
+        "sub": "엔비디아 -5.86%, 마이크론 -11.01%, SK하이닉스 ADR -9.90% 하락."
+      },
+      {
+        "no": "02",
+        "title": "개장 전 시그널",
+        "main": "코스피200 야간선물 742.60 (-4.56%)",
+        "sub": "어제 5,006.03 회복 후 반도체 약세 출발 압력, 방어·금융 수급 확인."
+      },
+      {
+        "no": "03",
+        "title": "환율·대외 변수",
+        "main": "역외 원/달러 약 1,340.9원 / MSCI 한국 -3.7%",
+        "sub": "USTR 과잉생산 관세 조사 발표 여부 및 장중 저가 매수세 유입 점검."
+      }
+    ],
+    "footerLeft": "지수 KRX·Nasdaq / 시세 Yahoo Finance / 야간선물 06:00 기준",
+    "bg": "bg-06-yeouido-dawn.webp"
+  }
+}

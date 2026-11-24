@@ -106,23 +106,23 @@ export const galleryItems: GalleryItem[] = [
   /* quant-screening-daily:BEGIN — render_quant_cards.mjs --gallery가 매일 이 블록만 새로 씁니다 */
   {
     id: "quant-screening-daily",
-    title: "4대 시장 퀀트 스크리닝 (11/24)",
+    title: "4대 시장 퀀트 스크리닝 (11/25)",
     tagline: "골든 시그널로 본 4종목",
     summary:
-      "미국 주식·미국 ETF·국내 주식·국내 ETF 네 시장을 같은 기준(이동평균선 정배열·RSI·거래량)으로 훑은 2026. 11. 24 기준 결과입니다. 시장별 1위 4종목과 개장 전 체크포인트 3가지를 6장에 담았습니다.",
+      "미국 주식·미국 ETF·국내 주식·국내 ETF 네 시장을 같은 기준(이동평균선 정배열·RSI·거래량)으로 훑은 2026. 11. 25 기준 결과입니다. 시장별 1위 4종목과 개장 전 체크포인트 3가지를 6장에 담았습니다.",
     category: "cardnews",
-    createdAt: "2026-11-24",
+    createdAt: "2026-11-25",
     tags: ["퀀트 스크리닝", "골든 시그널", "미국 주식", "국내 주식", "ETF"],
     slides: [
-      { src: "/gallery/quant-screening-daily/01.webp", width: 1080, height: 1350, alt: "표지 — 4대 시장 퀀트 스크리닝, 미국 주식 DIS·미국 ETF BIL·국내 주식 LG유플러스·국내 ETF KODEX 인버스2X", caption: "표지 — 골든 시그널로 본 4종목" },
-      { src: "/gallery/quant-screening-daily/02.webp", width: 1080, height: 1350, alt: "미국 주식 / 제공 스크리닝 1위 — 월트 디즈니 $120.27 (+1.94%), 거래량 약 967만 주, RSI / 제공 61.6, 골든 시그널 / 제공 100점", caption: "미국 주식 1위 — 월트 디즈니 $120.27 (+1.94%)" },
-      { src: "/gallery/quant-screening-daily/03.webp", width: 1080, height: 1350, alt: "미국 ETF / 제공 스크리닝 1위 — 미국 초단기 국채 1-3개월 $91.60 (+0.01%), 거래량 안전자산, RSI / 제공 99.2, 골든 시그널 / 제공 85점", caption: "미국 ETF 1위 — 미국 초단기 국채 1-3개월 $91.60 (+0.01%)" },
-      { src: "/gallery/quant-screening-daily/04.webp", width: 1080, height: 1350, alt: "국내 주식 / 제공 스크리닝 1위 — LG유플러스 14,720원 (-1.67%), 거래량 약 76.1만 주, RSI / 제공 52.2, 골든 시그널 / 제공 85점", caption: "국내 주식 1위 — LG유플러스 14,720원 (-1.67%)" },
-      { src: "/gallery/quant-screening-daily/05.webp", width: 1080, height: 1350, alt: "국내 ETF / 제공 스크리닝 1위 — KODEX 200선물인버스2X 140원 (+6.06%), 거래량 인버스 2배, RSI / 제공 70.4, 골든 시그널 / 제공 85점", caption: "국내 ETF 1위 — KODEX 200선물인버스2X 140원 (+6.06%)" },
-      { src: "/gallery/quant-screening-daily/06.webp", width: 1080, height: 1350, alt: "개장 전, 세 가지 체크포인트 — 미국장 나스닥종합 +6.51% / 엔비디아 +31.48%, 개장 전 시그널 코스피200 야간선물 777.95 (+7.06%), 환율·제도 역외 원/달러 1,341.28원 (-4.62원)", caption: "마무리 — 개장 전 체크포인트 3" },
+      { src: "/gallery/quant-screening-daily/01.webp", width: 1080, height: 1350, alt: "표지 — 4대 시장 퀀트 스크리닝, 미국 주식 CMCSA·미국 ETF XLP·국내 주식 하나금융지주·국내 ETF KODEX 은행", caption: "표지 — 골든 시그널로 본 4종목" },
+      { src: "/gallery/quant-screening-daily/02.webp", width: 1080, height: 1350, alt: "미국 주식 / 제공 스크리닝 1위 — 컴캐스트 $25.38 (+2.67%), 거래량 약 2,675만 주, RSI / 제공 56.7, 골든 시그널 / 제공 100점", caption: "미국 주식 1위 — 컴캐스트 $25.38 (+2.67%)" },
+      { src: "/gallery/quant-screening-daily/03.webp", width: 1080, height: 1350, alt: "미국 ETF / 제공 스크리닝 1위 — 미국 필수소비재 섹터 $91.88 (+1.66%), 거래량 약 2,166만 주, RSI / 제공 49.7, 골든 시그널 / 제공 100점", caption: "미국 ETF 1위 — 미국 필수소비재 섹터 $91.88 (+1.66%)" },
+      { src: "/gallery/quant-screening-daily/04.webp", width: 1080, height: 1350, alt: "국내 주식 / 제공 스크리닝 1위 — 하나금융지주 123,100원 (+4.94%), 거래량 약 67.8만 주, RSI / 제공 58.7, 골든 시그널 / 제공 100점", caption: "국내 주식 1위 — 하나금융지주 123,100원 (+4.94%)" },
+      { src: "/gallery/quant-screening-daily/05.webp", width: 1080, height: 1350, alt: "국내 ETF / 제공 스크리닝 1위 — KODEX 은행 14,420원 (+3.93%), 거래량 약 29.8만 주, RSI / 제공 55.4, 골든 시그널 / 제공 100점", caption: "국내 ETF 1위 — KODEX 은행 14,420원 (+3.93%)" },
+      { src: "/gallery/quant-screening-daily/06.webp", width: 1080, height: 1350, alt: "개장 전, 세 가지 체크포인트 — 미국장 다우 +0.85% / 나스닥 -1.48% / SOX -7.88%, 개장 전 시그널 코스피200 야간선물 742.60 (-4.56%), 환율·대외 변수 역외 원/달러 약 1,340.9원 / MSCI 한국 -3.7%", caption: "마무리 — 개장 전 체크포인트 3" },
     ],
     basis:
-      "기준 2026. 11. 24 08:20 · 시세 Yahoo Finance·KRX / 지수 S&P·Nasdaq / 환율 08:20 기준 · 투자 권유가 아닌 기록입니다",
+      "기준 2026. 11. 25 08:20 · 시세 Yahoo Finance·KRX / 지수 S&P·Nasdaq / 환율 08:20 기준 · 투자 권유가 아닌 기록입니다",
     related: [{ label: "오늘의 시장 확인 — 데일리 브리프", href: "/board/" }],
   },
   /* quant-screening-daily:END */
