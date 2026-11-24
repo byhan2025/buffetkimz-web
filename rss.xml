@@ -5,7 +5,7 @@
     <link>https://byhan2025.github.io/buffetkimz-web/</link>
     <description>금융·투자·연금·노후·재무를 하나의 기준으로 읽는 금융 포털. 시장 지표와 오늘의 브리핑, 직접 계산해 보는 금융 도구, 앱스토어, 투자백서를 한곳에 모았습니다. 모든 글과 도구에 기준일과 출처를 붙입니다.</description>
     <language>ko</language>
-    <lastBuildDate>Tue, 24 Nov 2026 11:43:43 GMT</lastBuildDate>
+    <lastBuildDate>Tue, 24 Nov 2026 12:03:44 GMT</lastBuildDate>
     <atom:link href="https://byhan2025.github.io/buffetkimz-web/rss.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>장기요양보험료 20년 441만 원, 3년 돌봄에 공단이 4,915만 원</title>
@@ -14,6 +14,14 @@
       <category>보험</category>
       <pubDate>Tue, 24 Nov 2026 00:00:00 GMT</pubDate>
       <description>2026년 장기요양보험료는 세대당 월 1만8,362원, 20년이면 441만 원입니다. 부모님이 4등급으로 3년 재가급여를 쓰면 내 몫은 월 21만1,455원, 공단이 119만8,245원을 냅니다.</description>
+    </item>
+    <item>
+      <title>연금저축 600만 원 먼저, IRP 300만 원 다음 — 900만 원 배분의 조건</title>
+      <link>https://byhan2025.github.io/buffetkimz-web/posts/pension-savings-vs-irp-order/</link>
+      <guid isPermaLink="true">https://byhan2025.github.io/buffetkimz-web/posts/pension-savings-vs-irp-order/</guid>
+      <category>연금</category>
+      <pubDate>Tue, 24 Nov 2026 00:00:00 GMT</pubDate>
+      <description>직장인이 900만 원 세액공제를 채우는 순서는 연금저축 600만 원, IRP 300만 원입니다. 공제액은 148만 5,000원으로 같고, 갈리는 것은 IRP의 위험자산 70% 한도와 계좌 수수료, 인출 조건입니다.</description>
     </item>
     <item>
       <title>금리·환율이 오르면 내 고정비 3곳이 먼저 오른다</title>
@@ -238,14 +246,6 @@
       <category>투자</category>
       <pubDate>Sun, 15 Nov 2026 00:00:00 GMT</pubDate>
       <description>거치식과 적립식의 차이는 기대수익률이 아니라, 판단을 몇 번 하는가에 있습니다. 배분과 리밸런싱 규칙을 먼저 정하는 이유를 정리했습니다.</description>
-    </item>
-    <item>
-      <title>실손 5세대, 보험료 30% 낮아졌다는 말의 앞뒤</title>
-      <link>https://byhan2025.github.io/buffetkimz-web/posts/insurance-silson-5th/</link>
-      <guid isPermaLink="true">https://byhan2025.github.io/buffetkimz-web/posts/insurance-silson-5th/</guid>
-      <category>보험</category>
-      <pubDate>Sat, 14 Nov 2026 00:00:00 GMT</pubDate>
-      <description>2026년 5월 6일부터 판매된 5세대 실손은 보험료를 낮춘 대신 비중증 비급여 자기부담률을 50%로 올렸습니다. 무엇이 달라졌고, 누가 유리한지 정리했습니다.</description>
     </item>
   </channel>
 </rss>
