@@ -187,6 +187,12 @@ export default function CalendarBoard({ items, initialMonth, note, todayIso }: P
           {(["전체", ...TAGS] as const).map((t) => {
             const active = t === tag;
             const count = t === "전체" ? monthTotal : items.filter((i) => i.month === month && i.tag === t).length;
+            /*
+             * v9.4.1(2026-11-24 감사) — 그 달에 0건인 분류는 감춘다.
+             * '연금 0 · 건강 0'처럼 빈 탭을 늘어놓으면, 눌렀을 때 빈 목록이 나와 화면이 고장 난 것처럼 보인다.
+             * 지금 선택된 탭은 0건이어도 남겨 둔다(선택이 사라지면 무엇으로 거른 건지 알 수 없다).
+             */
+            if (count === 0 && !active) return null;
             return (
               <button
                 key={t}

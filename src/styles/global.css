@@ -5380,8 +5380,13 @@
     top: var(--header-h);
     z-index: 30;
     border-bottom: 1px solid var(--color-line);
-    background: rgb(250 249 246 / 0.94);
-    backdrop-filter: blur(10px);
+    /*
+     * v9.4.1(2026-11-24 감사) — 반투명(0.94)+blur 이던 배경을 불투명으로 바꿨다.
+     * 스크롤하면 아래 카드의 글자가·제목이 탭 바 너머로 비쳤다(캡처: audit-20261124/crops/1440-apps-grid.png).
+     * 유리 효과를 살리려고 남겨 둔 6%의 투명도가 '렌더링 깨짐'으로 읽히는 자리였다.
+     */
+    background: var(--color-paper);
+    box-shadow: 0 8px 16px -16px rgb(11 27 41 / 0.5);
   }
 
   .store-tabs {
@@ -9266,11 +9271,28 @@
 
     .cnp-cover.is-feature .cnp-cover-media {
       flex: 0 0 clamp(240px, 30%, 320px);
+      /* 카드 높이를 미디어가 그대로 따른다 — 아래 표지 컷 수정의 기준 상자 */
+      align-self: stretch;
+    }
+
+    /* 대표 카드 — 표지 그림 안에 이미 '6/6' 쪽번호가 있어, 바깥 배지가 그 위를 덮고 있었다.
+       아래 본문 줄에 '6장'이 한 번 더 나오므로 대표 카드에서는 배지를 감춘다. */
+    .cnp-cover.is-feature .cnp-cover-badge {
+      display: none;
     }
 
     .cnp-cover.is-feature .cnp-cover-media img {
-      height: auto;
-      aspect-ratio: 4 / 5;
+      /*
+       * v9.4.1(2026-11-24 감사) — 대표 카드에서 표지 아래쪽이 잘려 나갔다.
+       * 4:5 표지를 height:auto 로 두니 카드 본문이 짧은 날에는 그림이 카드보다 커져
+       * overflow 로 아래 밴드(날짜·티커 줄)가 중간에서 잘렸다.
+       * 미디어 상자에 꼭 맞춰 채우고(object-fit: cover), 잘리는 쪽은 위에서부터가 아니라
+       * 가운데 정렬로 두어 제목·배지가 먼저 살아남게 한다.
+       */
+      height: 100%;
+      aspect-ratio: auto;
+      object-fit: cover;
+      object-position: center top;
     }
 
     .cnp-cover.is-feature .cnp-cover-body {
