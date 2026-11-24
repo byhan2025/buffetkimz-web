@@ -142,21 +142,11 @@ html.bk-off-tool .journey-bar[data-store="bk_tool_guide_v1"] {
   color: var(--color-ink);
 }
 
-.journey-arrow {
-  flex: none;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--color-brand);
-  transition: transform 0.18s var(--ease-out-soft);
-}
 
 .journey-main:hover .journey-title {
   color: var(--color-brand-deep);
 }
 
-.journey-main:hover .journey-arrow {
-  transform: translateX(2px);
-}
 
 .journey-skip {
   flex: none;

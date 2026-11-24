@@ -25,6 +25,9 @@
   --color-sky-deep: #2c7be0;
   --color-night: #0b1b29;
   --color-night-soft: #142a3d;
+  /* 밤 면 위 글자 — 4.5:1 이상. 캡션도 이 두 값 밖으로 나가지 않는다(DESIGN §1-1-3) */
+  --color-on-night: #eef2ff;
+  --color-on-night-muted: #aab6cc;
 
   /* 선 */
   --color-line: #dde3e8;
@@ -3293,16 +3296,17 @@
   /*
    * v8.7.0 — 크레딧 5칸을 **1줄**로 줄였다(감사 D5).
    * '기록 N편 · 카드 N세트 · 도구 N종 · 일정 N건'만 남기고, 기준일은 그 아래 한 줄로 붙인다.
+   * v9.6.0 — h1(정의문)이 왼쪽에 서므로 크레딧도 같은 왼쪽 축에 맞춘다(가운데 정렬이면 제목과 따로 논다).
    */
   .film-credit-line {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     gap: 4px 10px;
     max-width: 1200px;
     margin-inline: auto;
-    padding: 11px 16px 2px;
+    padding: 12px 16px 2px;
     font-size: 13px;
     letter-spacing: -0.02em;
     color: var(--color-ink-muted);
@@ -3334,8 +3338,8 @@
   .film-credit-line + .film-credit-note {
     max-width: 1200px;
     margin-inline: auto;
-    padding: 0 16px 11px;
-    text-align: center;
+    padding: 0 16px 12px;
+    text-align: left;
     font-size: 11.5px;
     color: var(--color-ink-faint);
   }
@@ -4256,17 +4260,10 @@
   }
 
   .hub-gallery-note {
-    font-size: 11.5px;
+    font-size: 12px;
     font-weight: 500;
     letter-spacing: -0.01em;
     color: var(--color-ink-muted);
-  }
-
-  .hub-gallery-go {
-    flex: none;
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--color-brand-deep);
   }
 
   /* 홈 허브 상단 — 대메뉴 바로가기 3칸(자료앨범 카드 옆) */
@@ -4307,7 +4304,7 @@
   }
 
   .hub-next {
-    font-size: 11.5px;
+    font-size: 12px;
     color: var(--color-ink-faint);
   }
 
@@ -4467,9 +4464,9 @@
 
   /* ---------- 30초 요약 ---------- */
   .hub-label {
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 700;
-    letter-spacing: 0.16em;
+    letter-spacing: 0.06em;
     color: var(--color-brand-deep);
   }
 
@@ -4525,7 +4522,7 @@
   }
 
   .hub-brief-no {
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 700;
     color: var(--color-brand);
   }
@@ -4540,7 +4537,7 @@
 
   .hub-brief-meta {
     grid-column: 2;
-    font-size: 11px;
+    font-size: 12px;
     color: var(--color-ink-faint);
   }
 
@@ -4575,7 +4572,7 @@
     border-radius: 6px;
     background-color: #e2eefa;
     padding: 2px 7px;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 700;
     letter-spacing: 0.02em;
     color: #1d4e77;
@@ -5230,9 +5227,9 @@
   .store-map-foot {
     margin-top: 4px;
     padding: 0 4px;
-    font-size: 9.5px;
-    letter-spacing: 0.14em;
-    color: #6d768d;
+    font-size: 12px;
+    letter-spacing: 0.02em;
+    color: var(--color-on-night-muted);
   }
 
   /* ---------- v7.3 자주 쓰는 앱 (35종 지름길) ---------- */
@@ -5608,11 +5605,11 @@
   .store-badge {
     display: inline-flex;
     align-items: center;
-    height: 20px;
+    height: 22px;
     padding: 0 7px;
     border-radius: 5px;
     background: #f1f2f5;
-    font-size: 10.5px;
+    font-size: 12px;
     font-weight: 700;
     letter-spacing: -0.01em;
     color: var(--color-ink-muted);
@@ -5706,7 +5703,7 @@
   }
 
   .store-meta {
-    font-size: 10.5px;
+    font-size: 12px;
     color: var(--color-ink-faint);
   }
 
@@ -5876,16 +5873,9 @@
     gap: 8px 12px;
   }
 
-  .mboard-kicker {
-    font-size: 9.5px;
-    letter-spacing: 0.22em;
-    color: #a3b8ff;
-  }
-
   .mboard-h {
-    margin-top: 2px;
     font-size: 17px;
-    font-weight: 800;
+    font-weight: 700;
     letter-spacing: -0.035em;
     color: #ffffff;
   }
@@ -5895,8 +5885,8 @@
     flex-wrap: wrap;
     align-items: center;
     gap: 10px;
-    font-size: 10px;
-    color: #8a92a7;
+    font-size: 12px;
+    color: var(--color-on-night-muted);
   }
 
   .mboard-legend span {
@@ -5923,7 +5913,7 @@
   .mboard-legend-note {
     padding-left: 8px;
     border-left: 1px solid rgb(255 255 255 / 0.14);
-    color: #6f778c;
+    color: var(--color-on-night-muted);
   }
 
   .mboard-grid {
@@ -6047,13 +6037,16 @@
     display: flex;
     flex-wrap: wrap;
     gap: 2px 6px;
-    margin-top: 3px;
-    font-size: 9.5px;
-    color: #747c91;
+    margin-top: 5px;
+    font-size: 12px;
+    line-height: 1.45;
+    color: var(--color-on-night-muted);
   }
 
+  /* 출처는 시각과 같은 색으로 두고 무게만 낮춘다 — 12px에서도 4.5:1을 넘긴다 */
   .mboard-src {
-    color: #5f677d;
+    color: var(--color-on-night-muted);
+    font-weight: 400;
   }
 
   .mboard-rest {
@@ -6066,11 +6059,11 @@
   .mboard-rest-label {
     display: inline-flex;
     align-items: center;
-    min-height: 30px;
+    min-height: 44px;
     gap: 6px;
-    font-size: 10px;
-    letter-spacing: 0.1em;
-    color: #8f97ad;
+    font-size: 12.5px;
+    letter-spacing: 0;
+    color: var(--color-on-night-muted);
     cursor: pointer;
     list-style: none;
   }
@@ -6082,9 +6075,9 @@
   .mboard-rest-label::before {
     content: "+";
     display: inline-block;
-    width: 10px;
-    font-size: 12px;
-    color: #6f778c;
+    width: 12px;
+    font-size: 14px;
+    color: var(--color-on-night-muted);
   }
 
   .mboard-rest[open] .mboard-rest-label::before {
@@ -6113,8 +6106,8 @@
     border: 1px solid rgb(255 255 255 / 0.09);
     border-radius: 8px;
     background: rgb(255 255 255 / 0.03);
-    font-size: 11px;
-    color: #d3d8e4;
+    font-size: 12px;
+    color: var(--color-on-night);
   }
 
   .mboard-mini-item:hover {
@@ -6122,7 +6115,7 @@
   }
 
   .mboard-mini-name {
-    color: #8f97ad;
+    color: var(--color-on-night-muted);
   }
 
   .mboard-mini-value {
@@ -6132,7 +6125,7 @@
   }
 
   .mboard-mini-item .ind-change {
-    font-size: 10.5px;
+    font-size: 12px;
   }
 
   .mboard-mini-item .ind-change.is-down {
@@ -6144,10 +6137,25 @@
   }
 
   .mboard-note {
-    margin-top: 9px;
-    font-size: 10.5px;
+    margin-top: 10px;
+    font-size: 12px;
     line-height: 1.6;
-    color: #747b8f;
+    color: var(--color-on-night-muted);
+  }
+
+  /* 확인 시각 + 출처 — 한 줄 점으로 이어 붙이지 않고 두 줄로 나눈다 */
+  .mboard-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    margin-top: 8px;
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--color-on-night-muted);
+  }
+
+  .mboard-meta-time {
+    color: var(--color-on-night);
   }
 
   /* ---------- 이번 주 돈의 일정 ---------- */
@@ -6329,7 +6337,7 @@
   }
 
   .simtop-all {
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 600;
     color: var(--color-brand-deep);
   }
@@ -6361,7 +6369,7 @@
 
   .simtop-rank {
     grid-area: rank;
-    font-size: 9.5px;
+    font-size: 12px;
     color: var(--color-ink-faint);
     padding-top: 3px;
   }
@@ -6393,11 +6401,11 @@
   .simtop-badge {
     display: inline-flex;
     align-items: center;
-    height: 17px;
-    padding: 0 5px;
+    height: 20px;
+    padding: 0 6px;
     border-radius: 4px;
     background: var(--color-brand-soft);
-    font-size: 9.5px;
+    font-size: 12px;
     font-weight: 700;
     color: var(--color-brand-deep);
   }
@@ -6424,7 +6432,7 @@
     -webkit-box-orient: vertical;
     overflow: hidden;
     margin-top: 2px;
-    font-size: 11px;
+    font-size: 12px;
     line-height: 1.5;
     color: var(--color-ink-muted);
   }
@@ -6439,7 +6447,7 @@
   }
 
   .simtop-more {
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 600;
     color: var(--color-ink-faint);
     text-decoration: underline;
@@ -6470,7 +6478,7 @@
   }
 
   .pfeed-note {
-    font-size: 10px;
+    font-size: 12px;
     color: var(--color-ink-faint);
   }
 
@@ -6540,7 +6548,7 @@
   }
 
   .pfeed-no {
-    font-size: 9.5px;
+    font-size: 12px;
     color: var(--color-brand);
     padding-top: 2px;
   }
@@ -6581,7 +6589,7 @@
     margin-top: 10px;
     padding-top: 8px;
     border-top: 1px solid var(--color-line);
-    font-size: 10.5px;
+    font-size: 12px;
     line-height: 1.6;
     color: var(--color-ink-faint);
   }
@@ -6606,7 +6614,7 @@
   }
 
   .hub-items-note {
-    font-size: 10.5px;
+    font-size: 12px;
     color: var(--color-ink-faint);
   }
 
@@ -6646,16 +6654,10 @@
   }
 
   .hub-cite-when {
-    font-size: 11px;
+    font-size: 12px;
     color: var(--color-ink-faint);
   }
 
-  .hub-cite-go {
-    flex: none;
-    font-size: 11.5px;
-    font-weight: 700;
-    color: var(--color-brand-deep);
-  }
 }
 
 /* ---------- v7.0 포털 픽 (금융지식 + 앱스토어) ---------- */
@@ -6755,14 +6757,7 @@
   }
 
   .picks-card-meta {
-    font-size: 10.5px;
-    color: var(--color-ink-faint);
-  }
-
-  .picks-card-go {
-    margin-left: auto;
-    flex: none;
-    font-size: 13px;
+    font-size: 12px;
     color: var(--color-ink-faint);
   }
 
@@ -6792,13 +6787,13 @@
   }
 
   .picks-panel-sub {
-    font-size: 10.5px;
+    font-size: 12px;
     font-weight: 600;
     color: var(--color-ink-faint);
   }
 
   .picks-more {
-    font-size: 11.5px;
+    font-size: 12px;
     font-weight: 600;
     color: var(--color-brand-deep);
     white-space: nowrap;
@@ -6824,7 +6819,7 @@
   }
 
   .picks-post-cat {
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 700;
     letter-spacing: 0.06em;
     color: var(--color-brand);
@@ -6857,7 +6852,7 @@
   }
 
   .picks-post-meta {
-    font-size: 10.5px;
+    font-size: 12px;
     color: var(--color-ink-faint);
   }
 
@@ -6908,16 +6903,11 @@
 
   .picks-app-line {
     display: block;
-    font-size: 11px;
+    font-size: 12px;
     color: var(--color-ink-muted);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-  }
-
-  .picks-app-open {
-    font-size: 13px;
-    color: var(--color-brand);
   }
 
   .picks-app:hover .picks-app-name {
@@ -8614,9 +8604,9 @@
     border: 1px solid rgb(255 255 255 / 0.14);
     border-radius: 999px;
     background: rgb(255 255 255 / 0.05);
-    font-size: 9.5px;
-    letter-spacing: 0.02em;
-    color: #9da4b9;
+    font-size: 12px;
+    letter-spacing: 0.01em;
+    color: var(--color-on-night-muted);
     white-space: nowrap;
     max-width: 100%;
     overflow: hidden;
@@ -8834,7 +8824,7 @@
 @layer components {
   .hub-updated {
     margin-top: 2px;
-    font-size: 10.5px;
+    font-size: 12px;
     color: var(--color-ink-faint);
   }
 }

@@ -222,9 +222,7 @@ const menuCountText = (item: (typeof nav)[number], menu: { live: NavChild[] }) =
               <div class="quick-panel-head-wrap">
                 <p class="quick-panel-head">
                   <span>{tab.label}</span>
-                  <a class="quick-panel-all" href={withBase(tab.href)}>
-                    전체 보기 →
-                  </a>
+                  <a class="quick-panel-all" href={withBase(tab.href)}>전체 보기</a>
                 </p>
                 <p class="quick-panel-desc">{nav.find((n) => n.match === tab.match)?.desc}</p>
               </div>

@@ -41,7 +41,6 @@ const dirClass = (d: Indicator["direction"]) =>
 <div class="mboard" data-market-board id="mod-market">
   <div class="mboard-head">
     <div class="mboard-title">
-      <p class="mboard-kicker mono">MARKET BOARD</p>
       <h3 class="mboard-h">오늘의 시장</h3>
     </div>
     <div class="mboard-legend mono" aria-hidden="true">
@@ -51,8 +50,9 @@ const dirClass = (d: Indicator["direction"]) =>
     </div>
   </div>
 
-  <p class="mod-chip mono">
-    확인 {hubStamp(hub.asOf)} · 한국거래소 · 금융투자협회 · CNBC · 한국은행
+  <p class="mboard-meta mono">
+    <span class="mboard-meta-time">확인 {hubStamp(hub.asOf)}</span>
+    <span>출처 한국거래소, 금융투자협회, CNBC, 한국은행</span>
   </p>
 
   <ul class="mboard-grid" aria-label="핵심 시장 지표">

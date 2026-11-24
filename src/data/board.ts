@@ -8,10 +8,11 @@
  *    글(자산리포트)은 한 편씩 깊게, 허브는 오늘 쓸 것만, 게시판은 **확인한 것 전부의 색인**을 맡는다.
  *
  * 세 코너 (2026-11-24 오전 개편 · 같은 날 '원문 글맛' 원칙으로 재정비)
- *  · 📊 금융·시장 브리프 — 시장 숫자·제도·보험 실무, 그리고 일에 쓰는 AI 메모. 1차 출처 링크를 붙인다.
- *  · 📖 오늘의 스토리·썰 — 온라인에 올라온 사람 이야기의 줄거리·대사·감정선을 말투만 다듬어 그대로 전한다.
+ *  · market — 금융·시장 브리프: 시장 숫자·제도·보험 실무, 그리고 일에 쓰는 AI 메모. 1차 출처 링크를 붙인다.
+ *  · story  — 오늘의 스토리·썰: 온라인에 올라온 사람 이야기의 줄거리·대사·감정선을 말투만 다듬어 그대로 전한다.
  *    출처는 계정도 링크도 아닌 `SNS 커뮤니티` 한 줄이다.
- *  · 🔥 SNS 인기 콘텐츠 — 사회·문화에서 화제가 된 장면을 우리 말로 정리한 생활·문화 메모.
+ *  · sns    — SNS 인기 콘텐츠: 사회·문화에서 화제가 된 장면을 우리 말로 정리한 생활·문화 메모.
+ *    (코너 표식은 이모지가 아니라 `components/board/CornerIcon.astro`의 단색 SVG다 — 감사 P0-3)
  *
  * 지키는 것 (today.ts와 같은 규칙)
  *  · '실시간'·'속보'·'긴급'을 쓰지 않는다 — 확인한 시각과 출처를 적는다. 아래 `validateBoard()`가
@@ -69,7 +70,7 @@ export type BoardEntry = {
 /** 코너 — 화면 상단 3장의 안내 카드이자 필터 단위 */
 export type BoardCorner = {
   key: "market" | "story" | "sns";
-  emoji: string;
+  /** 화면 아이콘 — CornerIcon.astro가 그리는 SVG 이름(key와 같다) */
   title: string;
   /** 한 줄 색깔 — 코너가 무엇을 맡는지 */
   tagline: string;
@@ -84,7 +85,6 @@ export type BoardCorner = {
 export const BOARD_CORNERS: BoardCorner[] = [
   {
     key: "market",
-    emoji: "📊",
     title: "금융·시장 브리프",
     tagline: "숫자와 제도로 보는 오늘의 돈 흐름",
     blurb:
@@ -94,7 +94,6 @@ export const BOARD_CORNERS: BoardCorner[] = [
   },
   {
     key: "story",
-    emoji: "📖",
     title: "오늘의 스토리·썰",
     tagline: "숫자 사이에서 잠깐 쉬어가는 사람 이야기",
     blurb:
@@ -104,7 +103,6 @@ export const BOARD_CORNERS: BoardCorner[] = [
   },
   {
     key: "sns",
-    emoji: "🔥",
     title: "SNS 인기 콘텐츠",
     tagline: "요즘 사람들이 이야기하는 장면과 흐름",
     blurb:

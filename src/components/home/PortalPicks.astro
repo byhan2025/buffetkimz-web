@@ -45,7 +45,7 @@ const picks = featuredStore.slice(0, 4);
             {menuLabel.posts}
             <span class="picks-panel-sub">최신 3편 + 카드 2세트</span>
           </p>
-          <a href={withBase("/posts")} class="picks-more">전체 보기 →</a>
+          <a href={withBase("/posts")} class="picks-more">자산리포트 전체 보기</a>
         </div>
         <ul class="picks-posts">
           {
@@ -67,7 +67,7 @@ const picks = featuredStore.slice(0, 4);
         <div class="picks-cards" data-guide="picks-cards">
           <div class="picks-cards-head">
             <p class="picks-panel-sub">카드뉴스 최신 2세트</p>
-            <a href={withBase("/gallery")} class="picks-more">자료앨범 →</a>
+            <a href={withBase("/gallery")} class="picks-more">자료앨범 전체 보기</a>
           </div>
           <ul class="picks-cards-list">
             {cardPick.map(({ item, cover }) => (
@@ -88,7 +88,6 @@ const picks = featuredStore.slice(0, 4);
                       카드 {item.slides.length}장 · {item.category === "cardnews" ? "카드뉴스" : item.category === "infographic" ? "인포그래픽" : "체크리스트"}
                     </span>
                   </span>
-                  <span class="picks-card-go" aria-hidden="true">→</span>
                 </a>
               </li>
             ))}
@@ -103,7 +102,7 @@ const picks = featuredStore.slice(0, 4);
             {menuLabel.apps}
             <span class="picks-panel-sub">추천 4종</span>
           </p>
-          <a href={withBase("/apps")} class="picks-more">앱스토어 →</a>
+          <a href={withBase("/apps")} class="picks-more">앱스토어 전체 보기</a>
         </div>
         <ul class="picks-apps">
           {
@@ -116,9 +115,6 @@ const picks = featuredStore.slice(0, 4);
                   <span class="picks-app-body">
                     <span class="picks-app-name">{app.name}</span>
                     <span class="picks-app-line">{app.tagline}</span>
-                  </span>
-                  <span class="picks-app-open" aria-hidden="true">
-                    →
                   </span>
                 </a>
               </li>

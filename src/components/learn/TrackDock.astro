@@ -82,7 +82,7 @@ const here = `${stage.no}단계·${stage.name}`;
           href={withBase(`/apps/${tool.slug}/run`)}
           aria-label={`이 단계의 도구 — ${tool.name} 실행`}
         >
-          도구 <span aria-hidden="true">→</span>
+          도구
         </a>
       )
     }
@@ -94,7 +94,7 @@ const here = `${stage.no}단계·${stage.name}`;
           href={withBase(trackHref(track, next))}
           aria-label={`다음 단계 — ${next.no}단계 ${next.name}`}
         >
-          다음 <span aria-hidden="true">→</span>
+          다음
         </a>
       ) : (
         <a

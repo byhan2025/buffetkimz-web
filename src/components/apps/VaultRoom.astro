@@ -25,7 +25,16 @@ const payloadJson = JSON.stringify(vaultPayload);
     aria-haspopup="dialog"
     aria-controls="vault-dialog"
   >
-    <span class="vault-entry-icon" aria-hidden="true" data-vault-icon>🔒</span>
+    <span class="vault-entry-icon" aria-hidden="true" data-vault-icon>
+      <svg class="vault-ico vault-ico-lock" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="5" y="10.5" width="14" height="9.5" rx="2.2" />
+        <path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" />
+      </svg>
+      <svg class="vault-ico vault-ico-open" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="5" y="10.5" width="14" height="9.5" rx="2.2" />
+        <path d="M8.5 10.5V8a3.5 3.5 0 0 1 6.6-1.6" />
+      </svg>
+    </span>
     <span data-vault-label>전용 도구실</span>
   </button>
   <span class="vault-entry-hint" data-vault-hint>비밀번호</span>
@@ -36,7 +45,13 @@ const payloadJson = JSON.stringify(vaultPayload);
   <form class="vault-lock" data-vault-form novalidate>
     <div class="vault-head">
       <h2 class="vault-title" id="vault-title">
-        <span aria-hidden="true">🔒</span> 전용 도구실
+        <span class="vault-title-ico" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="5" y="10.5" width="14" height="9.5" rx="2.2" />
+            <path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" />
+          </svg>
+        </span>
+        전용 도구실
       </h2>
       <button type="button" class="vault-x" data-vault-close aria-label="닫기">×</button>
     </div>
@@ -74,11 +89,25 @@ const payloadJson = JSON.stringify(vaultPayload);
   <div class="vault-room" data-vault-room hidden>
     <div class="vault-head">
       <h2 class="vault-title">
-        <span aria-hidden="true" data-vault-room-icon>🔓</span> 전용 도구실
+        <span class="vault-title-ico" aria-hidden="true" data-vault-room-icon>
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="5" y="10.5" width="14" height="9.5" rx="2.2" />
+            <path d="M8.5 10.5V8a3.5 3.5 0 0 1 6.6-1.6" />
+          </svg>
+        </span>
+        전용 도구실
         <span class="vault-room-state" data-vault-room-state>이 탭에서 열림</span>
       </h2>
       <div class="vault-head-actions">
-        <button type="button" class="vault-lock-btn" data-vault-lock>🔒 잠그기</button>
+        <button type="button" class="vault-lock-btn" data-vault-lock>
+          <span class="vault-lock-btn-ico" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="5" y="10.5" width="14" height="9.5" rx="2.2" />
+              <path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" />
+            </svg>
+          </span>
+          잠그기
+        </button>
         <button type="button" class="vault-x" data-vault-close aria-label="닫기">×</button>
       </div>
     </div>
@@ -119,11 +148,11 @@ const payloadJson = JSON.stringify(vaultPayload);
   const errorEl = document.querySelector<HTMLElement>("[data-vault-error]");
   const submit = document.querySelector<HTMLButtonElement>("[data-vault-submit]");
   const label = document.querySelector<HTMLElement>("[data-vault-label]");
-  const icon = document.querySelector<HTMLElement>("[data-vault-icon]");
+  /* 아이콘은 JS가 글자를 갈아 끼우지 않는다 — 루트의 data-state를 CSS가 읽어 SVG 두 장 중 하나를 보여 준다. */
   const hint = document.querySelector<HTMLElement>("[data-vault-hint]");
   const payloadEl = document.getElementById("vault-payload");
 
-  if (root && dialog && form && room && list && pass && errorEl && submit && label && icon && hint && payloadEl) {
+  if (root && dialog && form && room && list && pass && errorEl && submit && label && hint && payloadEl) {
     const payload = JSON.parse(payloadEl.textContent || "{}") as {
       iter: number;
       salt: string;
@@ -174,7 +203,7 @@ const payloadJson = JSON.stringify(vaultPayload);
       open.href = tool.href;
       open.target = "_blank";
       open.rel = "noopener noreferrer";
-      open.textContent = `${tool.action} ↗`;
+      open.textContent = tool.action;
       actions.append(open);
 
       li.append(top, summary, meta, actions);
@@ -210,7 +239,6 @@ const payloadJson = JSON.stringify(vaultPayload);
       room.hidden = false;
       root.dataset.state = "unlocked";
       label.textContent = "전용 도구실 · 열림";
-      icon.textContent = "🔓";
       hint.textContent = "다시 열기";
     };
 
@@ -227,7 +255,6 @@ const payloadJson = JSON.stringify(vaultPayload);
       say("");
       root.dataset.state = "locked";
       label.textContent = "전용 도구실";
-      icon.textContent = "🔒";
       hint.textContent = "비밀번호";
       if (dialog.open) dialog.close();
     };
@@ -365,8 +392,30 @@ const payloadJson = JSON.stringify(vaultPayload);
   }
 
   .vault-entry-icon {
-    font-size: 12px;
-    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    color: #cfd8ff;
+  }
+
+  /* 잠김 = 자물쇠, 열림 = 열린 자물쇠 — 같은 자리에서 바뀐다 */
+  .vault-ico-open,
+  .vault-entry[data-state="unlocked"] .vault-ico-lock {
+    display: none;
+  }
+
+  .vault-entry[data-state="unlocked"] .vault-ico-open {
+    display: inline-block;
+  }
+
+  .vault-title-ico {
+    display: inline-flex;
+    align-self: center;
+    color: var(--color-ink-faint);
+  }
+
+  .vault-lock-btn-ico {
+    display: inline-flex;
+    align-items: center;
   }
 
   .vault-entry-hint {
@@ -470,12 +519,15 @@ const payloadJson = JSON.stringify(vaultPayload);
 
   .vault-lock-btn {
     /* v9.4.1 — 잠그기도 44px(실무 중 폰에서 한 손으로 누른다) */
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
     min-height: 44px;
     padding: 0 14px;
     border: 1px solid var(--color-line);
     border-radius: 999px;
     background-color: #ffffff;
-    font-size: 11.5px;
+    font-size: 12.5px;
     font-weight: 700;
     color: var(--color-ink-soft);
   }

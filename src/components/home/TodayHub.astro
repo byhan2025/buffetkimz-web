@@ -104,7 +104,6 @@ const ddayClass: Record<string, string> = {
             <span class="hub-gallery-kicker">자료앨범</span>
             <span class="hub-gallery-note">카드뉴스·체크리스트 {galleryCount}세트 {gallerySlideCount}장 — 바로 내려받기</span>
           </span>
-          <span class="hub-gallery-go" aria-hidden="true">→</span>
         </a>
         {/* v7.2 — 홈 상단에서 대메뉴 네 곳(자산리포트·앱스토어·골든타임·자료앨범)으로 바로 가는 줄 */}
         <ul class="hub-quicknav" aria-label="주요 메뉴 바로가기">
@@ -271,9 +270,6 @@ const ddayClass: Record<string, string> = {
                   )}
                   <span class="hub-cite-title">{entry!.title}</span>
                   <span class="mono hub-cite-when">{entry!.when}</span>
-                  <span class="hub-cite-go" aria-hidden="true">
-                    골든타임 →
-                  </span>
                 </a>
               </li>
             );
@@ -357,7 +353,6 @@ const ddayClass: Record<string, string> = {
       </div>
       <a class="btn btn-primary hub-tool-cta" href={withBase(hub.tool.href)}>
         {hub.tool.cta}
-        <span aria-hidden="true">→</span>
       </a>
     </div>
 

@@ -66,9 +66,12 @@ const gainLabel = post.data.gain ? (GAIN_LABEL[post.data.gainType ?? "clearer-an
 /**
  * 결론 앵커의 둘째 문장 — 이 글을 읽은 사람이 자기 계약·재무에서 대조할 지점.
  * 특정 상품의 가입·전환을 단정하지 않고, 확인할 항목만 가리킨다.
+ *
+ * v9.6.0(2026-11-25) — 카테고리 기본 문장만 쓰면 finance 글이 전부 "내 대출·예금 계약서"를 말하게 된다.
+ * 비상금·증여세·건강보험 글에 대출 문장이 박히던 것을 태그로 먼저 가른다(감사 1차 · 템플릿 문구 분기).
  */
 const balanceLine: Record<string, string> = {
-  finance: "내 대출·예금 계약서에서 금리 기준과 인하가 반영되는 시점을 확인해 보세요.",
+  finance: "내 계좌·계약의 금리·수수료·만기 조건을 원문과 나란히 놓고 확인해 보세요.",
   invest: "내 계좌의 수익률을 가격·배당·세금을 함께 넣은 총수익으로 다시 계산해 보세요.",
   economy: "내 고정비와 장바구니에서 같은 항목의 가격이 어떻게 움직였는지 확인해 보세요.",
   insurance: "내 증권에서 같은 담보의 이름·가입금액·지급 조건을 나란히 놓고 확인해 보세요.",
@@ -77,6 +80,94 @@ const balanceLine: Record<string, string> = {
   ai: "내 업무에서 같은 단계가 어디에 있는지, 사람이 확인할 지점을 정해 보세요.",
   philosophy: "내 판단 기준을 한 줄로 적고, 그 기준이 숫자와 맞는지 확인해 보세요.",
 };
+
+/**
+ * 태그가 더 구체적인 문장을 이긴다 — 위에서부터 첫 일치를 쓴다.
+ * 문장은 "무엇을 어디서 확인할지"만 말한다(숫자·상품명을 만들지 않는다).
+ */
+const TAG_BALANCE: ReadonlyArray<{ tags: readonly string[]; label: string; line: string }> = [
+  {
+    tags: ["비상금", "현금흐름"],
+    label: "내 통장과 대조",
+    line: "월 고정지출과 3~6개월치 생활비를 적고, 지금 통장에 남는 돈이 그 범위 안에 있는지 확인해 보세요.",
+  },
+  {
+    tags: ["증여세", "증여재산공제"],
+    label: "내 증여 기록과 대조",
+    line: "가족별로 이미 증여한 재산과 남은 공제 한도를 적어 두고, 신고 기한을 달력에 놓아 보세요.",
+  },
+  {
+    tags: ["금융소득종합과세", "배당소득", "이자소득"],
+    label: "내 금융소득과 대조",
+    line: "계좌별 이자·배당 합계를 모아 과세 기준선에 닿는지, 신고 시점이 언제인지 확인해 보세요.",
+  },
+  {
+    tags: ["피부양자", "지역가입자", "건강보험료"],
+    label: "내 건강보험 자격과 대조",
+    line: "올해 소득·재산 자료로 피부양자 자격이 유지되는지, 보험료가 얼마로 잡히는지 확인해 보세요.",
+  },
+  {
+    tags: ["기준금리", "대출금리", "COFIX", "주택담보대출", "전세대출", "버팀목"],
+    label: "내 대출·예금 계약서와 대조",
+    line: "금리 기준과 인하가 반영되는 시점, 중도상환수수료가 붙는 기간을 계약서에서 확인해 보세요.",
+  },
+  {
+    tags: ["청약통장", "주택청약", "서울 재개발", "주택공급", "정비사업"],
+    label: "내 청약 통장과 대조",
+    line: "납입 횟수·지역 조건이 공고문 기준과 맞는지, 내가 노리는 단지가 어느 순서인지 확인해 보세요.",
+  },
+  {
+    tags: ["듀레이션", "채권"],
+    label: "내 채권·펀드와 대조",
+    line: "보유 상품의 만기와 금리 민감도가 계좌 명세의 숫자와 맞는지 확인해 보세요.",
+  },
+  {
+    tags: ["환헤지", "ETF"],
+    label: "내 계좌의 환노출과 대조",
+    line: "상품 설명서에서 환헤지 여부와 그 비용이 수익률에 어떻게 반영되는지 확인해 보세요.",
+  },
+  {
+    tags: ["해외주식", "양도소득세", "손익통산"],
+    label: "내 매매 내역과 대조",
+    line: "해외주식 매매·배당 내역을 모아 양도소득세 신고 대상인지, 손익통산이 되는지 확인해 보세요.",
+  },
+  {
+    tags: ["국민연금", "조기노령연금", "연기연금"],
+    label: "내 국민연금 조회 결과와 대조",
+    line: "예상 수령액과 개시 시점을 공단 조회 결과로 확인하고, 조기·연기 중 어느 쪽이 내 생활비에 맞는지 보세요.",
+  },
+  {
+    tags: ["ISA", "IRP", "연금저축"],
+    label: "내 연금계좌 명세와 대조",
+    line: "납입 한도와 인출 조건, 세액공제 받은 금액을 증권사 명세에서 확인해 보세요.",
+  },
+];
+
+const tagBalance = TAG_BALANCE.find((rule) => rule.tags.some((t) => post.data.tags.includes(t)));
+/** 카테고리 기본 라벨 — 태그 규칙이 없을 때만 쓴다 */
+const CATEGORY_LABEL: Record<string, string> = {
+  finance: "내 계좌·계약과 대조",
+  invest: "내 계좌와 대조",
+  economy: "내 지출·가격과 대조",
+  insurance: "내 증권과 대조",
+  retire: "내 노후 수입과 대조",
+  pension: "내 연금계좌와 대조",
+  ai: "내 업무와 대조",
+  philosophy: "내 판단 기준과 대조",
+};
+const balance = {
+  label: tagBalance?.label ?? CATEGORY_LABEL[post.data.category] ?? "내 계약·재무와 대조",
+  line: tagBalance?.line ?? balanceLine[post.data.category],
+};
+
+/**
+ * 글말 면책 — 보험 글만 `내 증권`을 말한다.
+ * 금융·투자·연금 글에 증권을 들이대면 독자가 확인할 곳과 문장이 어긋난다(감사 1차 · 공통 템플릿 분기).
+ */
+const confirmTarget =
+  post.data.category === "insurance"
+    ? "원문과 내 증권으로 다시 확인하세요"
+    : "원문과 내 계좌·계약 조건으로 다시 확인하세요";
 
 const all = await allPosts();
 /** 글↔카드 짝 검사 — 한 방향으로만 적힌 짝이 있으면 이 글의 빌드가 선다 */
@@ -243,9 +334,8 @@ const jsonLd = graph([
               {summaryOf(post)}
             </p>
             <p class="mt-2 border-t border-line/70 pt-2 text-[13px] leading-[1.7] text-ink-muted">
-              <span class="font-semibold text-ink-soft">내 계약·재무와 대조</span>
-              {" — "}
-              {balanceLine[post.data.category]}
+              <span class="block font-semibold text-ink-soft">{balance.label}</span>
+              {balance.line}
             </p>
           </section>
 
@@ -352,7 +442,6 @@ const jsonLd = graph([
                             {categoryName(p.data.category)} · {formatDate(p.data.publishedAt)} · {p.data.readingMinutes}분
                           </span>
                         </span>
-                        <span aria-hidden="true" class="mt-1 text-ink-faint group-hover:text-brand-deep">→</span>
                       </a>
                     </li>
                   ))}
@@ -369,7 +458,6 @@ const jsonLd = graph([
               {tool.what && <p class="mt-1.5 text-[13px] leading-[1.7] text-ink-muted">{tool.what}</p>}
               <a href={withBase(tool.href)} class="btn btn-primary mt-4 inline-flex min-h-[44px] items-center">
                 {tool.cta}
-                <span aria-hidden="true" class="ml-1.5">→</span>
               </a>
             </div>
           </section>
@@ -410,7 +498,7 @@ const jsonLd = graph([
                               <span class="mt-1 block text-[11.5px] text-ink-faint">{set.tagline}</span>
                             </span>
                             <span class="ml-auto shrink-0 text-[12.5px] font-semibold text-brand-deep">
-                              이 글의 카드 {set.slides.length}장 보기 →
+                              이 글의 카드 {set.slides.length}장 보기
                             </span>
                           </a>
                         </li>
@@ -428,7 +516,7 @@ const jsonLd = graph([
 
           {/* 말미 ② 한 줄 면책 — 도구 카드와 충분한 여백을 두고 내려온다 */}
           <p class="mt-10 max-w-[66ch] border-t border-line pt-4 text-[12.5px] leading-[1.7] text-ink-faint" data-post-disclaimer>
-            ※ 이 글은 {basisDots} 기준으로 확인한 기록입니다. 수치와 조건은 기준일 이후 달라질 수 있으니, 결정 전에 원문과 내 증권으로 다시 확인하세요. 이 글은 특정 상품을 권하지 않습니다.{" "}
+            ※ 이 글은 {basisDots} 기준으로 확인한 기록입니다. 수치와 조건은 기준일 이후 달라질 수 있으니, 결정 전에 {confirmTarget}. 이 글은 특정 상품을 권하지 않습니다.{" "}
             <a href={withBase("/principles")} class="link font-semibold text-ink-soft">편집 원칙</a>
           </p>
 

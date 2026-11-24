@@ -188,7 +188,6 @@ const jsonLd = graph([
           <div class="mt-5 flex flex-wrap gap-2">
             <a href="#open" class="btn btn-primary min-h-[46px]">
               지금 열린 {openLessonCount}강 보기
-              <span aria-hidden="true" class="ml-1.5">→</span>
             </a>
             <a href="#school-weeks" class="btn btn-secondary min-h-[46px]">52주 로드맵</a>
           </div>
@@ -250,7 +249,7 @@ const jsonLd = graph([
               <p class="mono mt-2 text-[13.5px] font-semibold text-ink">{t.weeks}주 · {t.line}</p>
               <p class="mt-2 flex-1 text-[12.5px] leading-[1.7] text-ink-muted">{t.body}</p>
               <a href={withBase(t.href)} class="mt-3 inline-flex min-h-[44px] items-center text-[13px] font-bold text-brand-deep">
-                열린 강의 보기 <span aria-hidden="true" class="ml-1">→</span>
+                열린 강의 보기
               </a>
             </li>
           ))
@@ -300,9 +299,7 @@ const jsonLd = graph([
                       </span>
                     ))}
                   </span>
-                  <span class="academy-lesson-go">
-                    카드뉴스부터 보기 <span aria-hidden="true">→</span>
-                  </span>
+                  <span class="academy-lesson-go">카드뉴스부터 보기</span>
                 </a>
               </li>
             );
@@ -354,7 +351,6 @@ const jsonLd = graph([
                           <span class="mono mr-1.5 text-[11px] font-bold text-brand">{stage.no}</span>
                           {stage.name}
                         </span>
-                        <span aria-hidden="true" class="text-[12px] text-ink-faint">→</span>
                       </a>
                     </li>
                   ))}
@@ -363,7 +359,7 @@ const jsonLd = graph([
                   href={withBase(trackHref(track))}
                   class="mt-3 inline-flex min-h-[44px] items-center text-[13px] font-bold text-brand-deep"
                 >
-                  트랙 열기 — 1단계부터 <span aria-hidden="true" class="ml-1">→</span>
+                  트랙 열기 — 1단계부터
                 </a>
               </li>
             ))}
@@ -435,7 +431,7 @@ const jsonLd = graph([
                         <span class="font-semibold text-ink-soft">가져갈 것</span> {w.takeaway}
                       </p>
                       <a href={withBase(`/academy/${w.lessonSlug}/`)} class="school-week-link">
-                        이 주의 강의 보기 <span aria-hidden="true">→</span>
+                        이 주의 강의 보기
                       </a>
                     </li>
                   ))}
@@ -499,7 +495,6 @@ const jsonLd = graph([
                           <a href={withBase(`/academy/${lesson.slug}/`)}>
                             <span class="mono academy-step-lesson-no">{lesson.label}</span>
                             <span class="academy-step-lesson-title">{lesson.shortTitle}</span>
-                            <span class="academy-step-lesson-go" aria-hidden="true">→</span>
                           </a>
                         </li>
                       ))}

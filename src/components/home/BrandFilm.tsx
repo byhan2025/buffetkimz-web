@@ -336,10 +336,6 @@ export default function BrandFilm({
       aria-roledescription="브랜드 모션그래픽"
       aria-label="buffetkimz 12초 브랜드 필름 — 금융·투자·연금·노후·보험 다섯 분야와 기록의 기준을 보여 주는 장면 여섯 개"
     >
-      <h1 className="sr-only">
-        buffetkimz — 숫자 너머의 기준. 금융·투자·연금·노후·보험을 매일 기록하고, 확인한 기준과 출처를 함께 남깁니다.
-      </h1>
-
       <div className="film-stage" ref={stageRef} data-film-stage>
         <canvas className="film-canvas" ref={canvasRef} aria-hidden="true" />
 

@@ -1,0 +1,50 @@
+---
+/**
+ * 게시판 코너 아이콘 — 이모지(📊📖🔥) 대신 쓰는 인라인 단색 SVG.
+ *
+ * 감사 P0-3: 이모지는 OS·브라우저마다 모양이 달라 브랜드 화면이 남의 그림처럼 보이고,
+ *   "AI가 만든 페이지"의 가장 빠른 표식이다. 코너 3종만 있으면 되므로 한 파일에 둔다.
+ *   · 현재 색(currentColor)만 쓴다 — 부모의 data-tone 색을 그대로 받는다.
+ *   · 모두 24 격자 · stroke 1.7 · round — 같은 세트로 읽히게.
+ */
+type Props = {
+  name: "market" | "story" | "sns";
+  size?: number;
+  class?: string;
+};
+
+const { name, size = 20, class: cls = "" } = Astro.props;
+---
+
+<svg
+  viewBox="0 0 24 24"
+  width={size}
+  height={size}
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.7"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  class={cls}
+  aria-hidden="true"
+  focusable="false"
+>
+  {name === "market" && (
+    <>
+      <path d="M3.5 20.5h17" />
+      <path d="M7 20.5V13M12 20.5V7M17 20.5v-8" />
+    </>
+  )}
+  {name === "story" && (
+    <>
+      <path d="M12 6.9C10 5.4 7.6 4.8 4 4.8v13c3.6 0 6 .6 8 2.1 2-1.5 4.4-2.1 8-2.1v-13c-3.6 0-6 .6-8 2.1Z" />
+      <path d="M12 6.9v13" />
+    </>
+  )}
+  {name === "sns" && (
+    <>
+      <path d="M20.5 11.6c0 3.7-3.8 6.7-8.5 6.7-.9 0-1.8-.1-2.6-.3L5 20l.9-3.4A6.2 6.2 0 0 1 3.5 11.6c0-3.7 3.8-6.7 8.5-6.7s8.5 3 8.5 6.7Z" />
+      <path d="M9 11.6h.01M12 11.6h.01M15 11.6h.01" />
+    </>
+  )}
+</svg>

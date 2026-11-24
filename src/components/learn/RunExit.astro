@@ -71,7 +71,6 @@ const after = ref ? undefined : nextTool(slug);
           <span class="re-link-kicker">{view.stage.no}단계 · {view.stage.name}</span>
           <span class="re-link-title">
             {view.stage.question}
-            <span aria-hidden="true">→</span>
           </span>
         </a>
         {view.lesson && (
@@ -79,7 +78,6 @@ const after = ref ? undefined : nextTool(slug);
             <span class="re-link-kicker">이 단계의 강의</span>
             <span class="re-link-title">
               {view.lesson.label} · {view.lesson.title}
-              <span aria-hidden="true">→</span>
             </span>
           </a>
         )}
@@ -88,7 +86,6 @@ const after = ref ? undefined : nextTool(slug);
             <span class="re-link-kicker">다음 단계 도구 — {view.next.no}단계 {view.next.name}</span>
             <span class="re-link-title">
               {nextToolName}
-              <span aria-hidden="true">→</span>
             </span>
           </a>
         ) : (
@@ -96,7 +93,6 @@ const after = ref ? undefined : nextTool(slug);
             <span class="re-link-kicker">다음 트랙 — 준비 중</span>
             <span class="re-link-title">
               아카데미 로드맵 보기
-              <span aria-hidden="true">→</span>
             </span>
           </a>
         )}
@@ -117,14 +113,12 @@ const after = ref ? undefined : nextTool(slug);
           <span class="re-link-kicker">이 다음으로 많이 쓰는 도구</span>
           <span class="re-link-title">
             {after!.name}
-            <span aria-hidden="true">→</span>
           </span>
         </a>
         <a class="re-link" href={withBase("/academy")}>
           <span class="re-link-kicker">글로 읽기</span>
           <span class="re-link-title">
             금융생활학교 — 3단계 트랙과 강의
-            <span aria-hidden="true">→</span>
           </span>
         </a>
       </div>

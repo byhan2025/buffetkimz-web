@@ -89,13 +89,16 @@ const jsonLd = graph([websiteNode(), organizationNode(), personNode()]);
     -->
     <div class="film-credits" id="film-credits">
       <div class="hero-def" id="hero-def">
-        <p class="hero-def-line">
-          받을 때 알게 되는 연금, 5월에 알게 되는 세금 — <span class="hero-def-tail">미리 계산해 두는 곳</span>
-        </p>
-        <a class="btn btn-primary hero-def-cta" href={withBase("/apps")}>
-          계산기 열어 보기
-          <span aria-hidden="true">→</span>
-        </a>
+        {/*
+          v9.6.0(2026-11-25) — 첫 화면의 h1.
+            감사 P0-1: 화면에서 가장 큰 첫 화면 글자가 24px(필름 정적 록업)이고 섹션 h2가 34px이라
+            위계가 뒤집혀 있었다. sr-only h1을 지우고, 이 정의문을 실제 h1(모바일 27px · 넓은 화면 40px)으로
+            승격해 h2(24~34px) 위에 세운다. 카피는 확정된 B안 그대로다.
+        */}
+        <h1 class="hero-def-line">
+          받을 때 알게 되는 연금,<br />5월에 알게 되는 세금 — <span class="hero-def-tail">미리 계산해 두는 곳</span>
+        </h1>
+        <a class="btn btn-primary hero-def-cta" href={withBase("/apps")}>계산기 열어 보기</a>
       </div>
 
       <p class="film-credit-line">
@@ -125,7 +128,6 @@ const jsonLd = graph([websiteNode(), organizationNode(), personNode()]);
         </p>
         <a class="btn btn-secondary btn-sm board-entry-link" href={withBase("/board")}>
           데일리 브리프 게시판 보기
-          <span aria-hidden="true">→</span>
         </a>
       </div>
     </div>
@@ -206,12 +208,19 @@ const jsonLd = graph([websiteNode(), organizationNode(), personNode()]);
    * 필름 높이에서 이 띠의 높이를 빼 두어(global.css `.film-stage`) 390에서도 스크롤 없이 문장과 버튼이 보인다.
    */
   .hero-film {
-    --hero-def-h: 110px;
+    /*
+     * 이 값은 .hero-def 띠의 **실제 높이**여야 한다.
+     * 필름 높이(calc(100svh - 헤더 - 이 값))가 이 값을 빼고 그리므로, 실제 높이보다 작으면
+     * 히어로가 첫 화면을 넘고(감사 44c·44d), 크면 필름 아래에 흰 여백이 남는다.
+     * 2026-11-25 실측: 390 = 238px · 1440 = 199px (h1 3행/2행 + 크레딧 2줄).
+     * 2px은 서브픽셀 반올림 여유 — 히어로가 첫 화면을 1px이라도 넘지 않게.
+     */
+    --hero-def-h: 240px;
   }
 
   @media (min-width: 768px) {
     .hero-film {
-      --hero-def-h: 104px;
+      --hero-def-h: 202px;
     }
   }
 
@@ -237,24 +246,20 @@ const jsonLd = graph([websiteNode(), organizationNode(), personNode()]);
 
   .hero-def-line {
     margin: 0;
-    font-size: 15.5px;
-    line-height: 1.45;
-    letter-spacing: -0.025em;
-    font-weight: 600;
+    font-size: clamp(27px, 3.6vw, 40px);
+    line-height: 1.3;
+    letter-spacing: -0.035em;
+    font-weight: 700;
     color: var(--color-ink);
     overflow-wrap: anywhere;
-  }
-
-  @media (min-width: 768px) {
-    .hero-def-line {
-      font-size: 21px;
-      line-height: 1.45;
-      letter-spacing: -0.035em;
-    }
+    /* 한 문장을 두 절로 끊어 읽힌다 — 절 경계는 <br>이 정하고, balance가 다시 흔들지 않게 한다 */
+    text-wrap: initial;
   }
 
   .hero-def-tail {
     color: var(--color-brand-deep);
+    /* 이 다섯 단어는 한 덩어리로 읽힌다 — 좁은 화면에서 "미리 / 계산해"로 끊기지 않게 */
+    white-space: nowrap;
   }
 
   .hero-def-cta {
@@ -294,10 +299,10 @@ const jsonLd = graph([websiteNode(), organizationNode(), personNode()]);
   .board-entry-kicker {
     display: inline-block;
     margin-right: 8px;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 700;
-    letter-spacing: 0.14em;
-    color: var(--color-brand);
+    letter-spacing: 0.06em;
+    color: var(--color-brand-deep);
   }
 
   .board-entry-link {

@@ -4,6 +4,18 @@
 
 > 설치 시점: v8.6.0 작업이 끝나고 `main` 이 정리된 뒤에 이 파일을 `apps/buffetkimz-web/AGENTS.md` 로 넣는다. `scripts/apply-agents-md.sh --app buffetkimz-web --force`.
 
+## 디자인 (새 페이지·카드 작업 전에 읽는다)
+
+- **정본은 `apps/buffetkimz-web/DESIGN.md`** 다. 토큰(색·글꼴·간격·모션), 44px 터치, 카드·표 규칙, 문구 규칙(줄표 3개 이하·금지어·중점 메타·화살표 금지), 접근성 하한선이 한 장에 있다. 화면과 문서가 어긋나면 문서가 아니라 **화면을 고친다**. 문서 §7이 지금 어긋난 곳의 목록이다.
+- **만들 때**: `frontend-design`(색·타이포·레이아웃 계획을 먼저 글자로) → `ui-ux-pro-max`(값·스택 지침 검색) → `hallmark`의 Floor와 `DESIGN.md`(우리 규격).
+  · `read_file .agents/skills/frontend-design/SKILL.md`
+  · `python3 .agents/skills/ui-ux-pro-max/scripts/search.py "<제품·주제 2~5단어>" --design-system` / `--domain ux|style|color|typography` / `--stack astro`
+- **점검할 때**: `hallmark`의 `sloplint.mjs`(기계 판정, FAIL 0까지) → `web-design-guidelines`(접근성·포커스·폼·모션 체크리스트) → 1440·390 캡처로 눈 확인.
+  · `node .agents/skills/hallmark/scripts/sloplint.mjs <파일|폴더> --genre editorial --render`
+  · `read_file .agents/skills/web-design-guidelines/references/command.md`
+  · 감사 절차는 `.agents/skills/hallmark/references/redesign.md`의 `audit` 항, 판단 게이트는 `references/gates.md`
+- 새 페이지·카드가 `DESIGN.md`를 벗어나야 한다면, 먼저 `DESIGN.md`를 고치고 그 이유를 커밋 메시지에 남긴다(문서와 화면이 조용히 갈라지지 않게).
+
 ## 검증
 
 ```bash

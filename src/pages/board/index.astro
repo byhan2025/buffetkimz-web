@@ -8,8 +8,9 @@
  *    데이터는 `src/data/board.ts` 한 파일 — 화면은 그 값만 그린다(숫자를 손으로 적지 않는다).
  *
  * 세 코너
- *  · 📊 금융·시장 브리프(시황·제도·보험·AI·실무) / 📖 오늘의 스토리·썰(스토리·썰) /
- *    🔥 SNS 인기 콘텐츠(SNS 화제). 코너 카드를 누르면 그 코너 글만 남고, 분류 알약으로 더 좁힌다.
+ *  · 금융·시장 브리프(시황·제도·보험·AI·실무) / 오늘의 스토리·썰(스토리·썰) /
+ *    SNS 인기 콘텐츠(SNS 화제). 코너 카드를 누르면 그 코너 글만 남고, 분류 알약으로 더 좁힌다.
+ *    코너 표식은 이모지가 아니라 단색 SVG(CornerIcon.astro)다 — 감사 P0-3.
  *  · 코너 이름·설명은 독자용이다. 내부 봇·회의실 이름은 화면에 쓰지 않는다.
  *
  * 읽는 방식
@@ -19,6 +20,7 @@
  */
 import Base from "@/layouts/Base.astro";
 import HomePill from "@/components/HomePill.astro";
+import CornerIcon from "@/components/board/CornerIcon.astro";
 import { withBase, site } from "@/config/site";
 import {
   BOARD_CATEGORIES,
@@ -101,8 +103,7 @@ const jsonLd = graph([
       </nav>
 
       <div class="mt-5 max-w-[62ch]">
-        <p class="mono text-[11.5px] font-semibold tracking-[0.18em] text-brand">BOARD · 데일리 브리프</p>
-        <h1 class="h-display mt-2 text-ink">하루 세 번,<br />확인한 것만 쌓습니다</h1>
+        <h1 class="h-display text-ink">하루 세 번,<br />확인한 것만 쌓습니다</h1>
         <p class="lede mt-4 max-w-[56ch]">
           아침 6시, 낮 1시, 저녁 7시에 시장과 제도, 그리고 사람들이 이야기하는 장면을 확인합니다. 정식
           리포트로 키우기엔 짧고 오늘 허브에 다 담지 못한 메모를, 확인한 날짜와 회차를 붙여 세 코너로 나눠
@@ -148,7 +149,9 @@ const jsonLd = graph([
                 aria-pressed="false"
                 aria-controls="board-list"
               >
-                <span class="br-corner-emoji" aria-hidden="true">{corner.emoji}</span>
+                <span class="br-corner-icon" aria-hidden="true">
+                  <CornerIcon name={corner.key} size={20} />
+                </span>
                 <span class="br-corner-body">
                   <span class="br-corner-name">{corner.title}</span>
                   <span class="br-corner-tagline">{corner.tagline}</span>
@@ -230,7 +233,8 @@ const jsonLd = graph([
                         {e.category}
                       </span>
                       <span class="br-corner-tag mono" data-tone={boardCornerOf(e.category).tone}>
-                        {boardCornerOf(e.category).emoji} {boardCornerOf(e.category).title}
+                        <CornerIcon name={boardCornerOf(e.category).key} size={14} />
+                        {boardCornerOf(e.category).title}
                       </span>
                       <span class="br-slot mono">
                         <time datetime={`${e.date}T${e.slot}:00+09:00`}>
@@ -265,7 +269,6 @@ const jsonLd = graph([
                           aria-label={`${e.title} — 원문 열기 (새 창)`}
                         >
                           원문 보기
-                          <span aria-hidden="true">↗</span>
                         </a>
                       )}
                       <p class="br-curator mono">정리 {e.curator}</p>
@@ -446,7 +449,7 @@ const jsonLd = graph([
     box-shadow: inset 0 0 0 1px var(--tone);
   }
 
-  .br-corner-emoji {
+  .br-corner-icon {
     flex: none;
     display: inline-flex;
     align-items: center;
@@ -455,12 +458,12 @@ const jsonLd = graph([
     height: 34px;
     border-radius: 10px;
     background: var(--tint);
-    font-size: 18px;
+    color: var(--tone);
     line-height: 1;
   }
 
-  .br-corner[aria-pressed="true"] .br-corner-emoji {
-    background: #fff;
+  .br-corner[aria-pressed="true"] .br-corner-icon {
+    background: var(--color-surface);
   }
 
   .br-corner-body {
@@ -593,7 +596,8 @@ const jsonLd = graph([
   }
 
   .br-cat[data-cat="story"] {
-    color: var(--color-clay);
+    /* v9.6.0 — 연한 살구 배경 위에서 4.25:1이던 것을 6.0:1로 (감사 40 FAIL) */
+    color: #8a4429;
     background: #f7eae2;
   }
 
@@ -624,7 +628,10 @@ const jsonLd = graph([
 
   /* 코너 이름 — 분류 알약 옆에 작게. 모바일에서는 슬롯과 함께 줄바꿈된다 */
   .br-corner-tag {
-    font-size: 11px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11.5px;
     font-weight: 600;
     color: var(--color-ink-faint);
     white-space: nowrap;
@@ -635,7 +642,7 @@ const jsonLd = graph([
   }
 
   .br-corner-tag[data-tone="story"] {
-    color: var(--color-clay);
+    color: #8a4429;
   }
 
   .br-corner-tag[data-tone="sns"] {

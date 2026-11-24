@@ -157,8 +157,7 @@ const description = `${item.tagline} ${item.summary}`.slice(0, 155);
 
       <div class="mt-4 grid gap-7 md:grid-cols-[minmax(0,1fr)_300px] md:items-start md:gap-10">
         <div class="min-w-0">
-          <p class="mono text-[11.5px] font-semibold tracking-[0.18em] text-brand">{catLabel} · 자료앨범</p>
-          <h1 class="h-display mt-2 text-ink">{item.title}</h1>
+          <h1 class="h-display text-ink">{item.title}</h1>
           <p class="lede mt-3 max-w-[52ch]">{item.tagline}</p>
           <p class="mt-3 max-w-[56ch] text-[13.5px] leading-[1.75] text-ink-muted">{item.summary}</p>
 
@@ -297,13 +296,13 @@ const description = `${item.tagline} ${item.summary}`.slice(0, 155);
                         class="link font-semibold text-brand-deep"
                         title={cardStageFirstPost.title}
                       >
-                        글 읽기 →
+                        글 읽기
                       </a>
                       <span aria-hidden="true" class="text-ink-faint"> · </span>
                     </>
                   )}
                   <a href={withBase(cardStageHref!)} class="link font-semibold text-brand-deep">
-                    단계 전체 보기 →
+                    단계 전체 보기
                   </a>
                 </span>
               </p>
@@ -327,7 +326,7 @@ const description = `${item.tagline} ${item.summary}`.slice(0, 155);
                         {relatedPostLink.title}
                       </span>
                       <span class="mono text-[11.5px] text-ink-faint">{relatedPostLink.meta}</span>
-                      <span class="mt-1 text-[12.5px] font-semibold text-brand-deep">글 열기 →</span>
+                      <span class="mt-1 text-[12.5px] font-semibold text-brand-deep">글 열기</span>
                     </a>
                   )}
                   {relatedTool && (
@@ -335,7 +334,7 @@ const description = `${item.tagline} ${item.summary}`.slice(0, 155);
                       <span class="text-[11px] font-bold tracking-[0.12em] text-brand-deep">관련 계산기</span>
                       <span class="text-[15px] font-bold leading-snug tracking-[-0.02em] text-ink">{relatedTool.label}</span>
                       <span class="text-[12.5px] leading-[1.65] text-ink-muted">내 숫자를 넣고 같은 기준으로 확인합니다.</span>
-                      <span class="mt-1 text-[12.5px] font-semibold text-brand-deep">계산 열기 →</span>
+                      <span class="mt-1 text-[12.5px] font-semibold text-brand-deep">계산 열기</span>
                     </a>
                   )}
                 </div>
@@ -388,7 +387,7 @@ const description = `${item.tagline} ${item.summary}`.slice(0, 155);
 
           <p class="mt-4 text-[12px] leading-[1.8] text-ink-faint">
             자료 등록은 관리자만 합니다(저장소에서 이미지·목록을 고친 뒤 빌드).
-            <a href={withBase("/gallery")} class="link font-semibold text-ink-soft">자료앨범 전체 {galleryItems.length}세트 보기 →</a>
+            <a href={withBase("/gallery")} class="link font-semibold text-ink-soft">자료앨범 전체 {galleryItems.length}세트 보기</a>
           </p>
         </div>
       </div>
