@@ -5,7 +5,8 @@
  * 박아 두고, 빌드 시각과 비교해 배지 하나를 정한다. 이 파일은 그 판정만 한다.
  *
  *   ① 정상      — 다음 확인 시점 이전. 회색 작은 글씨만.
- *   ② 확인 지연 — 다음 확인 시점을 넘김. 마지막 기준 시각을 함께 보여 준다.
+ *   ② 확인 지연 — 다음 확인 시점에서 유예(45분)가 지나도 갱신이 없을 때만. 마지막 기준 시각을 함께 보여 준다.
+ *      (예정 시각 정각에 켜면 그 회차가 도는 1~30분 동안 정상 사이트가 '지연'으로 보인다 — v9.5.0)
  *   ③ 지난 정보 — 기준 시각이 3일을 넘김. 카드를 지우지 않고 톤만 낮춘다.
  *   ④ 갱신 실패 — 파이프라인이 실패해 직전 정상값을 그대로 보여 주는 중. lastGoodAsOf를 함께 쓴다.
  *
@@ -45,6 +46,16 @@ export type Fresh = {
 /** '지난 정보'로 넘기는 기준 — 3일(72시간) 초과 */
 export const STALE_AFTER_DAYS = 3;
 const DAY_MS = 86400000;
+
+/**
+ * '확인 지연'을 켜기까지 두는 유예 — 45분.
+ *
+ * v9.5.0(2026-11-24 1단계, 전수 감사 §4-3 W1): 예정 시각 정각에 배지가 켜져, 19:00 회차가 값을 쓰는
+ * 19:00~19:02 사이 라이브 홈이 '확인 지연 / 다음 확인이 지연되고 있습니다'를 띄웠다. 하루 네 번 도는
+ * 사이트에서 그 2분은 '고장 난 사이트'로 읽힌다. 회차는 늦게 돌 수 있으므로, 예정 시각에서 45분이
+ * 지나도록 갱신이 없을 때만 지연으로 본다(회차 자체가 실패하면 status='failed'가 먼저 잡는다).
+ */
+export const DELAY_GRACE_MINUTES = 45;
 
 const toDate = (value: string | Date): Date => (value instanceof Date ? value : new Date(value));
 
@@ -108,7 +119,7 @@ export function freshnessOf(input: FreshInput, now: Date = new Date()): Fresh {
     };
   }
 
-  if (input.nextCheckAt && now.getTime() > toDate(input.nextCheckAt).getTime()) {
+  if (input.nextCheckAt && now.getTime() > toDate(input.nextCheckAt).getTime() + DELAY_GRACE_MINUTES * 60000) {
     return {
       state: "delayed",
       label: "확인 지연",

@@ -4,6 +4,7 @@
  * 커스텀 도메인(buffetkimz.com)으로 옮길 때는 BASE_PATH 없이 빌드하면 "/"로 돌아온다.
  */
 import { today as todayHub } from "../data/today.ts";
+import { latestContentDate, latestContentWhere } from "./site-basis.generated.ts";
 
 /**
  * 'YYYY-MM-DDTHH:mm:ss+09:00' → 그 한국 날짜의 UTC 자정 Date.
@@ -43,6 +44,19 @@ export function stripBase(pathname: string): string {
 
 const origin = (import.meta.env?.SITE ?? "https://buffetkimz.com").replace(/\/+$/, "");
 
+/**
+ * 사이트 기준일 — 손으로 적는 바닥값과 자동 생성 값(콘텐츠 최신 날짜) 중 늦은 쪽.
+ * ISO 문자열끼리 비교하므로 날짜만 맞으면 사전순 = 시간순이다.
+ */
+const manualBaseDate = "2026-11-24";
+const baseDateISO = latestContentDate > manualBaseDate ? latestContentDate : manualBaseDate;
+
+/** '2026-11-24' → '2026. 11. 24.' (화면 표기는 모두 이 함수를 거친다) */
+function baseDateLabelOf(iso: string): string {
+  const [y, m, d] = iso.split("-");
+  return `${y}. ${String(Number(m)).padStart(2, "0")}. ${String(Number(d)).padStart(2, "0")}.`;
+}
+
 /** canonical·OG·RSS·JSON-LD에 쓰는 절대 주소 (배포 접두 포함) */
 export function absolute(path: string): string {
   return `${origin}${withBase(path)}`;
@@ -68,11 +82,17 @@ export const site = {
    * v8.1.0(2026-11-22): 아카데미 STEP 1·2 개설과 새 카드뉴스 세트의 기준일로 통일했다.
    * v9.4.0(2026-11-24 전수 감사 W10): 11-24에 발행한 글(장기요양)·11-24 퀀트 카드가 들어온 뒤로
    *   11-22가 남아 홈에서 '기준일 11. 22.'와 '지표 확인 11. 24.'가 한 화면에 갈라져 보였다.
-   *   사이트 공통 기준일은 **가장 최근에 확인한 콘텐츠 날짜**다 — 새 글·카드가 들어오면 이 두 줄을 함께 올린다.
+   *   사이트 공통 기준일은 **가장 최근에 확인한 콘텐츠 날짜**다.
    *   (개별 글·도구·카드에는 각자의 기준일이 따로 찍힌다. 이 값은 그 위의 사이트 기준선이다.)
+   *
+   * v9.5.0(2026-11-24 1단계) — 손으로 올리던 값을 **자동 승계**로 바꿨다.
+   *   `scripts/gen_site_basis.mjs`가 글(posts의 baseDate·publishedAt)·게시판(date)·허브(asOf)의
+   *   가장 늦은 날짜를 `site-basis.generated.ts`에 적고, `npm run build`의 prebuild가 그 파일을 다시 만든다.
+   *   아래 `manualBaseDate`는 바닥값일 뿐이다 — 콘텐츠가 더 최근이면 생성 값이 이 값을 이긴다.
+   *   그래서 새 글·카드가 들어와도 기준일이 뒤처지지 않는다(사람이 잊어도 화면이 늙지 않는다).
    */
-  baseDate: "2026-11-24",
-  baseDateLabel: "2026. 11. 24.",
+  baseDate: baseDateISO,
+  baseDateLabel: baseDateLabelOf(baseDateISO),
   /**
    * 정책 문서(이용약관·개인정보처리방침)의 **시행일** — 콘텐츠 기준일과 분리한다.
    * v9.4.0까지는 `baseDate`를 그대로 썼기 때문에 글을 하나 올릴 때마다 약관 시행일이 따라 움직였다.
@@ -80,6 +100,8 @@ export const site = {
    */
   policyDate: "2026-11-22",
   policyDateLabel: "2026. 11. 22.",
+  /** 이번 빌드의 사이트 기준일이 어디서 왔는지 — 검수·보고에서 근거로 쓴다 */
+  baseDateOrigin: baseDateISO === latestContentDate ? latestContentWhere : "manualBaseDate",
   /**
    * D-Day·달력 초기 월·도구 기본값이 쓰는 **오늘** — 콘텐츠 기준일(`baseDate`)과 다를 수 있다.
    *

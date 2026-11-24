@@ -1,10 +1,12 @@
 {
   "name": "buffetkimz-web",
   "type": "module",
-  "version": "9.2.0",
+  "version": "9.5.0",
   "private": true,
   "scripts": {
     "dev": "astro dev",
+    "prebuild": "node scripts/gen_site_basis.mjs",
+    "basis:gen": "node scripts/gen_site_basis.mjs",
     "build": "astro build",
     "preview": "astro preview",
     "check": "astro check",
