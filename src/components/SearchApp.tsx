@@ -196,7 +196,7 @@ export default function SearchApp({ variant = "page", onClose, initialQuery = ""
     <div onKeyDown={onKeyDown}>
       <div className="relative">
         <label htmlFor={`search-input-${variant}`} className="sr-only">
-          자산리포트 글, 앱, 골든타임 검색
+          자산리포트 글, 아카데미, 자료앨범, 데일리 브리프, 앱, 골든타임 검색
         </label>
         <input
           ref={inputRef}
