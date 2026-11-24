@@ -2190,7 +2190,8 @@
     position: relative;
     isolation: isolate;
     overflow: hidden;
-    height: calc(100svh - var(--header-h));
+    /* v9.5.0 — 필름 아래 정의 띠(--hero-def-h)가 첫 화면 안에 들어오도록 그 높이만큼 덜 쓴다. */
+    height: calc(100svh - var(--header-h) - var(--hero-def-h, 0px));
     min-height: 540px;
     background-color: #050c1a;
     background-image:
@@ -8196,7 +8197,11 @@
 
   @media (max-width: 767px) {
     .fs2-ticker {
-      bottom: 20%;
+      /*
+       * v9.5.0 — 필름 아래 정의 띠(--hero-def-h)만큼 필름이 짧아져도 티커가 조작 줄(pause·장면 이동)을
+       * 덮지 않게 바닥에서 168px을 보장한다. 20%만 쓰면 짧은 화면에서 티커 아래 줄이 컨트롤 바 뒤로 들어갔다.
+       */
+      bottom: max(20%, 168px);
     }
   }
 

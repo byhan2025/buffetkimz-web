@@ -8,7 +8,7 @@
  *
  * 글은 컬렉션에서, 카드는 gallery.ts에서, 앱은 store.ts에서 읽는다. 손으로 적은 제목·숫자를 두지 않는다.
  */
-import { withBase, site, menuLabel } from "@/config/site";
+import { withBase, menuLabel } from "@/config/site";
 import { featuredStore } from "@/data/store";
 import AppStoreIcon from "@/components/apps/AppStoreIcon.astro";
 import { allPosts, categoryLabel, postPath, formatDate } from "@/lib/posts";
@@ -33,7 +33,7 @@ const picks = featuredStore.slice(0, 4);
       </div>
       <p class="sec-desc">
         글에서 기준을 읽고, 도구에서 내 숫자로 확인합니다. <br />
-        두 곳은 같은 기준일과 출처를 씁니다.
+        두 곳의 출처와 기준일은 같습니다.
       </p>
     </div>
 
@@ -129,6 +129,5 @@ const picks = featuredStore.slice(0, 4);
       </div>
     </div>
 
-    <p class="picks-note">기준일 {site.baseDateLabel} · 모든 글과 도구에 1차 출처와 계산 기준을 함께 적습니다.</p>
   </div>
 </section>
