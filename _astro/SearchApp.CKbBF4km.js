@@ -1,1 +1,0 @@
-export{t as default}from"./SearchApp.Cv1vw9f6.js";
