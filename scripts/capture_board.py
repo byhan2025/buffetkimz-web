@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
 """데일리 브리프 게시판(/board/) 실측 캡처·검증 (2026-11-24 신설, v9.2.0).
 
-무엇을 재는가 (v9.3.0 — 3코너 개편 반영)
+무엇을 재는가 (v9.3.1 — 스토리·SNS 코너 '우리 글' 원칙 반영)
   A. `/board/` 390 · 1280 캡처 2장 (전체 높이) + 코너 카드 3장 캡처(board-corners-390.png)
   B. 320 · 390 · 1280 가로 넘침 0px · 콘솔 오류 0
   C. 코너 3개가 화면에 있고(각 44px 이상), 코너를 누르면 그 코너 글만 남고 날짜 묶음이 접히며,
      다시 누르면 전체 건수로 돌아온다
   D. 분류 필터 — 분류 하나를 누르면 그 분류 카드만 남고, '전체'로 원래 건수로 돌아온다
   E. 홈(`/`)에 '데일리 브리프 게시판 보기' 진입 링크가 실제로 있다
-  F. 카드마다 확인 날짜·회차·출처 링크가 붙어 있고, 금지어(실시간·속보·긴급)가 화면에 없다
+  F. 카드 계약 — 금융 코너(시황·제도·보험·AI·실무)는 출처 표기 + `원문 보기` 링크가 1개씩,
+     스토리·SNS 코너는 링크·출처 행이 0개이고 계정(@)·x.com·원문·조회·'사실 확인' 흔적이 없다
+  G. 금지어(실시간·속보·긴급)가 화면에 없다
 
 사용: npm run build && python3 scripts/capture_board.py
 결과: /workspace/reports/buffetkimz-web/board/ — 390·1280 png + board-corners-390.png + check.json
@@ -38,6 +40,10 @@ CHROME = os.environ.get("PW_CHROME") or (
 PORT = int(os.environ.get("BOARD_PORT", "8331"))
 PREFIX = "/buffetkimz-web"
 BANNED = ("실시간", "속보", "긴급")
+# 카드 계약 — 금융 코너는 1차 출처·원문 링크, 스토리·SNS 코너는 우리 글(링크·흔적 0)
+SOURCED_CATS = {"시황", "제도·보험", "AI·실무"}
+ORIGINAL_CATS = {"스토리·썰", "SNS 화제"}
+ORIGIN_TRACES = ("@", "x.com", "twitter", "원문", "조회", "좋아요", "리포스트", "사실 확인")
 
 mimetypes.add_type("image/webp", ".webp")
 
@@ -70,6 +76,31 @@ OVERFLOW_JS = """
         docW: document.documentElement.scrollWidth, winW: window.innerWidth})
 """
 
+
+def check_card_contract(tag: str, cards: list[dict]) -> list[str]:
+    """카드 한 장씩 — 금융 코너는 출처·링크가 있어야 하고, 스토리·SNS 코너는 흔적이 없어야 한다."""
+    out: list[str] = []
+    for i, c in enumerate(cards, 1):
+        where = f"{tag}: {i}번 카드({c['cat']})"
+        if c["cat"] in SOURCED_CATS:
+            if c["link"] != 1:
+                out.append(f"{where} — 금융 코너인데 '원문 보기' 링크 {c['link']}개(1개여야 함)")
+            if not c["hasSource"]:
+                out.append(f"{where} — 금융 코너인데 출처 표기가 없습니다")
+        elif c["cat"] in ORIGINAL_CATS:
+            if c["link"]:
+                out.append(f"{where} — 스토리·SNS 코너인데 외부 링크가 남았습니다")
+            if c["hasSource"]:
+                out.append(f"{where} — 스토리·SNS 코너인데 '출처' 행이 남았습니다")
+            if not c["curator"]:
+                out.append(f"{where} — 정리 주체 표기가 비었습니다")
+            hits = [t for t in ORIGIN_TRACES if t in c["text"]]
+            if hits:
+                out.append(f"{where} — 원본 흔적 노출 {hits}")
+        else:
+            out.append(f"{where} — 계약에 없는 분류입니다")
+    return out
+
 report: dict = {"base": BASE, "checks": {}, "failures": []}
 
 with sync_playwright() as p:
@@ -89,17 +120,23 @@ with sync_playwright() as p:
         ov = page.evaluate(OVERFLOW_JS)
         metrics = page.evaluate(
             """() => {
-              const cards = [...document.querySelectorAll('[data-board-entry]')];
               const tabs = [...document.querySelectorAll('[data-board-tab]')]
                 .map(b => ({label: b.dataset.boardTab, h: +b.getBoundingClientRect().height.toFixed(1)}));
               const corners = [...document.querySelectorAll('[data-board-corner]')]
                 .map(b => ({label: b.dataset.boardCorner, h: +b.getBoundingClientRect().height.toFixed(1)}));
-              const links = [...document.querySelectorAll('.br-link')].map(a => a.href);
+              const cards = [...document.querySelectorAll('[data-board-entry]')].map(c => ({
+                cat: c.dataset.category || '',
+                link: c.querySelectorAll('.br-link').length,
+                hasSource: !!c.querySelector('.br-source'),
+                curator: (c.querySelector('.br-curator')?.innerText || '').trim(),
+                text: c.innerText,
+              }));
               const slots = [...document.querySelectorAll('.br-slot')].map(s => s.innerText.trim());
               const allTab = document.querySelector('[data-board-tab="all"]');
               const total = parseInt((allTab?.innerText || '').replace(/[^0-9]/g, ''), 10);
-              return {cards: cards.length, tabs, corners, total, sourceLinks: links.length, slots,
-                      cardText: cards.map(c => c.innerText).join(" / ")};
+              return {cards, total, tabs, corners, slots,
+                      sourceLinks: cards.reduce((n, c) => n + c.link, 0),
+                      cardText: cards.map(c => c.text).join(" / ")};
             }"""
         )
         shot = OUT / f"board-{tag}.png"
@@ -120,11 +157,12 @@ with sync_playwright() as p:
         report["checks"][tag] = {
             "status": getattr(resp, "status", None),
             "overflow": ov,
-            "cards": metrics["cards"],
+            "cards": len(metrics["cards"]),
             "total": metrics["total"],
             "tabs": metrics["tabs"],
             "corners": metrics["corners"],
             "sourceLinks": metrics["sourceLinks"],
+            "curators": [c["curator"] for c in metrics["cards"]],
             "slots": metrics["slots"],
             "consoleErrors": errors,
             "shot": str(shot),
@@ -133,12 +171,12 @@ with sync_playwright() as p:
             report["failures"].append(f"{tag}: 가로 넘침 {ov['overflow']}px")
         if errors:
             report["failures"].append(f"{tag}: 콘솔 오류 {len(errors)}건 {errors[:2]}")
-        if metrics["cards"] < 8:
-            report["failures"].append(f"{tag}: 카드 {metrics['cards']}건 (3코너 시드 8건 미만)")
-        if metrics["total"] != metrics["cards"]:
-            report["failures"].append(f"{tag}: '전체' 탭 숫자 {metrics['total']} ≠ 카드 {metrics['cards']}")
-        if metrics["sourceLinks"] != metrics["cards"]:
-            report["failures"].append(f"{tag}: 출처 링크 {metrics['sourceLinks']} ≠ 카드 {metrics['cards']}")
+        if len(metrics["cards"]) < 8:
+            report["failures"].append(f"{tag}: 카드 {len(metrics['cards'])}건 (3코너 시드 8건 미만)")
+        if metrics["total"] != len(metrics["cards"]):
+            report["failures"].append(f"{tag}: '전체' 탭 숫자 {metrics['total']} ≠ 카드 {len(metrics['cards'])}")
+        # 카드 계약 — 금융 4건은 출처·링크, 스토리·SNS 4건은 링크·흔적 0
+        report["failures"] += check_card_contract(tag, metrics["cards"])
         small = [t for t in metrics["tabs"] if t["h"] < 44]
         if small:
             report["failures"].append(f"{tag}: 필터 버튼 44px 미만 {small}")
