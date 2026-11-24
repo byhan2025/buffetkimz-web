@@ -1,21 +1,16 @@
 [
   {
-    "slug": "pension-savings-vs-irp-order",
-    "out": "public/thumbs/pension-savings-vs-irp-order.webp",
-    "bytes": 46540,
+    "slug": "finance-buy-vs-jeonse-breakeven",
+    "out": "public/thumbs/finance-buy-vs-jeonse-breakeven.webp",
+    "bytes": 46204,
     "lines": [
       {
-        "text": "연금저축 600만 원",
+        "text": "6억 아파트 5년",
         "size": 64,
         "overflow": false
       },
       {
-        "text": "IRP 300만 원",
-        "size": 64,
-        "overflow": false
-      },
-      {
-        "text": "갈리는 세 가지",
+        "text": "집값 연 2.6%",
         "size": 64,
         "overflow": false
       }
