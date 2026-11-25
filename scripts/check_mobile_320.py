@@ -75,6 +75,8 @@ ROUTES = [
     ("post-new-retire", "/posts/retire-pension-timing/"),
     # 2026-11-25 키링대리 글 — 비상금 3~6개월(비교 카드·표·출처 5건이 한 화면에)
     ("post-new-emergency", "/posts/finance-emergency-fund-3-6/"),
+    # 2026-11-25 13:15 — 연금저축·IRP 900만 원(표 4행·비교 카드·출처 6건)
+    ("post-new-pension-credit", "/posts/finance-pension-900-credit-check/"),
     # v9.2.0 — 데일리 브리프 게시판(분류 필터 알약·회차 배지·출처 링크가 한 화면에 모인 곳)
     ("board", "/board/"),
 ]

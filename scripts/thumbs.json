@@ -818,6 +818,24 @@
       "sub": "필수 지출 250만 원이면 3개월 750만 원",
       "date": "2026.11.25",
       "alt": "어두운 남색 천 위에 동전이 담긴 유리병, 갈색 봉투 세 장, 접어 둔 우산, 펜을 올려둔 작은 장부 — 비상금을 따로 모아 둔 자리"
+    },
+    {
+      "slug": "finance-pension-900-credit-check",
+      "out": "public/thumbs/finance-pension-900-credit-check.webp",
+      "art": "downloads/thumbs-raw/finance-pension-900-credit-check.png",
+      "badge": [
+        "금융 · 연말정산",
+        "2026.11"
+      ],
+      "accent": "#F2D08C",
+      "headline": [
+        "900만 원 채우기 전에",
+        "확인할 세 가지"
+      ],
+      "accentLine": 1,
+      "sub": "연금저축 600 + IRP 300, 해지하면 달라지는 숫자",
+      "date": "2026.11.25",
+      "alt": "어두운 천 위에 놓인 세 개의 유리병과 접힌 서류, 그 옆의 만년필 — 연말에 남은 한도를 세어 보는 자리"
     }
   ]
 }
