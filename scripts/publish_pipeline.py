@@ -1624,6 +1624,13 @@ def verify_dist(slugs: list[str], project: Path = ROOT) -> dict:
                 target = dist / "index.html"
             else:
                 target = _html_files(dist / path.lstrip("/"))
+                # 2026-11-25 — 서브패스 배포 빌드(BASE_PATH=/buffetkimz-web)는 href에 배포 접두어가 붙는다.
+                # dist 안에 첫 구간 디렉터리가 없으면 접두어로 보고 한 번 벗겨 다시 찾는다(접두어가 붙은
+                # 모든 링크가 '깨짐'으로 잡혀 링크 검사가 통째로 무의미해지던 것을 막는다).
+                if not target.exists():
+                    head, _, rest = path.lstrip("/").partition("/")
+                    if not (dist / head).exists():
+                        target = dist / "index.html" if not rest else _html_files(dist / rest)
             if not target.exists():
                 broken.append(href)
         checks["internalLinks"] = len(broken) == 0
