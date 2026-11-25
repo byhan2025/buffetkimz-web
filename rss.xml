@@ -9,7 +9,7 @@
     <managingEditor>buffetkimz</managingEditor>
     <generator>buffetkimz-web (Astro)</generator>
     <ttl>60</ttl>
-    <lastBuildDate>Wed, 25 Nov 2026 10:08:28 GMT</lastBuildDate>
+    <lastBuildDate>Wed, 25 Nov 2026 10:31:22 GMT</lastBuildDate>
     <atom:link href="https://byhan2025.github.io/buffetkimz-web/rss.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>6억 아파트 5년, 집값이 연 2.6% 못 넘으면 전세가 낫다</title>
@@ -42,6 +42,14 @@
       <category>보험</category>
       <pubDate>Wed, 25 Nov 2026 00:00:00 GMT</pubDate>
       <description>대장내시경에서 용종을 제거한 뒤에는 시술명보다 병리 결과지의 침윤 깊이와 질병분류기호가 보험을 가릅니다. 선종 1cm 미만에서 암세포가 나올 확률은 1% 안팎, 2cm를 넘으면 45% 안팎. 실손과 질병수술비, 진단비에서 확인할 약관 기준을 순서대로 정리했습니다.</description>
+    </item>
+    <item>
+      <title>ISA, 절세 계좌라서 좋을까? 가입 전 확인할 5가지</title>
+      <link>https://byhan2025.github.io/buffetkimz-web/posts/isa-before-you-open-checklist/</link>
+      <guid isPermaLink="true">https://byhan2025.github.io/buffetkimz-web/posts/isa-before-you-open-checklist/</guid>
+      <category>금융</category>
+      <pubDate>Wed, 25 Nov 2026 00:00:00 GMT</pubDate>
+      <description>ISA는 계좌 안 이익과 손실을 합친 순이익 200만 원(서민형 400만 원)까지 비과세하고, 넘는 금액은 9.9%로 떼는 계좌입니다. 3년을 채우지 못하면 받은 혜택을 돌려내야 하니, 묶어 둘 돈인지부터 확인합니다.</description>
     </item>
     <item>
       <title>장기요양보험료 20년 441만 원, 3년 돌봄에 공단이 4,915만 원</title>
@@ -242,14 +250,6 @@
       <category>AI</category>
       <pubDate>Wed, 18 Nov 2026 00:00:00 GMT</pubDate>
       <description>도구를 만들고 문서를 자동화하면서 배운 것은, 좋은 프롬프트보다 입력과 출력의 형태를 정하는 일이 먼저라는 점입니다.</description>
-    </item>
-    <item>
-      <title>물가가 잡혀도 체감이 남는 이유 — 서비스 물가의 시차</title>
-      <link>https://byhan2025.github.io/buffetkimz-web/posts/economy-service-prices/</link>
-      <guid isPermaLink="true">https://byhan2025.github.io/buffetkimz-web/posts/economy-service-prices/</guid>
-      <category>경제</category>
-      <pubDate>Wed, 18 Nov 2026 00:00:00 GMT</pubDate>
-      <description>지표상 물가 상승률이 둔해져도 장바구니와 고정비는 그대로일 수 있습니다. 상품과 서비스의 가격이 정해지는 방식이 다르기 때문입니다.</description>
     </item>
   </channel>
 </rss>
