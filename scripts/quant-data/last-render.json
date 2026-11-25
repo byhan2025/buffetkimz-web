@@ -1,37 +1,37 @@
 {
-  "dataFile": "scripts/quant-data/2026-11-25.json",
-  "date": "2026-11-25",
-  "headerDate": "2026.11.25",
-  "renderedAt": "2026-11-24T23:41:59.597Z",
-  "basis": "2026-11-25 08:20 퀀트 스크리닝 결과",
+  "dataFile": "scripts/quant-data/2026-11-26.json",
+  "date": "2026-11-26",
+  "headerDate": "2026.11.26",
+  "renderedAt": "2026-11-25T23:48:49.236Z",
+  "basis": "2026-11-26 08:20 퀀트 스크리닝 결과",
   "cards": [
     {
       "file": "01.webp",
-      "bytes": 57318
+      "bytes": 57238
     },
     {
       "file": "02.webp",
-      "bytes": 82332
+      "bytes": 111510
     },
     {
       "file": "03.webp",
-      "bytes": 100866
+      "bytes": 96632
     },
     {
       "file": "04.webp",
-      "bytes": 98872
+      "bytes": 86278
     },
     {
       "file": "05.webp",
-      "bytes": 84480
+      "bytes": 122998
     },
     {
       "file": "06.webp",
-      "bytes": 92796
+      "bytes": 97386
     }
   ],
   "previous": {
-    "date": "2026-11-24",
-    "renderedAt": "2026-11-24T00:00:21.003Z"
+    "date": "2026-11-26",
+    "renderedAt": "2026-11-25T23:47:51.060Z"
   }
 }
