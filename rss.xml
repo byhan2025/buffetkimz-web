@@ -9,8 +9,16 @@
     <managingEditor>buffetkimz</managingEditor>
     <generator>buffetkimz-web (Astro)</generator>
     <ttl>60</ttl>
-    <lastBuildDate>Wed, 25 Nov 2026 21:07:37 GMT</lastBuildDate>
+    <lastBuildDate>Wed, 25 Nov 2026 21:34:12 GMT</lastBuildDate>
     <atom:link href="https://byhan2025.github.io/buffetkimz-web/rss.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>예금자보호 1억 원 계산법: 원금·이자·금융회사·상품 체크</title>
+      <link>https://byhan2025.github.io/buffetkimz-web/posts/deposit-protection-limit-100-million-check/</link>
+      <guid isPermaLink="true">https://byhan2025.github.io/buffetkimz-web/posts/deposit-protection-limit-100-million-check/</guid>
+      <category>금융</category>
+      <pubDate>Thu, 26 Nov 2026 00:00:00 GMT</pubDate>
+      <description>예금자보호 1억 원은 계좌마다가 아니라 금융회사별로 원금과 소정의 이자를 합쳐 셉니다. 2025년 9월 1일부터 적용된 한도를 넘지 않으려면 원금을 얼마로 두어야 하는지, ISA·IRP에서 무엇이 빠지는지 계산해 두었습니다.</description>
+    </item>
     <item>
       <title>기준금리 0.25%p가 내 대출·예금에 닿는 날짜와 금액</title>
       <link>https://byhan2025.github.io/buffetkimz-web/posts/economy-rate-hike-timetable/</link>
@@ -242,14 +250,6 @@
       <category>보험</category>
       <pubDate>Sat, 21 Nov 2026 00:00:00 GMT</pubDate>
       <description>전환 후 첫 3년 할인은 지금 내는 1·2세대 보험료의 절반이 아니라, 새로 산출된 5세대 보험료의 50%입니다. 대상은 약 1,630만명, 선택형 특약은 도수·비급여 MRI를 빼고 최대 37% 할인입니다.</description>
-    </item>
-    <item>
-      <title>환율이 오르면 장바구니에서 무엇이 먼저 오르나</title>
-      <link>https://byhan2025.github.io/buffetkimz-web/posts/economy-fx-grocery/</link>
-      <guid isPermaLink="true">https://byhan2025.github.io/buffetkimz-web/posts/economy-fx-grocery/</guid>
-      <category>경제</category>
-      <pubDate>Thu, 19 Nov 2026 00:00:00 GMT</pubDate>
-      <description>환율과 소비자물가 사이에는 몇 단계의 시차가 있습니다. 원화 가치가 떨어질 때 가격표가 먼저 바뀌는 품목과 늦게 바뀌는 품목을 구분해 정리했습니다.</description>
     </item>
   </channel>
 </rss>
