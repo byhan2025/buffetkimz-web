@@ -1,16 +1,16 @@
 [
   {
-    "slug": "economy-rate-hike-timetable",
-    "out": "public/thumbs/economy-rate-hike-timetable.webp",
-    "bytes": 50444,
+    "slug": "deposit-protection-limit-100-million-check",
+    "out": "public/thumbs/deposit-protection-limit-100-million-check.webp",
+    "bytes": 62670,
     "lines": [
       {
-        "text": "기준금리 0.25%p",
+        "text": "예금자보호 1억 원",
         "size": 64,
         "overflow": false
       },
       {
-        "text": "닿는 날짜가 다르다",
+        "text": "이자까지 세어야",
         "size": 64,
         "overflow": false
       }

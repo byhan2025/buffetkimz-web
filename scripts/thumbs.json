@@ -890,6 +890,24 @@
    "sub": "대출은 리셋일, 예금은 만기 — 3억 원이면 연 75만 원",
    "date": "2026.11.26",
    "alt": "어두운 책상 위의 달력과 대출 약정서, 놓인 계산기와 동전 — 금리가 계약서의 어느 날짜에 닿는지 세는 자리"
+  },
+  {
+   "slug": "deposit-protection-limit-100-million-check",
+   "out": "public/thumbs/deposit-protection-limit-100-million-check.webp",
+   "art": "downloads/thumbs-raw/deposit-protection-limit-100-million-check.png",
+   "badge": [
+    "금융 · 예금",
+    "2026.11"
+   ],
+   "accent": "#F2D08C",
+   "headline": [
+    "예금자보호 1억 원",
+    "이자까지 세어야"
+   ],
+   "accentLine": 1,
+   "sub": "원금만 맞추면 이자에서 넘칩니다, 금융회사별 합산과 별도 한도 3종",
+   "date": "2026.11.26",
+   "alt": "어두운 나무 탁자 위에 겹쳐 놓은 통장과 계산기, 그 옆으로 나란히 놓인 유리병 두 개와 접힌 종이 — 금융회사별로 예금을 세어 보는 자리"
   }
  ]
 }
