@@ -43,3 +43,21 @@ npm run verify:vault                                            # 전용 도구�
 - 비주얼 정본은 `guidelines/buffetkimz-fixed-visual-template.md`, 모션·전환 취향은 그 문서와 `boban-fixed-visual-template.md`.
 - 브랜드 분리: 보반과 버핏킴즈는 별개 브랜드다. 한쪽 문구를 다른 쪽에 복사하지 않는다.
 - 이 저장소에는 테스트 CI 가 없다(GitHub Actions 는 Pages 배포 하나뿐). `dev-gate.sh` 와 `verify:*` 가 게이트다.
+
+## 검색·AI 노출 (SEO · AEO · GEO) — 2026-11-25 보강
+
+바뀐 파일과 이유를 한 곳에 적는다. 새 글·새 도구를 내보낼 때 이 목록을 다시 읽는다.
+
+- `src/pages/llms.txt.ts` — llms.txt 표준(llmstxt.org v2). 글·계산기·카드·강의 목록을 **빌드할 때 데이터에서 세어** 만든다.
+  손으로 적은 개수·목록을 넣지 않는다. 새 글·앱·카드는 자동으로 들어간다.
+- `src/pages/robots.txt.ts` — 검색봇(Yeti·Daum·Googlebot·OAI-SearchBot·Claude-SearchBot·PerplexityBot·xAI-Bot 등),
+  사용자요청 봇(ChatGPT-User 등), 학습봇(GPTBot·ClaudeBot 등)을 3그룹으로 명시 허용. `search-index.json` 만 Disallow.
+  봇 이름을 고칠 때는 각 사 크롤러 문서를 먼저 확인한다(2026-11 기준: `Auriti-Labs/geo-optimizer-skill` `models/config.py`).
+- 글 상세 `src/pages/posts/[slug].astro` — `Article` + `FAQPage` + `BreadcrumbList` 를 한 `@graph` 로 낸다.
+  FAQ 질문·답은 **그 화면에 보이는 문장**(제목 위 질문 줄·결론 상자·비교 카드·기준일 블록)에서만 만든다.
+  없는 Q&A 를 지어내지 않는다. 계산기 상세는 `SoftwareApplication` 에 `featureList`·`applicationSubCategory`·`dateModified` 를 넣는다.
+- 검색엔진 소유확인 — `src/config/site.ts` 의 `verification` 한 곳에서 읽고 `src/components/Seo.astro` 가 출력한다.
+  `PUBLIC_GOOGLE_SITE_VERIFICATION` / `PUBLIC_NAVER_SITE_VERIFICATION` 이 비면 태그를 만들지 않는다.
+- 얇은 콘텐츠(애드센스) — 글이 없는 분야, 카드 파일이 없는 세트, 호가 없는 소식지는 `noindex, follow` 로 자동 전환된다.
+  `python3 scripts/audit_index_thin.py` 로 색인 허용 페이지의 본문 길이·noindex 누락·사이트맵 혼입을 매번 같은 자로 잰다.
+  index 허용 페이지는 본문 600자 이상을 기준선으로 두고, 목록 페이지가 그보다 짧아지면 이 스크립트가 먼저 알린다.

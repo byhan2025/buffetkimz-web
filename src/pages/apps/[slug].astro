@@ -75,17 +75,28 @@ const toolJourney = {
 };
 
 const pagePath = `/apps/${app.slug}`;
+/**
+ * SoftwareApplication — 계산기 상세의 구조화 데이터.
+ *
+ * AEO 보강(2026-11-25): 답변엔진은 '무엇을 계산하는 도구인지'를 기능 목록으로 읽는다.
+ * 그래서 `featureList`(화면의 주요 기능 제목)와 분류·기준일을 함께 넣는다.
+ * 없는 값은 만들지 않는다 — 평점·다운로드 수 같은 수치는 이 사이트에 존재하지 않는다.
+ */
 const jsonLd = graph([
   {
     "@type": "SoftwareApplication",
     "@id": `${pageUrl(pagePath)}#app`,
     name: app.name,
     applicationCategory: "FinanceApplication",
+    applicationSubCategory: app.kind,
     operatingSystem: "Web",
+    browserRequirements: "JavaScript",
     url: pageUrl(pagePath),
     description: app.summary,
     inLanguage: "ko-KR",
     isAccessibleForFree: true,
+    featureList: app.features.map((f) => f.title),
+    dateModified: site.baseDate,
     ...(app.externalUrl ? { sameAs: app.externalUrl } : {}),
     offers: { "@type": "Offer", price: "0", priceCurrency: "KRW" },
     author: { "@id": AUTHOR_ID },

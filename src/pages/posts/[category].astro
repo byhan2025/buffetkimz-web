@@ -20,6 +20,12 @@ export async function getStaticPaths() {
 }
 
 const { category, posts } = Astro.props;
+/**
+ * 글이 하나도 없는 분야는 색인하지 않는다(2026-11-25 애드센스 얇은 콘텐츠 예방).
+ * 메뉴 링크는 살아 있어야 하므로 페이지는 만들되, 내용이 빈 상태로 검색에 실리지 않게 한다.
+ * 지금 8개 분야는 모두 글이 있고, 이 가드는 분야를 새로 열고 글을 쓰기 전까지의 빈 상태를 막는다.
+ */
+const isEmpty = posts.length === 0;
 /** 시리즈 전체 편수는 컬렉션 전체에서 센다 — 분야 목록만으로는 편수가 모자랄 수 있다 */
 const collection = await allPosts();
 const feature = posts[0];
@@ -92,6 +98,8 @@ const jsonLd = graph([
   title={`${category.name} — 자산리포트`}
   description={`${category.name}: ${category.lead}`}
   path={`/posts/${category.slug}`}
+  noindex={isEmpty}
+  noindexFollow={isEmpty}
   jsonLd={jsonLd}
 >
   <section class="scene-sky border-b border-line/70">

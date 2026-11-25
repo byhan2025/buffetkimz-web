@@ -125,6 +125,10 @@ export default defineConfig({
       // 실행 화면·검색·옛 주소 이동 페이지는 사이트맵에서 뺀다
       // v8.8.0 — 보관함(archived) 도구도 뺀다. 앱스토어·검색에서 숨긴 페이지를 사이트맵에 올리면
       //          'noindex + 사이트맵'이 서로 모순된다. 목록은 `src/data/apps.ts`의 archived 항목과 같다.
+      // 2026-11-25 — 여기 목록은 **noindex 로 나가는 경로 가족**과 짝을 이뤄야 한다.
+      //   새 noindex 페이지 가족을 만들면 이 filter에도 같은 접두를 넣는다(사이트맵 × noindex 모순 방지).
+      //   현재 noindex: /search · /404 · /apps/*\/run · /topics · /tools · archived 앱/
+      //   그리고 빈 분야·빈 카드세트·빈 소식지(그 상태가 되면 `scripts/audit_index_thin.py`가 알린다).
       filter: (page) =>
         !page.includes('/run') &&
         !page.includes('/search') &&

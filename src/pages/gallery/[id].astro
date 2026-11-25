@@ -137,6 +137,9 @@ const description = `${item.tagline} ${item.summary}`.slice(0, 155);
   path={path}
   type="article"
   publishedTime={item.createdAt}
+  /* 파일이 아직 한 장도 없는 세트는 빈 페이지다 — 색인하지 않는다(얇은 콘텐츠 예방, 2026-11-25) */
+  noindex={total === 0}
+  noindexFollow={total === 0}
   image={cover?.src}
   imageAlt={cover?.alt}
   imageWidth={cover?.width}

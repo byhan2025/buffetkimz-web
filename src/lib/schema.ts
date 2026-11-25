@@ -88,6 +88,34 @@ export function breadcrumbList(items: { name: string; path: string }[]) {
   };
 }
 
+/** FAQ 한 쌍 — 화면에 보이는 질문과 답을 그대로 옮긴다(보이지 않는 Q&A는 넣지 않는다). */
+export type FaqItem = { q: string; a: string };
+
+/**
+ * FAQPage — AEO(답변엔진)가 질문 단위로 뽑아 갈 수 있게 하는 노드.
+ *
+ * 원칙
+ *  · 질문과 답은 **그 페이지에 실제로 보이는 문장**이어야 한다(구글 구조화 데이터 정책).
+ *    그래서 호출하는 쪽이 화면에 그리는 값(질문 줄·결론 상자·비교 카드)에서만 만든다.
+ *  · 답은 한 문단으로 끝낸다 — 답변엔진은 문단 단위로 인용한다.
+ *  · 없는 질문을 지어내지 않는다. 만들 Q&A가 없으면 이 노드 자체를 넣지 않는다.
+ */
+export function faqPageNode(path: string, items: FaqItem[], name?: string) {
+  return {
+    "@type": "FAQPage",
+    "@id": `${pageUrl(path)}#faq`,
+    url: pageUrl(path),
+    ...(name ? { name } : {}),
+    inLanguage: "ko-KR",
+    isPartOf: partOfWebsite,
+    mainEntity: items.map((it) => ({
+      "@type": "Question",
+      name: it.q,
+      acceptedAnswer: { "@type": "Answer", text: it.a },
+    })),
+  };
+}
+
 /** 여러 노드를 하나의 @graph 문서로 묶는다. */
 export function graph(nodes: Record<string, unknown>[]) {
   return {

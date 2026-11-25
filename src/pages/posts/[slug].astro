@@ -18,7 +18,7 @@ import { thumbOf, thumbAltOf, thumbSize } from "@/lib/thumbs";
 import { cardThumb } from "@/lib/card-assets";
 import { cardSetsOfPost, validatePairs } from "@/lib/gallery";
 import { stageOfPost } from "@/lib/tracks";
-import { AUTHOR_ID, ORG_ID, breadcrumbList, graph, pageUrl, partOfWebsite } from "@/lib/schema";
+import { AUTHOR_ID, ORG_ID, breadcrumbList, faqPageNode, graph, pageUrl, partOfWebsite } from "@/lib/schema";
 
 export async function getStaticPaths() {
   const list = await allPosts();
@@ -219,6 +219,34 @@ const readingJourney = {
 const trackRef = stageOfPost(post.id);
 const liveTrackRef = trackRef && trackRef.track.status === "live" ? trackRef : undefined;
 
+/** 화면에 보이는 질문 — 제목 위 한 줄. 같은 문장을 FAQPage의 첫 질문으로도 쓴다. */
+const headlineQuestion = post.data.question?.trim() || undefined;
+
+/**
+ * FAQPage — 이 페이지에 실제로 보이는 문장만 모은다.
+ *  · 첫 질문: 제목 위 질문 줄(모든 글에 있는 값은 아니다)
+ *  · 둘째: A vs B 비교 카드가 있을 때 그 비교 제목과 주의 문장
+ *  · 마지막: 기준일·1차 출처 블록에 있는 확인 시점(답변엔진이 가장 자주 함께 인용하는 정보)
+ * 답은 결론 상자·비교 카드·기준 블록의 문장을 그대로 쓴다(새 문장을 만들지 않는다).
+ */
+const faqItems = [
+  ...(headlineQuestion ? [{ q: headlineQuestion, a: summaryOf(post) }] : []),
+  ...(post.data.compare ? [{ q: post.data.compare.title, a: post.data.compare.note }] : []),
+  {
+    q: "이 글의 숫자는 언제 기준인가요?",
+    a: `${basisDots} 기준으로 확인했습니다. 1차 출처는 ${primaryLabel}${
+      post.data.sources.length > 1 ? ` 외 ${post.data.sources.length - 1}건` : ""
+    }입니다. 제도와 약관은 바뀔 수 있으니 결정 전에 원문을 다시 확인하세요.`,
+  },
+];
+
+/** 본문 단어 수 — Article.wordCount. 화면에 보이는 본문 글자에서만 센다. */
+const wordCount = (post.body ?? "")
+  .replace(/^---[\s\S]*?---/, " ")
+  .replace(/[#>*_`|]/g, " ")
+  .split(/\s+/)
+  .filter(Boolean).length;
+
 const jsonLd = graph([
   {
     "@type": "Article",
@@ -234,6 +262,11 @@ const jsonLd = graph([
     isPartOf: partOfWebsite,
     articleSection: category.name,
     keywords: post.data.tags.join(", "),
+    /* AEO — 답변엔진이 '얼마나 읽을 분량인지'와 '무료 공개'를 함께 판단한다 */
+    isAccessibleForFree: true,
+    wordCount,
+    timeRequired: `PT${post.data.readingMinutes}M`,
+    about: post.data.tags.map((tag) => ({ "@type": "Thing", name: tag })),
     image: {
       "@type": "ImageObject",
       url: absolute(thumb),
@@ -241,6 +274,7 @@ const jsonLd = graph([
       height: thumbDim.height,
     },
   },
+  faqPageNode(path, faqItems, post.data.title),
   breadcrumbList([
     { name: "홈", path: "/" },
     { name: "기록", path: "/posts" },
@@ -302,6 +336,13 @@ const jsonLd = graph([
           <h1 class="mt-3 text-[28px] font-bold leading-[1.3] tracking-[-0.042em] text-ink md:text-[38px]">
             {post.data.title}
           </h1>
+
+          {/* 이 글이 답하는 질문 — 제목·결론과 같은 문장으로 FAQPage에도 들어간다 */}
+          {headlineQuestion && (
+            <p class="mt-2.5 text-[13px] font-semibold leading-[1.6] text-brand-deep" data-post-question>
+              Q. {headlineQuestion}
+            </p>
+          )}
 
           {/* 제목 아래 고정 자리 — 기준일과 1차 출처를 본문과 분리해 둔다 */}
           <dl class="mt-4 space-y-1 border-l-2 border-brand/35 pl-3 text-[12.5px] leading-[1.65] text-ink-muted" data-post-basis>

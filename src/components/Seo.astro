@@ -1,11 +1,17 @@
 ---
-import { absolute, site } from "@/config/site";
+import { absolute, site, verification } from "@/config/site";
 
 interface Props {
   title: string;
   description: string;
   path: string;
   noindex?: boolean;
+  /**
+   * noindex 페이지의 링크를 따라가게 둘지 — 빈 목록·미완성 페이지는 `noindex, follow`가 맞다.
+   * 검색에서만 빼고, 그 페이지에서 이어지는 글·도구로의 이동은 막지 않는다.
+   * (로봇이 아예 읽을 필요가 없는 화면(/search·/run·404)은 기본값 `noindex, nofollow`를 쓴다.)
+   */
+  noindexFollow?: boolean;
   type?: "website" | "article";
   publishedTime?: string;
   /** og:image·twitter:image 에 쓸 대표이미지 (public 기준 경로). 없으면 기본 /og.png */
@@ -20,6 +26,7 @@ const {
   description,
   path,
   noindex = false,
+  noindexFollow = false,
   type = "website",
   publishedTime,
   image,
@@ -39,7 +46,14 @@ const ogAlt = imageAlt ?? "buffetkimz — 금융과 돈에 관한 기록, 그리
 <title>{fullTitle}</title>
 <meta name="description" content={description} />
 <link rel="canonical" href={canonical} />
-<meta name="robots" content={noindex ? "noindex, nofollow" : "index, follow, max-image-preview:large, max-snippet:-1"} />
+<meta
+  name="robots"
+  content={noindex
+    ? noindexFollow
+      ? "noindex, follow"
+      : "noindex, nofollow"
+    : "index, follow, max-image-preview:large, max-snippet:-1"}
+/>
 <meta name="author" content={site.author.name} />
 <meta name="theme-color" content="#ffffff" />
 <meta name="format-detection" content="telephone=no" />
@@ -62,4 +76,13 @@ const ogAlt = imageAlt ?? "buffetkimz — 금융과 돈에 관한 기록, 그리
 
 {publishedTime && <meta property="article:published_time" content={publishedTime} />}
 {publishedTime && <meta property="article:modified_time" content={publishedTime} />}
-{noindex && <meta name="googlebot" content="noindex, nofollow" />}
+{noindex && <meta name="googlebot" content={noindexFollow ? "noindex, follow" : "noindex, nofollow"} />}
+
+<!--
+  검색엔진 소유 확인 — 값은 `src/config/site.ts`의 `verification` 하나에서만 온다.
+  비어 있으면 태그를 출력하지 않는다(빈 content 메타는 확인 실패로 처리될 수 있다).
+  · google: Search Console URL 접두어 속성의 HTML 태그
+  · naver: 네이버 서치어드바이저 HTML 태그
+-->
+{verification.google && <meta name="google-site-verification" content={verification.google} />}
+{verification.naver && <meta name="naver-site-verification" content={verification.naver} />}

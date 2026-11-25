@@ -34,7 +34,11 @@ export const GET: APIRoute = async () => {
     <title>${escape(site.brand)} — 금융과 돈에 관한 기록</title>
     <link>${site.url}/</link>
     <description>${escape(site.description)}</description>
-    <language>ko</language>
+    <language>ko-KR</language>
+    <copyright>${escape(site.brand)} · ${site.domain}</copyright>
+    <managingEditor>${escape(site.author.name)}</managingEditor>
+    <generator>buffetkimz-web (Astro)</generator>
+    <ttl>60</ttl>
     <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
     <atom:link href="${site.url}/rss.xml" rel="self" type="application/rss+xml" />
 ${items}

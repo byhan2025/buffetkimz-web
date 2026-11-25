@@ -45,6 +45,25 @@ export function stripBase(pathname: string): string {
 const origin = (import.meta.env?.SITE ?? "https://buffetkimz.com").replace(/\/+$/, "");
 
 /**
+ * 검색엔진 소유 확인 값 — 저장소/빌드 환경변수로만 받는다(코드에 값을 박지 않는다).
+ *  · Google Search Console: URL 접두어 속성의 HTML 태그(`google-site-verification`)
+ *  · 네이버 서치어드바이저: HTML 태그(`naver-site-verification`)
+ * 두 값이 비어 있으면 `components/Seo.astro`가 메타태그를 아예 출력하지 않는다(빈 content 금지).
+ *
+ * 예) PUBLIC_GOOGLE_SITE_VERIFICATION=... PUBLIC_NAVER_SITE_VERIFICATION=... npm run build
+ */
+function envOf(key: string): string {
+  const viteEnv = (import.meta.env ?? {}) as Record<string, string | undefined>;
+  const nodeEnv = (typeof process !== "undefined" ? process.env : {}) as Record<string, string | undefined>;
+  return (viteEnv[`PUBLIC_${key}`] ?? nodeEnv[key] ?? "").trim();
+}
+
+export const verification = {
+  google: envOf("GOOGLE_SITE_VERIFICATION"),
+  naver: envOf("NAVER_SITE_VERIFICATION"),
+} as const;
+
+/**
  * 사이트 기준일 — 손으로 적는 바닥값과 자동 생성 값(콘텐츠 최신 날짜) 중 늦은 쪽.
  * ISO 문자열끼리 비교하므로 날짜만 맞으면 사전순 = 시간순이다.
  */
