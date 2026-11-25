@@ -5,7 +5,7 @@
     <link>https://byhan2025.github.io/buffetkimz-web/</link>
     <description>금융·투자·연금·노후·재무를 하나의 기준으로 읽는 금융 포털. 시장 지표와 오늘의 브리핑, 직접 계산해 보는 금융 도구, 앱스토어, 투자백서를 한곳에 모았습니다. 모든 글과 도구에 기준일과 출처를 붙입니다.</description>
     <language>ko</language>
-    <lastBuildDate>Wed, 25 Nov 2026 01:25:40 GMT</lastBuildDate>
+    <lastBuildDate>Wed, 25 Nov 2026 04:28:24 GMT</lastBuildDate>
     <atom:link href="https://byhan2025.github.io/buffetkimz-web/rss.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>6억 아파트 5년, 집값이 연 2.6% 못 넘으면 전세가 낫다</title>
@@ -22,6 +22,14 @@
       <category>금융</category>
       <pubDate>Wed, 25 Nov 2026 00:00:00 GMT</pubDate>
       <description>월 필수 지출 250만 원이면 3개월 750만 원, 6개월 1,500만 원입니다. 월급이나 평소 소비가 아니라 소득이 끊겨도 계속 나가는 돈으로 세고, 2025년 9월부터 예금보호 한도는 금융회사별 1억 원입니다.</description>
+    </item>
+    <item>
+      <title>연금저축·IRP 900만 원, 채우기 전에 확인할 세 가지</title>
+      <link>https://byhan2025.github.io/buffetkimz-web/posts/finance-pension-900-credit-check/</link>
+      <guid isPermaLink="true">https://byhan2025.github.io/buffetkimz-web/posts/finance-pension-900-credit-check/</guid>
+      <category>금융</category>
+      <pubDate>Wed, 25 Nov 2026 00:00:00 GMT</pubDate>
+      <description>연금저축 600만 원과 IRP를 합쳐 900만 원을 넣으면 148만 5,000원(16.5%) 또는 118만 8,000원(13.2%)이 줄어듭니다. 한도를 채우기 전에 합산 구조와 중도해지 세금, 이미 넣은 금액을 확인하는 순서를 정리했습니다.</description>
     </item>
     <item>
       <title>장기요양보험료 20년 441만 원, 3년 돌봄에 공단이 4,915만 원</title>
@@ -238,14 +246,6 @@
       <category>AI</category>
       <pubDate>Tue, 17 Nov 2026 00:00:00 GMT</pubDate>
       <description>보장 확인에 쓰는 도구를 직접 만들면서 바뀐 일과, AI가 대신해 주지 못한 일을 정리했습니다. 도구를 만들고 고친 기록만 남깁니다.</description>
-    </item>
-    <item>
-      <title>배당은 수익이 아니다 — 총수익으로 다시 계산하기</title>
-      <link>https://byhan2025.github.io/buffetkimz-web/posts/invest-dividend-total-return/</link>
-      <guid isPermaLink="true">https://byhan2025.github.io/buffetkimz-web/posts/invest-dividend-total-return/</guid>
-      <category>투자</category>
-      <pubDate>Tue, 17 Nov 2026 00:00:00 GMT</pubDate>
-      <description>배당수익률만 보면 계좌의 실제 성과를 놓칩니다. 가격 변동과 배당을 합친 총수익, 그리고 세금과 재투자까지 함께 계산하는 방법을 정리했습니다.</description>
     </item>
   </channel>
 </rss>
