@@ -1,6 +1,45 @@
+# 검색·AI 인용 봇 명시 허용 (2026-11-25)
+
+User-agent: Yeti
+User-agent: Daum
+User-agent: Googlebot
+User-agent: Bingbot
+User-agent: Applebot
+User-agent: OAI-SearchBot
+User-agent: Claude-SearchBot
+User-agent: PerplexityBot
+User-agent: xAI-Bot
+User-agent: YouBot
+User-agent: Amazonbot
+User-agent: DuckAssistBot
+Allow: /
+Disallow: /buffetkimz-web/search-index.json
+
+User-agent: ChatGPT-User
+User-agent: Claude-User
+User-agent: Perplexity-User
+User-agent: Meta-ExternalFetcher
+Allow: /
+Disallow: /buffetkimz-web/search-index.json
+
+User-agent: GPTBot
+User-agent: ClaudeBot
+User-agent: Google-Extended
+User-agent: Google-CloudVertexBot
+User-agent: Applebot-Extended
+User-agent: CCBot
+User-agent: meta-externalagent
+User-agent: cohere-ai
+User-agent: Bytespider
+User-agent: AI2Bot
+User-agent: AI2Bot-Dolma
+User-agent: PetalBot
+Allow: /
+Disallow: /buffetkimz-web/search-index.json
+
+# 그 밖의 크롤러 — 같은 규칙
 User-agent: *
 Allow: /
-
 Disallow: /buffetkimz-web/search-index.json
 
 Sitemap: https://byhan2025.github.io/buffetkimz-web/sitemap-index.xml

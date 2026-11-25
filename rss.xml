@@ -4,8 +4,12 @@
     <title>buffetkimz — 금융과 돈에 관한 기록</title>
     <link>https://byhan2025.github.io/buffetkimz-web/</link>
     <description>금융·투자·연금·노후·재무를 하나의 기준으로 읽는 금융 포털. 시장 지표와 오늘의 브리핑, 직접 계산해 보는 금융 도구, 앱스토어, 투자백서를 한곳에 모았습니다. 모든 글과 도구에 기준일과 출처를 붙입니다.</description>
-    <language>ko</language>
-    <lastBuildDate>Wed, 25 Nov 2026 04:37:44 GMT</lastBuildDate>
+    <language>ko-KR</language>
+    <copyright>buffetkimz · buffetkimz.com</copyright>
+    <managingEditor>buffetkimz</managingEditor>
+    <generator>buffetkimz-web (Astro)</generator>
+    <ttl>60</ttl>
+    <lastBuildDate>Wed, 25 Nov 2026 05:22:23 GMT</lastBuildDate>
     <atom:link href="https://byhan2025.github.io/buffetkimz-web/rss.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>6억 아파트 5년, 집값이 연 2.6% 못 넘으면 전세가 낫다</title>
@@ -30,6 +34,14 @@
       <category>금융</category>
       <pubDate>Wed, 25 Nov 2026 00:00:00 GMT</pubDate>
       <description>연금저축 600만 원과 IRP를 합쳐 900만 원을 넣으면 148만 5,000원(16.5%) 또는 118만 8,000원(13.2%)이 줄어듭니다. 한도를 채우기 전에 합산 구조와 중도해지 세금, 이미 넣은 금액을 확인하는 순서를 정리했습니다.</description>
+    </item>
+    <item>
+      <title>대장 용종을 뗐다면, 병리 결과지와 약관을 함께 읽는 법</title>
+      <link>https://byhan2025.github.io/buffetkimz-web/posts/insurance-colon-polyp-pathology/</link>
+      <guid isPermaLink="true">https://byhan2025.github.io/buffetkimz-web/posts/insurance-colon-polyp-pathology/</guid>
+      <category>보험</category>
+      <pubDate>Wed, 25 Nov 2026 00:00:00 GMT</pubDate>
+      <description>대장내시경에서 용종을 제거한 뒤에는 시술명보다 병리 결과지의 침윤 깊이와 질병분류기호가 보험을 가릅니다. 선종 1cm 미만에서 암세포가 나올 확률은 1% 안팎, 2cm를 넘으면 45% 안팎. 실손과 질병수술비, 진단비에서 확인할 약관 기준을 순서대로 정리했습니다.</description>
     </item>
     <item>
       <title>장기요양보험료 20년 441만 원, 3년 돌봄에 공단이 4,915만 원</title>
@@ -238,14 +250,6 @@
       <category>경제</category>
       <pubDate>Wed, 18 Nov 2026 00:00:00 GMT</pubDate>
       <description>지표상 물가 상승률이 둔해져도 장바구니와 고정비는 그대로일 수 있습니다. 상품과 서비스의 가격이 정해지는 방식이 다르기 때문입니다.</description>
-    </item>
-    <item>
-      <title>AI로 보장분석 도구를 만들었습니다 — 바뀐 것과 바뀌지 않은 것</title>
-      <link>https://byhan2025.github.io/buffetkimz-web/posts/ai-coverage-tool/</link>
-      <guid isPermaLink="true">https://byhan2025.github.io/buffetkimz-web/posts/ai-coverage-tool/</guid>
-      <category>AI</category>
-      <pubDate>Tue, 17 Nov 2026 00:00:00 GMT</pubDate>
-      <description>보장 확인에 쓰는 도구를 직접 만들면서 바뀐 일과, AI가 대신해 주지 못한 일을 정리했습니다. 도구를 만들고 고친 기록만 남깁니다.</description>
     </item>
   </channel>
 </rss>
