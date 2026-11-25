@@ -51,7 +51,8 @@ const panels = AUDIENCES.map((audience) => ({
       </p>
     </div>
 
-    <div class="aud">
+    <fieldset class="aud">
+      <legend class="sr-only">내 상황</legend>
       {
         AUDIENCES.map((audience) => (
           <input
@@ -66,7 +67,7 @@ const panels = AUDIENCES.map((audience) => ({
         ))
       }
 
-      <div class="aud-bar" role="radiogroup" aria-label="내 상황">
+      <div class="aud-bar">
         {
           AUDIENCES.map((audience) => (
             <label class="aud-option" for={`aud-${audience.id}`}>
@@ -124,7 +125,7 @@ const panels = AUDIENCES.map((audience) => ({
           ))
         }
       </div>
-    </div>
+    </fieldset>
   </div>
 </section>
 
@@ -143,7 +144,10 @@ const panels = AUDIENCES.map((audience) => ({
 
   .aud {
     position: relative;
-    margin-top: 16px;
+    min-inline-size: 0;
+    margin: 16px 0 0;
+    padding: 0;
+    border: 0;
   }
 
   /* 라디오는 화면에서 감추되 포커스는 받는다 — 키보드 화살표로 상황을 바꾼다 */
