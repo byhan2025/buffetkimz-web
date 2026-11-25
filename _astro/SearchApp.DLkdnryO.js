@@ -1,0 +1,1 @@
+export{t as default}from"./SearchApp.Bo0ITAW8.js";
