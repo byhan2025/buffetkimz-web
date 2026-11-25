@@ -164,7 +164,18 @@ with sync_playwright() as p:
             }"""
         )
         shot = OUT / f"board-{tag}.png"
-        page.screenshot(path=str(shot), full_page=True)
+        try:
+            page.screenshot(path=str(shot), full_page=True)
+        except Exception as exc:  # noqa: BLE001 — 페이지가 길어지면 2배율 전체 캡처가 실패한다(Chrome 텍스처 한도)
+            # 2026-11-25 — 카드가 37건이 되면서 390×2배율 전체 높이가 캡처 한도를 넘었다.
+            # 배율 1로 같은 화면을 한 번 더 찍어 육안 확인용 이미지를 남긴다(검사 항목은 그대로).
+            report.setdefault("notes", []).append(f"{tag}: 2배율 전체 캡처 실패({type(exc).__name__}) — 1배율로 재캡처")
+            ctx1 = browser.new_context(viewport={"width": width, "height": height}, locale="ko-KR", device_scale_factor=1)
+            pg1 = ctx1.new_page()
+            pg1.goto(f"{BASE}/board/", wait_until="load")
+            pg1.wait_for_timeout(900)
+            pg1.screenshot(path=str(shot), full_page=True)
+            ctx1.close()
 
         # 코너 카드 3장 캡처 · 스토리·썰 카드 캡처 (390 화면에서 한 번만 — 화면을 닫기 전에 찍는다)
         if tag == "390":

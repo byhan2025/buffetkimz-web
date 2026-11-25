@@ -1,16 +1,16 @@
 [
   {
-    "slug": "insurance-colon-polyp-pathology",
-    "out": "public/thumbs/insurance-colon-polyp-pathology.webp",
-    "bytes": 49892,
+    "slug": "isa-before-you-open-checklist",
+    "out": "public/thumbs/isa-before-you-open-checklist.webp",
+    "bytes": 28744,
     "lines": [
       {
-        "text": "용종을 뗐다는 말",
+        "text": "ISA 가입 전에",
         "size": 64,
         "overflow": false
       },
       {
-        "text": "병리 결과지가 답한다",
+        "text": "확인할 다섯 가지",
         "size": 64,
         "overflow": false
       }
