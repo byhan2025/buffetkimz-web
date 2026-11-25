@@ -1,16 +1,16 @@
 [
   {
-    "slug": "isa-before-you-open-checklist",
-    "out": "public/thumbs/isa-before-you-open-checklist.webp",
-    "bytes": 28744,
+    "slug": "economy-rate-hike-timetable",
+    "out": "public/thumbs/economy-rate-hike-timetable.webp",
+    "bytes": 50444,
     "lines": [
       {
-        "text": "ISA 가입 전에",
+        "text": "기준금리 0.25%p",
         "size": 64,
         "overflow": false
       },
       {
-        "text": "확인할 다섯 가지",
+        "text": "닿는 날짜가 다르다",
         "size": 64,
         "overflow": false
       }
