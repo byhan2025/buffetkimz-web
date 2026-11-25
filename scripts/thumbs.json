@@ -836,6 +836,24 @@
       "sub": "연금저축 600 + IRP 300, 해지하면 달라지는 숫자",
       "date": "2026.11.25",
       "alt": "어두운 천 위에 놓인 세 개의 유리병과 접힌 서류, 그 옆의 만년필 — 연말에 남은 한도를 세어 보는 자리"
+    },
+    {
+      "slug": "insurance-colon-polyp-pathology",
+      "out": "public/thumbs/insurance-colon-polyp-pathology.webp",
+      "art": "downloads/thumbs-raw/insurance-colon-polyp-pathology.png",
+      "badge": [
+        "보험 · 병리",
+        "2026.11"
+      ],
+      "accent": "#F2D08C",
+      "headline": [
+        "용종을 뗐다는 말",
+        "병리 결과지가 답한다"
+      ],
+      "accentLine": 1,
+      "sub": "침윤 깊이와 분류표가 담보를 가른다",
+      "date": "2026.11.25",
+      "alt": "어두운 슬레이트 책상 위에 놓인 조직검체 용기와 접힌 병리 결과지, 옆으로 감아 둔 내시경 — 용종 절제 뒤 결과지와 약관을 함께 읽는 장면"
     }
   ]
 }
