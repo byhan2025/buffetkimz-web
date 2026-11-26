@@ -9,7 +9,7 @@
     <managingEditor>buffetkimz</managingEditor>
     <generator>buffetkimz-web (Astro)</generator>
     <ttl>60</ttl>
-    <lastBuildDate>Thu, 26 Nov 2026 10:13:22 GMT</lastBuildDate>
+    <lastBuildDate>Thu, 26 Nov 2026 10:34:38 GMT</lastBuildDate>
     <atom:link href="https://byhan2025.github.io/buffetkimz-web/rss.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>예금자보호 1억 원 계산법: 원금·이자·금융회사·상품 체크</title>
@@ -26,6 +26,14 @@
       <category>경제</category>
       <pubDate>Thu, 26 Nov 2026 00:00:00 GMT</pubDate>
       <description>0.25%p는 3억 원 변동금리 대출에서 연 75만 원입니다. 다만 코픽스 6개월 연동 대출은 다음 리셋일, 예금은 만기 뒤에 반영됩니다. 오늘 금통위(3.00%→3.25% 전망)를 앞두고 계약별 반영 시점과 금액을 계산했습니다.</description>
+    </item>
+    <item>
+      <title>중도상환수수료 계산법: 2026 대출 갈아타기 전 확인 4단계</title>
+      <link>https://byhan2025.github.io/buffetkimz-web/posts/finance-loan-prepayment-fee-2026/</link>
+      <guid isPermaLink="true">https://byhan2025.github.io/buffetkimz-web/posts/finance-loan-prepayment-fee-2026/</guid>
+      <category>금융</category>
+      <pubDate>Thu, 26 Nov 2026 00:00:00 GMT</pubDate>
+      <description>2025년 1월 13일 개편은 그날 이후 맺은 대출부터 적용됩니다. 계약일 확인, 금융회사별 수수료율, 잔존일수 계산, 갈아타기 손익 비교를 2026년 11월 기준으로 정리했습니다.</description>
     </item>
     <item>
       <title>죽상동맥경화: 콜레스테롤 수치와 혈관벽 병변은 다른 진단입니다</title>
@@ -242,14 +250,6 @@
       <category>연금</category>
       <pubDate>Sat, 21 Nov 2026 00:00:00 GMT</pubDate>
       <description>12월 31일 전에 확인할 세 가지 숫자와, ISA 만기 자금 300만원이 '공제대상 납입액'일 뿐 환급액이 아니라는 점을 정리했습니다. 결정세액이 작은 해에 한도를 채우면 생기는 일도 함께 봅니다.</description>
-    </item>
-    <item>
-      <title>계좌별 자산 배치와 ETF 과세 — IRP 70% 규정과 국내·해외 ETF 세금 차이</title>
-      <link>https://byhan2025.github.io/buffetkimz-web/posts/pension-master-04-asset-etf/</link>
-      <guid isPermaLink="true">https://byhan2025.github.io/buffetkimz-web/posts/pension-master-04-asset-etf/</guid>
-      <category>연금</category>
-      <pubDate>Sat, 21 Nov 2026 00:00:00 GMT</pubDate>
-      <description>IRP·DC의 위험자산 70% 한도와 연금저축의 투자 제한을 정리하고, 같은 ETF라도 국내주식형과 해외·채권형의 세금이 어떻게 다른지 계좌별로 비교했습니다.</description>
     </item>
   </channel>
 </rss>
