@@ -9,7 +9,7 @@
     <managingEditor>buffetkimz</managingEditor>
     <generator>buffetkimz-web (Astro)</generator>
     <ttl>60</ttl>
-    <lastBuildDate>Thu, 26 Nov 2026 03:48:50 GMT</lastBuildDate>
+    <lastBuildDate>Thu, 26 Nov 2026 04:29:47 GMT</lastBuildDate>
     <atom:link href="https://byhan2025.github.io/buffetkimz-web/rss.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>예금자보호 1억 원 계산법: 원금·이자·금융회사·상품 체크</title>
@@ -26,6 +26,14 @@
       <category>경제</category>
       <pubDate>Thu, 26 Nov 2026 00:00:00 GMT</pubDate>
       <description>0.25%p는 3억 원 변동금리 대출에서 연 75만 원입니다. 다만 코픽스 6개월 연동 대출은 다음 리셋일, 예금은 만기 뒤에 반영됩니다. 오늘 금통위(3.00%→3.25% 전망)를 앞두고 계약별 반영 시점과 금액을 계산했습니다.</description>
+    </item>
+    <item>
+      <title>금리인하요구권, 신청해도 될까? 2026 자동 신청 서비스와 이자 절감 계산</title>
+      <link>https://byhan2025.github.io/buffetkimz-web/posts/rate-cut-request-2026-checklist/</link>
+      <guid isPermaLink="true">https://byhan2025.github.io/buffetkimz-web/posts/rate-cut-request-2026-checklist/</guid>
+      <category>금융</category>
+      <pubDate>Thu, 26 Nov 2026 00:00:00 GMT</pubDate>
+      <description>취업·승진·신용점수 상승 뒤 대출금리를 낮출 수 있는 금리인하요구권. 신청 조건과 10영업일 통지, 2026년 마이데이터 자동 신청, 3,000만 원 대출의 절감액 계산까지 정리했습니다.</description>
     </item>
     <item>
       <title>6억 아파트 5년, 집값이 연 2.6% 못 넘으면 전세가 낫다</title>
@@ -242,14 +250,6 @@
       <category>연금</category>
       <pubDate>Sat, 21 Nov 2026 00:00:00 GMT</pubDate>
       <description>연금을 받기 시작하면 건강보험료와 인출 규칙이 함께 따라옵니다. 은퇴 5–10년 전에 확인할 건보료 기준과 IRP 중도인출 사유, 계좌 분리 원칙을 7가지로 정리했습니다.</description>
-    </item>
-    <item>
-      <title>1·2세대 실손, 11월 23일부터 달라지는 두 가지 선택</title>
-      <link>https://byhan2025.github.io/buffetkimz-web/posts/silson-switch-2026/</link>
-      <guid isPermaLink="true">https://byhan2025.github.io/buffetkimz-web/posts/silson-switch-2026/</guid>
-      <category>보험</category>
-      <pubDate>Sat, 21 Nov 2026 00:00:00 GMT</pubDate>
-      <description>전환 후 첫 3년 할인은 지금 내는 1·2세대 보험료의 절반이 아니라, 새로 산출된 5세대 보험료의 50%입니다. 대상은 약 1,630만명, 선택형 특약은 도수·비급여 MRI를 빼고 최대 37% 할인입니다.</description>
     </item>
   </channel>
 </rss>
