@@ -83,7 +83,7 @@ const RECS: Record<Interest, Rec> = {
       "5대 담보의 빈 칸, 실손 세대별 자기부담, 고지의무를 순서대로 확인해 무엇부터 볼지 정합니다.",
     ],
     apps: [
-      { name: "실손 세대별 비교기", href: "/apps/silson-compare/run", note: "같은 병원비로 4·5세대 환급액 비교" },
+      { name: "세대별 실손 계산기", href: "/apps/silson-compare/run", note: "같은 병원비로 1~5세대·유병력자 비교" },
       { name: "보장 점검 시뮬레이터", href: "/apps/coverage-check/run", note: "5대 담보를 연령대 기준점과 나란히" },
     ],
     post: { title: "실손 5세대, 보험료 30% 낮아졌다는 말의 앞뒤", href: "/posts/insurance-silson-5th" },

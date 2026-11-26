@@ -303,7 +303,7 @@ export function RunnerShell({
           <h3 className="mt-1 text-[16.5px] font-bold tracking-[-0.03em] text-ink">{title}</h3>
           <p className="mt-1 text-[12px] text-ink-muted">{subtitle}</p>
         </div>
-        <span className="chip !min-h-[26px] !border-transparent !bg-jade-soft !px-2.5 !text-[12px] !text-jade">
+        <span className="chip shrink-0 whitespace-nowrap !min-h-[26px] !border-transparent !bg-jade-soft !px-2.5 !text-[12px] !text-jade">
           서버 미전송
         </span>
       </div>
