@@ -116,7 +116,7 @@
 
 ## 자료앨범 — 카드뉴스·인포그래픽
 
-- [4대 시장 퀀트 스크리닝 (11/26)](https://byhan2025.github.io/buffetkimz-web/gallery/quant-screening-daily/): 6장 · 기준일 2026. 11. 26. · 골든 시그널로 본 4종목
+- [4대 시장 퀀트 스크리닝 (11/27)](https://byhan2025.github.io/buffetkimz-web/gallery/quant-screening-daily/): 6장 · 기준일 2026. 11. 27. · 골든 시그널로 본 4종목
 - [오를 때 덜고 내릴 때 채우기 — 리밸런싱과 현금 비중](https://byhan2025.github.io/buffetkimz-web/gallery/asset-rebalance-hand/): 6장 · 기준일 2026. 11. 22. · 손글씨 카드 6장 · 목표 비중 70:30, 연 1회 + 5%p 점검
 - [은퇴 첫 5년의 순서 위험 — 같은 수익률, 인출 순서가 만든 차이](https://byhan2025.github.io/buffetkimz-web/gallery/retire-drawdown-hand/): 6장 · 기준일 2026. 11. 22. · 손글씨 카드 6장 · 3억 · 연 1,500만 인출, 1억 6,760만…
 - [월 500만, 남는 돈은 어디서 줄까](https://byhan2025.github.io/buffetkimz-web/gallery/household-budget-hand/): 6장 · 기준일 2026. 11. 22. · 손글씨 카드 6장 · 실수령 500 · 고정비 160 · 원리금 61
