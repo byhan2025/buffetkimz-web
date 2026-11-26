@@ -279,14 +279,15 @@ export function pdfWordsToRows(words) {
     if (line.cells.some((c) => matchField(c.text))) return true;
     return line.cells.every((c) => c.text.length <= 12 && !/\d/.test(c.text));
   };
+  const rowsForBlock = (blockLines) => {
   let bestHead = null;
-  withCells.forEach((line, i) => {
+  blockLines.forEach((line, i) => {
     if (isDataish(line)) return;
     let end = i;
     const cells = joinHeaderCells(line.cells.slice());
-    for (let k = 1; k <= 2 && withCells[i + k]; k++) {
-      const nx = withCells[i + k];
-      if (!stackable(nx) || nx.cy - withCells[end].cy > mh * 2.2) break;
+    for (let k = 1; k <= 2 && blockLines[i + k]; k++) {
+      const nx = blockLines[i + k];
+      if (!stackable(nx) || nx.cy - blockLines[end].cy > mh * 2.2) break;
       for (const c of nx.cells) {
         const center = (c.x0 + c.x1) / 2;
         if (cells.some((b) => center >= b.x0 - 2 && center <= b.x1 + 2)) continue;
@@ -295,18 +296,19 @@ export function pdfWordsToRows(words) {
       end = i + k;
     }
     cells.sort((a, b) => a.x0 - b.x0);
-    const hits = cells.filter((c) => matchField(c.text)).length;
+    const fields = new Set(cells.map((c) => matchField(c.text)).filter(Boolean));
+    const hits = fields.size;
     if (hits >= 3 && (!bestHead || hits > bestHead.hits)) bestHead = { i, end, cells, hits };
   });
 
   if (!bestHead) {
     /* 머리글을 못 찾으면 줄마다 칸만 나눠 둔다(사람이 보고 판단할 수 있게) */
-    return withCells.map((l) => l.cells.map((c) => c.text));
+    return blockLines.map((l) => l.cells.map((c) => c.text));
   }
 
   const bounds = boundsOf(bestHead.cells);
   const rows = [bestHead.cells.map((c) => c.text)];
-  const headerBottom = withCells[bestHead.end].cy + mh * 0.6;
+  const headerBottom = blockLines[bestHead.end].cy + mh * 0.6;
   const colOf = (w) => {
     const center = (w.x0 + w.x1) / 2;
     let idx = bounds.findIndex((b) => center >= b.left && center < b.right);
@@ -396,14 +398,17 @@ export function pdfWordsToRows(words) {
     return rows;
   }
 
-  /* 5) '순번' 열이 없는 표 — 줄 단위로 칸을 채운다. */
-  for (const line of withCells.slice(bestHead.end + 1)) {
+  /* '순번' 열이 없는 표 — 줄 단위로 칸을 채운다. */
+  for (const line of blockLines.slice(bestHead.end + 1)) {
     const cells = rowOf(line, bounds);
     if (!cells.some(Boolean)) continue;
-    if (cells.filter((t) => matchField(t)).length >= 3) continue;   // 다음 장에 되풀이된 머리글 줄
+    if (cells.filter((t) => matchField(t)).length >= 3) continue;
     rows.push(cells);
   }
   return rows;
+  };
+
+  return rowsForBlock(withCells);
 }
 
 /**

@@ -36,7 +36,8 @@ parts = []
 for t in tables:
     rows = t["rows"]
     head, body = rows[0], rows[1:]
-    parts.append(f"<h2>{esc(t['name'])}</h2><table><thead><tr>")
+    brk = "page-break-before:always" if parts else ""
+    parts.append(f"<h2 style=\"{brk}\">{esc(t['name'])}</h2><table><thead><tr>")
     parts.append("".join(f"<th>{esc(c)}</th>" for c in head))
     parts.append("</tr></thead><tbody>")
     for r in body:
