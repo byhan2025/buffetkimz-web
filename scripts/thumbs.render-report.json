@@ -1,16 +1,16 @@
 [
   {
-    "slug": "finance-loan-prepayment-fee-2026",
-    "out": "public/thumbs/finance-loan-prepayment-fee-2026.webp",
-    "bytes": 38424,
+    "slug": "pension-after-60-continue-breakeven",
+    "out": "public/thumbs/pension-after-60-continue-breakeven.webp",
+    "bytes": 41902,
     "lines": [
       {
-        "text": "중도상환수수료",
+        "text": "60세 이후 5년 더 내면",
         "size": 64,
         "overflow": false
       },
       {
-        "text": "1억 원이면 36만 7,000원",
+        "text": "월 16만 6,451원",
         "size": 64,
         "overflow": false
       }

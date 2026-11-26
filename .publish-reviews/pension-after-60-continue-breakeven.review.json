@@ -1,0 +1,134 @@
+{
+  "slug": "pension-after-60-continue-breakeven",
+  "reviewedDraftHash": "sha256:b8e0b8babc2b21d3328acf5ff35bcfd49820c100e4857953e39ab33b1e557299",
+  "hashAlgo": "sha256",
+  "hashSource": "draft-file",
+  "draftPath": "/workspace/apps/buffetkimz-web/drafts/2026-11-27-pension-after-60-continue-breakeven.md",
+  "scores": {
+    "content": 27,
+    "evidence": 23,
+    "search": 18,
+    "ai": 13,
+    "tech": 9
+  },
+  "total": 90,
+  "p0": [],
+  "blocking": false,
+  "reviewer": "보반과장 + 뮤즈대리",
+  "reviewedAt": "2026-11-27T05:40:11+09:00",
+  "rubric": {
+    "content": 30,
+    "evidence": 25,
+    "search": 20,
+    "ai": 15,
+    "tech": 10
+  },
+  "minTotal": 90,
+  "merge": "per-category-min",
+  "keys": [
+    {
+      "reviewer": "보반과장",
+      "key": 1,
+      "role": "수치·법령·1차 출처·빌드 (1-Key)",
+      "scope": [
+        "A값 3,193,511원·비례상수 1.29·보험료율 9.5%를 국민연금공단 FAQ 원문과 대조",
+        "기본연금액 산식(제51조)으로 25년·30년 값을 다시 계산(832,253 → 998,704원)",
+        "보험료율 인상 일정 9.5·10.0·10.5·11.0·11.5% 합계 52.5% 재계산",
+        "상·하한 659만·41만 원을 복지부 고시 제2026-31호와 대조",
+        "임의계속가입 대상·제외 사유를 법 제13조와 공단 안내로 확인",
+        "1차 출처 호스트(nps.or.kr·law.go.kr·mohw.go.kr) 확인"
+      ],
+      "scores": {
+        "content": 27,
+        "evidence": 23,
+        "search": 18,
+        "ai": 13,
+        "tech": 9
+      },
+      "total": 90,
+      "p0": [],
+      "blocking": false,
+      "notes": [
+        "2026년 A값 3,193,511원과 비례상수 1.29는 공단 FAQ 원문 문장과 일치",
+        "표의 세 줄은 모두 같은 기준(25년·300만 원)에서 B값만 바꿔 계산해 서로 비교 가능",
+        "101만 3,000원 줄의 B 하락(266만 8,833원)과 그에도 연금이 늘어나는 이유(A값)를 본문에 적시",
+        "A값을 2026년 값으로 고정한 가정과 연도별 상수 차이는 한계로 남김"
+      ],
+      "reviewedAt": "2026-11-27T05:44:00+09:00"
+    },
+    {
+      "reviewer": "뮤즈대리",
+      "key": 2,
+      "role": "시각·390px·실물 UX (2-Key)",
+      "scope": [
+        "본문 호흡(12~18자 줄바꿈)과 소제목 구조",
+        "4열 표 2개가 390px 카드로 접히는 규칙(4열 이상 카드 전환) 확인",
+        "썸네일 1200×630·대비 7.91:1·alt 문안",
+        "금지 표현·줄표·따옴표·굵게 밀도 점검",
+        "첫 300자 직답 구조"
+      ],
+      "scores": {
+        "content": 27,
+        "evidence": 23,
+        "search": 18,
+        "ai": 13,
+        "tech": 9
+      },
+      "total": 90,
+      "p0": [],
+      "blocking": false,
+      "notes": [
+        "첫 문장이 보험료·증가액·본전 나이를 숫자로 먼저 답한다",
+        "표 2개 모두 4열이라 390px에서 카드로 접힌다(3열 가로 스크롤 문제 회피)",
+        "줄표 0개·따옴표 0개·굵게 0개로 문체 상한 안쪽",
+        "썸네일 대비 7.91:1(기준 4.5:1), 문안 두 줄 64px"
+      ],
+      "reviewedAt": "2026-11-27T05:45:00+09:00"
+    }
+  ],
+  "keyTotals": {
+    "보반과장": 90,
+    "뮤즈대리": 90
+  },
+  "gate95": {
+    "reviewers": [
+      "보반과장",
+      "뮤즈대리"
+    ],
+    "scores": {
+      "numbers": 24,
+      "law": 19,
+      "sources": 15,
+      "osmu": 12,
+      "style": 15,
+      "mobile": 10
+    },
+    "total": 95,
+    "zeroItems": [],
+    "minTotal": 95,
+    "notes": [
+      "수치 24/25: 모든 계산을 원문 상수로 재현했으나 A값 고정·연도별 상수 미반영으로 1점 감",
+      "법령 19/20: 제13조·51조·62조 시행일(2026-10-20)과 고시 적용기간을 확인, 2025 개정 부칙의 연도별 상수는 확인하지 못함",
+      "출처 15/15: 공단 2건·법령·복지부 고시·복지부 안내로 구성, 보도는 소재 확인용 1건",
+      "4연동 12/15: 글·기존 은퇴 계산기 연결, 일정·자료앨범은 해당 없음 사유를 plan.json에 기록",
+      "문체 15/15: 금지 표현 0·줄표 0·따옴표 0, 직답 구조",
+      "모바일 10/10: 썸네일 1200×630·7.91:1, 4열 표 카드 전환"
+    ],
+    "reviewedAt": "2026-11-27T05:46:00+09:00"
+  },
+  "reruns": 0,
+  "maxReruns": 3,
+  "gate": {
+    "minTotal": 90,
+    "requireHashBinding": true
+  },
+  "generator": "scripts/generate_review_json.py",
+  "generatedAt": "2026-11-27T05:40:11+09:00",
+  "warnings": [],
+  "draft": {
+    "title": "60세 넘어 국민연금 5년 더 내면 월 16만 6,451원, 본전은 74.5세",
+    "category": "pension",
+    "publishedAt": "2026-11-27",
+    "baseDate": "2026-11-27"
+  }
+}
