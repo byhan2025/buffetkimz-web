@@ -30,6 +30,13 @@ npm run verify:vault                                            # 전용 도구�
 
 ## 경계
 
+- **심평원 고지 정리기 엔진(`src/lib/simpyeong/engine.js`)은 두 앱이 함께 쓴다.**
+  · buffetkimz.com 은 ES 모듈로 그대로 import 하고, InsureCRM(`apps/insure-crm`)은 `node scripts/build_simpyeong_core.mjs` 로
+    `apps/insure-crm/simpyeong-core.js`(window.Simpyeong)를 다시 만들어 쓴다. 엔진을 고치면 이 스크립트를 반드시 다시 돌린다
+    (`--check` 로 최신인지 확인). 판정이 두 곳에서 갈라지면 조용히 틀린 요약문이 나간다.
+  · 엔진에는 통신 코드를 넣지 않는다. 진료자료는 브라우저 안에서만 읽는다(파일 서버 미전송).
+  · 점검: `python3 scripts/capture_simpyeong.py local` (예시·엑셀·CSV·PDF 경로, 요약문 복사, 레포트 앵커, 390/1280).
+
 - **전용 도구실(`/apps/` 안 `🔒`)**: 내부·실무 도구 3종은 이 방에만 둔다.
   · 도감 목록 원문은 `apps/buffetkimz-web/.vault/tools.source.json`, 비밀번호는 `.vault/pass.txt`(둘 다 gitignore).
   · 고칠 때는 원문 수정 → `npm run vault:build`(PBKDF2 310,000회 + AES-256-GCM 암호문 재생성) → `npm run vault:check` → `npm run verify:vault`.

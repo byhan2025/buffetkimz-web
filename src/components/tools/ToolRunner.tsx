@@ -1,5 +1,6 @@
 import CoverageCheck from "./CoverageCheck";
 import DisclosureCheck from "./DisclosureCheck";
+import SimpyeongOrganizer from "./SimpyeongOrganizer";
 import SilsonCompare from "./SilsonCompare";
 import PensionTax from "./PensionTax";
 import PensionDraw from "./PensionDraw";
@@ -57,6 +58,7 @@ const MAP: Record<string, (props: { compact?: boolean }) => React.ReactElement> 
   "account-tax-compare": AccountTaxCompare,
   "coverage-check": CoverageCheck,
   "disclosure-check": DisclosureCheck,
+  "simpyeong-disclosure": SimpyeongOrganizer,
   "silson-compare": SilsonCompare,
   "url-cleaner": UrlCleaner,
   "pdf-image": PdfImage,

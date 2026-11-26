@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { Note, RunnerShell, Toggle } from "./ui";
+import { withBase } from "@/config/site";
 
 type QuestionKey = "q3m" | "q2y" | "q5y" | "q10";
 
@@ -108,6 +109,13 @@ export default function DisclosureCheck() {
       example="해당되는 이력을 체크해 보세요. 아무것도 고르지 않은 상태로 시작합니다."
     >
       <div className="space-y-2">
+        <p className="rounded-xl border border-line bg-white px-3.5 py-2.5 text-[12px] leading-relaxed text-ink-muted">
+          심평원 ‘내 진료정보 열람’ 자료가 있다면{" "}
+          <a href={withBase("/apps/simpyeong-disclosure/run")} className="font-semibold text-brand-deep link">
+            심평원 고지 정리기
+          </a>
+          가 같은 질문에 근거 줄까지 붙여 정리합니다.
+        </p>
         {QUESTIONS.map((q) => (
           <Toggle
             key={q.key}
