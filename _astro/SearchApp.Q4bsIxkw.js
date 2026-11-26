@@ -1,0 +1,1 @@
+export{t as default}from"./SearchApp.3A4-Pvo2.js";

@@ -9,8 +9,16 @@
     <managingEditor>buffetkimz</managingEditor>
     <generator>buffetkimz-web (Astro)</generator>
     <ttl>60</ttl>
-    <lastBuildDate>Thu, 26 Nov 2026 21:09:25 GMT</lastBuildDate>
+    <lastBuildDate>Thu, 26 Nov 2026 21:35:18 GMT</lastBuildDate>
     <atom:link href="https://byhan2025.github.io/buffetkimz-web/rss.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>신용카드 리볼빙 수수료 계산법과 이월잔액 줄이는 4단계</title>
+      <link>https://byhan2025.github.io/buffetkimz-web/posts/credit-card-revolving-fee-calculation/</link>
+      <guid isPermaLink="true">https://byhan2025.github.io/buffetkimz-web/posts/credit-card-revolving-fee-calculation/</guid>
+      <category>금융</category>
+      <pubDate>Fri, 27 Nov 2026 00:00:00 GMT</pubDate>
+      <description>리볼빙은 최소결제액을 내면 나머지가 다음 달로 넘어가고 그 잔액에 수수료가 붙는 결제 방식입니다. 신용카드 표준약관 산식으로 300만 원·최소결제비율 10%·연 18%를 계산해 39개월과 총수수료 39만 2,165원을 확인했습니다.</description>
+    </item>
     <item>
       <title>60세 넘어 국민연금 5년 더 내면 월 16만 6,451원, 본전은 74.5세</title>
       <link>https://byhan2025.github.io/buffetkimz-web/posts/pension-after-60-continue-breakeven/</link>
@@ -242,14 +250,6 @@
       <category>연금</category>
       <pubDate>Sat, 21 Nov 2026 00:00:00 GMT</pubDate>
       <description>일반계좌·중개형 ISA·연금저축·IRP는 수익률이 아니라 '세금이 붙는 시점'이 다릅니다. 적립·운용·인출 3단계로 네 그릇의 역할을 나눠 봤습니다.</description>
-    </item>
-    <item>
-      <title>5,000만 원 수익 시 4계좌 세후 차이 — 과세이연과 9.9%·16.5% 분기점</title>
-      <link>https://byhan2025.github.io/buffetkimz-web/posts/pension-master-02-tax-compare/</link>
-      <guid isPermaLink="true">https://byhan2025.github.io/buffetkimz-web/posts/pension-master-02-tax-compare/</guid>
-      <category>연금</category>
-      <pubDate>Sat, 21 Nov 2026 00:00:00 GMT</pubDate>
-      <description>같은 5,000만원 수익이 일반계좌·ISA·연금저축·IRP에서 얼마씩 남는지 계산했습니다. 15.4%·9.9%·5.5%·16.5%가 어디서 갈리는지, 자산 유형별로 나눠 봅니다.</description>
     </item>
   </channel>
 </rss>
