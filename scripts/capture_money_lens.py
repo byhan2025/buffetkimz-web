@@ -125,18 +125,18 @@ with sync_playwright() as p:
         if not any(ch.isdigit() for ch in txt):
             failures.append("money-lens: 시장 시세에 숫자가 없음")
 
-    # 1) 시세판 — 기본(10년 전 탭)
+    # 1) 계기판 — 기본(10년 탭). 2026-11-26 대시보드 개편으로 탭 이름이 10년/5년/오늘로 바뀌었다.
     pg = shoot("/money-lens/", 1280, "lens-1280", True)
     market_ok(pg)
     links_ok(pg, "/money-lens/")
-    # 탭 전환: 5년 전 → 오늘
-    for label in ("5년 전 1억", "오늘"):
+    # 탭 전환: 5년 → 오늘
+    for label in ("5년", "오늘"):
         pg.get_by_role("button", name=label, exact=True).first.click()
         pg.wait_for_timeout(500)
     body = pg.inner_text("body")
-    if "오늘 값" not in body:
-        failures.append("money-lens: '오늘' 탭 표가 그려지지 않음")
-    pg.get_by_role("button", name="10년 전 1억", exact=True).first.click()
+    if "오늘의 단가와 1억 기준 환산" not in body:
+        failures.append("money-lens: '오늘' 탭이 그려지지 않음")
+    pg.get_by_role("button", name="10년", exact=True).first.click()
     pg.wait_for_timeout(400)
     if "−62.5%" not in pg.inner_text("body"):
         failures.append("money-lens: 10년 전 탭에 금 기준 −62.5%가 없음")
