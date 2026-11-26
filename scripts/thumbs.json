@@ -962,6 +962,24 @@
    "sub": "E78 · I70 · I20, 담보는 어디에 붙나",
    "date": "2026.11.26",
    "alt": "어두운 탁자 위의 동맥 단면 모형과 지질 검사 결과지, 약통과 청진기 — 혈관벽 플라크와 혈액검사 수치를 나란히 보는 장면"
+  },
+  {
+   "slug": "finance-loan-prepayment-fee-2026",
+   "out": "public/thumbs/finance-loan-prepayment-fee-2026.webp",
+   "art": "downloads/thumbs-raw/finance-loan-prepayment-fee-2026.png",
+   "badge": [
+    "금융 · 대출",
+    "2026.11"
+   ],
+   "accent": "#F2D08C",
+   "headline": [
+    "중도상환수수료",
+    "1억 원이면 36만 7,000원"
+   ],
+   "accentLine": 1,
+   "sub": "계약일과 남은 기간이 금액을 바꿉니다",
+   "date": "2026.11.26",
+   "alt": "어두운 책상 위에 펼친 대출 약정서와 계산기, 옆에 놓인 이사 박스 — 갈아타기 전 수수료를 계산하는 자리"
   }
  ]
 }
