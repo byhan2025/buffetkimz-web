@@ -102,6 +102,15 @@ const rc = calculateProfile("chronic", base);
 test("유병력자 보험금 200,000원 (통원 회당 20만 한도)", () => assert.equal(rc.payout, 200000));
 test("유병력자 도수치료 보장 제외", () => assert.equal(rc.items.find((i) => i.key === "physical").payout, 0));
 
+test("4세대 의원 통원 1만5천원 → 5,000원 (최소 공제 1만원)", () => {
+  const r = calculateProfile("gen4", { ...base, hospital: "clinic", coveredAmount: 15000, non: {} });
+  assert.equal(r.payout, 5000);
+});
+test("3세대 의원 통원 1만5천원 → 5,000원", () => {
+  const r = calculateProfile("gen3", { ...base, hospital: "clinic", coveredAmount: 15000, non: {} });
+  assert.equal(r.payout, 5000);
+});
+
 console.log("\n[3] 입원 1,000만 + 일반 비급여 300만 (상급종합)");
 const inp = { ...base, visit: "inpatient", hospital: "tertiary", coveredAmount: 10000000, non: { general: 3000000 } };
 test("4세대 보험금 10,100,000원 (급여 20% + 비급여 30%)", () => {
