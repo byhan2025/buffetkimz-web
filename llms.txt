@@ -4,14 +4,14 @@
 
 운영: buffetkimz(개인 금융 콘텐츠 기록). 편집 원칙: ① 금융위·금감원·국세청·공단·법령 원문을 먼저 확인하고 기준일을 남깁니다. ② 자동화 초안은 사람이 다시 읽습니다. ③ 계산은 방문자 브라우저 안에서만 하고 입력값을 서버로 보내지 않습니다. ④ 특정 상품·운용사를 권하지 않습니다.
 
-이 파일은 llms.txt 표준(llmstxt.org) 형식입니다. 링크는 모두 절대 URL이고, 사이트 기준일은 2026. 11. 26.입니다. 글 42편 · 계산기 28종 · 카드뉴스 22세트 · 강의 17강(계획 41강)이 공개되어 있습니다.
+이 파일은 llms.txt 표준(llmstxt.org) 형식입니다. 링크는 모두 절대 URL이고, 사이트 기준일은 2026. 11. 26.입니다. 글 42편 · 계산기 29종 · 카드뉴스 22세트 · 강의 17강(계획 41강)이 공개되어 있습니다.
 
 인용하실 때: 숫자와 조건에는 그 글의 기준일을 함께 밝혀 주세요. 제도·약관·금리는 기준일 이후 바뀔 수 있어, 기준일 없는 인용은 독자에게 오해를 만듭니다. 1차 출처 URL은 각 글 하단 "기준과 출처"에 있습니다.
 
 ## 핵심 구역
 
 - [자산리포트](https://byhan2025.github.io/buffetkimz-web/posts/): 기준일·1차 출처를 붙인 글 42편, 8개 분야
-- [앱스토어](https://byhan2025.github.io/buffetkimz-web/apps/): 가입 없이 쓰는 계산기 28종
+- [앱스토어](https://byhan2025.github.io/buffetkimz-web/apps/): 가입 없이 쓰는 계산기 29종
 - [자료앨범](https://byhan2025.github.io/buffetkimz-web/gallery/): 카드뉴스·인포그래픽 22세트
 - [금융생활학교(아카데미)](https://byhan2025.github.io/buffetkimz-web/academy/): 6 STEP 41강 중 17강 공개 · 초등·청소년·첫 월급·가계·자산형성·은퇴 6트랙
 - [골든타임](https://byhan2025.github.io/buffetkimz-web/calendar/): 1~12월 보험·연금·건강보험·절세 기한
@@ -88,6 +88,7 @@
 - [PDF 도구](https://byhan2025.github.io/buffetkimz-web/apps/pdf-image/): 문서 · 변환 · 여러 이미지를 PDF 한 권으로 묶고, PDF 각 페이지를 PNG로 꺼내며, 여러 PDF를 합치거나 필요한…
 - [이미지 정리함](https://byhan2025.github.io/buffetkimz-web/apps/image-compress/): 이미지 · 최적화 · 사진 한 장을 넣고 압축·비율 리사이즈·해상도 확대·워터마크·촬영 정보(EXIF) 제거까지 한 화면에서 처…
 - [QR 코드 생성기](https://byhan2025.github.io/buffetkimz-web/apps/qr-generator/): QR · 링크 · 링크·텍스트·전화번호·메일 주소를 QR 코드로 만들고 색·여백·오류 복원 수준을 조정해 PNG와 SVG로…
+- [돈의 나이테 진단기](https://byhan2025.github.io/buffetkimz-web/apps/money-ring/): 자산 구조 진단 · 월 필수 지출과 예금·외화·금·주식·연금·부동산을 넣으면, 내 자산을 진짜 돈·일하는 돈·잠자는 돈 세 층…
 - [글자수·스레드 분할](https://byhan2025.github.io/buffetkimz-web/apps/text-counter/): 텍스트 · 공백 포함·제외 글자수, UTF-8 바이트, 200자 원고지 매수를 세고, 스레드 500자를 넘으면 문장…
 - [개인정보 가리기](https://byhan2025.github.io/buffetkimz-web/apps/privacy-masker/): 보안 · 글 안의 전화번호·주민등록번호·계좌번호·이메일·카드번호를 찾아 앞뒤 몇 자리만 남기고 *로 가린 사본을 만…
 - [날짜 계산·단위 변환](https://byhan2025.github.io/buffetkimz-web/apps/unit-date-calc/): 생활 계산 · 두 날짜 사이 일수와 D-Day, 주말을 뺀 영업일을 세고, 평↔㎡·인치↔cm·MB↔GB를 즉시 바꿉니다.
