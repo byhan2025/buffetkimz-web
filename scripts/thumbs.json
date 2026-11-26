@@ -908,6 +908,24 @@
    "sub": "원금만 맞추면 이자에서 넘칩니다, 금융회사별 합산과 별도 한도 3종",
    "date": "2026.11.26",
    "alt": "어두운 나무 탁자 위에 겹쳐 놓은 통장과 계산기, 그 옆으로 나란히 놓인 유리병 두 개와 접힌 종이 — 금융회사별로 예금을 세어 보는 자리"
+  },
+  {
+   "slug": "rate-cut-request-2026-checklist",
+   "out": "public/thumbs/rate-cut-request-2026-checklist.webp",
+   "art": "downloads/thumbs-raw/rate-cut-request-2026-checklist.png",
+   "badge": [
+    "금융 · 대출",
+    "2026.11"
+   ],
+   "accent": "#F2D08C",
+   "headline": [
+    "금리인하요구권",
+    "월 4,126원의 차이"
+   ],
+   "accentLine": 1,
+   "sub": "3,000만 원·5년 남은 대출 0.3%p 인하, 총이자 24만 8,000원",
+   "date": "2026.11.26",
+   "alt": "어두운 책상 위에 펼친 대출 약정서와 형광펜, 옆에 놓인 계산기와 오른쪽으로 오르는 계단 모양의 작은 나무 블록 — 금리를 다시 계산해 보는 자리"
   }
  ]
 }

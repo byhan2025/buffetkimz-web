@@ -1,16 +1,16 @@
 [
   {
-    "slug": "deposit-protection-limit-100-million-check",
-    "out": "public/thumbs/deposit-protection-limit-100-million-check.webp",
-    "bytes": 62670,
+    "slug": "rate-cut-request-2026-checklist",
+    "out": "public/thumbs/rate-cut-request-2026-checklist.webp",
+    "bytes": 61752,
     "lines": [
       {
-        "text": "예금자보호 1억 원",
+        "text": "금리인하요구권",
         "size": 64,
         "overflow": false
       },
       {
-        "text": "이자까지 세어야",
+        "text": "월 4,126원의 차이",
         "size": 64,
         "overflow": false
       }
