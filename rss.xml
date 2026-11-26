@@ -9,7 +9,7 @@
     <managingEditor>buffetkimz</managingEditor>
     <generator>buffetkimz-web (Astro)</generator>
     <ttl>60</ttl>
-    <lastBuildDate>Thu, 26 Nov 2026 04:50:57 GMT</lastBuildDate>
+    <lastBuildDate>Thu, 26 Nov 2026 05:15:56 GMT</lastBuildDate>
     <atom:link href="https://byhan2025.github.io/buffetkimz-web/rss.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>예금자보호 1억 원 계산법: 원금·이자·금융회사·상품 체크</title>
@@ -26,6 +26,22 @@
       <category>경제</category>
       <pubDate>Thu, 26 Nov 2026 00:00:00 GMT</pubDate>
       <description>0.25%p는 3억 원 변동금리 대출에서 연 75만 원입니다. 다만 코픽스 6개월 연동 대출은 다음 리셋일, 예금은 만기 뒤에 반영됩니다. 오늘 금통위(3.00%→3.25% 전망)를 앞두고 계약별 반영 시점과 금액을 계산했습니다.</description>
+    </item>
+    <item>
+      <title>죽상동맥경화: 콜레스테롤 수치와 혈관벽 병변은 다른 진단입니다</title>
+      <link>https://byhan2025.github.io/buffetkimz-web/posts/insurance-atherosclerosis-plaque/</link>
+      <guid isPermaLink="true">https://byhan2025.github.io/buffetkimz-web/posts/insurance-atherosclerosis-plaque/</guid>
+      <category>보험</category>
+      <pubDate>Thu, 26 Nov 2026 00:00:00 GMT</pubDate>
+      <description>2024년 기준 한국 성인 47.4%가 이상지질혈증입니다. 혈액검사 수치(E78)와 동맥벽 플라크(I70), 협심증과 심근경색, 뇌경색(I20·I21·I63)이 보험에서 각각 어느 단계인지, 진단비와 수술비, 3개월·5년 고지의무 기준으로 나눠 정리했습니다.</description>
+    </item>
+    <item>
+      <title>유방촬영 추가검사에서 조직검사까지, 확진이 정해지는 자리</title>
+      <link>https://byhan2025.github.io/buffetkimz-web/posts/insurance-breast-screening-biopsy/</link>
+      <guid isPermaLink="true">https://byhan2025.github.io/buffetkimz-web/posts/insurance-breast-screening-biopsy/</guid>
+      <category>보험</category>
+      <pubDate>Thu, 26 Nov 2026 00:00:00 GMT</pubDate>
+      <description>국가 유방암 검진을 받은 40세 이상 여성 1,000명 중 140명이 추가 검사를 받지만 실제 암으로 진단되는 사람은 2명입니다. 선별검사가 확정하지 못하는 것을 조직검사와 병리가 어떻게 정하는지, 상피내암(D05)과 침윤성 유방암(C50)이 약관에서 갈리는 지점까지 정리했습니다.</description>
     </item>
     <item>
       <title>금리인하요구권, 신청해도 될까? 2026 자동 신청 서비스와 이자 절감 계산</title>
@@ -234,22 +250,6 @@
       <category>연금</category>
       <pubDate>Sat, 21 Nov 2026 00:00:00 GMT</pubDate>
       <description>IRP·DC의 위험자산 70% 한도와 연금저축의 투자 제한을 정리하고, 같은 ETF라도 국내주식형과 해외·채권형의 세금이 어떻게 다른지 계좌별로 비교했습니다.</description>
-    </item>
-    <item>
-      <title>인출 순서 4단계와 연 1,500만 원 — 3.3–5.5% 저율과세 지키는 법</title>
-      <link>https://byhan2025.github.io/buffetkimz-web/posts/pension-master-05-draw-1500/</link>
-      <guid isPermaLink="true">https://byhan2025.github.io/buffetkimz-web/posts/pension-master-05-draw-1500/</guid>
-      <category>연금</category>
-      <pubDate>Sat, 21 Nov 2026 00:00:00 GMT</pubDate>
-      <description>연금계좌에서 돈이 나오는 순서와, 연 1,500만원 기준에 무엇이 들어가고 무엇이 빠지는지 정리했습니다. 기준을 넘었을 때 종합과세와 16.5% 분리과세가 갈리는 조건도 함께 봅니다.</description>
-    </item>
-    <item>
-      <title>은퇴 전후 건보료·중도인출 체크리스트 — 10년 뒤 후회를 줄이는 7가지</title>
-      <link>https://byhan2025.github.io/buffetkimz-web/posts/pension-master-06-healthcheck/</link>
-      <guid isPermaLink="true">https://byhan2025.github.io/buffetkimz-web/posts/pension-master-06-healthcheck/</guid>
-      <category>연금</category>
-      <pubDate>Sat, 21 Nov 2026 00:00:00 GMT</pubDate>
-      <description>연금을 받기 시작하면 건강보험료와 인출 규칙이 함께 따라옵니다. 은퇴 5–10년 전에 확인할 건보료 기준과 IRP 중도인출 사유, 계좌 분리 원칙을 7가지로 정리했습니다.</description>
     </item>
   </channel>
 </rss>
