@@ -115,6 +115,9 @@ export default defineConfig({
     '/apps/moving-dday': redirectTo('/apps/unit-date-calc?mode=moving'),
     '/apps/moving-dday/run': redirectTo('/apps/unit-date-calc/run?mode=moving'),
     '/tools/moving-dday': redirectTo('/apps/unit-date-calc?mode=moving'),
+
+    /* 2026-11-26 — 「돈의 나이테」는 /money-lens/가 정본이다. 짧은 옛 주소만 받는다. */
+    '/tools/money-lens': redirectTo('/money-lens/'),
   },
   build: {
     inlineStylesheets: 'auto',

@@ -1,0 +1,308 @@
+---
+/**
+ * /money-lens — 「돈의 나이테」 화폐 착시 극복 4단 시스템 (2026-11-26).
+ *
+ * 1단계 3중 환산 시세판(LensBoard) · 2단계 진단기 입구(/apps/money-ring) ·
+ * 3단계 착시 퀴즈(LensQuiz) · 4단계 행동 카드.
+ *
+ * 값은 전부 `src/data/money-lens.ts`에서 온다. 화면에서 새 숫자를 만들지 않는다.
+ * 지수 4종(코스피·삼성전자·S&P500·나스닥)은 약관상 값을 싣지 않고 원본으로 보낸다.
+ */
+import Base from "@/layouts/Base.astro";
+import HomePill from "@/components/HomePill.astro";
+import LensBoard from "@/components/money-lens/LensBoard.tsx";
+import LensQuiz from "@/components/money-lens/LensQuiz.tsx";
+import { withBase, site } from "@/config/site";
+import { LENS_MACROS, LENS_META, LENS_POSTS, LENS_ROWS, LENS_VINTAGE } from "@/data/money-lens";
+import { breadcrumbList, graph, partOfWebsite, pageUrl } from "@/lib/schema";
+
+const linked = LENS_ROWS.filter((r) => r.license === "linked");
+
+/** '2027-04-05' → '2027. 4. 5.' (사람이 읽는 날짜) */
+const nextCheckLabel = (() => {
+  const [y, m, d] = LENS_VINTAGE.nextCheckAt.split("-");
+  return `${y}. ${Number(m)}. ${Number(d)}.`;
+})();
+
+/** 4단계 — 유형별 오늘 할 행동 1가지 (spec §5-3). 링크는 지금 살아 있는 주소만 쓴다. */
+const ACTIONS = [
+  {
+    kind: "버팀이 얇은 나무",
+    when: "버팀 3개월 미만",
+    action: "비상금 3개월치를 '지금 꺼낼 수 있는 통장'으로 모으면 얼마인지",
+    tool: { label: "실업급여 확인", href: "/apps/unemployment-benefit/run" },
+    post: { label: "비상금 3·6개월", href: "/posts/finance-emergency-fund-3-6" },
+  },
+  {
+    kind: "자는 돈이 두꺼운 나무",
+    when: "잠자는 돈 12개월치 이상",
+    action: "잠자는 예금 1,000만 원의 12개월 세후 이자",
+    tool: { label: "예금·적금", href: "/apps/compound-return/run" },
+    post: { label: "예금자보호 1억", href: "/posts/deposit-protection-limit-100-million-check" },
+  },
+  {
+    kind: "한 통화로 자란 나무",
+    when: "진짜 돈 10% 미만 · 원화 80% 이상",
+    action: "지난 10년 원화 자산의 달러 환산 수익률 확인",
+    tool: { label: "시세판 10년 전", href: "/money-lens/" },
+    post: { label: "환율과 장바구니", href: "/posts/economy-fx-grocery" },
+  },
+  {
+    kind: "성장만 하는 나무",
+    when: "일하는 돈 80% 이상 · 버팀 6개월 미만",
+    action: "하락장 6개월을 현금으로 버티는 금액 계산",
+    tool: { label: "대출 총이자", href: "/apps/loan-repay/run" },
+    post: { label: "비상금 3·6개월", href: "/posts/finance-emergency-fund-3-6" },
+  },
+  {
+    kind: "집 한 그루",
+    when: "거주 주택 70% 이상",
+    action: "집을 팔지 않고 쓸 수 있는 돈의 비중",
+    tool: { label: "전세·월세", href: "/apps/rent-jeonse/run" },
+    post: { label: "매수·전세 손익분기", href: "/posts/finance-buy-vs-jeonse-breakeven" },
+  },
+  {
+    kind: "고른 나이테",
+    when: "그 밖",
+    action: "인출 순서(연금 → ISA → 일반계좌)에서 세금이 가장 적은 순서",
+    tool: { label: "연금 인출", href: "/apps/pension-draw/run" },
+    post: { label: "연금 4계좌", href: "/posts/pension-master-01-four-accounts" },
+  },
+] as const;
+
+const jsonLd = graph([
+  {
+    "@type": "WebPage",
+    "@id": `${pageUrl("/money-lens/")}#page`,
+    name: "돈의 나이테 — 같은 1억을 세 기준으로 읽기",
+    description:
+      "서울 아파트·원화 예금·달러·금·소비자물가를 원화·달러·금·실질 네 기준으로 함께 읽는 3중 환산 시세판과 3층 진단기, 착시 퀴즈 3문항.",
+    url: pageUrl("/money-lens/"),
+    inLanguage: "ko-KR",
+    isPartOf: partOfWebsite,
+  },
+  breadcrumbList([
+    { name: "홈", path: "/" },
+    { name: "돈의 나이테", path: "/money-lens/" },
+  ]),
+]);
+---
+
+<Base
+  title="돈의 나이테 — 같은 1억을 원화·달러·금으로 다시 읽기"
+  description="같은 1억이 어디에 있느냐에 따라 10년 뒤 무게가 달라집니다. 서울 아파트·예금·달러·금을 원화·달러·금·물가 네 기준으로 함께 보고, 내 자산이 진짜 돈·일하는 돈·잠자는 돈 어디에 몰려 있는지 확인합니다."
+  path="/money-lens/"
+  jsonLd={jsonLd}
+>
+  <section class="scene-sky border-b border-line/70">
+    <div class="wrap py-6 md:py-9">
+      <HomePill />
+      <nav class="mt-2 flex flex-wrap items-center gap-2 text-[12px] text-ink-faint" aria-label="위치">
+        <a href={withBase("/")} class="inline-flex min-h-[44px] items-center hover:text-ink md:min-h-[24px]">홈</a>
+        <span aria-hidden="true">/</span>
+        <span class="text-ink-muted">돈의 나이테</span>
+      </nav>
+
+      <div class="mt-2 max-w-[62ch]">
+        <h1 class="text-[28px] font-bold tracking-[-0.04em] text-ink md:text-[38px]">돈의 나이테</h1>
+        <p class="mt-3 text-[15px] leading-[1.75] text-ink-soft">
+          같은 1억이 어디에 있느냐에 따라 10년 뒤 무게가 달라집니다. 원화로는 늘었는데 달러로는 줄어드는 일이
+          실제로 일어납니다. 이 화면은 그 차이를 한 표에서 세 번 읽고, 오늘 할 일 하나로 끝냅니다.
+        </p>
+        <p class="mt-3 text-[12px] leading-relaxed text-ink-faint">
+          지표 확인 {LENS_META.asOfLabel} 콘텐츠 기준일 {site.baseDateLabel} 5·10년 전 비교값은 이번에 다시
+          받았고, 다음 갱신은 {nextCheckLabel}입니다.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="scene-white border-b border-line">
+    <div class="wrap py-10 md:py-14">
+      <div class="max-w-[68ch]">
+        <h2 class="text-[22px] font-bold tracking-[-0.03em] text-ink md:text-[28px]">1단계. 같은 1억, 세 가지 기준</h2>
+        <p class="mt-2 text-[14px] leading-[1.75] text-ink-soft">
+          자산은 그대로인데 기준을 바꾸면 부호가 바뀝니다. 원화·달러·금·물가 가운데 어느 하나가 정답이
+          아닙니다. 질문이 다를 뿐입니다.
+        </p>
+      </div>
+
+      <div class="mt-5">
+        <LensBoard client:visible />
+      </div>
+
+      <div class="mt-6">
+        <h3 class="text-[15px] font-bold tracking-[-0.02em] text-ink">지수 4종은 원본에서 확인합니다</h3>
+        <p class="mt-1 text-[12.5px] leading-relaxed text-ink-muted">
+          코스피·삼성전자·S&amp;P500·나스닥은 시세 재배포 약관이 있어 이 사이트에 값을 옮겨 싣지 않습니다.
+          계약이 끝나면 이 자리에 값이 들어옵니다.
+        </p>
+        <ul class="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+          {
+            linked.map((row) => (
+              <li>
+                <a
+                  href={row.link?.href ?? row.basis.sourceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="card card-lift flex min-h-[44px] flex-col p-4"
+                >
+                  <span class="text-[14px] font-bold text-ink">{row.name}</span>
+                  <span class="mt-1 text-[12px] leading-relaxed text-ink-muted">{row.detail}</span>
+                  <span class="mt-2 text-[12.5px] font-semibold text-brand-deep">{row.link?.label}</span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <div class="mt-6 rounded-2xl border border-line bg-paper px-4 py-3">
+        <h3 class="text-[13px] font-bold text-ink">옆에서 함께 보는 네 값</h3>
+        <ul class="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+          {
+            LENS_MACROS.map((m) => (
+              <li class="rounded-xl bg-surface px-3 py-2.5">
+                <p class="text-[12px] text-ink-faint">{m.name}</p>
+                <p class="mt-0.5 text-[17px] font-bold tabular-nums text-ink">{m.value}</p>
+                <p class="text-[11.5px] leading-snug text-ink-faint">{m.asOfLabel}</p>
+                <a
+                  href={m.sourceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="link mt-1 inline-flex min-h-[44px] items-center text-[12px] text-brand-deep md:min-h-[24px]"
+                >
+                  {m.sourceLabel}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <p class="mt-4 text-[12px] leading-relaxed text-ink-faint" data-lens-disclaimer="board">
+        지표마다 기준일과 공급 기관이 다릅니다. 원화·달러·금은 서로 다른 질문에 대한 답이고, 어느 하나가
+        정답은 아닙니다. 이 표는 계산과 확인까지만 하며, 투자 권유가 아닙니다.
+      </p>
+    </div>
+  </section>
+
+  <section class="scene-mist border-b border-line">
+    <div class="wrap py-10 md:py-14">
+      <div class="grid gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,320px)] md:items-center">
+        <div class="max-w-[62ch]">
+          <h2 class="text-[22px] font-bold tracking-[-0.03em] text-ink md:text-[28px]">2단계. 내 돈은 어느 층에 있나</h2>
+          <p class="mt-2 text-[14px] leading-[1.75] text-ink-soft">
+            진짜 돈은 지금 사고 싶은 것을 지금 살 수 있게 지켜 주는 돈, 일하는 돈은 가만히 둬도 스스로
+            늘거나 줄어드는 돈, 잠자는 돈은 명목 금액은 그대로인데 구매력만 줄어드는 돈입니다. 다섯 칸을
+            채우면 세 층의 비중과 버팀 개월수가 나옵니다.
+          </p>
+          <p class="mt-2 text-[13px] leading-relaxed text-ink-muted">
+            거주 주택은 어느 층에도 넣지 않고 따로 셉니다. 입력한 값은 브라우저 탭 안에서만 계산되고
+            저장되지 않습니다.
+          </p>
+        </div>
+        <div class="flex flex-col gap-2">
+          <a href={withBase("/apps/money-ring/run")} class="btn btn-primary">내 자산 진단하기</a>
+          <a href={withBase("/apps/money-ring")} class="btn btn-secondary">진단기 계산 기준 보기</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="scene-white border-b border-line">
+    <div class="wrap py-10 md:py-14">
+      <div class="max-w-[68ch]">
+        <h2 class="text-[22px] font-bold tracking-[-0.03em] text-ink md:text-[28px]">3단계. 같은 숫자, 다른 답</h2>
+        <p class="mt-2 text-[14px] leading-[1.75] text-ink-soft">
+          세 문항입니다. 고르면 계산 과정이 바로 펼쳐집니다. 점수는 매기지 않습니다.
+        </p>
+      </div>
+
+      <div class="mt-5">
+        <LensQuiz client:visible />
+      </div>
+
+      <p class="mt-4 text-[12px] leading-relaxed text-ink-faint" data-lens-disclaimer="quiz">
+        퀴즈의 숫자는 이 화면의 공식 통계(2026. 10. 기준)로 계산했습니다. 실제 상품의 수익률·보장은
+        약관과 계약 조건에 따르며, 이 결과는 이해를 돕기 위한 교육용입니다.
+      </p>
+
+      <div class="mt-8">
+        <h3 class="text-[15px] font-bold tracking-[-0.02em] text-ink">더 읽기</h3>
+        <ul class="mt-2 grid gap-2 md:grid-cols-3">
+          {
+            LENS_POSTS.map((p) => (
+              <li>
+                <a href={withBase(`/posts/${p.id}`)} class="card card-lift flex flex-col p-4">
+                  <span class="text-[13.5px] font-bold leading-snug text-ink">{p.title}</span>
+                  <span class="mt-1 text-[12px] leading-relaxed text-ink-muted">{p.why}</span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="scene-cream border-b border-line">
+    <div class="wrap py-10 md:py-14">
+      <div class="max-w-[68ch]">
+        <h2 class="text-[22px] font-bold tracking-[-0.03em] text-ink md:text-[28px]">4단계. 오늘 할 행동 1가지</h2>
+        <p class="mt-2 text-[14px] leading-[1.75] text-ink-soft">
+          진단 결과에 따라 카드 하나가 열립니다. 동사 하나, 숫자 하나, 10분입니다. 상품을 고르는 자리가
+          아니라 확인하는 자리입니다.
+        </p>
+      </div>
+
+      <div class="mt-4 overflow-hidden rounded-2xl border border-line bg-surface">
+        <table class="table-stack w-full border-collapse text-[13px]">
+          <caption class="sr-only">진단 유형별 오늘 할 행동과 도구, 글</caption>
+          <thead>
+            <tr class="border-b border-line text-[12px] text-ink-faint">
+              <th scope="col" class="px-3 py-2 text-left font-semibold">유형</th>
+              <th scope="col" class="px-3 py-2 text-left font-semibold">오늘 할 행동 (10분)</th>
+              <th scope="col" class="px-3 py-2 text-left font-semibold">도구</th>
+              <th scope="col" class="px-3 py-2 text-left font-semibold">글</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              ACTIONS.map((a) => (
+                <tr class="border-b border-line-soft last:border-0">
+                  <th scope="row" class="px-3 py-2.5 text-left align-top">
+                    <span class="block font-semibold text-ink">{a.kind}</span>
+                    <span class="mt-0.5 block text-[11.5px] font-normal text-ink-faint">{a.when}</span>
+                  </th>
+                  <td data-label="오늘 할 행동" class="px-3 py-2.5 align-top text-ink-soft">{a.action}</td>
+                  <td data-label="도구" class="px-3 py-2.5 align-top">
+                    <a href={withBase(a.tool.href)} class="link inline-flex min-h-[44px] items-center text-brand-deep">
+                      {a.tool.label}
+                    </a>
+                  </td>
+                  <td data-label="글" class="px-3 py-2.5 align-top">
+                    <a href={withBase(a.post.href)} class="link inline-flex min-h-[44px] items-center text-ink-muted">
+                      {a.post.label}
+                    </a>
+                  </td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <p class="mt-3 text-[12px] leading-relaxed text-ink-faint" data-lens-disclaimer="actions">
+        상품을 권하지 않습니다. 계산과 확인까지만 합니다.
+      </p>
+
+      <div class="mt-6 flex flex-wrap items-center gap-3">
+        <a href={withBase("/academy/track/pension-tax/")} class="btn btn-secondary btn-sm">연금·세금 3단계 트랙</a>
+        <a href={withBase("/apps")} class="link inline-flex min-h-[44px] items-center text-[13px] text-ink-muted">
+          도구 전체 보기
+        </a>
+      </div>
+    </div>
+  </section>
+</Base>

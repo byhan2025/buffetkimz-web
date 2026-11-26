@@ -21,6 +21,7 @@
     "verify:learning": "python3 scripts/verify_tracks.py && python3 scripts/verify_metrics.py && python3 scripts/verify_loop.py",
     "verify:loop": "python3 scripts/verify_loop.py",
     "verify:vault": "python3 scripts/verify_vault_20261124.py",
+    "verify:lens": "python3 scripts/verify_lens.py",
     "vault:build": "node scripts/vault_encrypt.mjs",
     "vault:check": "node scripts/vault_encrypt.mjs --check"
   },

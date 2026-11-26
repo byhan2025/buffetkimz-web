@@ -64,7 +64,9 @@ export type StoreIcon =
   | "unemployment"
   | "freelancer-tax"
   | "overseas-tax"
-  | "deposit-compare";
+  | "deposit-compare"
+  /* 2026-11-26 돈의 나이테 */
+  | "money-ring";
 
 export type StoreItem = {
   id: string;
@@ -144,6 +146,7 @@ const artToIcon: Record<App["art"], StoreIcon> = {
   "freelancer-tax": "freelancer-tax",
   "overseas-tax": "overseas-tax",
   "deposit-compare": "deposit-compare",
+  "money-ring": "money-ring",
 };
 
 /** 카드 아래 메타 한 줄 — 앱마다 다른 값을 쓰는 새 앱만 여기에 적는다. */

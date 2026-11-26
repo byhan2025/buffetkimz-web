@@ -38,6 +38,7 @@ import HealthPremiumCompare from "./utils/HealthPremiumCompare";
 import AnnualLeaveCalc from "./utils/AnnualLeaveCalc";
 import UnemploymentCalc from "./utils/UnemploymentCalc";
 import OverseasStockTaxCalc from "./utils/OverseasStockTaxCalc";
+import MoneyRing from "./MoneyRing";
 
 /**
  * 실행 화면이 있는 도구 → 컴포넌트.
@@ -84,6 +85,7 @@ const MAP: Record<string, (props: { compact?: boolean }) => React.ReactElement> 
   "annual-leave": AnnualLeaveCalc,
   "unemployment-benefit": UnemploymentCalc,
   "overseas-stock-tax": OverseasStockTaxCalc,
+  "money-ring": MoneyRing,
 };
 
 export default function ToolRunner({ slug, compact = false }: { slug: string; compact?: boolean }) {
