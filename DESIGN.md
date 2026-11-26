@@ -175,3 +175,16 @@
 - 이모지 🔒📊📖🔥 → 단색 SVG(§3) — `components/board/CornerIcon.astro` + `VaultRoom` 인라인 SVG.
 - `GALLERY ·` · `BOARD ·` 눈썹 삭제, 링크 글자 화살표 제거(홈 34→1 · 게시판 19→1 · 자료앨범 62→15).
 - 글 공통 템플릿 문구 분기 — 결론 앵커의 「내 …와 대조」 문장과 글말 면책의 `내 증권`이 카테고리·태그를 따른다(`src/pages/posts/[slug].astro`의 `TAG_BALANCE`).
+
+### 2026-11-26 「돈의 나이테」 시장 스냅샷 — 색 규칙 하나 추가(기록)
+
+`/money-lens/`의 「지금 시장은 어디에 있나」(components/money-lens/LensMarket.astro)는 홈 「오늘의 시장」(딥 네이비)
+과 **같은 데이터(today.ts)·다른 옷**으로 그린다. 시황판이 페이지마다 똑같이 보이지 않게 하려는 대표님 지시(2026-11-26)에 따른
+한 곳짜리 예외다.
+
+- 바탕: `--color-paper` → `--color-paper-deep` 그라디언트(아이보리·샌드). 카드는 `--color-surface` + `--color-line`.
+- 포인트: 상승 `--color-amber`(#8a6320), 하락 `--color-jade`(#1f7a62), 보합 `--color-ink-muted`.
+  사이트의 '상승 클레이 · 하락 하늘'과 다른 두 색을 쓰지만, **따뜻함=상승 / 차가움=하락**이라는 뜻은 같다.
+- 배지 바탕은 `color-mix(in srgb, 토큰 11%, var(--color-surface))` — 리터럴 hex를 만들지 않는다.
+- 나이테 동심원은 `::before`의 `repeating-radial-gradient` 장식이며 값과 무관하다.
+- 이 색은 이 컴포넌트 안에서만 쓴다. 다른 페이지의 시황판에 복사하지 않는다(그때는 이 문서를 먼저 고친다).

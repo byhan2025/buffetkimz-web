@@ -25,6 +25,10 @@
  *
  * 지수 4종(코스피·삼성전자·S&P500·나스닥)은 약관상 재배포가 막혀 있어 **값을 싣지 않는다**
  * (spec §6-2). 계약이 끝나면 `license: "licensed"`와 `value`만 채우면 화면은 그대로 값을 그린다.
+ *
+ * 2026-11-26 링크 교정 — 네 행의 `link.href`는 값이 한 화면에 뜨는 TradingView 심볼 페이지로 보낸다.
+ *   spglobal.com/spdji 원문은 403 Forbidden(직접 GET), krx.co.kr은 지수를 첫 화면에 보여 주지 않는다.
+ *   지수 자체는 `/money-lens/`의 TradingView 위젯(`LensIndexWidget.astro`)이 우회로로 보여 준다.
  */
 
 export type License = "ok" | "approval" | "licensed" | "linked";
@@ -266,10 +270,12 @@ export const LENS_ROWS: LensRow[] = [
       asOf: "2026-11-26T00:00:00+09:00",
       asOfLabel: "2026. 11. 26.",
       sourceLabel: "한국거래소",
-      sourceUrl: "http://www.krx.co.kr",
+      /* 2026-11-26 — http://www.krx.co.kr는 https로 넘어가고 지수 값이 첫 화면에 없다.
+         값이 바로 보이는 TradingView 심볼 화면으로 보낸다(직접 GET 200 확인). */
+      sourceUrl: "https://www.tradingview.com/symbols/KRX-KOSPI/",
       attribution: "출처: 한국거래소, 2026. 11. 26.",
     },
-    link: { label: "한국거래소에서 보기", org: "한국거래소", href: "http://www.krx.co.kr" },
+    link: { label: "코스피 시세 보기", org: "TradingView", href: "https://www.tradingview.com/symbols/KRX-KOSPI/" },
   },
   {
     id: "samsung",
@@ -282,10 +288,10 @@ export const LENS_ROWS: LensRow[] = [
       asOf: "2026-11-26T00:00:00+09:00",
       asOfLabel: "2026. 11. 26.",
       sourceLabel: "한국거래소",
-      sourceUrl: "http://www.krx.co.kr",
+      sourceUrl: "https://www.tradingview.com/symbols/KRX-005930/",
       attribution: "출처: 한국거래소, 2026. 11. 26.",
     },
-    link: { label: "한국거래소에서 보기", org: "한국거래소", href: "http://www.krx.co.kr" },
+    link: { label: "삼성전자 시세 보기", org: "TradingView", href: "https://www.tradingview.com/symbols/KRX-005930/" },
   },
   {
     id: "sp500",
@@ -298,13 +304,15 @@ export const LENS_ROWS: LensRow[] = [
       asOf: "2026-11-26T00:00:00+09:00",
       asOfLabel: "2026. 11. 26.",
       sourceLabel: "S&P Dow Jones Indices",
-      sourceUrl: "https://www.spglobal.com/spdji/en/indices/equity/sp-500/",
-      attribution: "Source: S&P Dow Jones Indices, 2026. 11. 26.",
+      /* 2026-11-26 — spglobal.com/spdji 원문은 403 Forbidden(직접 GET 확인)이라 링크가 죽었다.
+         값과 차트가 그대로 열리는 TradingView SPX 화면으로 바꾼다(GET 200 확인). */
+      sourceUrl: "https://www.tradingview.com/symbols/SPX/",
+      attribution: "Source: S&P Dow Jones Indices (TradingView 표시), 2026. 11. 26.",
     },
     link: {
-      label: "S&P DJI에서 보기",
-      org: "S&P Dow Jones Indices",
-      href: "https://www.spglobal.com/spdji/en/indices/equity/sp-500/",
+      label: "S&P500 시세 보기",
+      org: "TradingView",
+      href: "https://www.tradingview.com/symbols/SPX/",
     },
   },
   {
@@ -318,13 +326,15 @@ export const LENS_ROWS: LensRow[] = [
       asOf: "2026-11-26T00:00:00+09:00",
       asOfLabel: "2026. 11. 26.",
       sourceLabel: "Nasdaq",
-      sourceUrl: "https://www.nasdaq.com/market-activity/index/comp",
-      attribution: "Source: Nasdaq, 2026. 11. 26.",
+      /* 네이버·나스닥 원문은 응답이 들쭉날쭉해(2026-11-26 GET 200 확인) 값이 한 화면에 있는
+         TradingView 심볼 화면을 대표 링크로 쓴다. 출처 표기는 원자료(Nasdaq)를 그대로 남긴다. */
+      sourceUrl: "https://www.tradingview.com/symbols/IXIC/",
+      attribution: "Source: Nasdaq (TradingView 표시), 2026. 11. 26.",
     },
     link: {
-      label: "Nasdaq에서 보기",
-      org: "Nasdaq",
-      href: "https://www.nasdaq.com/market-activity/index/comp",
+      label: "나스닥 종합 시세 보기",
+      org: "TradingView",
+      href: "https://www.tradingview.com/symbols/IXIC/",
     },
   },
 ];

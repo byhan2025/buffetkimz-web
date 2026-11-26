@@ -13,6 +13,11 @@
   L7 4단계 카드·퀴즈·행동 링크가 빌드 산출물에 실제로 있는가
   L8 고지 3종(시세·퀴즈·결과)이 각 화면에 있는가
   L9 5·10년 전 비교값의 갱신일이 210일을 넘으면 경고, 365일이면 실패
+  L10 /money-lens/·/apps/money-ring/run 산출물의 내부 href가 모두 배포 접두(/buffetkimz-web)로
+      시작하고 실제 dist 파일로 존재하는가 (2026-11-26 — withBase 누락 404 재발 방지)
+  L11 「오늘의 주요 시장 시세」 섹션(today.ts 연동)이 지수 4종과 국고채 값을 그리는가
+  L12 403으로 막혔던 spglobal.com 원문 링크가 다시 들어오지 않았는가
+  L13 1단계 개편이 유지되는가 — 오늘 1억의 세 모습 스트립 · 오늘 탭 단가 표 · 시세판 안 지수 행/중복 카드 0
 
 사용: python3 scripts/verify_lens.py [--json]
 종료 코드 0 = 통과(경고 포함), 1 = 실패.
@@ -21,6 +26,7 @@ from __future__ import annotations
 
 import datetime as dt
 import json
+import os
 import pathlib
 import re
 import sys
@@ -31,6 +37,11 @@ DIST = APP / "dist"
 DATA = SRC / "data" / "money-lens.ts"
 RING = SRC / "components" / "tools" / "MoneyRing.tsx"
 OUT_JSON = APP.parent.parent / "reports" / "buffetkimz-web" / "lens-verify.json"
+
+# 배포 접두 — Pages 서브패스 빌드가 기본이다. 도메인 루트 빌드를 검사할 때는 BASE_PATH=/ 로 준다.
+BASE = (os.environ.get("BASE_PATH") or "/buffetkimz-web").rstrip("/")
+# 시장 시세 섹션이 그려야 하는 today.ts 지표 — 빠지면 L11이 선다.
+MARKET_IDS = ("kospi", "kosdaq", "sp500", "nasdaq", "ktb3y", "ktb10y")
 
 KST = dt.timezone(dt.timedelta(hours=9))
 TODAY = dt.datetime.now(KST)
@@ -191,6 +202,75 @@ def main() -> int:
         age = (TODAY - refreshed).days
         ok = age <= 365
         record("L9", "5·10년 전 값 갱신 주기", ok, f"갱신 {refreshed.date()} · {age}일 경과" + (" (210일 초과 — 반기 갱신 필요)" if age > 210 else ""), warn=210 < age <= 365)
+
+    # ── L10
+    # 서브패스에서 404가 나던 자리 — React 아일랜드가 그린 링크는 SSR HTML에 그대로 남는다.
+    # 그래서 산출물의 href를 전부 모아 ①배포 접두 ②dist 실재를 함께 본다.
+    bad10: list[str] = []
+    checked10 = 0
+    for page_path in (DIST / "money-lens" / "index.html", DIST / "apps" / "money-ring" / "run" / "index.html"):
+        html = read(page_path)
+        label = str(page_path.relative_to(DIST))
+        if not html:
+            bad10.append(f"{label}: 산출물 없음")
+            continue
+        for raw in re.findall(r'href="([^"]+)"', html):
+            if not raw.startswith("/") or raw.startswith("//"):
+                continue
+            checked10 += 1
+            path = raw.split("#", 1)[0].split("?", 1)[0]
+            if BASE and not (path == BASE or path.startswith(BASE + "/")):
+                bad10.append(f"{label}: 접두 없음 {raw}")
+                continue
+            rel = path[len(BASE):].strip("/") if BASE else path.strip("/")
+            target = DIST / rel if rel else DIST / "index.html"
+            exists = target.is_file() or (target / "index.html").is_file() or (DIST / f"{rel}.html").is_file()
+            if not exists:
+                bad10.append(f"{label}: 파일 없음 {raw}")
+    record("L10", "내부 링크 배포 접두·실재", not bad10, "; ".join(bad10[:6]) if bad10 else f"href {checked10}개 확인(BASE {BASE or '/'})")
+
+    # ── L11
+    # 지수 4종·국고채는 시세판이 아니라 today.ts 연동 시장 시세 섹션이 그린다(2026-11-26 개편).
+    miss11 = [i for i in MARKET_IDS if f'data-lens-quote="{i}"' not in page]
+    has_section = "data-lens-market" in page
+    link_note = "today.ts 연동" in page
+    record(
+        "L11",
+        "오늘의 주요 시장 시세(today.ts 연동)",
+        has_section and link_note and not miss11,
+        ("섹션 없음 " if not has_section else "")
+        + ("" if link_note else "today.ts 연동 문구 없음 ")
+        + (f"빠진 지표: {miss11}" if miss11 else "" if not has_section else "")
+        or f"지표 {len(MARKET_IDS)}개 · {MARKET_IDS[0]} … {MARKET_IDS[-1]}",
+    )
+
+    # ── L12
+    # spglobal.com/spdji 원문은 403 Forbidden(2026-11-26 GET 확인)이었다. 다시 끼어들면 링크가 죽는다.
+    # 주석은 링크가 아니다 — 주석을 걷어 낸 본문만 본다(고친 이유를 주석에 남길 수 있게).
+    def strip_comments(text: str) -> str:
+        text = re.sub(r"/\*[\s\S]*?\*/", "", text)
+        text = re.sub(r"(?m)^\s*//.*$", "", text)
+        return re.sub(r"<!--[\s\S]*?-->", "", text)
+
+    dead = [name for name, body in (("data", src), ("page", page)) if "spglobal.com" in strip_comments(body)]
+    record("L12", "403 원문 링크 재사용 금지", not dead, ", ".join(dead) if dead else "spglobal.com 0건")
+
+    # ── L13
+    # 1단계는 "무엇을 비교하는 화면인지"가 첫 줄에서 보여야 한다(2026-11-26 대표님 지적).
+    # `오늘` 탭 표는 처음엔 그려지지 않는다(기본 탭이 10년 전) — 소스로 보고, 스트립은 산출물로 본다.
+    board = read(SRC / "components" / "money-lens" / "LensBoard.tsx")
+    strip = "data-lens-anchor" in page and "오늘 1억 원의 세 가지 모습" in page
+    unit_table = all(k in board for k in ("오늘 단가", "1억 기준", "오늘 1억 원의 세 가지 모습"))
+    dup = "지수 4종은 원본에서 확인합니다" in page
+    record(
+        "L13",
+        "1단계 개편(스트립·오늘 단가·중복 카드 0)",
+        strip and unit_table and not dup,
+        ("스트립 없음 " if not strip else "")
+        + ("" if unit_table else "오늘 단가 표 없음 ")
+        + ("지수 4종 중복 카드 남음" if dup else "")
+        or "스트립 · 오늘 단가 · 중복 0",
+    )
 
     failures = [r for r in results if not r["ok"]]
     warns = [r for r in results if r["warn"]]

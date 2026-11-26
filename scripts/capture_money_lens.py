@@ -4,7 +4,11 @@
   python3 scripts/capture_money_lens.py live    # byhan2025.github.io 라이브 점검
 
 찍는 것: /money-lens/ 1280·390, /apps/money-ring/run 1280·390 (라이브는 brief의 3장 이름으로도 저장)
-함께 재는 것: 가로 넘침(px) · 콘솔 오류 · 탭 전환 · 퀴즈 해설 노출 · 0원 입력 시 '입력 부족'
+함께 재는 것: 가로 넘침(px) · 콘솔 오류 · 탭 전환 · 퀴즈 해설 노출 · 0원 입력 시 '입력 부족' ·
+              내부 링크 응답(404 0) · 지수 위젯 렌더(숫자가 뜨는가)
+
+2026-11-26 — TradingView 위젯 iframe이 계속 연결을 열고 있어 `networkidle`은 영원히 오지 않는다.
+   그래서 domcontentloaded + 고정 대기로 바꾸고, 위젯·링크 확인을 함께 넣었다.
 """
 import os
 import pathlib
@@ -12,6 +16,8 @@ import sys
 import threading
 import http.server
 import socketserver
+import urllib.error
+import urllib.request
 
 import sys as _sys
 _sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
@@ -69,18 +75,60 @@ with sync_playwright() as p:
         errs: list[str] = []
         pg.on("console", lambda m: errs.append(m.text) if m.type == "error" else None)
         pg.on("pageerror", lambda e: errs.append(str(e)))
-        pg.goto(base + path, wait_until="networkidle")
-        pg.wait_for_timeout(900)
+        pg.goto(base + path, wait_until="domcontentloaded")
+        pg.wait_for_timeout(5000)
         overflow = pg.evaluate("() => document.documentElement.scrollWidth - window.innerWidth")
         pg.screenshot(path=str(IMGS / f"{name}-{width}.png"), full_page=full)
         if overflow > 0:
             failures.append(f"{name} {width}px 가로 넘침 {overflow}px")
-        if errs:
-            failures.append(f"{name} {width}px 콘솔 오류 {errs[:2]}")
+        # 위젯 iframe의 콘솔 오류는 거른다 — 그쪽 코드는 우리 것이 아니고, 우리 화면 판정과 무관하다.
+        mine = [e for e in errs if "tradingview" not in e.lower()]
+        if mine:
+            failures.append(f"{name} {width}px 콘솔 오류 {mine[:2]}")
         return pg
+
+    def links_ok(pg, path: str) -> None:
+        """페이지 안의 내부 링크가 모두 200으로 열리는가(라이브·로컬 공통)."""
+        hrefs = pg.evaluate(
+            "() => Array.from(document.querySelectorAll('a[href]')).map(a => a.href).filter(h => h.startsWith(location.origin))"
+        )
+        bad = []
+        for h in sorted(set(hrefs)):
+            req = urllib.request.Request(h, method="GET", headers={"User-Agent": "Mozilla/5.0 capture_money_lens"})
+            try:
+                with urllib.request.urlopen(req, timeout=25) as r:
+                    if r.status >= 400:
+                        bad.append(f"{r.status} {h}")
+            except urllib.error.HTTPError as e:
+                bad.append(f"{e.code} {h}")
+            except Exception as e:  # noqa: BLE001 — 네트워크 오류도 실패로 센다
+                bad.append(f"{type(e).__name__} {h}")
+        if bad:
+            failures.append(f"{path} 내부 링크 {len(bad)}건 실패: {bad[:4]}")
+
+    def market_ok(pg) -> None:
+        """오늘 1억 스트립과 today.ts 시장 시세 섹션이 숫자와 함께 그려졌는가(2026-11-26 개편)."""
+        anchor = pg.locator("[data-lens-anchor]")
+        if anchor.count() == 0:
+            failures.append("money-lens: 오늘 1억 스트립(data-lens-anchor) 없음")
+        elif "74,493" not in anchor.first.inner_text():
+            failures.append("money-lens: 스트립에 달러 환산 값이 없음")
+
+        box = pg.locator("[data-lens-market]")
+        if box.count() == 0:
+            failures.append("money-lens: 시장 시세 섹션(data-lens-market) 없음")
+            return
+        txt = box.first.inner_text()
+        for need in ("코스피", "코스닥", "S&P500", "나스닥", "원/달러", "국고채 3년"):
+            if need not in txt:
+                failures.append(f"money-lens: 시장 시세에 '{need}' 없음")
+        if not any(ch.isdigit() for ch in txt):
+            failures.append("money-lens: 시장 시세에 숫자가 없음")
 
     # 1) 시세판 — 기본(10년 전 탭)
     pg = shoot("/money-lens/", 1280, "lens-1280", True)
+    market_ok(pg)
+    links_ok(pg, "/money-lens/")
     # 탭 전환: 5년 전 → 오늘
     for label in ("5년 전 1억", "오늘"):
         pg.get_by_role("button", name=label, exact=True).first.click()
@@ -100,14 +148,21 @@ with sync_playwright() as p:
     pg = shoot("/money-lens/", 1280, "quiz-1280", True)
     quiz = pg.locator("[data-lens-quiz]")
     quiz.scroll_into_view_if_needed()
-    quiz.get_by_role("button", name="0.5% 줄었다").first.click()
-    pg.wait_for_timeout(400)
-    if "맞았습니다" not in quiz.inner_text():
+    pg.wait_for_timeout(1500)  # 아일랜드(React) 수화를 기다린다 — 라이브는 스크립트가 늦게 붙는다
+    opened = False
+    for _ in range(3):
+        quiz.get_by_role("button", name="0.5% 줄었다").first.click()
+        pg.wait_for_timeout(700)
+        if "맞았습니다" in quiz.inner_text():
+            opened = True
+            break
+    if not opened:
         failures.append("퀴즈: 정답 클릭 뒤 해설이 열리지 않음")
     pg.close()
 
     # 3) 진단기 — 예시값 결과
     pg = shoot("/apps/money-ring/run", 1280, "ring-1280", True)
+    links_ok(pg, "/apps/money-ring/run")
     txt = pg.inner_text("body")
     if "진단 유형" not in txt:
         failures.append("money-ring: 예시값 결과 카드가 없음")

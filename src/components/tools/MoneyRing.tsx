@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { LENS_META } from "@/data/money-lens";
+import { withBase } from "@/config/site";
 import { RunnerShell } from "./ui";
 
 /**
@@ -10,6 +11,9 @@ import { RunnerShell } from "./ui";
  *
  * 입력값은 이 브라우저 탭 안에서만 계산한다 — 저장(localStorage·쿠키)·전송 없음.
  * 금액 단위는 만 원.
+ *
+ * 2026-11-26 — 유형 카드의 도구·글 링크와 번역기 링크는 논리 경로("/apps/…")다.
+ * GitHub Pages 서브패스(/buffetkimz-web/)에서 404가 나지 않도록 그릴 때 `withBase()`를 씨운다.
  */
 
 type Kind = "thin" | "sleepy" | "krw-only" | "growth-only" | "house" | "balanced";
@@ -330,10 +334,10 @@ export default function MoneyRing() {
                 <p className="text-[12px] font-semibold text-ink">오늘 할 행동 (10분)</p>
                 <p className="mt-1 text-[12.5px] leading-relaxed text-ink-soft">{card.action}</p>
                 <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[12px]">
-                  <a href={card.tool.href} className="link inline-flex min-h-[44px] items-center font-semibold text-brand-deep">
+                  <a href={withBase(card.tool.href)} className="link inline-flex min-h-[44px] items-center font-semibold text-brand-deep">
                     {card.tool.label}
                   </a>
-                  <a href={card.post.href} className="link inline-flex min-h-[44px] items-center text-ink-muted">
+                  <a href={withBase(card.post.href)} className="link inline-flex min-h-[44px] items-center text-ink-muted">
                     {card.post.label}
                   </a>
                 </div>
@@ -426,10 +430,10 @@ function Translator() {
         </ul>
         <p className="mt-2 text-[12px] leading-relaxed text-ink-faint">
           보장 내용은 약관의 지급 조건으로 확인합니다. 이 계산은 금액의 구매력만 봅니다. ·{" "}
-          <a href="/apps/coverage-check/run" className="link text-brand-deep">
+          <a href={withBase("/apps/coverage-check/run")} className="link text-brand-deep">
             보장 점검
           </a>{" "}
-          <a href="/posts/insurance-coverage-conditions" className="link text-brand-deep">
+          <a href={withBase("/posts/insurance-coverage-conditions")} className="link text-brand-deep">
             보장은 지급 조건으로 확인
           </a>
         </p>

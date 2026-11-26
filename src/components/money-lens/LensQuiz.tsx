@@ -1,11 +1,15 @@
 import { useState } from "react";
 import { LENS_QUIZ } from "@/data/money-lens";
+import { withBase } from "@/config/site";
 
 /**
  * 3단계 — 착시 퀴즈 3문항 (spec §5-2).
  *
  * 정답을 고르면 계산 과정이 바로 펼쳐지고 관련 도구로 가는 버튼이 붙는다.
  * 점수·벌점은 없다(교육용). 틀려도 해설은 같은 자리에서 보여 준다.
+ *
+ * 2026-11-26 — 퀴즈의 `exit.href`는 데이터의 논리 경로("/apps/…")다. GitHub Pages
+ * 서브패스(/buffetkimz-web/)에서 404가 나지 않도록 그릴 때 `withBase()`를 씨운다.
  */
 export default function LensQuiz() {
   const [picked, setPicked] = useState<Record<string, number>>({});
@@ -65,7 +69,7 @@ export default function LensQuiz() {
 
             <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 border-t border-line-soft pt-2.5 text-[12px]">
               {q.exits.map((exit) => (
-                <a key={exit.href} href={exit.href} className="link inline-flex min-h-[44px] items-center text-brand-deep">
+                <a key={exit.href} href={withBase(exit.href)} className="link inline-flex min-h-[44px] items-center text-brand-deep">
                   {exit.label}
                 </a>
               ))}

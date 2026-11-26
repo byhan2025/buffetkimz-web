@@ -1,0 +1,458 @@
+---
+/**
+ * 「돈의 나이테」 시장 스냅샷 — 2026-11-26.
+ *
+ * 홈 '오늘의 시장'(components/home/MarketBoard.astro)과 **같은 데이터**(`src/data/today.ts`)를 쓰되,
+ * 화면은 이 페이지의 톤(아이보리·샌드 바탕에 옥색과 앰버 포인트, 나이테 무늬)으로 따로 그린다.
+ * 같은 숫자, 다른 옷 — 시황판이 페이지마다 똑같이 보이지 않게 한다.
+ *
+ * 규칙
+ *  · 값·등락·기준 시각·출처는 전부 today.ts에서 온다. 여기서 새 숫자를 만들지 않는다.
+ *  · 오늘의 값은 언론·마감 집계를 옮긴 참고용이다. '실시간'이라 쓰지 않고 지표마다 기준 시각을 붙인다.
+ *  · 스파크라인은 12회 시리즈를 0~1로 정규화한 장식이다. 축·눈금·툴팁을 두지 않는다.
+ *  · 색: 상승은 앰버(--color-amber), 하락은 옥색(--color-jade), 보합은 잉크 회색.
+ *    이 사이트의 '빨강으로 겁주지 않는다' 규칙을 그대로 따르되, 홈(클레이·하늘)과는 다른 두 색을 쓴다.
+ */
+import { hubStamp, today as hub } from "@/data/today";
+import type { Indicator } from "@/data/today";
+
+/** 큰 카드 넷 — 지수 4종(코스피·코스닥·S&P500·나스닥). */
+const FEATURED = ["kospi", "kosdaq", "sp500", "nasdaq"];
+/** 작은 카드 여섯 — 환율·금리·변동성·기준금리. */
+const MINI = ["usdkrw", "ktb3y", "ktb10y", "us10y", "vix", "base-rate"];
+
+const pick = (id: string) => hub.indicators.find((i) => i.id === id);
+const featured = FEATURED.map(pick).filter((i): i is Indicator => Boolean(i));
+const mini = MINI.map(pick).filter((i): i is Indicator => Boolean(i));
+
+const W = 120;
+const H = 38;
+
+/** 시리즈를 카드 폭에 맞춰 한 줄로 — 값의 크기가 아니라 흐름만 보여 준다. */
+function spark(series: number[] | undefined): { line: string; area: string } | null {
+  if (!series || series.length < 2) return null;
+  const min = Math.min(...series);
+  const max = Math.max(...series);
+  const span = max - min || 1;
+  const step = W / (series.length - 1);
+  const pts = series.map((v, i) => [i * step, H - 3 - ((v - min) / span) * (H - 6)] as const);
+  const line = pts.map(([x, y], i) => `${i === 0 ? "M" : "L"}${x.toFixed(1)} ${y.toFixed(1)}`).join(" ");
+  return { line, area: `${line} L${W} ${H} L0 ${H} Z` };
+}
+
+const tip = (ind: Indicator) =>
+  `${ind.name} ${ind.value} ${ind.change} · ${ind.asOfLabel} · ${ind.source}${ind.basis ? ` (${ind.basis})` : ""}`;
+---
+
+<section class="lmkt" data-lens-market aria-labelledby="lmkt-h">
+  <header class="lmkt-head">
+    <div class="lmkt-heading">
+      <h3 class="lmkt-h" id="lmkt-h">지금 시장은 어디에 있나</h3>
+      <p class="lmkt-sub">
+        홈의 '오늘의 시장'과 같은 마감 집계에서 가져옵니다(today.ts 연동). 지표마다 마지막 확인 시각이
+        다르고, 값은 참고용입니다.
+      </p>
+    </div>
+    <p class="lmkt-stamp">확인 {hubStamp(hub.asOf)}</p>
+  </header>
+
+  <ul class="lmkt-grid" aria-label="지수 4종">
+    {
+      featured.map((ind) => {
+        const s = spark(ind.series);
+        return (
+          <li>
+            <a
+              class="lmkt-card"
+              href={ind.sourceUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              data-lens-quote={ind.id}
+              title={tip(ind)}
+            >
+              <span class="lmkt-top">
+                <span class="lmkt-name">{ind.name}</span>
+                <svg class="lmkt-rings" viewBox="0 0 24 24" aria-hidden="true">
+                  <circle cx="12" cy="12" r="3.2" />
+                  <circle cx="12" cy="12" r="6.4" />
+                  <circle cx="12" cy="12" r="9.6" />
+                </svg>
+              </span>
+              <span class="lmkt-value">{ind.value}</span>
+              <span class={`lmkt-chg is-${ind.direction}`}>{ind.change}</span>
+              {s ? (
+                <svg
+                  class={`lmkt-spark is-${ind.direction}`}
+                  viewBox={`0 0 ${W} ${H}`}
+                  preserveAspectRatio="none"
+                  aria-hidden="true"
+                >
+                  <path class="lmkt-spark-area" d={s.area} />
+                  <path class="lmkt-spark-line" d={s.line} />
+                </svg>
+              ) : (
+                <span class="lmkt-spark-empty" aria-hidden="true" />
+              )}
+              <span class="lmkt-foot">
+                <span class="lmkt-asof">{ind.asOfLabel}</span>
+                <span class="lmkt-src">{ind.source}</span>
+              </span>
+            </a>
+          </li>
+        );
+      })
+    }
+  </ul>
+
+  <ul class="lmkt-mini" aria-label="환율과 금리">
+    {
+      mini.map((ind) => (
+        <li>
+          <a
+            class="lmkt-mini-card"
+            href={ind.sourceUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            data-lens-quote={ind.id}
+            title={tip(ind)}
+          >
+            <span class="lmkt-mini-name">{ind.name}</span>
+            <span class="lmkt-mini-value">{ind.value}</span>
+            <span class="lmkt-mini-foot">
+              <span class={`lmkt-chg is-${ind.direction}`}>{ind.change}</span>
+              <span class="lmkt-asof">{ind.asOfLabel}</span>
+            </span>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+
+  <p class="lmkt-note" data-lens-disclaimer="board">
+    등락은 전일 종가·직전 고시 대비입니다. 스파크라인은 최근 12회 흐름을 모양만 옮긴 것이고,
+    값은 언론·마감 집계를 그대로 쓴 참고용입니다. 이 화면은 투자 권유가 아닙니다.
+  </p>
+</section>
+
+<style>
+  .lmkt {
+    position: relative;
+    overflow: hidden;
+    padding: 16px;
+    border: 1px solid var(--color-line);
+    border-radius: 20px;
+    background: linear-gradient(178deg, var(--color-paper) 0%, var(--color-paper-deep) 100%);
+  }
+
+  /* 나이테 — 오른쪽 위에서 번지는 동심원. 장식이며 값과 무관하다. */
+  .lmkt::before {
+    content: "";
+    position: absolute;
+    top: -70px;
+    right: -60px;
+    width: 320px;
+    height: 320px;
+    background-image: repeating-radial-gradient(
+      circle at 50% 50%,
+      color-mix(in srgb, var(--color-jade) 16%, transparent) 0 1px,
+      transparent 1px 26px
+    );
+    mask-image: radial-gradient(circle at 50% 50%, rgb(0 0 0 / 0.9) 0%, transparent 68%);
+    pointer-events: none;
+  }
+
+  .lmkt > * {
+    position: relative;
+  }
+
+  .lmkt-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px 16px;
+  }
+
+  .lmkt-heading {
+    max-width: 60ch;
+  }
+
+  .lmkt-h {
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--color-ink);
+  }
+
+  .lmkt-sub {
+    margin-top: 4px;
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--color-ink-faint);
+  }
+
+  .lmkt-stamp {
+    flex-shrink: 0;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--color-ink-faint);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .lmkt-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin: 14px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .lmkt-card {
+    display: grid;
+    overflow: hidden;
+    align-content: start;
+    gap: 3px;
+    height: 100%;
+    padding: 12px 13px 10px;
+    border: 1px solid var(--color-line);
+    border-radius: 16px;
+    background: var(--color-surface);
+    transition: border-color 160ms var(--ease-out-soft);
+  }
+
+  .lmkt-card:hover {
+    border-color: color-mix(in srgb, var(--color-jade) 45%, var(--color-line));
+  }
+
+  /* 그리드 자식의 기본 min-width(auto)가 긴 출처 문장을 밀어내 카드 밖으로 넘치던 문제 */
+  .lmkt-card > * {
+    min-width: 0;
+  }
+
+  .lmkt-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+  }
+
+  .lmkt-name {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--color-ink-muted);
+    letter-spacing: -0.01em;
+  }
+
+  .lmkt-rings {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    fill: none;
+    stroke: var(--color-jade);
+    stroke-width: 1;
+    opacity: 0.42;
+  }
+
+  .lmkt-value {
+    font-size: clamp(22px, 2.1vw, 27px);
+    font-weight: 700;
+    letter-spacing: -0.035em;
+    color: var(--color-ink);
+    font-variant-numeric: tabular-nums;
+    line-height: 1.15;
+    white-space: nowrap;
+  }
+
+  .lmkt-chg {
+    justify-self: start;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .lmkt-chg.is-up {
+    color: var(--color-amber);
+    background: color-mix(in srgb, var(--color-amber) 11%, var(--color-surface));
+  }
+
+  .lmkt-chg.is-down {
+    color: var(--color-jade);
+    background: color-mix(in srgb, var(--color-jade) 11%, var(--color-surface));
+  }
+
+  .lmkt-chg.is-flat {
+    color: var(--color-ink-muted);
+    background: var(--color-line-soft);
+  }
+
+  .lmkt-spark {
+    width: 100%;
+    height: 34px;
+    margin-top: 6px;
+    overflow: visible;
+  }
+
+  .lmkt-spark-line {
+    fill: none;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .lmkt-spark-area {
+    stroke: none;
+    opacity: 0.13;
+  }
+
+  .lmkt-spark.is-up .lmkt-spark-line,
+  .lmkt-spark.is-up .lmkt-spark-area {
+    stroke: var(--color-amber);
+    fill: var(--color-amber);
+  }
+
+  .lmkt-spark.is-down .lmkt-spark-line,
+  .lmkt-spark.is-down .lmkt-spark-area {
+    stroke: var(--color-jade);
+    fill: var(--color-jade);
+  }
+
+  .lmkt-spark.is-flat .lmkt-spark-line,
+  .lmkt-spark.is-flat .lmkt-spark-area {
+    stroke: var(--color-ink-faint);
+    fill: var(--color-ink-faint);
+  }
+
+  .lmkt-spark-empty {
+    display: block;
+    height: 34px;
+    margin-top: 6px;
+    border-bottom: 1px dashed var(--color-line);
+  }
+
+  .lmkt-foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 2px 8px;
+    margin-top: 4px;
+    padding-top: 6px;
+    border-top: 1px solid var(--color-line-soft);
+  }
+
+  .lmkt-asof {
+    font-size: 12px;
+    color: var(--color-ink-faint);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .lmkt-src {
+    flex: 1 1 100%;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 12px;
+    color: var(--color-ink-faint);
+    text-align: right;
+  }
+
+  .lmkt-mini {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin: 10px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .lmkt-mini-card {
+    display: block;
+    min-height: 68px;
+    padding: 9px 11px;
+    border: 1px solid var(--color-line-soft);
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--color-surface) 72%, var(--color-paper-deep));
+  }
+
+  .lmkt-mini-card:hover {
+    border-color: color-mix(in srgb, var(--color-jade) 35%, var(--color-line));
+  }
+
+  .lmkt-mini-name {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-ink-muted);
+  }
+
+  .lmkt-mini-value {
+    display: block;
+    margin-top: 2px;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--color-ink);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .lmkt-mini-foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 8px;
+    margin-top: 6px;
+  }
+
+  .lmkt-note {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid var(--color-line);
+    font-size: 12px;
+    line-height: 1.65;
+    color: var(--color-ink-faint);
+  }
+
+  @media (min-width: 768px) {
+    .lmkt {
+      padding: 20px;
+    }
+
+    .lmkt-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .lmkt-mini {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1080px) {
+    .lmkt-mini {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+
+    .lmkt-mini-foot .lmkt-asof {
+      text-align: left;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lmkt-card,
+    .lmkt-mini-card {
+      transition: none;
+    }
+  }
+</style>
