@@ -31,6 +31,15 @@
  *   지수 자체는 `/money-lens/`의 TradingView 위젯(`LensIndexWidget.astro`)이 우회로로 보여 준다.
  */
 
+import {
+  LENS_TRACK_APT,
+  LENS_TRACK_COUNT,
+  LENS_TRACK_END,
+  LENS_TRACK_FX,
+  LENS_TRACK_GOLD,
+  LENS_TRACK_START,
+} from "@/data/money-lens-tracks";
+
 export type License = "ok" | "approval" | "licensed" | "linked";
 export type LensPeriod = "now" | "y5" | "y10";
 export type LensId =
@@ -424,6 +433,206 @@ export function lensWon(krw: number): number {
   return 100000000 * (1 + krw);
 }
 
+/* ────────────────────────────────────────────────────────────────────────────
+ * 위치 계기판 — 2016. 11. ~ 2026. 10. 월별 실측값에서 최소·최대·현재 위치를 센다.
+ *
+ * 왜 월별 값인가: 5년·10년 두 점만으로는 "지금이 그 사이 어디인가"를 말할 수 없다.
+ * 원자료(R-ONE 아파트 매매지수·FRED 환율·World Bank 금값)를 120개월로 펼쳐 두고,
+ * 그 안에서 최소·최대를 잡는다. 새 숫자를 만들지 않는다 — 전부 이 파일과
+ * `money-lens-tracks.ts`의 배열에서만 나온다.
+ * ──────────────────────────────────────────────────────────────────────────── */
+
+export type LensUnit = "krw" | "usd" | "gold";
+
+/** 저점~고점 사이 어디인지 — 여섯 칸 */
+export type LensBand = "고점권" | "중상단" | "중간" | "중하단" | "저점권" | "기준";
+
+export type LensGauge = {
+  unit: LensUnit;
+  /** 0~100 */
+  position: number;
+  band: LensBand;
+  min: number;
+  max: number;
+  now: number;
+  /** 같은 기간 그 단위로 본 수익률. 자기 단위(달러 자산의 달러)면 0. */
+  ret: number;
+  /** 자기 자신이 기준인 단위 — 게이지 대신 '기준'으로 그린다. */
+  self: boolean;
+};
+
+export type LensGaugeSet = {
+  id: LensId;
+  name: string;
+  detail: string;
+  attribution: string;
+  from: string;
+  to: string;
+  months: number;
+  unitLabel: string;
+  krw: number;
+  units: Record<LensUnit, LensGauge>;
+};
+
+/** 게이지에 올리는 핵심 4개 — 서울 아파트 · 원화 예금 1억 · 달러 1억 · 금 1억 */
+export const LENS_GAUGE_IDS: LensId[] = ["seoul-apt", "krw-deposit", "usd", "gold"];
+
+const TRACK_START_Y = 2016;
+const TRACK_START_M = 11;
+
+/** i번째 달의 'YYYY. M.' 표기 — 각주·툴팁용 */
+export function lensTrackMonth(i: number): string {
+  const t = TRACK_START_Y * 12 + (TRACK_START_M - 1) + i;
+  return `${Math.floor(t / 12)}. ${(t % 12) + 1}.`;
+}
+
+/** 그 달에 적용되는 12개월 창 평균금리(연, %) */
+function depositRateOf(i: number): number {
+  const t = TRACK_START_Y * 12 + (TRACK_START_M - 1) + i;
+  const y = Math.floor(t / 12);
+  const m = (t % 12) + 1;
+  const key = y * 100 + m;
+  const hit = LENS_META.deposit.windows.find((w) => {
+    const [fy, fm] = w.from.split(".").map(Number);
+    const [ty, tm] = w.to.split(".").map(Number);
+    return key >= fy * 100 + fm && key <= ty * 100 + tm;
+  });
+  return hit ? hit.rate : LENS_META.deposit.nowRate;
+}
+
+/**
+ * 1억을 2016. 11.에 넣었을 때의 누적 배수 — 예금만 해당.
+ * 첫 달은 1.0(넣은 달), 그다음 달부터 그 달의 창 평균금리를 월 복리로 굴린다.
+ * 10년 뒤 값이 `LENS_META.depositGrowth.y10`(1.267884)과 맞도록 반올림 오차만 남긴다.
+ */
+const DEPOSIT_TRACK: readonly number[] = (() => {
+  const out: number[] = [];
+  let mult = 1;
+  for (let i = 0; i < LENS_TRACK_COUNT; i += 1) {
+    if (i > 0) mult *= Math.pow(1 + depositRateOf(i) / 100, 1 / 12);
+    out.push(mult);
+  }
+  return out;
+})();
+
+/** 자산별 '원화 1억 배수' 시계열 — 지수는 지수대로, 금액은 금액대로 1억 기준으로 맞춘다. */
+function krwTrack(id: LensId): readonly number[] {
+  switch (id) {
+    case "seoul-apt":
+      return LENS_TRACK_APT.map((v) => v / LENS_TRACK_APT[0]);
+    case "krw-deposit":
+      return DEPOSIT_TRACK;
+    case "usd":
+      return LENS_TRACK_FX.map((v) => v / LENS_TRACK_FX[0]);
+    case "gold":
+      return LENS_TRACK_GOLD.map((v) => v / LENS_TRACK_GOLD[0]);
+    default:
+      return [];
+  }
+}
+
+/**
+ * 지금(2026. 10. 값)의 1억 배수 — **시계열과 같은 기준(2016. 11. 월평균)** 으로 나눈다.
+ * fx.y10(2016-11-18 주간 고시)로 나누면 시계열의 출발점(2016. 11. 월평균)과 1.3% 어긋나
+ * 위치가 3%p쯤 밀린다. 게이지의 세로선은 시계열 위에 있어야 하므로 기준을 하나로 맞춘다.
+ */
+function nowMultiplier(id: LensId): number {
+  switch (id) {
+    case "seoul-apt":
+      return 103.644 / LENS_TRACK_APT[0];
+    case "krw-deposit":
+      return LENS_META.depositGrowth.y10;
+    case "usd":
+      return LENS_META.fx.now / LENS_TRACK_FX[0];
+    case "gold":
+      return LENS_META.goldKrwPerG.now / LENS_TRACK_GOLD[0];
+    default:
+      return 1;
+  }
+}
+
+const UNIT_PRICE_NOW: Record<Exclude<LensUnit, "krw">, number> = {
+  usd: LENS_META.fx.now,
+  gold: LENS_META.goldKrwPerG.now,
+};
+
+function bandOf(position: number): LensBand {
+  if (position >= 85) return "고점권";
+  if (position >= 60) return "중상단";
+  if (position >= 40) return "중간";
+  if (position >= 15) return "중하단";
+  return "저점권";
+}
+
+/**
+ * 자산 하나를 세 단위(원화·달러·금)로 본 위치 게이지.
+ * `period`는 창의 길이만 바꾼다(10년 = 120개월, 5년 = 60개월). 수익률은 lensCross와 같은 점값 계산이다.
+ */
+export function lensGauges(id: LensId, period: Exclude<LensPeriod, "now">): LensGaugeSet | null {
+  const row = LENS_ROWS.find((r) => r.id === id);
+  if (!row || !row.value) return null;
+  const krwSeries = krwTrack(id);
+  if (krwSeries.length !== LENS_TRACK_COUNT) return null;
+
+  const months = period === "y10" ? 120 : 60;
+  const startIndex = LENS_TRACK_COUNT - months;
+  const cross = lensCross(row, period);
+  const nowKrw = nowMultiplier(id);
+
+  const make = (unit: LensUnit): LensGauge => {
+    const prices = unit === "krw" ? null : unit === "usd" ? LENS_TRACK_FX : LENS_TRACK_GOLD;
+    const series = prices ? krwSeries.map((k, i) => k / prices[i]) : krwSeries;
+    const now = prices ? nowKrw / UNIT_PRICE_NOW[unit] : nowKrw;
+    const window = series.slice(startIndex);
+    const min = Math.min(...window);
+    const max = Math.max(...window);
+    const raw = max > min ? ((now - min) / (max - min)) * 100 : 100;
+    const position = Math.max(0, Math.min(100, raw));
+    const self = (id === "usd" && unit === "usd") || (id === "gold" && unit === "gold");
+    return {
+      unit,
+      position: self ? 100 : position,
+      band: self ? "기준" : bandOf(position),
+      min,
+      max,
+      now,
+      ret: self || !cross ? 0 : unit === "usd" ? cross.usd : unit === "gold" ? cross.gold : cross.krw,
+      self,
+    };
+  };
+
+  const unitLabel =
+    id === "seoul-apt"
+      ? `지수 ${row.value.now.toFixed(row.decimals)} (2026. 06. = 100)`
+      : id === "krw-deposit"
+        ? `1억 → ${lensWon(lensKrw(row, period) ?? 0).toLocaleString("ko-KR", { maximumFractionDigits: 0 })}원`
+        : id === "usd"
+          ? `${LENS_META.fx.now.toLocaleString("ko-KR", { maximumFractionDigits: 2 })}원/달러`
+          : `g당 ${Math.round(LENS_META.goldKrwPerG.now).toLocaleString("ko-KR")}원`;
+
+  const startIdx = period === "y10" ? 0 : startIndex;
+  return {
+    id,
+    name: row.name,
+    detail: row.detail,
+    attribution: row.basis.attribution,
+    from: lensTrackMonth(startIdx),
+    to: lensTrackMonth(LENS_TRACK_COUNT - 1),
+    months,
+    unitLabel,
+    krw: lensKrw(row, period) ?? 0,
+    units: { krw: make("krw"), usd: make("usd"), gold: make("gold") },
+  };
+}
+
+/** 화면·검증이 함께 쓰는 계기판 묶음 */
+export const LENS_GAUGES = {
+  y10: LENS_GAUGE_IDS.map((id) => lensGauges(id, "y10")).filter((g): g is LensGaugeSet => Boolean(g)),
+  y5: LENS_GAUGE_IDS.map((id) => lensGauges(id, "y5")).filter((g): g is LensGaugeSet => Boolean(g)),
+} as const;
+
+export const LENS_TRACK_RANGE = { start: LENS_TRACK_START, end: LENS_TRACK_END, count: LENS_TRACK_COUNT } as const;
+
 /**
  * 착시 퀴즈 3문항 (spec §5-2) — 정답·해설·출구 링크를 데이터에서 읽는다.
  * 계산값은 이 파일의 실데이터로 다시 센다(문서 예시값을 그대로 옮겨 적지 않는다).
@@ -451,7 +660,7 @@ export const LENS_QUIZ = [
     extra:
       "같은 집이 기준을 바꾸면 +42.9%에서 −62.5%까지 갑니다. 파는 사람과 사는 사람이 같은 집을 두고 다른 말을 하는 이유입니다.",
     exits: [
-      { label: "시세판 10년 전 탭 열기", href: "/money-lens/" },
+      { label: "계기판 10년 탭 열기", href: "/money-lens/" },
       { label: "환율이 오르면 장바구니", href: "/posts/economy-fx-grocery" },
     ],
   },

@@ -17,7 +17,10 @@
       시작하고 실제 dist 파일로 존재하는가 (2026-11-26 — withBase 누락 404 재발 방지)
   L11 「오늘의 주요 시장 시세」 섹션(today.ts 연동)이 지수 4종과 국고채 값을 그리는가
   L12 403으로 막혔던 spglobal.com 원문 링크가 다시 들어오지 않았는가
-  L13 1단계 개편이 유지되는가 — 오늘 1억의 세 모습 스트립 · 오늘 탭 단가 표 · 시세판 안 지수 행/중복 카드 0
+  L13 대시보드 개편이 유지되는가 — 핵심 4자산 카드 · 카드마다 원화/달러/금 세 게이지 · 10년 기본 탭 · 옛 1~4단계 표기 0
+  L14 게이지가 실측값에서만 나오는가 — 120개월 시계열로 최소·최대·현재 위치를 다시 세어 산출물의 aria-label과 대조
+  L15 페이지 안 즉석 진단 — 프리셋 3종 · 순자산 달러/금 환산 · 3층 비율 · withBase 링크
+  L16 첫 화면 요약 — 오늘 1억의 원화·달러·금이 계기판보다 먼저 나오는가
 
 사용: python3 scripts/verify_lens.py [--json]
 종료 코드 0 = 통과(경고 포함), 1 = 실패.
@@ -36,6 +39,10 @@ SRC = APP / "src"
 DIST = APP / "dist"
 DATA = SRC / "data" / "money-lens.ts"
 RING = SRC / "components" / "tools" / "MoneyRing.tsx"
+KINDS = SRC / "data" / "money-ring-kinds.ts"
+DIAG = SRC / "components" / "money-lens" / "LensDiagnose.tsx"
+TRACKS = SRC / "data" / "money-lens-tracks.ts"
+BOARD = SRC / "components" / "money-lens" / "LensBoard.tsx"
 OUT_JSON = APP.parent.parent / "reports" / "buffetkimz-web" / "lens-verify.json"
 
 # 배포 접두 — Pages 서브패스 빌드가 기본이다. 도메인 루트 빌드를 검사할 때는 BASE_PATH=/ 로 준다.
@@ -128,6 +135,10 @@ def main() -> int:
     code = re.sub(r"/\*[\s\S]*?\*/", "", ring)
     code = re.sub(r"(?m)^\s*//.*$", "", code)
     store = [w for w in ("localStorage.", "sessionStorage.", "document.cookie", "fetch(", "XMLHttpRequest") if w in code]
+    diag_src = read(DIAG)
+    diag_code = re.sub(r"/\*[\s\S]*?\*/", "", diag_src)
+    diag_code = re.sub(r"(?m)^\s*//.*$", "", diag_code)
+    store += [f"{w}(진단)" for w in ("localStorage.", "sessionStorage.", "document.cookie", "fetch(", "XMLHttpRequest") if w in diag_code]
     record("L5", "진단기 입력 방어 · 저장/전송 없음", guard and not store, ("방어 누락" if not guard else "") + (f" 저장·전송 코드: {store}" if store else "0·음수·문자 입력 방어 + 저장·전송 코드 0"))
 
     # ── L6
@@ -167,19 +178,22 @@ def main() -> int:
     miss = [f"{n}→{got}" for n, got in reached.items() if got != n]
     # 소스에 6개 유형 이름이 모두 있는지도 함께 본다
     kinds = ("thin", "sleepy", "krw-only", "growth-only", "house", "balanced")
-    names_ok = all(f'"{k}"' in ring or k == "balanced" for k in kinds)
+    kinds_src = read(KINDS)
+    names_ok = all((f'"{k}"' in kinds_src) or (f'"{k}"' in ring) or k == "balanced" for k in kinds)
     record("L6", "판정 트리 6유형 도달", not miss and names_ok, "; ".join(miss) or " · ".join(sorted(reached)))
 
     # ── L7
     hrefs = set()
-    for f in (SRC / "pages" / "money-lens" / "index.astro", RING, DATA):
+    for f in (SRC / "pages" / "money-lens" / "index.astro", RING, DATA, KINDS, DIAG):
         for h in re.findall(r'href: "([^"]+)"', read(f)):
             if h.startswith("/"):
                 hrefs.add(h)
-        for h in re.findall(r'href=\{withBase\("([^"]+)"\)\}', read(f)):
+        for h in re.findall(r'href=\{withBase\((?:`|")([^"`]+)(?:`|")\)\}', read(f)):
             hrefs.add(h)
     missing_links = []
     for h in sorted(hrefs):
+        if "${" in h:  # 템플릿 리터럴(/posts/${p.id})은 빌드 산출물 검사(L10)가 맡는다
+            continue
         rel = h.strip("/").split("?")[0]
         candidates = [DIST / rel / "index.html", DIST / f"{rel}.html"]
         if not any(c.exists() for c in candidates):
@@ -256,20 +270,164 @@ def main() -> int:
     record("L12", "403 원문 링크 재사용 금지", not dead, ", ".join(dead) if dead else "spglobal.com 0건")
 
     # ── L13
-    # 1단계는 "무엇을 비교하는 화면인지"가 첫 줄에서 보여야 한다(2026-11-26 대표님 지적).
-    # `오늘` 탭 표는 처음엔 그려지지 않는다(기본 탭이 10년 전) — 소스로 보고, 스트립은 산출물로 본다.
-    board = read(SRC / "components" / "money-lens" / "LensBoard.tsx")
-    strip = "data-lens-anchor" in page and "오늘 1억 원의 세 가지 모습" in page
-    unit_table = all(k in board for k in ("오늘 단가", "1억 기준", "오늘 1억 원의 세 가지 모습"))
-    dup = "지수 4종은 원본에서 확인합니다" in page
+    # 2026-11-26 대시보드 개편 — 핵심 4자산 카드가 원화·달러·금 세 게이지를 각각 그리고,
+    # 첫 화면 기본 탭이 `10년`이며, 옛 1~4단계 교과서 표기가 남아 있지 않아야 한다.
+    gauge_cards = re.findall(r'data-lens-gauge-card="([^"]+)"', page)
+    units13 = page.count('data-lens-gauge="')
+    legacy = [w for w in ("1단계. 같은 1억", "2단계. 내 돈은", "3단계. 같은 숫자", "4단계. 오늘 할 행동") if w in page]
+    tabs13 = all(f">{t}</button>" in page for t in ("10년", "5년", "오늘"))
+    expect_cards = ["seoul-apt", "krw-deposit", "usd", "gold"]
     record(
         "L13",
-        "1단계 개편(스트립·오늘 단가·중복 카드 0)",
-        strip and unit_table and not dup,
-        ("스트립 없음 " if not strip else "")
-        + ("" if unit_table else "오늘 단가 표 없음 ")
-        + ("지수 4종 중복 카드 남음" if dup else "")
-        or "스트립 · 오늘 단가 · 중복 0",
+        "대시보드 4자산 × 3게이지 · 기본 10년 탭",
+        gauge_cards[:4] == expect_cards and units13 == 12 and tabs13 and not legacy,
+        (f"카드 {gauge_cards[:6]}" if gauge_cards[:4] != expect_cards else "")
+        + (f" 게이지 {units13}개" if units13 != 12 else "")
+        + ("" if tabs13 else " 탭 없음")
+        + (f" 옛 단계 표기: {legacy}" if legacy else "")
+        or "카드 4 · 게이지 12 · 탭 3 · 옛 단계 표기 0",
+    )
+
+    # ── L14
+    # 게이지가 실측 시계열에서만 나오는지 — 파이썬이 같은 식으로 120개월을 다시 세워
+    # 산출물의 aria-label(위치 %)과 대조한다. 화면에서 만든 숫자가 있으면 여기서 걸린다.
+    tracks_src = read(TRACKS)
+
+    def track_nums(name: str) -> list[float]:
+        m14 = re.search(rf"export const {name}: readonly number\[\] = \[(.*?)\];", tracks_src, re.S)
+        return [float(x) for x in re.findall(r"-?\d+(?:\.\d+)?", m14.group(1))] if m14 else []
+
+    apt14 = track_nums("LENS_TRACK_APT")
+    fx14 = track_nums("LENS_TRACK_FX")
+    gold14 = track_nums("LENS_TRACK_GOLD")
+
+    def meta3(key: str) -> tuple[float, float, float]:
+        m14 = re.search(rf"{key}: \{{\s*now: ([\d.]+),\s*y5: ([\d.]+),\s*y10: ([\d.]+)", src)
+        return tuple(float(x) for x in m14.groups()) if m14 else (0.0, 0.0, 0.0)
+
+    fx_now, _, fx_y10 = meta3("fx")
+    gold_now, _, gold_y10 = meta3("goldKrwPerG")
+    m14d = re.search(r"depositGrowth: \{ y5: ([\d.]+), y10: ([\d.]+) \}", src)
+    dep_y10 = float(m14d.group(2)) if m14d else 0.0
+    win14 = [
+        (a, b, float(r))
+        for a, b, r in re.findall(r'\{ from: "(\d{4}\.\d{2})", to: "(\d{4}\.\d{2})", rate: ([\d.]+) \}', src)
+    ]
+
+    def month_key(y: int, m: int) -> int:
+        return y * 100 + m
+
+    def deposit_track() -> list[float]:
+        out14: list[float] = []
+        mult14 = 1.0
+        for i14 in range(len(apt14)):
+            if i14 > 0:
+                t14 = 2016 * 12 + 10 + i14
+                key14 = month_key(t14 // 12, t14 % 12 + 1)
+                rate14 = next(
+                    (
+                        r
+                        for a, b, r in win14
+                        if month_key(int(a[:4]), int(a[5:])) <= key14 <= month_key(int(b[:4]), int(b[5:]))
+                    ),
+                    None,
+                )
+                if rate14 is None:
+                    return []
+                mult14 *= (1 + rate14 / 100) ** (1 / 12)
+            out14.append(mult14)
+        return out14
+
+    krw14 = {
+        "seoul-apt": [v / apt14[0] for v in apt14] if apt14 else [],
+        "krw-deposit": deposit_track(),
+        "usd": [v / fx14[0] for v in fx14] if fx14 else [],
+        "gold": [v / gold14[0] for v in gold14] if gold14 else [],
+    }
+    now14 = {
+        "seoul-apt": 103.644 / apt14[0] if apt14 else 0,
+        "krw-deposit": dep_y10,
+        "usd": fx_now / fx14[0] if fx14 else 0,
+        "gold": gold_now / gold14[0] if gold14 else 0,
+    }
+    prices14 = {"krw": None, "usd": fx14, "gold": gold14}
+    unit_now14 = {"krw": 1.0, "usd": fx_now, "gold": gold_now}
+    month_count14 = len(apt14)
+    problems14: list[str] = []
+    if not (month_count14 == len(fx14) == len(gold14) == len(krw14["krw-deposit"]) == 120):
+        problems14.append(f"시계열 길이 {month_count14}/{len(fx14)}/{len(gold14)}/{len(krw14['krw-deposit'])}")
+    if abs(now14["krw-deposit"] - 1.267884) > 0.002:
+        problems14.append(f"예금 10년 배수 {now14['krw-deposit']:.4f}")
+
+    # 산출물에서 카드별 게이지 aria-label을 순서대로 뽑는다
+    rendered = []
+    for card_id in expect_cards:
+        pos14 = page.find(f'data-lens-gauge-card="{card_id}"')
+        nxt = page.find("</article>", pos14)
+        chunk = page[pos14 : nxt if nxt > 0 else len(page)]
+        for lbl in re.findall(r'aria-label="([^"]+)"', chunk):
+            m14p = re.search(r"사이 (\d+)% 지점, (.+)$", lbl)
+            rendered.append((m14p.group(1), m14p.group(2)) if m14p else ("self", lbl))
+    if len(rendered) != 12:
+        problems14.append(f"산출물 게이지 aria-label {len(rendered)}개")
+    else:
+        idx14 = 0
+        for card_id in expect_cards:
+            for unit in ("krw", "usd", "gold"):
+                self_unit = (card_id == "usd" and unit == "usd") or (card_id == "gold" and unit == "gold")
+                prices = prices14[unit]
+                series = [k / p for k, p in zip(krw14[card_id], prices)] if prices else krw14[card_id]
+                now_v = now14[card_id] / unit_now14[unit] if prices else now14[card_id]
+                window = series[:]
+                lo, hi = min(window), max(window)
+                pos_expected = 100.0 if hi <= lo else max(0.0, min(100.0, (now_v - lo) / (hi - lo) * 100))
+                got, band = rendered[idx14]
+                idx14 += 1
+                if self_unit:
+                    if got != "self":
+                        problems14.append(f"{card_id}/{unit}: 자기 단위인데 게이지로 그려짐")
+                    continue
+                if got != "self" and abs(int(got) - pos_expected) > 1.5:
+                    problems14.append(f"{card_id}/{unit}: 화면 {got}% vs 실측 {pos_expected:.1f}%")
+                if not band.strip():
+                    problems14.append(f"{card_id}/{unit}: 단계 이름 없음")
+    record(
+        "L14",
+        "게이지 실측(120개월 min/max/현재)",
+        not problems14,
+        "; ".join(problems14[:5]) if problems14 else f"시계열 {month_count14}개월 × 4자산 × 3단위 = 12개 게이지 일치",
+    )
+
+    # ── L15
+    # 페이지 안 즉석 진단 — 프리셋 3종과 결과 문구가 산출물에 있어야 한다(이동 없이 진단).
+    presets = ("예금 1억", "서울 집 7억 + 대출 3억", "직장인 3억 분산")
+    diag_ok = (
+        'data-lens-diagnose' in page
+        and all(p15 in page for p15 in presets)
+        and "내 순자산" in page
+        and all(w in page for w in ("진짜 돈", "일하는 돈", "잠자는 돈"))
+    )
+    base15 = f"{BASE}/apps/money-ring/run" if BASE else "/apps/money-ring/run"
+    link15 = base15 in page
+    record(
+        "L15",
+        "페이지 안 즉석 진단(프리셋·환산·3층)",
+        diag_ok and link15,
+        ("" if diag_ok else "진단 위젯·프리셋·3층 문구 누락 ")
+        + ("" if link15 else f"심화 진단 링크 없음({base15})")
+        or f"프리셋 {len(presets)}종 · 순자산 환산 · 3층 비율",
+    )
+
+    # ── L16
+    # 첫 화면 요약 — 계기판보다 먼저 '오늘 1억'의 세 모습이 나와야 한다.
+    anchor_at = page.find("data-lens-anchor")
+    gauge_at = page.find("data-lens-gauge-card")
+    hero_ok = 0 <= anchor_at < gauge_at and "74,493" in page and "566.6" in page
+    record(
+        "L16",
+        "첫 화면 요약(원화·달러·금) 선행",
+        hero_ok,
+        "위치 순서 OK · 74,493달러 · 566.6g" if hero_ok else f"anchor={anchor_at} gauge={gauge_at}",
     )
 
     failures = [r for r in results if not r["ok"]]
