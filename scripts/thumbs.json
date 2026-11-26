@@ -926,6 +926,42 @@
    "sub": "3,000만 원·5년 남은 대출 0.3%p 인하, 총이자 24만 8,000원",
    "date": "2026.11.26",
    "alt": "어두운 책상 위에 펼친 대출 약정서와 형광펜, 옆에 놓인 계산기와 오른쪽으로 오르는 계단 모양의 작은 나무 블록 — 금리를 다시 계산해 보는 자리"
+  },
+  {
+   "slug": "insurance-breast-screening-biopsy",
+   "out": "public/thumbs/insurance-breast-screening-biopsy.webp",
+   "art": "downloads/thumbs-raw/insurance-breast-screening-biopsy.png",
+   "badge": [
+    "보험 · 병리",
+    "2026.11"
+   ],
+   "accent": "#F2D08C",
+   "headline": [
+    "추가검사라는 말",
+    "확진은 병리 결과지"
+   ],
+   "accentLine": 1,
+   "sub": "위양성 14%와 확진 0.2% 사이에서",
+   "date": "2026.11.26",
+   "alt": "어두운 슬레이트 책상 위에 놓인 유방촬영 필름과 조직검체 용기, 접힌 병리 결과지, 옆의 확대경 — 영상 소견과 병리 확진 사이를 읽는 장면"
+  },
+  {
+   "slug": "insurance-atherosclerosis-plaque",
+   "out": "public/thumbs/insurance-atherosclerosis-plaque.webp",
+   "art": "downloads/thumbs-raw/insurance-atherosclerosis-plaque.png",
+   "badge": [
+    "보험 · 혈관",
+    "2026.11"
+   ],
+   "accent": "#F2D08C",
+   "headline": [
+    "콜레스테롤 수치와",
+    "혈관벽 병변은 다르다"
+   ],
+   "accentLine": 1,
+   "sub": "E78 · I70 · I20, 담보는 어디에 붙나",
+   "date": "2026.11.26",
+   "alt": "어두운 탁자 위의 동맥 단면 모형과 지질 검사 결과지, 약통과 청진기 — 혈관벽 플라크와 혈액검사 수치를 나란히 보는 장면"
   }
  ]
 }
