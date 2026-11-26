@@ -21,6 +21,7 @@ export type StoreIcon =
   | "coverage"
   | "disclosure"
   | "silson"
+  | "bojang"
   | "guide"
   | "timemachine"
   | "calendar"
@@ -101,6 +102,7 @@ const artToIcon: Record<App["art"], StoreIcon> = {
   coverage: "coverage",
   disclosure: "disclosure",
   silson: "silson",
+  bojang: "bojang",
   pension: "pension",
   "pension-draw": "pension-draw",
   retirement: "retirement",

@@ -13,6 +13,7 @@ interface Props {
     | "coverage"
     | "disclosure"
     | "silson"
+    | "bojang"
     | "pension"
     | "pension-draw"
     | "retirement"
@@ -198,6 +199,34 @@ const utilSteps = utilArtRows[art];
     )
   }
 
+
+  {
+    art === "bojang" && (
+      <div class="relative">
+        <p class="text-[12px] font-semibold tracking-[0.01em] text-ink-faint">담보를 그룹으로</p>
+        <div class="mt-3 space-y-2">
+          {[
+            { label: "암·유사암", amount: "3,000만", w: "86%", tone: "#b1637a" },
+            { label: "뇌혈관·허혈성심장", amount: "2,000만", w: "62%", tone: "#7c5cbf" },
+            { label: "질병·상해 수술비", amount: "400만", w: "26%", tone: "#1f7a62" },
+            { label: "입원·간병", amount: "일 5만", w: "14%", tone: "#2c7be0" },
+            { label: "실손의료비", amount: "4세대", w: "40%", tone: "#1a4ffd" },
+          ].map((row) => (
+            <div>
+              <div class="flex items-baseline justify-between gap-2">
+                <span class="text-[12px] text-ink-muted">{row.label}</span>
+                <span class="serif text-[13px] tabular-nums text-ink">{row.amount}</span>
+              </div>
+              <div class="mt-1 h-[5px] w-full bg-line-soft">
+                <div class="h-full" style={`width:${row.w};background:${row.tone}`} />
+              </div>
+            </div>
+          ))}
+        </div>
+        <p class="mt-3 text-[12px] text-ink-faint">정액과 일당은 더하지 않고 따로 셉니다</p>
+      </div>
+    )
+  }
   {
     art === "pension" && (
       <div class="relative">

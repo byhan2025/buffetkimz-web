@@ -2,6 +2,7 @@ import CoverageCheck from "./CoverageCheck";
 import DisclosureCheck from "./DisclosureCheck";
 import SimpyeongOrganizer from "./SimpyeongOrganizer";
 import SilsonCompare from "./SilsonCompare";
+import BojangSummary from "./BojangSummary";
 import PensionTax from "./PensionTax";
 import PensionDraw from "./PensionDraw";
 import RetirementFlow from "./RetirementFlow";
@@ -60,6 +61,7 @@ const MAP: Record<string, (props: { compact?: boolean }) => React.ReactElement> 
   "disclosure-check": DisclosureCheck,
   "simpyeong-disclosure": SimpyeongOrganizer,
   "silson-compare": SilsonCompare,
+  "bojang-summary": BojangSummary,
   "url-cleaner": UrlCleaner,
   "pdf-image": PdfImage,
   "image-compress": ImageCompress,
