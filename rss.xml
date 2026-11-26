@@ -9,8 +9,16 @@
     <managingEditor>buffetkimz</managingEditor>
     <generator>buffetkimz-web (Astro)</generator>
     <ttl>60</ttl>
-    <lastBuildDate>Thu, 26 Nov 2026 15:59:47 GMT</lastBuildDate>
+    <lastBuildDate>Thu, 26 Nov 2026 20:43:31 GMT</lastBuildDate>
     <atom:link href="https://byhan2025.github.io/buffetkimz-web/rss.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>60세 넘어 국민연금 5년 더 내면 월 16만 6,451원, 본전은 74.5세</title>
+      <link>https://byhan2025.github.io/buffetkimz-web/posts/pension-after-60-continue-breakeven/</link>
+      <guid isPermaLink="true">https://byhan2025.github.io/buffetkimz-web/posts/pension-after-60-continue-breakeven/</guid>
+      <category>연금</category>
+      <pubDate>Fri, 27 Nov 2026 00:00:00 GMT</pubDate>
+      <description>2026년 보험료율 9.5%로 60세부터 5년을 더 내면, 월 소득 300만 원이던 사람은 1,890만 원을 내고 연금이 월 16만 6,451원 늘어납니다. 본전은 74.5세이고, 일을 그만두고 최소액으로 내면 69.7세로 당겨집니다. 소득별로 계산했습니다.</description>
+    </item>
     <item>
       <title>예금자보호 1억 원 계산법: 원금·이자·금융회사·상품 체크</title>
       <link>https://byhan2025.github.io/buffetkimz-web/posts/deposit-protection-limit-100-million-check/</link>
@@ -242,14 +250,6 @@
       <category>연금</category>
       <pubDate>Sat, 21 Nov 2026 00:00:00 GMT</pubDate>
       <description>같은 5,000만원 수익이 일반계좌·ISA·연금저축·IRP에서 얼마씩 남는지 계산했습니다. 15.4%·9.9%·5.5%·16.5%가 어디서 갈리는지, 자산 유형별로 나눠 봅니다.</description>
-    </item>
-    <item>
-      <title>연말 연금저축 600·IRP 900·ISA 전환 300 — 공제 한도와 결정세액 체크</title>
-      <link>https://byhan2025.github.io/buffetkimz-web/posts/pension-master-03-yearend-900/</link>
-      <guid isPermaLink="true">https://byhan2025.github.io/buffetkimz-web/posts/pension-master-03-yearend-900/</guid>
-      <category>연금</category>
-      <pubDate>Sat, 21 Nov 2026 00:00:00 GMT</pubDate>
-      <description>12월 31일 전에 확인할 세 가지 숫자와, ISA 만기 자금 300만원이 '공제대상 납입액'일 뿐 환급액이 아니라는 점을 정리했습니다. 결정세액이 작은 해에 한도를 채우면 생기는 일도 함께 봅니다.</description>
     </item>
   </channel>
 </rss>
