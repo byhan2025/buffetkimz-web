@@ -106,23 +106,23 @@ export const galleryItems: GalleryItem[] = [
   /* quant-screening-daily:BEGIN — render_quant_cards.mjs --gallery가 매일 이 블록만 새로 씁니다 */
   {
     id: "quant-screening-daily",
-    title: "4대 시장 퀀트 스크리닝 (11/26)",
+    title: "4대 시장 퀀트 스크리닝 (11/27)",
     tagline: "골든 시그널로 본 4종목",
     summary:
-      "미국 주식·미국 ETF·국내 주식·국내 ETF 네 시장을 같은 기준(이동평균선 정배열·RSI·거래량)으로 훑은 2026. 11. 26 기준 결과입니다. 시장별 1위 4종목과 개장 전 체크포인트 3가지를 6장에 담았습니다.",
+      "미국은 추수감사절 휴장으로 11월 25일 마감값이 그대로이고, 국내는 한은이 기준금리를 3.25%로 올린 다음 날입니다. 08:20 퀀트 스크리닝에서 200종목 중 68개가 골든 시그널이었고, 미국 주식 홈디포·미국 ETF TLT·국내 주식 카카오뱅크·국내 ETF TIGER 미국채30년스트립이 시장별 1위입니다. 방어 성격의 은행·장기 국채가 앞서고 반도체·성장주는 뒤처진 하루였습니다.",
     category: "cardnews",
-    createdAt: "2026-11-26",
+    createdAt: "2026-11-27",
     tags: ["퀀트 스크리닝", "골든 시그널", "미국 주식", "국내 주식", "ETF"],
     slides: [
-      { src: "/gallery/quant-screening-daily/01.webp", width: 1080, height: 1350, alt: "표지 — 4대 시장 퀀트 스크리닝, 미국 주식 홈디포·미국 ETF TLT·국내 주식 유한양행·국내 ETF KODEX 인버스2X", caption: "표지 — 골든 시그널로 본 4종목" },
+      { src: "/gallery/quant-screening-daily/01.webp", width: 1080, height: 1350, alt: "표지 — 4대 시장 퀀트 스크리닝, 미국 주식 홈디포·미국 ETF TLT·국내 주식 카카오뱅크·국내 ETF 미국채30년", caption: "표지 — 골든 시그널로 본 4종목" },
       { src: "/gallery/quant-screening-daily/02.webp", width: 1080, height: 1350, alt: "미국 주식 / 제공 스크리닝 1위 — 홈디포 $361.26 (+2.14%), 거래량 약 667만 주, RSI / 제공 59.6, 골든 시그널 / 제공 100점", caption: "미국 주식 1위 — 홈디포 $361.26 (+2.14%)" },
       { src: "/gallery/quant-screening-daily/03.webp", width: 1080, height: 1350, alt: "미국 ETF / 제공 스크리닝 1위 — 아이셰어즈 20년+ 국채 $82.24 (+0.92%), 거래량 약 4,888만 주, RSI / 제공 52.6, 골든 시그널 / 제공 100점", caption: "미국 ETF 1위 — 아이셰어즈 20년+ 국채 $82.24 (+0.92%)" },
-      { src: "/gallery/quant-screening-daily/04.webp", width: 1080, height: 1350, alt: "국내 주식 / 제공 스크리닝 1위 — 유한양행 83,500원 (+8.02%), 거래량 약 36.8만 주, RSI / 제공 51.6, 골든 시그널 / 제공 100점", caption: "국내 주식 1위 — 유한양행 83,500원 (+8.02%)" },
-      { src: "/gallery/quant-screening-daily/05.webp", width: 1080, height: 1350, alt: "국내 ETF / 제공 스크리닝 1위 — KODEX 200선물인버스2X 138원 (+14.05%), 거래량 약 78.1억 주, RSI / 제공 61.0, 골든 시그널 / 제공 100점", caption: "국내 ETF 1위 — KODEX 200선물인버스2X 138원 (+14.05%)" },
-      { src: "/gallery/quant-screening-daily/06.webp", width: 1080, height: 1350, alt: "개장 전, 세 가지 체크포인트 — 미국장 S&P500 7,182.73 (-0.25%) / 나스닥 -0.64% / 다우 +0.31%, 개장 전 시그널 NXT 프리마켓 삼성전자 +1.23% / SK하이닉스 +2.43%, 환율·제도 원/달러 1,343.40원 / 오늘 10시 한은 금통위", caption: "마무리 — 개장 전 체크포인트 3" },
+      { src: "/gallery/quant-screening-daily/04.webp", width: 1080, height: 1350, alt: "국내 주식 / 제공 스크리닝 1위 — 카카오뱅크 22,100원 (+0.45%), 거래량 약 66.9만 주, RSI / 제공 63.1, 골든 시그널 / 제공 100점", caption: "국내 주식 1위 — 카카오뱅크 22,100원 (+0.45%)" },
+      { src: "/gallery/quant-screening-daily/05.webp", width: 1080, height: 1350, alt: "국내 ETF / 제공 스크리닝 1위 — TIGER 미국채30년 34,755원 (+0.64%), 거래량 약 10.9만 주, RSI / 제공 49.3, 골든 시그널 / 제공 100점", caption: "국내 ETF 1위 — TIGER 미국채30년 34,755원 (+0.64%)" },
+      { src: "/gallery/quant-screening-daily/06.webp", width: 1080, height: 1350, alt: "개장 전, 세 가지 체크포인트 — 미국장 S&P500 7,182.73 (-0.25%) / 다우 +0.33%, 개장 전 시그널 상장사 배당 30조7,000억 원 지급, 환율·제도 역외 원/달러 1,343.3원 (+0.6원)", caption: "마무리 — 개장 전 체크포인트 3" },
     ],
     basis:
-      "기준 2026. 11. 26 08:20 · 시세 Yahoo Finance·KRX / 지수 S&P·Nasdaq / 환율 08:20 기준 · 투자 권유가 아닌 기록입니다",
+      "기준 2026. 11. 27 08:20 · 시세 Yahoo Finance·KRX / 지수 S&P·Nasdaq / 환율 08:20 기준 · 투자 권유가 아닌 기록입니다",
     related: [{ label: "오늘의 시장 확인 — 데일리 브리프", href: "/board/" }],
   },
   /* quant-screening-daily:END */
