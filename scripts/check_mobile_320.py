@@ -85,6 +85,8 @@ ROUTES = [
     ("post-new-rate-cut", "/posts/rate-cut-request-2026-checklist/"),
     # 2026-11-26 19:15 — 중도상환수수료 4단계(표 2개·비교 카드·출처 4건이 한 화면에)
     ("post-new-prepayment-fee", "/posts/finance-loan-prepayment-fee-2026/"),
+    # 2026-11-27 06:15 — 리볼빙 수수료 계산법(표 6행·비교 카드·출처 4건이 한 화면에)
+    ("post-new-revolving", "/posts/credit-card-revolving-fee-calculation/"),
     # v9.2.0 — 데일리 브리프 게시판(분류 필터 알약·회차 배지·출처 링크가 한 화면에 모인 곳)
     ("board", "/board/"),
 ]

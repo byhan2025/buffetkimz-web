@@ -1,16 +1,16 @@
 [
   {
-    "slug": "pension-after-60-continue-breakeven",
-    "out": "public/thumbs/pension-after-60-continue-breakeven.webp",
-    "bytes": 41902,
+    "slug": "credit-card-revolving-fee-calculation",
+    "out": "public/thumbs/credit-card-revolving-fee-calculation.webp",
+    "bytes": 64014,
     "lines": [
       {
-        "text": "60세 이후 5년 더 내면",
+        "text": "최소결제만 하면",
         "size": 64,
         "overflow": false
       },
       {
-        "text": "월 16만 6,451원",
+        "text": "39개월 39만 2,165원",
         "size": 64,
         "overflow": false
       }

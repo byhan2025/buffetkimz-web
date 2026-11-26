@@ -998,6 +998,24 @@
   "sub": "1,890만 원의 본전은 74.5세",
   "date": "2026.11.27",
   "alt": "어두운 나무 책상 위에 펼친 통장과 펜, 12월로 넘긴 달력 한 장, 놋쇠 회중시계와 가지런히 쌓은 동전 무더기, 왼쪽에서 비치는 따뜻한 스탠드 불빛"
+ },
+ {
+  "slug": "credit-card-revolving-fee-calculation",
+  "out": "public/thumbs/credit-card-revolving-fee-calculation.webp",
+  "art": "downloads/thumbs-raw/credit-card-revolving-fee-calculation.png",
+  "badge": [
+   "금융 · 카드",
+   "2026.11"
+  ],
+  "accent": "#F2D08C",
+  "headline": [
+   "최소결제만 하면",
+   "39개월 39만 2,165원"
+  ],
+  "accentLine": 1,
+  "sub": "이월잔액에 붙는 수수료, 표준약관 산식으로",
+  "date": "2026.11.27",
+  "alt": "어두운 책상 위에 펼친 카드 명세서와 계산기, 옆으로 밀어 둔 카드 두 장과 접힌 영수증 — 이월잔액과 수수료를 계산하는 자리"
  }
  ]
 }
