@@ -21,7 +21,7 @@ const SCENES = [
   { id: 1, start: 0.0, end: 1.5, label: "빛의 응집", short: "빛의 응집", en: "OPENING" },
   { id: 2, start: 1.5, end: 3.8, label: "다섯 개의 단어", short: "다섯 단어", en: "KEYWORDS" },
   { id: 3, start: 3.8, end: 6.0, label: "시간의 곡선", short: "시간 곡선", en: "TIME" },
-  { id: 4, start: 6.0, end: 7.8, label: "장면 전환", short: "와이프", en: "WIPE" },
+  { id: 4, start: 6.0, end: 7.8, label: "장면 전환", short: "화면 전환", en: "WIPE" },
   { id: 5, start: 7.8, end: 10.2, label: "브랜드 록업", short: "브랜드", en: "LOCKUP" },
   { id: 6, start: 10.2, end: 12.0, label: "다음 장면", short: "다음 장면", en: "NEXT" },
 ] as const;

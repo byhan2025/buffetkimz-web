@@ -3,12 +3,17 @@ import Base from "@/layouts/Base.astro";
 import { withBase } from "@/config/site";
 import { categories } from "@/data/categories";
 import { apps } from "@/data/apps";
+/*
+ * 2026-11-28 전수 점검: 이 화면의 canonical·og:url이 `/404/`(실제로 없는 주소)를 가리켰다.
+ * 화면 경로는 /404로 두되 canonical은 사이트 첫 화면으로 돌린다(base의 `canonicalPath`).
+ */
 ---
 
 <Base
   title="페이지를 찾을 수 없습니다"
   description="요청한 페이지가 없습니다. 자산리포트와 앱, 골든타임에서 다시 찾아보세요."
   path="/404"
+  canonicalPath="/"
   noindex={true}
 >
   <section class="wrap flex min-h-[62vh] flex-col justify-center py-20">

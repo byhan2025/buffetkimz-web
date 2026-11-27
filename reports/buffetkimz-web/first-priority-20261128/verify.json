@@ -1,0 +1,210 @@
+{
+  "base": "http://127.0.0.1:4361",
+  "checks": [
+    {
+      "check": "① ISA 태그 = 3세트",
+      "ok": true,
+      "detail": {
+        "count": "3",
+        "visible": 3,
+        "slides": "16"
+      }
+    },
+    {
+      "check": "① 태그 단일 교체 = 칩의 수",
+      "ok": true,
+      "detail": {
+        "chip": "3D 카드\n7",
+        "shown": "7",
+        "visible": 7
+      }
+    },
+    {
+      "check": "① 전체 버튼이 되돌린다",
+      "ok": true,
+      "detail": {
+        "before": "22",
+        "after": "22"
+      }
+    },
+    {
+      "check": "⑨ 자료앨범 1280 콘솔 오류 0",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "check": "⑨ 자료앨범 1280 가로 넘침 0",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "check": "② 날짜 머리 건수 = 보이는 건수",
+      "ok": true,
+      "detail": {
+        "before": [
+          "8",
+          "23",
+          "23"
+        ],
+        "after": [
+          "2/2",
+          "7/7",
+          "9/9",
+          "3/3",
+          "7/7"
+        ]
+      }
+    },
+    {
+      "check": "⑨ 게시판 1280 콘솔 오류 0",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "check": "③ 리스트 보기에서 요약문이 보인다",
+      "ok": true,
+      "detail": {
+        "visibleSummaries": 52
+      }
+    },
+    {
+      "check": "⑨ 자산리포트 1280 콘솔 오류 0",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "check": "⑨ 자산리포트 1280 가로 넘침 0",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "check": "④ '4세대이' 없음",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "check": "⑨ 실손 1280 콘솔 오류 0",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "check": "⑨ 실손 1280 가로 넘침 0",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "check": "⑤ 소식지 글 링크가 현재 사이트로 연결",
+      "ok": true,
+      "detail": [
+        "https://buffetkimz.com/posts/silson-switch-2026",
+        "https://buffetkimz.com/posts/silson-switch-2026"
+      ]
+    },
+    {
+      "check": "⑤ 국세청 링크 쿼리 유지",
+      "ok": true,
+      "detail": [
+        "https://www.nts.go.kr/nts/cm/cntnts/cntntsView.do?cntntsId=7875&mi=2304",
+        "https://www.nts.go.kr/nts/cm/cntnts/cntntsView.do?cntntsId=7875&mi=2304"
+      ]
+    },
+    {
+      "check": "⑤ '발행 파이프라인' 문구 없음",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "check": "⑨ 소식지 1280 콘솔 오류 0",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "check": "⑥ 홈 모듈 기준일이 11.21 고정이 아님",
+      "ok": true,
+      "detail": [
+        "기준 2026. 11. 28. · 1차 출처 · 자산리포트",
+        "기준일 2026. 11. 28. · 소득세법 · 금융위"
+      ]
+    },
+    {
+      "check": "⑨ 홈 1280 콘솔 오류 0",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "check": "⑨ 홈 1280 가로 넘침 0",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "check": "⑨ 자료앨범 390 콘솔 오류 0",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "check": "⑨ 자료앨범 390 가로 넘침 0",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "check": "⑨ 게시판 390 콘솔 오류 0",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "check": "⑨ 자산리포트 390 콘솔 오류 0",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "check": "⑨ 자산리포트 390 가로 넘침 0",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "check": "⑨ 실손 390 콘솔 오류 0",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "check": "⑨ 실손 390 가로 넘침 0",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "check": "⑨ 소식지 390 콘솔 오류 0",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "check": "⑨ 홈 390 콘솔 오류 0",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "check": "⑨ 홈 390 가로 넘침 0",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "check": "⑦ 404 canonical이 사이트 첫 화면",
+      "ok": true,
+      "detail": "https://buffetkimz.com/"
+    },
+    {
+      "check": "⑧ 사이트맵 lastmod가 페이지별로 다르다",
+      "ok": true,
+      "detail": {
+        "distinct": 8,
+        "sample": [
+          "2026-11-21T00:00:00.000Z",
+          "2026-11-22T00:00:00.000Z",
+          "2026-11-23T00:00:00.000Z",
+          "2026-11-24T00:00:00.000Z"
+        ]
+      }
+    }
+  ],
+  "ok": true,
+  "failed": []
+}

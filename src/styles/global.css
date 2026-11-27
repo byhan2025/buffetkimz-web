@@ -1821,11 +1821,18 @@
     transform: none !important;
   }
 
+  /* 2026-11-28 — 리스트 보기에서도 요약문 한 줄은 남긴다(제목만 남으면 무슨 글인지 알 수 없다). */
   [data-post-cards][data-view-mode="text"] .post-thumb,
-  [data-post-cards][data-view-mode="text"] [data-card-summary],
   [data-post-cards][data-view-mode="text"] [data-card-tags],
   [data-post-cards][data-view-mode="text"] [data-card-question] {
     display: none !important;
+  }
+
+  [data-post-cards][data-view-mode="text"] [data-card-summary] {
+    margin-top: 4px !important;
+    font-size: 13px !important;
+    line-height: 1.65 !important;
+    -webkit-line-clamp: 2;
   }
 
   [data-post-cards][data-view-mode="text"] [data-card-title] {

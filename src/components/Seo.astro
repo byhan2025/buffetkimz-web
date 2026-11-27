@@ -13,6 +13,11 @@ interface Props {
    */
   noindexFollow?: boolean;
   type?: "website" | "article";
+  /**
+   * canonical·og:url에 쓸 경로 — 화면 경로와 다른 주소로 가리켜야 할 때만 준다.
+   * 404는 실제 페이지(`/404/`)가 없으므로 사이트 첫 화면을 가리킨다(2026-11-28).
+   */
+  canonicalPath?: string;
   publishedTime?: string;
   /** og:image·twitter:image 에 쓸 대표이미지 (public 기준 경로). 없으면 기본 /og.png */
   image?: string;
@@ -25,6 +30,7 @@ const {
   title,
   description,
   path,
+  canonicalPath,
   noindex = false,
   noindexFollow = false,
   type = "website",
@@ -34,7 +40,8 @@ const {
   imageWidth,
   imageHeight,
 } = Astro.props;
-const normalized = path === "/" ? "/" : path.replace(/\/$/, "") + "/";
+const canonicalBase = canonicalPath ?? path;
+const normalized = canonicalBase === "/" ? "/" : canonicalBase.replace(/\/$/, "") + "/";
 const canonical = absolute(normalized);
 const fullTitle = path === "/" ? title : `${title} · ${site.brand}`;
 const ogImage = absolute(image ?? "/og.png");

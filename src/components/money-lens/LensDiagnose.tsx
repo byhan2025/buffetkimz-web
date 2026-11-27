@@ -32,7 +32,7 @@ const PRESETS: { id: string; label: string; hint: string; value: Inputs }[] = [
   {
     id: "deposit",
     label: "예금 1억",
-    hint: "월 250만 원 지출 · 원화 예금 1억",
+    hint: "월 250만 원 지출 · 원화 예금 1억 원",
     value: { monthly: 250, cash: 10000, fxGold: 0, stocks: 0, houseLive: 0, debt: 0 },
   },
   {
@@ -44,7 +44,7 @@ const PRESETS: { id: string; label: string; hint: string; value: Inputs }[] = [
   {
     id: "office",
     label: "직장인 3억 분산",
-    hint: "예금 3,000 · 달러·금 4,000 · 주식·연금 2억 3,000",
+    hint: "예금 3,000만 원 · 달러·금 4,000만 원 · 주식·연금 2억 3,000만 원",
     value: { monthly: 250, cash: 3000, fxGold: 4000, stocks: 23000, houseLive: 0, debt: 0 },
   },
 ];

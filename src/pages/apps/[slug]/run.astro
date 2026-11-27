@@ -13,6 +13,14 @@ export async function getStaticPaths() {
 }
 
 const { app } = Astro.props;
+/**
+ * 기준·출처 문장 — 앱 data의 sourceLine 끝에 붙어 있던 '· 기준일 2026. 11. 21.' 같은 고정 날짜는
+ * 사이트 공통 기준일과 나란히 서면 서로 다른 날짜처럼 보인다(2026-11-28 전수 점검).
+ * 날짜는 아래 '사이트 기준일' 줄 하나로 두고, 문장에서는 그 표기만 걷어낸다(출처 이름은 그대로).
+ */
+const sourceLine = (app.sourceLine ?? "출처는 각 도구의 기준과 출처 문서를 따릅니다.")
+  .replace(/\s*·?\s*(?:확인\s*)?기준일\s*\d{4}\.\s*\d{1,2}\.\s*\d{1,2}\.\s*$/u, "")
+  .trim();
 ---
 
 <Base
@@ -97,7 +105,10 @@ const { app } = Astro.props;
           <p class="text-[12px] font-semibold text-ink">
             {app.runMode === "form" ? "동의서 기준·출처" : app.category === "utility" ? "동작 기준·출처" : "계산 기준·출처"}
           </p>
-          <p class="mt-1.5">{app.sourceLine ?? `기준일 ${site.baseDateLabel}`}</p>
+          <p class="mt-1.5">{sourceLine}</p>
+          <p class="mt-1 text-[11.5px] text-ink-faint">
+            사이트 기준일 {site.baseDateLabel} · 문장 안의 조문·수치 기준일은 각 출처에 적힌 날짜입니다.
+          </p>
         </div>
         <div class="note-box">
           <p class="text-[12px] font-semibold text-ink">{app.category === "utility" ? "알아 둘 점" : "가정"}</p>

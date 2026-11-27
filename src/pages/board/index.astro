@@ -213,8 +213,8 @@ const jsonLd = graph([
                 {boardDateLabel(g.date)}
               </h2>
               <p class="mono br-day-meta">
-                {g.items.length}건 ·{" "}
-                {[...new Set(g.items.map((i) => i.slot))].sort().join(" · ")} 회차
+                <span data-board-day-count>{g.items.length}</span>건 ·{" "}
+                <span data-board-day-slots>{[...new Set(g.items.map((i) => i.slot))].sort().join(" · ")}</span> 회차
               </p>
             </header>
 
@@ -224,6 +224,7 @@ const jsonLd = graph([
                   class="br-item"
                   data-board-entry
                   data-category={e.category}
+                  data-slot={e.slot}
                   data-tone={boardCornerOf(e.category).tone}
                   id={e.id}
                 >
@@ -349,8 +350,18 @@ const jsonLd = graph([
         if (on) shown += 1;
       }
       for (const day of days) {
-        const any = Array.from(day.querySelectorAll<HTMLElement>("[data-board-entry]")).some((c) => !c.hidden);
-        day.hidden = !any;
+        const shownHere = Array.from(day.querySelectorAll<HTMLElement>("[data-board-entry]")).filter(
+          (c) => !c.hidden
+        );
+        /* 날짜 머리의 건수·회차도 고른 분류에 맞춰 다시 센다 — 23건처럼 고정되어 보이지 않게 */
+        const countSpan = day.querySelector<HTMLElement>("[data-board-day-count]");
+        if (countSpan) countSpan.textContent = String(shownHere.length);
+        const slotsSpan = day.querySelector<HTMLElement>("[data-board-day-slots]");
+        if (slotsSpan) {
+          const slots = Array.from(new Set(shownHere.map((c) => c.dataset.slot || ""))).filter(Boolean).sort();
+          slotsSpan.textContent = slots.join(" · ");
+        }
+        day.hidden = shownHere.length === 0;
       }
       buttons.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.boardTab === active)));
       cornerButtons.forEach((b) =>

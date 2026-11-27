@@ -920,13 +920,26 @@ export function buildMessage(result, opts = {}) {
   return lines.join("\n");
 }
 
+/**
+ * 주격 조사 — 받침이 있으면 '이', 없으면 '가'.
+ * '4세대이 가장 많이 돌려받습니다'(2026-11-28 전수 점검)처럼 라벨에 조사를 붙일 때 쓴다.
+ * 라벨 끝이 괄호·기호면 마지막 한글 글자를 기준으로 본다('1세대 · 손해보험사' → 가).
+ */
+export function subjectJosa(word) {
+  const text = String(word ?? "").trim();
+  const letters = text.match(/[가-힣]/g);
+  if (!letters || letters.length === 0) return "이(가)";
+  const code = letters[letters.length - 1].charCodeAt(0) - 0xac00;
+  return code % 28 === 0 ? "가" : "이";
+}
+
 /** 세대별 비교 한 줄 — 인쇄·화면 공용 */
 export function comparisonSummary(result) {
   const p = result.primary;
   const best = result.rows.slice().sort((a, b) => b.payout - a.payout)[0];
-  if (!best || best.id === p.id) return `이 병원비에서는 ${p.label}이 가장 많이 돌려받습니다.`;
+  if (!best || best.id === p.id) return `이 병원비에서는 ${p.label}${subjectJosa(p.label)} 가장 많이 돌려받습니다.`;
   const gap = best.payout - p.payout;
-  return `이 병원비에서는 ${best.label}이 ${comma(gap)}원 더 돌려받습니다. 보험료 차이는 따로 봐야 합니다.`;
+  return `이 병원비에서는 ${best.label}${subjectJosa(best.label)} ${comma(gap)}원 더 돌려받습니다. 보험료 차이는 따로 봐야 합니다.`;
 }
 
 /** 세대별 규칙표 — 화면·인쇄에 그대로 쓰는 요약(숫자는 이 파일에서만 고친다) */

@@ -22,8 +22,18 @@ links: set[str] = set()
 imgs: set[str] = set()
 bad_links: dict[str, list[str]] = {}
 bad_imgs: dict[str, list[str]] = {}
+# 2026-11-28 — 서브패스 배포인데 접두가 빠진 내부 링크(라이브 404의 원인).
+#   기존 검사는 접두를 떼고 보기 때문에 `/posts/x`(접두 없음)를 정상으로 통과시켰다.
+bad_prefix: dict[str, list[str]] = {}
 all_imgs: set[str] = set()
 pages = sorted(ROOT.rglob("*.html"))
+
+# 이 dist가 서브패스 빌드인지 — 접두가 붙은 자산 링크가 하나라도 있으면 그렇다.
+SUB = BASE_PREFIX + "/"
+uses_prefix = any(
+    any(v.strip().startswith(SUB) for v in ATTR.findall(p.read_text(encoding="utf-8", errors="ignore")))
+    for p in pages
+)
 
 
 imports_total = 0
@@ -51,6 +61,8 @@ for page in pages:
         if not val or val.startswith(("#", "http://", "https://", "mailto:", "tel:", "data:", "//", "javascript:")):
             continue
         path = unquote(urlsplit(val).path)
+        if uses_prefix and path.startswith("/") and not path.startswith(SUB):
+            bad_prefix.setdefault(path, []).append(page_url)
         if path.startswith(BASE_PREFIX):
             path = path[len(BASE_PREFIX):] or "/"
         if not path.startswith("/"):
@@ -77,6 +89,9 @@ out = {
     "bad_imgs": len(bad_imgs),
     "bad_link_detail": {k: v[:3] for k, v in list(bad_links.items())[:20]},
     "bad_img_detail": {k: v[:3] for k, v in list(bad_imgs.items())[:20]},
+    "subpath_build": uses_prefix,
+    "missing_base_prefix": len(bad_prefix),
+    "missing_base_prefix_detail": {k: v[:3] for k, v in list(bad_prefix.items())[:20]},
 }
 print(json.dumps(out, ensure_ascii=False, indent=2))
-sys.exit(0 if not bad_links and not bad_imgs else 1)
+sys.exit(0 if not bad_links and not bad_imgs and not bad_prefix else 1)

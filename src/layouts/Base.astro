@@ -10,6 +10,8 @@ interface Props {
   title: string;
   description: string;
   path: string;
+  /** canonical·og:url에 쓸 경로 — 화면 경로와 다른 주소로 가리켜야 할 때만 준다(404 → 홈) */
+  canonicalPath?: string;
   noindex?: boolean;
   /** noindex 페이지의 링크를 따라가게 둔다(빈 목록·미완성 페이지) */
   noindexFollow?: boolean;
@@ -24,8 +26,11 @@ interface Props {
   jsonLd?: Record<string, unknown>;
 }
 
-const { title, description, path, noindex, noindexFollow, type, publishedTime, image, imageAlt, imageWidth, imageHeight, jsonLd } =
+const { title, description, path, canonicalPath, noindex, noindexFollow, type, publishedTime, image, imageAlt, imageWidth, imageHeight, jsonLd } =
   Astro.props;
+
+/** canonical·hreflang 기준 경로 — 404처럼 실제 페이지가 없는 화면은 홈을 가리킨다 */
+const canonicalHref = (canonicalPath ?? path) === "/" ? "/" : (canonicalPath ?? path).replace(/\/$/, "") + "/";
 
 /*
  * 검색엔진 소유 확인 메타는 `src/components/Seo.astro`가 `src/config/site.ts`의
@@ -53,6 +58,7 @@ const { title, description, path, noindex, noindexFollow, type, publishedTime, i
       title={title}
       description={description}
       path={path}
+      canonicalPath={canonicalPath}
       noindex={noindex}
       noindexFollow={noindexFollow}
       type={type}
@@ -80,7 +86,7 @@ const { title, description, path, noindex, noindexFollow, type, publishedTime, i
     <link rel="icon" href={withBase("/favicon-16.png")} sizes="16x16" type="image/png" />
     <link rel="icon" href={withBase("/favicon-32.png")} sizes="32x32" type="image/png" />
     <link rel="apple-touch-icon" href={withBase("/apple-touch-icon.png")} sizes="180x180" />
-    <link rel="alternate" hreflang="ko" href={absolute(path === "/" ? "/" : path.replace(/\/$/, "") + "/")} />
+    <link rel="alternate" hreflang="ko" href={absolute(canonicalHref)} />
     <link rel="alternate" type="application/rss+xml" title={`${site.brand} 기록`} href={withBase("/rss.xml")} />
     <!--
       llms.txt 표준(llmstxt.org)이 권하는 연결 — 이 문서가 어느 llms.txt의 적용을 받는지 밝힌다.

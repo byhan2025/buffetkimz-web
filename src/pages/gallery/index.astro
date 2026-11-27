@@ -148,9 +148,13 @@ const jsonLd = graph([
 
       <div class="mt-3 flex flex-wrap items-center gap-1.5" data-gallery-tags>
         <span class="text-[12px] font-semibold text-ink-faint">태그</span>
+        {/* 2026-11-28 — 태그는 한 번에 하나만. '전체'가 모든 필터를 되돌린다. */}
+        <button type="button" class="gallery-tag is-active" data-gallery-tag="" aria-pressed="true">
+          전체
+        </button>
         {
           tags.map(([tag, n]) => (
-            <button type="button" class="gallery-tag" data-gallery-tag={tag}>
+            <button type="button" class="gallery-tag" data-gallery-tag={tag} aria-pressed="false">
               {tag}
               <span class="text-ink-faint">{n}</span>
             </button>
@@ -177,7 +181,7 @@ const jsonLd = graph([
                 class="gallery-card cnp-cover"
                 data-gallery-item={item.id}
                 data-category={item.category}
-                data-tags={item.tags.join(" ")}
+                data-tags={`|${item.tags.join("|")}|`}
                 data-title={`${item.title} ${item.tagline} ${item.summary} ${item.tags.join(" ")}`}
                 data-slides={item.slides.length}
               >
@@ -264,10 +268,11 @@ const jsonLd = graph([
       let slides = 0;
       cards.forEach((card) => {
         const cat = card.dataset.category || "";
-        const tags = (card.dataset.tags || "").toLowerCase();
+        const tagList = (card.dataset.tags || "").toLowerCase();
         const title = (card.dataset.title || "").toLowerCase();
         const okCat = activeCat === "all" || cat === activeCat;
-        const okTag = !activeTag || tags.includes(activeTag.toLowerCase());
+        /* 태그는 정확히 한 칸(`|ISA|`)으로 비교한다 — 'ISA 전환'이 'ISA'로 잘못 세지지 않게 */
+        const okTag = !activeTag || tagList.includes(`|${activeTag.toLowerCase()}|`);
         const okQ = !q || title.includes(q);
         const visible = okCat && okTag && okQ;
         card.hidden = !visible;
@@ -281,7 +286,11 @@ const jsonLd = graph([
         t.classList.toggle("is-active", on);
         t.setAttribute("aria-selected", on ? "true" : "false");
       });
-      tagButtons.forEach((t) => t.classList.toggle("is-active", (t.dataset.galleryTag || "") === activeTag));
+      tagButtons.forEach((t) => {
+        const on = (t.dataset.galleryTag || "") === activeTag;
+        t.classList.toggle("is-active", on);
+        t.setAttribute("aria-pressed", on ? "true" : "false");
+      });
       if (countEl) countEl.textContent = String(shown);
       if (slideCountEl) slideCountEl.textContent = String(slides);
       if (empty) empty.hidden = shown > 0;
@@ -292,6 +301,8 @@ const jsonLd = graph([
     tabs.forEach((t) =>
       t.addEventListener("click", () => {
         activeCat = t.dataset.galleryTab || "all";
+        /* 분류와 태그를 동시에 걸어 0건으로 보이는 일을 막는다 — 분류를 고르면 태그는 풀린다 */
+        activeTag = "";
         applyFilter();
         /* v7.2부터 메뉴가 `/gallery/?cat=cardnews`로 들어온다 — 탭을 눌러도 주소를 맞춘다 */
         const url = new URL(window.location.href);
@@ -307,7 +318,13 @@ const jsonLd = graph([
     tagButtons.forEach((t) =>
       t.addEventListener("click", () => {
         const tag = t.dataset.galleryTag || "";
-        activeTag = activeTag === tag ? "" : tag;
+        /* 단일 교체형 — 다른 태그를 누르면 그 태그로 바뀌고, '전체'가 모든 필터를 푼다 */
+        activeTag = tag;
+        activeCat = "all";
+        if (!tag && search) search.value = "";
+        const url = new URL(window.location.href);
+        url.searchParams.delete("cat");
+        history.replaceState(null, "", url);
         applyFilter();
       })
     );

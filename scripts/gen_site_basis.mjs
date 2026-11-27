@@ -60,6 +60,37 @@ const asOf = today.match(/asOf:\s*"(\d{4}-\d{2}-\d{2})T/);
 if (!asOf) throw new Error("src/data/today.ts에서 허브 asOf를 찾지 못했습니다");
 record(asOf[1], "today.asOf");
 
+/* ④ 사이트맵의 페이지별 기준일 — astro.config.mjs가 읽는다(2026-11-28)
+ *   사이트맵 lastmod가 11.24 한 값으로 고정돼 11.27 글까지 반영되지 않던 문제를 없낸다.
+ *   글은 그 글의 baseDate, 카드 세트는 createdAt, 게시판·소식지는 각자 날짜, 나머지는 사이트 기준일이다. */
+const sitemapPaths = {};
+for (const name of readdirSync(postsDir)) {
+  if (!name.endsWith(".md") && !name.endsWith(".mdx")) continue;
+  const raw = readFileSync(join(postsDir, name), "utf8");
+  const pick = (key) => {
+    const m = raw.match(new RegExp(`^${key}:\\s*['"]?(\\d{4}-\\d{2}-\\d{2})`, "m"));
+    return m ? m[1] : undefined;
+  };
+  const date = pick("updatedAt") ?? pick("baseDate") ?? pick("publishedAt");
+  if (date) sitemapPaths[`/posts/${name.replace(/\.mdx?$/, "")}`] = date;
+}
+
+const gallerySrc = readFileSync(join(ROOT, "src/data/gallery.ts"), "utf8");
+const galleryMarks = [...gallerySrc.matchAll(/\bid:\s*"([^"]+)"/g)].map((m) => ({ id: m[1], at: m.index }));
+for (let i = 0; i < galleryMarks.length; i += 1) {
+  const seg = gallerySrc.slice(galleryMarks[i].at, galleryMarks[i + 1]?.at ?? gallerySrc.length);
+  const d = seg.match(/createdAt:\s*"(\d{4}-\d{2}-\d{2})"/);
+  if (d) sitemapPaths[`/gallery/${galleryMarks[i].id}`] = d[1];
+}
+
+sitemapPaths["/board"] = boardDates.reduce((a, b) => (b > a ? b : a), boardDates[0]);
+for (const name of readdirSync(join(ROOT, "letters"))) {
+  if (!name.endsWith(".md")) continue;
+  const raw = readFileSync(join(ROOT, "letters", name), "utf8");
+  const d = raw.match(/^date:\s*['"]?(\d{4}-\d{2}-\d{2})/m);
+  if (d) sitemapPaths[`/letters/${name.replace(/\.md$/, "")}`] = d[1];
+}
+
 /* 가장 늦은 날짜 — 같은 날짜가 여럿이면 그중 첫 번째 출처를 함께 적는다 */
 const latest = found.reduce((a, b) => (b.date > a.date ? b : a));
 const sameDay = found.filter((f) => f.date === latest.date).length;
@@ -89,7 +120,22 @@ const before = (() => {
 })();
 if (before !== out) writeFileSync(target, out, "utf8");
 
+/* 사이트맵 기준일 표 — 사람이 읽지 않는 생성 파일이므로 JSON으로 둔다 */
+const sitemapTarget = join(ROOT, "src/config/sitemap-lastmod.generated.json");
+const sitemapOut = `${JSON.stringify({ default: latest.date, paths: sitemapPaths }, null, 2)}\n`;
+const sitemapBefore = (() => {
+  try {
+    return readFileSync(sitemapTarget, "utf8");
+  } catch {
+    return "";
+  }
+})();
+if (sitemapBefore !== sitemapOut) writeFileSync(sitemapTarget, sitemapOut, "utf8");
+
 const count = (date) => found.filter((f) => f.date === date).length;
 console.log(
   `✓ site-basis: 최신 콘텐츠 날짜 ${latest.date} (${latest.where}) · 글 ${readdirSync(postsDir).filter((n) => n.endsWith(".md")).length}편 · 게시판 ${boardDates.length}건 중 그날 ${count(latest.date)}건${before === out ? " · 변경 없음" : " · 파일 갱신"}`,
+);
+console.log(
+  `✓ sitemap lastmod: 페이지별 ${Object.keys(sitemapPaths).length}개 · 기본 ${latest.date}${sitemapBefore === sitemapOut ? " · 변경 없음" : " · 파일 갱신"}`,
 );

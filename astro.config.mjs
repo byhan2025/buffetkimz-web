@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'astro/config';
 import { unified } from '@astrojs/markdown-remark';
 import react from '@astrojs/react';
@@ -42,23 +44,70 @@ const ARCHIVED_PATHS = [
   '/apps/market-world-clock',
 ];
 
-/** 마크다운 본문 안의 내부 링크("/apps/…")에도 배포 접두를 붙인다. */
-function rehypeBase(base) {
+/**
+ * 마크다운 본문 안의 내부 링크("/apps/…")에도 배포 접두를 붙인다.
+ *
+ * v9.5.1(2026-11-28 전수 점검): 본문에 섞어 쓴 **원시 HTML 앵커**(`<a href="/posts/…">`)는
+ *   rehype-raw 없이 hast의 `raw` 노드로 남아 위 element 검사에 걸리지 않았다. 그래서 서브패스 배포
+ *   (`/buffetkimz-web/`)에서 그 링크만 접두가 빠져 404가 났다(리볼빙·신용점수·중도상환·금리인하요구권 글).
+ *   raw 노드의 href/src도 같은 규칙으로 고치고, 소식지 본문처럼 **사이트 자기 주소를 절대 URL로 적은 링크**
+ *   (`https://buffetkimz.com/posts/…`)도 배포 접두가 붙은 경로로 바꾼다.
+ *   도메인 루트 배포(BASE='/')에서는 접두가 빈 문자열이라 주소가 그대로다.
+ */
+function rehypeBase(base, siteUrl) {
   const prefix = base.replace(/\/$/, '');
+  const ownHosts = new Set(['buffetkimz.com', 'www.buffetkimz.com']);
+  try {
+    ownHosts.add(new URL(siteUrl).host);
+  } catch {
+    /* site 값이 비어 있어도 위 두 호스트는 유지한다 */
+  }
+  const rewrite = (value) => {
+    if (prefix && (value === prefix || value.startsWith(`${prefix}/`))) return value;
+    if (value.startsWith('/') && !value.startsWith('//')) return `${prefix}${value}`;
+    if (/^https?:\/\//.test(value)) {
+      try {
+        const url = new URL(value);
+        if (ownHosts.has(url.host) && !url.pathname.startsWith(`${prefix}/`)) {
+          return `${prefix}${url.pathname}${url.search}${url.hash}`;
+        }
+      } catch {
+        /* 주소로 읽히지 않으면 손대지 않는다 */
+      }
+    }
+    return value;
+  };
   return () => (tree) => {
     const walk = (node) => {
       if (node.type === 'element' && (node.tagName === 'a' || node.tagName === 'img')) {
         const key = node.tagName === 'a' ? 'href' : 'src';
         const value = node.properties?.[key];
-        if (typeof value === 'string' && value.startsWith('/') && !value.startsWith('//')) {
-          node.properties[key] = `${prefix}${value}`;
-        }
+        if (typeof value === 'string') node.properties[key] = rewrite(value);
+      } else if (node.type === 'raw' && typeof node.value === 'string') {
+        node.value = node.value.replace(
+          /(\s(?:href|src)=)("|')([^"']*)\2/g,
+          (_m, attr, quote, value) => `${attr}${quote}${rewrite(value)}${quote}`,
+        );
       }
       (node.children ?? []).forEach(walk);
     };
     walk(tree);
   };
 }
+
+/**
+ * 페이지별 사이트맵 기준일 — `scripts/gen_site_basis.mjs`가 빌드 전에 다시 만든다.
+ *  { default: 'YYYY-MM-DD', paths: { '/posts/slug': 'YYYY-MM-DD', … } }
+ * 파일이 없으면(첫 체크아웃 등) 사이트 공통 기준일 바닥값으로 돌아간다.
+ */
+const sitemapLastmod = (() => {
+  try {
+    const file = fileURLToPath(new URL('./src/config/sitemap-lastmod.generated.json', import.meta.url));
+    return JSON.parse(readFileSync(file, 'utf8'));
+  } catch {
+    return { default: '2026-11-24', paths: {} };
+  }
+})();
 
 export default defineConfig({
   site: SITE,
@@ -139,9 +188,19 @@ export default defineConfig({
         !page.includes('/topics') &&
         !ARCHIVED_PATHS.some((p) => page.includes(p)),
       changefreq: 'weekly',
-      // v9.4.0 — 글·카드가 들어온 날(사이트 공통 기준일)로 맞춘다. 사이트맵 lastmod는
-      //   실제로 내용을 확인한 날이어야 하므로, 새 콘텐츠를 내보내는 날 `site.baseDate`와 함께 올린다.
-      lastmod: new Date('2026-11-24'),
+      // v9.5.1(2026-11-28 전수 점검) — 모든 URL이 11.24로 고정돼 11.27 글까지 반영되지 않았다.
+      //   prebuild(`scripts/gen_site_basis.mjs`)가 페이지별 기준일 표를 만들고, 여기서 그 값을 쓴다.
+      //   글은 그 글의 baseDate, 카드는 세트 기준일, 나머지 화면은 사이트 공통 기준일이다.
+      lastmod: new Date(`${sitemapLastmod.default}T00:00:00Z`),
+      serialize: (item) => {
+        const url = new URL(item.url);
+        let path = url.pathname;
+        const prefix = BASE.replace(/\/$/, '');
+        if (prefix && (path === prefix || path.startsWith(`${prefix}/`))) path = path.slice(prefix.length) || '/';
+        path = path.replace(/\/$/, '') || '/';
+        const iso = sitemapLastmod.paths?.[path];
+        return iso ? { ...item, lastmod: new Date(`${iso}T00:00:00Z`).toISOString() } : item;
+      },
     }),
   ],
   markdown: {
@@ -160,7 +219,7 @@ export default defineConfig({
     processor: unified({
       gfm: false,
       remarkPlugins: [[remarkGfm, { singleTilde: false }]],
-      rehypePlugins: [rehypeTableWrap(), rehypeBase(BASE), rehypeAdBreak, rehypeNoStrikethrough()],
+      rehypePlugins: [rehypeTableWrap(), rehypeBase(BASE, SITE), rehypeAdBreak, rehypeNoStrikethrough()],
     }),
   },
   vite: {
