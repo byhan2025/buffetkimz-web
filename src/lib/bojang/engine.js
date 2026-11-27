@@ -64,6 +64,15 @@ export const GROUPS = [
     note: "암·뇌·심장 수술비는 각 그룹에 넣었습니다(여기서 또 더하지 않습니다).",
   },
   {
+    id: "outpatient",
+    label: "통원·처방",
+    short: "통원",
+    tone: "#3d7f8c",
+    kind: "lump",
+    core: false,
+    note: "통원 1회당 정액, 처방조제비처럼 외래에서 나가는 담보입니다. 입원일당과 섞지 않습니다.",
+  },
+  {
     id: "hospital",
     label: "입원·간병",
     short: "입원·간병",
@@ -240,6 +249,11 @@ const RULES = [
     kind: "limit",
   },
   {
+    id: "outpatient",
+    group: "outpatient",
+    test: /(통원|외래|처방조제|처방비)/,
+  },
+  {
     id: "surgery",
     group: "surgery",
     test: /(수술|절개|N대|n대|[1-5]종)/,
@@ -247,7 +261,7 @@ const RULES = [
   {
     id: "hospital",
     group: "hospital",
-    test: /(입원|간병|간호|요양|치매|일당|통원)/,
+    test: /(입원|간병|간호|요양|치매|일당)/,
   },
   {
     id: "death",
@@ -267,11 +281,29 @@ function tagsOf(name) {
   if (/수술/.test(name)) tags.push("surgery");
   if (/진단/.test(name)) tags.push("diagnosis");
   if (/입원/.test(name)) tags.push("hospital");
+  if (/통원|외래|처방/.test(name)) tags.push("outpatient");
   if (/일당/.test(name)) tags.push("daily");
   if (/후유장해|장해/.test(name)) tags.push("disability");
   if (/사망/.test(name)) tags.push("death");
   if (/갱신/.test(name)) tags.push("renewal");
+  if (/만기|년납|세만기/.test(name)) tags.push("term");
   return tags;
+}
+
+/**
+ * 같은 그룹 안에서도 성격이 다른 금액을 가른다.
+ *  · 암·뇌심 그룹에서 '암수술비'를 진단비 합계에 더하면 3,000만원 진단비가 5,000만원으로 보인다.
+ *  · 그래서 진단(diagnosis) / 수술(surgery) / 치료(treatment)를 따로 센다.
+ */
+function subOf(name) {
+  if (/수술/.test(name)) return "surgery";
+  if (/(항암|표적|면역항암|호르몬치료|방사선|치료비|약물치료)/.test(name)) return "treatment";
+  if (/(입원|일당)/.test(name)) return "inpatient";
+  if (/(통원|외래|처방)/.test(name)) return "outpatient";
+  if (/(진단|진단비)/.test(name)) return "diagnosis";
+  if (/사망/.test(name)) return "death";
+  if (/(후유장해|장해)/.test(name)) return "disability";
+  return "";
 }
 
 /**
@@ -282,15 +314,16 @@ export function classify(name) {
   const original = String(name || "");
   const s = original.replace(/\[[^\]]*\]|\([^)]*\)/g, " ").replace(/\s+/g, "").trim();
   const tags = tagsOf(s);
+  const sub = subOf(s);
   /* 비율 표기(3~100%)는 괄호 안에 있어도 살린다 — 금액이 아니라 비율 담보이기 때문 */
   const rate = /%/.test(original);
   for (const rule of RULES) {
     if (rule.test.test(s)) {
       const kind = rate ? "rate" : rule.kind || (tags.includes("daily") ? "daily" : kindOf(s));
-      return { group: rule.group, kind, tags, rule: rule.id };
+      return { group: rule.group, kind, tags, sub, rule: rule.id };
     }
   }
-  return { group: "etc", kind: rate ? "rate" : kindOf(s), tags, rule: null };
+  return { group: "etc", kind: rate ? "rate" : kindOf(s), tags, sub, rule: null };
 }
 
 /* ────────────────────────────── 실손 세대 ────────────────────────────── */
@@ -440,12 +473,18 @@ export function parseText(text) {
     const amount = parseAmount(amountRaw, { unit });
     const premium = premiumRaw ? parseAmount(premiumRaw, { unit: "원" }) : null;
     const isRate = /%/.test(amountRaw);
+    const payTerm = (line.match(/\d{1,2}\s*년\s*납/) || [""])[0];
+    const coverTerm = (line.match(/\d{1,3}\s*(?:세|년)\s*만기|종신/) || [""])[0];
+    const renew = /비갱신/.test(line) ? "비갱신" : /갱신/.test(line) ? "갱신" : "";
     rows.push({
       name,
       amount: isRate ? null : amount,
       rate: isRate ? amountRaw.trim() : "",
       premium: premium != null && premium < 1000000 ? premium : null,
-      term: term || "",
+      payTerm,
+      coverTerm,
+      renew,
+      term: term || payTerm || coverTerm || "",
       raw: line,
       unit,
     });
@@ -454,10 +493,18 @@ export function parseText(text) {
   return { rows: rows.filter((r) => r.name), premiumSum, sawPremiumLabel };
 }
 
-/** 담보 이름 정리 — 앞 번호·불릿, 꼬리 주석을 떼어 낸다 */
+/**
+ * 담보 이름 정리 — 앞 목록 번호·불릿, 꼬리 주석을 떼어 낸다.
+ *
+ * 주의: "2세대 실손의료비"처럼 이름이 숫자로 시작하는 담보가 있다. 맨 앞 숫자를 모두 지우면
+ * "세대 실손의료비"가 되어 세대 판정이 빠진다(4호 봇 재현). 그래서 숫자+구분자(1. / 2) / ①)만 번호로 보고,
+ * "2세대"·"3대"·"1종"처럼 뒤에 말이 붙은 숫자는 이름의 일부로 남긴다.
+ */
 function cleanName(s) {
   return String(s || "")
-    .replace(/^[\s\d.)\-–•·*①-⑳]+/, "")
+    .replace(/^\s*(?:[①-⑳]|[-–•·*])\s*/, "")
+    .replace(/^\s*\d{1,2}\s*[.)]\s*/, "")
+    .replace(/^\s*\d{1,2}\s+(?=[가-힣])/, "")
     .replace(/[·•\-–]\s*$/, "")
     .replace(/\s{2,}/g, " ")
     .trim();
@@ -477,11 +524,16 @@ export function normalizeRows(rows, opts = {}) {
     const kind = r.rate ? "rate" : r.kind && PAY_KINDS[r.kind] ? r.kind : cls.kind;
     const group = opts.keepGroup ? r.group || cls.group : cls.group;
     const confidence = group === "etc" || !cls.rule ? "low" : amount == null && !r.rate ? "mid" : "high";
+    const payTerm = r.payTerm || "";
+    const coverTerm = r.coverTerm || "";
+    const renew = r.renew || (/비갱신/.test(name) ? "비갱신" : /갱신/.test(name) ? "갱신" : "");
+    const payYears = Number((String(payTerm).match(/(\d{1,2})/) || [])[1] || 0) || null;
     list.push({
       id: `${list.length + 1}`,
       name,
       group,
       kind,
+      sub: cls.sub || "",
       tags: cls.tags,
       amount: kind === "rate" ? null : amount,
       rate: r.rate || (kind === "rate" ? String(r.amountRaw || "") : ""),
@@ -489,7 +541,12 @@ export function normalizeRows(rows, opts = {}) {
       insurer: r.insurer || "",
       product: r.product || "",
       startDate: r.startDate || "",
-      term: r.term || "",
+      term: r.term || payTerm || coverTerm || "",
+      payTerm,
+      coverTerm,
+      renew,
+      /** 납입기간이 있으면 총납입보험료를 추정한다(월보험료 × 12 × 납입년수) */
+      paidTotal: r.premium && payYears ? Math.round(Number(r.premium) * 12 * payYears) : null,
       note: r.note || "",
       raw: r.raw || "",
       confidence,
@@ -540,22 +597,44 @@ export function readDocument(text, opts = {}) {
  */
 export function summarize(coverages, opts = {}) {
   const list = Array.isArray(coverages) ? coverages : [];
-  const targets = opts.targets || null;
   const tMul = opts.targetsAreManwon ? 10000 : 1;
+  /* 기준금액 — 화면이 넘긴 값이 우선, 없으면(공개 화면 기본값) 권장 기준을 쓴다 */
+  const targets = {};
+  if (opts.useDefaultTargets !== false) Object.assign(targets, DEFAULT_TARGETS);
+  for (const [k, v] of Object.entries(opts.targets || {})) if (v != null && v !== "") targets[k] = Number(v) * tMul;
 
   const groups = GROUPS.map((g) => {
     const items = list.filter((c) => c.group === g.id);
-    const lump = items.filter((c) => c.kind === "lump");
+    const lumpAll = items.filter((c) => c.kind === "lump");
     const daily = items.filter((c) => c.kind === "daily");
     const limits = items.filter((c) => c.kind === "limit");
     const rates = items.filter((c) => c.kind === "rate");
+    const isDiagGroup = g.id === "cancer" || g.id === "brain";
+    /* 진단비 그룹에서는 수술·치료비를 진단비 합계에 더하지 않는다 */
+    const surgeryItems = isDiagGroup ? lumpAll.filter((c) => c.sub === "surgery") : [];
+    const treatItems = isDiagGroup ? lumpAll.filter((c) => c.sub === "treatment") : [];
+    const lump = isDiagGroup ? lumpAll.filter((c) => c.sub !== "surgery" && c.sub !== "treatment") : lumpAll;
     const lumpTotal = lump.reduce((a, c) => a + (c.amount || 0), 0);
-    const target = targets && targets[g.id] != null ? Number(targets[g.id]) * tMul : null;
+    const surgeryTotal = surgeryItems.reduce((a, c) => a + (c.amount || 0), 0);
+    const treatTotal = treatItems.reduce((a, c) => a + (c.amount || 0), 0);
+
+    /* 암은 일반암과 유사암·소액암을 따로 센다 */
+    const isSimilar = (n) => /(유사암|소액암|갑상선|피부암|제자리|경계성)/.test(n);
+    const generalCancer = g.id === "cancer" ? lump.filter((c) => /암/.test(c.name) && !isSimilar(c.name)).reduce((a, c) => a + (c.amount || 0), 0) : 0;
+    const similarCancer = g.id === "cancer" ? lump.filter((c) => isSimilar(c.name)).reduce((a, c) => a + (c.amount || 0), 0) : 0;
+
+    /* 사망은 질병·재해를 나누고, 후유장해는 비율 담보와 정액을 따로 센다 */
+    const deathDisease = g.id === "death" ? items.filter((c) => /질병/.test(c.name) && /사망/.test(c.name)).reduce((a, c) => a + (c.amount || 0), 0) : 0;
+    const deathAccident = g.id === "death" ? items.filter((c) => /(재해|상해|교통)/.test(c.name) && /사망/.test(c.name)).reduce((a, c) => a + (c.amount || 0), 0) : 0;
+    const disability = g.id === "death" ? items.filter((c) => /(후유장해|장해)/.test(c.name) && c.kind !== "rate").reduce((a, c) => a + (c.amount || 0), 0) : 0;
+
+    const renewalItems = items.filter((c) => c.renew === "갱신");
+    const target = targets[g.id] != null && Number(targets[g.id]) > 0 ? Number(targets[g.id]) : null;
     let ratio = null;
     let level = items.length ? "has" : "none";
-    if (target && target > 0) {
+    if (target) {
       ratio = lumpTotal / target;
-      level = lumpTotal <= 0 ? "none" : ratio >= 1 ? "ok" : ratio >= 0.5 ? "low" : "vlow";
+      level = levelOf(ratio, lumpTotal);
     }
     return {
       id: g.id,
@@ -567,13 +646,27 @@ export function summarize(coverages, opts = {}) {
       items,
       count: items.length,
       lump: lumpTotal,
+      surgery: surgeryTotal,
+      treatment: treatTotal,
+      surgeryItems,
+      treatItems,
+      generalCancer,
+      similarCancer,
+      deathDisease,
+      deathAccident,
+      disability,
       daily,
       limits,
       rates,
       target,
       ratio,
       level,
+      levelLabel: LEVEL_LABELS[level] || "",
       has: items.length > 0,
+      renewCount: renewalItems.length,
+      nonRenewCount: items.filter((c) => c.renew === "비갱신").length,
+      renewPremium: renewalItems.reduce((a, c) => a + (c.premium || 0), 0),
+      paidTotal: items.reduce((a, c) => a + (c.paidTotal || 0), 0),
     };
   });
 
@@ -595,10 +688,49 @@ export function summarize(coverages, opts = {}) {
     groups,
     silson,
     checks,
+    /* 기준 대비 판정 — 공개 화면·인쇄가 그대로 읽는다 */
+    judge: groups
+      .filter((g) => g.target)
+      .map((g) => ({ id: g.id, label: g.label, value: g.lump, target: g.target, ratio: g.ratio, level: g.level, levelLabel: g.levelLabel })),
+    renew: {
+      count: list.filter((c) => c.renew === "갱신").length,
+      nonRenewCount: list.filter((c) => c.renew === "비갱신").length,
+      unknown: list.filter((c) => !c.renew).length,
+      premium: list.filter((c) => c.renew === "갱신").reduce((a, c) => a + (c.premium || 0), 0),
+    },
+    paidTotal: list.reduce((a, c) => a + (c.paidTotal || 0), 0),
+    targetsNote: DEFAULT_TARGET_NOTE,
     unknown: list.filter((c) => c.group === "etc").map((c) => ({ name: c.name, amount: c.amount })),
     missingTargets: list.filter((c) => c.amount == null && c.kind !== "rate" && c.kind !== "limit").map((c) => c.name),
   };
 }
+
+/** 기준 대비 판정 단계 — 부족/적정/충분을 네 단계로 */
+export function levelOf(ratio, total) {
+  if (!total || total <= 0) return "none";
+  if (ratio < 0.5) return "vlow";
+  if (ratio < 1) return "low";
+  if (ratio < 1.5) return "ok";
+  return "rich";
+}
+
+export const LEVEL_LABELS = { none: "없음", vlow: "매우 부족", low: "부족", ok: "적정", rich: "충분", has: "가입" };
+
+/**
+ * 기준금액 기본값(원) — 보장분석 실무에서 쓰는 참고값이다. 법정 기준이 아니며 화면에서 고칠 수 있다.
+ *  · 암: 일반암 진단비 3,000만원, 뇌·심: 뇌혈관 1,000만 + 허혈성심장 1,000만
+ *  · 수술: 질병+상해 수술비 300만원, 사망: 1억원, 운전자: 교통사고처리지원금 2억원
+ */
+export const DEFAULT_TARGETS = {
+  cancer: 30000000,
+  brain: 20000000,
+  surgery: 3000000,
+  death: 100000000,
+  driver: 200000000,
+};
+
+export const DEFAULT_TARGET_NOTE =
+  "권장 기준금액은 보장분석 실무에서 쓰는 참고값(당사 기준)이며 법정 기준이 아닙니다. 고객의 소득·가족력·부채에 따라 달라지므로 아래 칸에서 고쳐 쓸 수 있습니다.";
 
 /** 실손 세대 — 담보명 표기를 먼저 보고, 없으면 계약일로 찾는다 */
 function detectSilson(items) {
@@ -658,6 +790,35 @@ function buildChecks(groups, list, ctx) {
     out.push({ level: "check", code: "silson:none", group: "silson", text: "실손 담보가 목록에 없습니다. 별도 증권에 있는지 확인하세요." });
   } else if (byId.silson.items.some((c) => /1세대|2세대|[12]세대/.test(c.name))) {
     out.push({ level: "info", code: "silson:early", group: "silson", text: "1·2세대 실손으로 표시됩니다. 자기부담률은 가입 시기·상품형에 따라 다르니 약관으로 확인하세요." });
+  }
+  /* 실손 2건 이상 — 세대가 달라도 비례보상된다 */
+  if (byId.silson.count >= 2) {
+    out.push({
+      level: "check",
+      code: "silson:duplicate",
+      group: "silson",
+      text: `실손 담보가 ${byId.silson.count}건입니다. 세대가 달라도(예: 2세대+4세대) 실손은 비례보상되어 두 곳 합쳐 보장 한도까지만 지급됩니다. 중복 가입 여부와 보험료를 확인하세요.`,
+    });
+  }
+  /* 갱신형 — 갱신 때 보험료·보장이 바뀐다 */
+  const renewal = list.filter((c) => c.renew === "갱신");
+  if (renewal.length) {
+    out.push({
+      level: "info",
+      code: "renew:count",
+      text: `갱신형 담보 ${renewal.length}건(월 보험료 ${renewal
+        .reduce((a, c) => a + (c.premium || 0), 0)
+        .toLocaleString("ko-KR")}원). 갱신 주기와 인상률은 증권으로 확인하세요. 비갱신형 ${list.filter((c) => c.renew === "비갱신").length}건.`,
+    });
+  }
+  /* 진단비와 수술·치료비를 섞지 않았다는 안내 */
+  const diagSplit = ["cancer", "brain"].some((id) => byId[id].surgery > 0 || byId[id].treatment > 0);
+  if (diagSplit) {
+    out.push({
+      level: "info",
+      code: "kind:diagnosis-split",
+      text: "암·뇌심 그룹은 진단비와 수술·치료비를 나눠 셈했습니다. 진단비 합계에 수술비를 더하지 않았습니다.",
+    });
   }
   const noAmount = list.filter((c) => c.amount == null && c.kind !== "rate" && c.kind !== "limit");
   if (noAmount.length) {
@@ -850,3 +1011,190 @@ export const SAMPLES = {
 변호사선임비용\t5,000만원\t1,600원
 `,
 };
+
+/* ────────────────────────── 내보내기(CSV·증권북) ────────────────────────── */
+
+const csvCell = (v) => {
+  const s = String(v == null ? "" : v);
+  return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+};
+
+/**
+ * 담보 표 + 요약 → CSV 문자열(엑셀에서 바로 열린다).
+ * 화면은 앞에 BOM(\uFEFF)을 붙여 저장한다 — 한글이 깨지지 않게.
+ */
+export function buildCSV(coverages, summary) {
+  const list = Array.isArray(coverages) ? coverages : [];
+  const head = ["구분", "담보", "보장그룹", "지급방식", "가입금액(원)", "지급비율", "월보험료(원)", "갱신", "납입기간", "만기", "보험사", "가입일", "비고"];
+  const rows = [head];
+  for (const c of list) {
+    const g = GROUP_BY_ID[c.group];
+    rows.push([
+      summary && summary.label ? summary.label : "",
+      c.name,
+      g ? g.label : c.group,
+      PAY_KINDS[c.kind] || c.kind,
+      c.amount == null ? "" : c.amount,
+      c.rate || "",
+      c.premium == null ? "" : c.premium,
+      c.renew || "",
+      c.payTerm || "",
+      c.coverTerm || "",
+      c.insurer || "",
+      c.startDate || "",
+      c.confidence === "high" ? "" : c.confidence === "mid" ? "금액 확인" : "분류 확인",
+    ]);
+  }
+  rows.push([]);
+  rows.push(["요약", "담보", "계약", "월 보험료", "총납입보험료(추정)", "실손 세대", "기준일"]);
+  rows.push([
+    summary ? summary.label : "",
+    summary ? summary.count : "",
+    summary && summary.contracts != null ? summary.contracts : "",
+    summary && summary.premium != null ? summary.premium : "",
+    summary && summary.paidTotal ? summary.paidTotal : "",
+    summary && summary.silson && summary.silson.label ? summary.silson.label : "확인 필요",
+    summary && summary.at ? String(summary.at).slice(0, 10) : "",
+  ]);
+  rows.push([]);
+  rows.push(["그룹", "정액", "수술·치료", "일당", "기준금액", "충족률(%)", "판정"]);
+  const groups = (summary && summary.groups) || [];
+  for (const g of groups.filter((x) => x.has)) {
+    const dailyTop = g.daily.length ? Math.max(...g.daily.map((d) => d.amount || 0)) : "";
+    rows.push([
+      g.label,
+      g.lump || "",
+      g.surgery + g.treatment || "",
+      dailyTop,
+      g.target || "",
+      g.ratio == null ? "" : Math.round(g.ratio * 1000) / 10,
+      g.levelLabel || "",
+    ]);
+  }
+  return rows.map((r) => r.map(csvCell).join(",")).join("\r\n");
+}
+
+/**
+ * 증권북형 출력 — 표지 · 탭별 요약 · 기준 대비 판정 · 비교 · 보험사 연락처.
+ * opts: { name, at, insurers, compare, letter }
+ */
+export function buildBookHTML(summary, opts = {}) {
+  const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+  const man = (v) => formatMan(v);
+  const at = opts.at || (summary && summary.at) || "";
+  const insurers = Array.isArray(opts.insurers) ? opts.insurers : [];
+  const days = [
+    { key: "silson", tab: "실손" },
+    { key: "cancer", tab: "암·진단비" },
+    { key: "brain", tab: "뇌·심장" },
+    { key: "surgery", tab: "수술·처치" },
+    { key: "outpatient", tab: "통원·처방" },
+    { key: "hospital", tab: "입원·간병" },
+    { key: "driver", tab: "운전자" },
+    { key: "liability", tab: "배상" },
+    { key: "death", tab: "사망·후유" },
+    { key: "etc", tab: "기타" },
+  ];
+  const byId = Object.fromEntries(((summary && summary.groups) || []).map((g) => [g.id, g]));
+  const tabs = days
+    .map((d) => {
+      const g = byId[d.key];
+      if (!g || !g.has) return "";
+      const lines = g.items
+        .slice(0, 40)
+        .map(
+          (c) =>
+            `<tr><td>${esc(c.name)}${c.renew ? `<span class="tag">${esc(c.renew)}</span>` : ""}</td><td class="r">${esc(
+              c.kind === "rate" ? c.rate : c.kind === "limit" ? "가입" : man(c.amount)
+            )}</td><td class="r">${c.premium == null ? "" : `${c.premium.toLocaleString("ko-KR")}원`}</td><td class="s">${esc(
+              [c.payTerm, c.coverTerm].filter(Boolean).join(" · ")
+            )}</td></tr>`
+        )
+        .join("");
+      const judge = g.target
+        ? `<p class="judge">기준 ${man(g.target)} 대비 <b>${esc(g.levelLabel)}</b> (${Math.round((g.ratio || 0) * 100)}%)</p>`
+        : "";
+      return `<section class="day"><h2>${esc(d.tab)} <span class="cnt">${g.count}건</span></h2>${judge}<table><thead><tr><th>담보</th><th class="r">금액</th><th class="r">월 보험료</th><th class="s">납입·만기</th></tr></thead><tbody>${lines}</tbody></table></section>`;
+    })
+    .join("");
+  const judgeRows = ((summary && summary.judge) || [])
+    .map((j) => `<tr><td>${esc(j.label)}</td><td class="r">${man(j.value)}</td><td class="r">${man(j.target)}</td><td class="r">${j.ratio == null ? "" : `${Math.round(j.ratio * 100)}%`}</td><td class="r"><span class="lv ${esc(j.level)}">${esc(j.levelLabel)}</span></td></tr>`)
+    .join("");
+  const cmp = opts.compare;
+  const cmpHTML = cmp
+    ? `<section class="day"><h2>제안 비교</h2><p class="judge">월 보험료 ${man(cmp.premium.before)} → ${man(cmp.premium.after)}${
+        cmp.premium.delta == null ? "" : ` (${cmp.premium.delta > 0 ? "+" : ""}${man(cmp.premium.delta)})`
+      }</p><table><thead><tr><th>그룹</th><th class="r">보유</th><th class="r">제안</th><th class="r">증감</th></tr></thead><tbody>${cmp.groups
+        .filter((g) => g.status !== "none")
+        .map((g) => `<tr><td>${esc(g.label)}</td><td class="r">${g.before.count ? man(g.before.lump) : "—"}</td><td class="r">${g.after.count ? man(g.after.lump) : "—"}</td><td class="r">${g.delta === 0 ? "—" : `${g.delta > 0 ? "+" : ""}${man(g.delta)}`}</td></tr>`)
+        .join("")}</tbody></table></section>`
+    : "";
+  const contacts = insurers.length
+    ? `<section class="day"><h2>보험사 고객센터</h2><div class="tel">${insurers
+        .map((i) => `<div><b>${esc(i.name)}</b><span>${esc(i.phone)}</span></div>`)
+        .join("")}</div><p class="foot">번호는 각 보험사 공식 홈페이지에서 확인한 값입니다. 표에 없는 보험사는 증권에 적힌 번호를 쓰세요.</p></section>`
+    : "";
+  const checks = ((summary && summary.checks) || [])
+    .filter((c) => c.level === "check")
+    .map((c) => `<li>${esc(c.text)}</li>`)
+    .join("");
+  return `<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>${esc((opts.name || "고객") + "님 보장 정리")}</title>
+<style>
+  @page { size: A4 portrait; margin: 14mm; }
+  * { box-sizing: border-box; }
+  body { font-family: "Pretendard Variable", Pretendard, -apple-system, "Malgun Gothic", sans-serif; color: #0b1b29; font-size: 11.5px; line-height: 1.55; margin: 0; }
+  .cover { min-height: 92vh; display: flex; flex-direction: column; justify-content: space-between; page-break-after: always; border-top: 6px solid #0b1b29; padding-top: 28px; }
+  .cover h1 { font-size: 30px; letter-spacing: -0.03em; margin: 0 0 4px; }
+  .cover .sub { color: #55626e; }
+  .cover .box { display: flex; gap: 8px; margin-top: 18px; }
+  .cover .box div { flex: 1; border: 1px solid #dde3e8; border-radius: 8px; padding: 8px 10px; }
+  .cover .box span { display: block; color: #55626e; font-size: 10.5px; }
+  .cover .box b { font-size: 15px; }
+  .cover .mt { margin-top: auto; color: #55626e; font-size: 10.5px; }
+  section.day { page-break-inside: avoid; margin-bottom: 16px; }
+  h2 { font-size: 13.5px; margin: 16px 0 6px; padding-bottom: 4px; border-bottom: 1.5px solid #0b1b29; }
+  h2 .cnt { font-weight: 500; color: #55626e; font-size: 10.5px; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { border-bottom: 1px solid #eaefF2; padding: 3.5px 5px; text-align: left; }
+  th { background: #f4f2ea; font-size: 10.5px; }
+  td.r, th.r { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  td.s { color: #55626e; font-size: 10.5px; }
+  .tag { margin-left: 4px; border: 1px solid #d8dfe5; border-radius: 3px; padding: 0 3px; font-size: 9.5px; color: #55626e; }
+  .judge { margin: 2px 0 6px; color: #3f4b57; font-size: 11px; }
+  .lv { padding: 0 4px; border-radius: 3px; font-weight: 700; }
+  .lv.none, .lv.vlow { background: #f6e7ea; color: #a8455c; }
+  .lv.low { background: #fdf1e0; color: #8a6320; }
+  .lv.ok { background: #e6f2ec; color: #1f7a62; }
+  .lv.rich { background: #e8eefc; color: #1233b8; }
+  .tel { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 12px; }
+  .tel div { display: flex; justify-content: space-between; border-bottom: 1px dotted #dde3e8; padding: 2px 0; }
+  .foot { margin-top: 10px; color: #55626e; font-size: 10px; }
+  ul { margin: 4px 0 0 16px; padding: 0; }
+</style></head><body>
+<div class="cover">
+  <div>
+    <h1>${esc(opts.name ? opts.name + "님" : "고객")} 보장 정리</h1>
+    <div class="sub">${esc(at ? String(at).slice(0, 10) + " 기준" : "")} · 담보 ${summary ? summary.count : 0}건${
+      summary && summary.contracts != null ? ` · 계약 ${summary.contracts}건` : ""
+    }</div>
+    <div class="box">
+      <div><span>월 보험료</span><b>${summary && summary.premium != null ? man(summary.premium) : "확인 필요"}</b></div>
+      <div><span>총납입보험료(추정)</span><b>${summary && summary.paidTotal ? man(summary.paidTotal) : "—"}</b></div>
+      <div><span>실손</span><b>${esc(summary && summary.silson && summary.silson.label ? summary.silson.label : "확인 필요")}</b></div>
+    </div>
+  </div>
+  <div class="mt">
+    ${opts.letter ? `<p>${esc(opts.letter)}</p>` : ""}
+    <p>이 정리는 담보 이름을 기준으로 묶은 참고 자료입니다. 실제 지급 여부·금액·면책은 가입 약관과 보험사 심사에 따릅니다.</p>
+  </div>
+</div>
+
+<section class="day"><h2>기준 대비 판정</h2>${judgeRows ? `<table><thead><tr><th>그룹</th><th class="r">가입</th><th class="r">기준</th><th class="r">충족률</th><th class="r">판정</th></tr></thead><tbody>${judgeRows}</tbody></table>` : `<p class="judge">기준금액을 넣으면 그룹별 부족·적정·충분을 표시합니다.</p>`}<p class="foot">${esc((summary && summary.targetsNote) || "")}</p></section>
+
+${checks ? `<section class="day"><h2>확인할 점</h2><ul>${checks}</ul></section>` : ""}
+${tabs}
+${cmpHTML}
+${contacts}
+<p class="foot">buffetkimz.com 보장분석 요약기에서 만든 자료입니다. 입력값은 브라우저 안에서만 처리됩니다.</p>
+</body></html>`;
+}

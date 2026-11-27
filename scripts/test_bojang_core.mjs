@@ -18,6 +18,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   SAMPLES,
+  buildBookHTML,
+  buildCSV,
   buildMessage,
   classify,
   compare,
@@ -233,6 +235,70 @@ ok("모든 번호에 출처", INSURERS.every((i) => /^\d{3,4}-\d{3,4}(-\d{4})?$/
 ok("확인일", /^\d{4}-\d{2}-\d{2}$/.test(INSURER_CHECKED_AT));
 const phones = INSURERS.map((i) => i.phone);
 eq("전화번호 중복 없음", phones.length, new Set(phones).size);
+
+/* ── 10. 2026-11-27 보완 — 세대 이름·진단비 분리·사망 분리·중복·기준 판정 ── */
+const genName = readDocument("2세대 실손의료비\t\t18,400원");
+eq("숫자로 시작하는 담보명 보존", genName.coverages[0].name, "2세대 실손의료비");
+eq("숫자로 시작해도 세대 판정", genName.coverages[0] && summarize(genName.coverages).silson.generation, "gen2");
+
+const mixed = summarize(normalizeRows([
+  { name: "암진단비", amount: 30000000 },
+  { name: "암수술비", amount: 5000000 },
+  { name: "표적항암약물허가치료비", amount: 10000000 },
+  { name: "유사암진단비", amount: 5000000 },
+]));
+const MC = mixed.groups.find((g) => g.id === "cancer");
+eq("암 진단비에 수술비를 더하지 않는다", MC.lump, 35000000);
+eq("암 수술비는 따로", MC.surgery, 5000000);
+eq("암 치료비는 따로", MC.treatment, 10000000);
+eq("일반암 합계", MC.generalCancer, 30000000);
+eq("유사암 합계", MC.similarCancer, 5000000);
+eq("진단비·수술비 분리 안내", mixed.checks.some((c) => c.code === "kind:diagnosis-split"), true);
+
+const deathSum = summarize(normalizeRows([
+  { name: "질병사망", amount: 100000000 },
+  { name: "재해사망", amount: 50000000 },
+  { name: "후유장해(3~100%)", amount: null },
+]));
+const DS = deathSum.groups.find((g) => g.id === "death");
+eq("질병사망 분리", DS.deathDisease, 100000000);
+eq("재해사망 분리", DS.deathAccident, 50000000);
+eq("후유장해는 정액 합계에 없음", DS.lump, 150000000);
+
+const dupSil = summarize(normalizeRows([
+  { name: "실손의료비(2세대)", amount: null, kind: "limit" },
+  { name: "실손의료비(4세대)", amount: null, kind: "limit" },
+]));
+ok("실손 2건 → 비례보상 경고", dupSil.checks.some((c) => c.code === "silson:duplicate"));
+eq("실손 2건 경고 레벨", dupSil.checks.find((c) => c.code === "silson:duplicate").level, "check");
+
+eq("통원은 입원·간병이 아니라 통원 그룹", classify("통원 1회당 1만원").group, "outpatient");
+
+eq("통원 담보 그룹 합산", summarize(normalizeRows([{ name: "질병통원", amount: 10000 }])).groups.find((g) => g.id === "outpatient").lump, 10000);
+
+const renewSum = summarize(normalizeRows([{ name: "암진단비(갱신형)", amount: 30000000, premium: 12000, payTerm: "20년납" }]));
+eq("갱신 표기 읽기", renewSum.renew.count, 1);
+ok("갱신형 안내", renewSum.checks.some((c) => c.code === "renew:count"));
+eq("총납입보험료 추정", renewSum.paidTotal, 2880000);
+const payParsed = readDocument("암진단비\t3,000만원\t20년납 100세만기\t12,000원");
+ok("납입기간·만기 분리", payParsed.coverages[0].payTerm.includes("20") && payParsed.coverages[0].coverTerm.includes("100"));
+
+const low = summarize(normalizeRows([{ name: "암진단비", amount: 10000000 }]));
+const okT = summarize(normalizeRows([{ name: "암진단비", amount: 30000000 }]));
+const rich = summarize(normalizeRows([{ name: "암진단비", amount: 50000000 }]));
+eq("기본 기준 — 1,000만은 매우 부족", low.groups.find((g) => g.id === "cancer").level, "vlow");
+eq("기본 기준 — 3,000만은 적정", okT.groups.find((g) => g.id === "cancer").level, "ok");
+eq("기본 기준 — 5,000만은 충분", rich.groups.find((g) => g.id === "cancer").level, "rich");
+ok("판정 목록 노출", okT.judge.some((j) => j.id === "cancer" && j.levelLabel === "적정"));
+
+const csv = buildCSV(doc.coverages, s);
+ok("CSV 머리글", csv.startsWith("구분,담보,보장그룹"));
+ok("CSV 에 담보", csv.includes("암진단비"));
+ok("CSV 에 판정 행", csv.includes("판정"));
+const book = buildBookHTML(s, { name: "김가상", at: "2026-11-27", insurers: INSURERS });
+ok("증권북 표지", book.includes("김가상님 보장 정리"));
+ok("증권북 보험사 번호", book.includes("1588-3114"));
+ok("증권북 기준 판정", book.includes("기준 대비 판정"));
 
 /* ── 11. 생성 파일이 원본과 같은지 ── */
 const corePath = path.resolve(HERE, "../../insure-crm/bojang-core.js");

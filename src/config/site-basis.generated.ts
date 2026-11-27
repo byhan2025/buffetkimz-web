@@ -3,11 +3,11 @@
  *   생성: node scripts/gen_site_basis.mjs (npm run build의 prebuild에서 자동 실행)
  *   읽는 곳: src/config/site.ts — site.baseDate가 이 값보다 뒤처지지 않게 한다.
  *
- * 가장 최근 콘텐츠 날짜: 2026-11-27 (post pension-after-60-continue-breakeven.md)
+ * 가장 최근 콘텐츠 날짜: 2026-11-27 (post credit-card-revolving-fee-calculation.md 외 8건)
  */
 
 /** 가장 최근에 확인한 글·게시판·허브 날짜 (YYYY-MM-DD) */
 export const latestContentDate = "2026-11-27";
 
 /** 그 날짜가 어디서 왔는지 — 빌드 로그·검수에서 근거로 쓴다 */
-export const latestContentWhere = "post pension-after-60-continue-breakeven.md";
+export const latestContentWhere = "post credit-card-revolving-fee-calculation.md";

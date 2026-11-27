@@ -9,7 +9,7 @@ export type Visit = "outpatient" | "inpatient";
 export type HospitalId = "clinic" | "hospital" | "general" | "tertiary";
 export type CoveredKind = "partial" | "full";
 export type Severity = "mild" | "severe";
-export type Variant23 = "standard" | "selective";
+export type Variant23 = "standard" | "selective" | "sel2";
 export type ProfileId = "gen1d" | "gen1l" | "gen2" | "gen3" | "gen4" | "gen5" | "chronic";
 export type NonKey = "general" | "physical" | "injection" | "mri";
 
@@ -18,6 +18,7 @@ export type Hospital = {
   label: string;
   fixed: number;
   fixed45: number;
+  fixed1: number;
   ghRate: number;
   upper: boolean;
 };
@@ -32,8 +33,8 @@ export type Profile = {
   insurer?: string;
   standard?: number;
   selective?: number;
-  selCovered?: number;
-  selNon?: number;
+  sel2Covered?: number;
+  sel2Non?: number;
   special?: number;
 };
 
@@ -42,8 +43,10 @@ export type LineItem = {
   label: string;
   base: number;
   deductible: number;
+  capped: number;
   payout: number;
   reason: string;
+  tag: string;
 };
 
 export type ProfileResult = {
@@ -54,6 +57,8 @@ export type ProfileResult = {
   items: LineItem[];
   notes: string[];
   base: number;
+  deductible: number;
+  capped: number;
   payout: number;
   self: number;
   payoutRate: number;
@@ -63,12 +68,44 @@ export type ProfileResult = {
 export type SilsonInput = {
   visit?: Visit;
   hospital?: HospitalId;
+  /** 옛 입력 — 일부·전액을 나누기 전 화면·저장본과 호환 */
   coveredKind?: CoveredKind;
   severity?: Severity;
+  special?: boolean;
   variant23?: Variant23;
   coveredAmount?: number;
+  coveredPartial?: number;
+  coveredFull?: number;
+  prescription?: number;
   non?: Partial<Record<NonKey, number>>;
+  room?: number;
+  roomDays?: number;
+  coPayment?: number;
+  visitCap?: number;
+  gen1Cap?: number;
+  gen23Cap?: number;
+  gen2Early?: boolean;
   primary?: ProfileId;
+};
+
+export type SilsonInputNorm = {
+  visit: Visit;
+  hospital: HospitalId;
+  severity: Severity;
+  special: boolean;
+  variant23: Variant23;
+  gen2Early: boolean;
+  coveredPartial: number;
+  coveredFull: number;
+  prescription: number;
+  non: Record<NonKey, number>;
+  room: number;
+  roomDays: number;
+  coPayment: number;
+  visitCap: number;
+  gen1Cap: number;
+  gen23Cap: number;
+  primary: ProfileId;
 };
 
 export type ComparisonRow = {
@@ -77,13 +114,14 @@ export type ComparisonRow = {
   short: string;
   payout: number;
   self: number;
+  capped: number;
   payoutRate: number;
   primary: boolean;
   diff: number;
 };
 
 export type Comparison = {
-  input: Required<Omit<SilsonInput, "non">> & { non: Record<NonKey, number> };
+  input: SilsonInputNorm;
   hospital: Hospital;
   total: number;
   primary: ProfileResult;
@@ -91,20 +129,39 @@ export type Comparison = {
   diffs: { id: ProfileId; label: string; short: string; diff: number }[];
 };
 
+export type CapNotice = { amount: number; item: string; text: string };
+
+export type RuleRow = {
+  id: string;
+  label: string;
+  inpatient: string;
+  outpatient: string;
+  big3: string;
+};
+
 export const HOSPITALS: Record<HospitalId, Hospital>;
+export const HOSPITAL_LIST: Hospital[];
 export const HOSPITAL_IDS: HospitalId[];
 export const NON_KEYS: NonKey[];
-export const NON_LABELS: Record<NonKey, string>;
+export const BIG3_KEYS: NonKey[];
+export const NON_LABELS: Record<NonKey | "room", string>;
+export const BIG3_LIMITS: Record<"physical" | "injection" | "mri", number>;
+export const VISIT_CAPS: number[];
+export const GEN1_CAPS: number[];
+export const GEN23_CAPS: number[];
 export const PROFILES: Profile[];
 export const PROFILE_IDS: ProfileId[];
+export const RULE_TABLE: RuleRow[];
+export const RULE_SOURCE: string;
 
 export function generationFromDate(dateStr: string): { id: string; label: string; note: string } | null;
-export function normalizeInput(input?: SilsonInput): Comparison["input"];
+export function normalizeInput(input?: SilsonInput): SilsonInputNorm;
 export function calculateProfile(profileId: ProfileId, input?: SilsonInput): ProfileResult;
 export function compare(input?: SilsonInput): Comparison;
 export function comparisonRows(result: Comparison): ComparisonRow[];
 export function headline(result: Comparison): string;
 export function summaryLines(result: Comparison): string[];
+export function capNotice(result: Comparison): CapNotice | null;
 export function buildMessage(result: Comparison, opts?: { name?: string }): string;
 export function comparisonSummary(result: Comparison): string;
 export const FORMAT: { comma: (v: number) => string; pct: (r: number) => string };

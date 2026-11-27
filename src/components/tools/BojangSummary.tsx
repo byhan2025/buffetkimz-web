@@ -1,7 +1,10 @@
 import { useMemo, useRef, useState } from "react";
 import {
   GROUPS,
+  LEVEL_LABELS,
   SAMPLES,
+  buildBookHTML,
+  buildCSV,
   buildMessage,
   compare,
   formatMan,
@@ -12,6 +15,7 @@ import {
   type GroupId,
   type Summary,
 } from "@/lib/bojang/engine";
+import { INSURERS } from "@/lib/bojang/insurers";
 import { Note, ResultStat, RunnerShell, Segmented, StickySummary } from "./ui";
 
 /**
@@ -50,6 +54,24 @@ function dailyText(g: { daily: { amount: number | null }[] }): string {
 
 const won = (v: number | null) => (v == null ? "-" : v.toLocaleString("ko-KR") + "원");
 const man = (v: number | null) => (v == null ? "-" : `${Math.round(v / 10000).toLocaleString("ko-KR")}만`);
+
+/** 기준 판정 색 — 부족은 붉게, 적정·충분은 차분하게 */
+function levelTone(level: string): string {
+  if (level === "none" || level === "vlow") return "bg-[#f6e7ea] text-[#a8455c]";
+  if (level === "low") return "bg-[#fdf1e0] text-[#8a6320]";
+  if (level === "ok") return "bg-[#e6f2ec] text-[#1f7a62]";
+  if (level === "rich") return "bg-[#e8eefc] text-[#1233b8]";
+  return "bg-paper-deep text-ink-muted";
+}
+
+/** 기준금액 입력 항목 — 엔진의 기본값과 같은 그룹 */
+const TARGET_FIELDS: { id: string; label: string }[] = [
+  { id: "cancer", label: "암 진단비" },
+  { id: "brain", label: "뇌·심" },
+  { id: "surgery", label: "수술비" },
+  { id: "death", label: "사망" },
+  { id: "driver", label: "운전자" },
+];
 
 /** 금액 입력 — "3,000만원" 처럼 써도 되고 숫자만 써도 된다(만원 단위) */
 function AmountInput({
@@ -138,7 +160,7 @@ function groupOptions() {
 /** A4 인쇄용 HTML — 새 창에서 인쇄한다(사이트 인쇄 CSS를 건드리지 않는다) */
 const COMPARE_MONEY = (v: number | null) => (v == null ? "-" : v.toLocaleString("ko-KR") + "원");
 
-function buildPrintHTML(summary: Summary, cmp: ReturnType<typeof compare> | null, name: string): string {
+function buildPrintHTML(summary: Summary, cmp: ReturnType<typeof compare> | null, name: string, baseDate: string): string {
   const esc = (s: string) => String(s).replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c] as string);
   const rows = summary.groups
     .filter((g) => g.has)
@@ -152,6 +174,13 @@ function buildPrintHTML(summary: Summary, cmp: ReturnType<typeof compare> | null
     )
     .join("");
   const missing = summary.groups.filter((g) => g.core && !g.has).map((g) => g.label);
+  const judgeRows = summary.judge
+    .map(
+      (j) => `<tr><td>${esc(j.label)}</td><td class="r">${esc(formatMan(j.value))}</td><td class="r">${esc(formatMan(j.target))}</td><td class="r">${
+        j.ratio == null ? "-" : `${Math.round(j.ratio * 100)}%`
+      }</td><td class="r">${esc(j.levelLabel)}</td></tr>`,
+    )
+    .join("");
   const cmpRows = cmp
     ? cmp.groups
         .filter((g) => g.status !== "none")
@@ -213,7 +242,7 @@ function buildPrintHTML(summary: Summary, cmp: ReturnType<typeof compare> | null
   .foot { margin-top: 14px; border-top: 1px solid #dde3e8; padding-top: 6px; color: #55626e; font-size: 9.5px; line-height: 1.45; }
 </style></head><body>
 <h1>보장 정리 요약${name ? ` · ${esc(name)}` : ""}</h1>
-<div class="sub">기준일 ${esc(new Date().toLocaleDateString("ko-KR"))} · buffetkimz.com · 참고용 정리</div>
+<div class="sub">기준일 ${esc(baseDate)} · buffetkimz.com · 참고용 정리</div>
 
 <div class="hero">
   <div><span>담보</span><b>${summary.count}건</b></div>
@@ -226,6 +255,15 @@ function buildPrintHTML(summary: Summary, cmp: ReturnType<typeof compare> | null
 <table><thead><tr><th>그룹</th><th class="r">정액(진단·수술)</th><th class="r">일당</th><th class="r">건수</th></tr></thead>
 <tbody>${rows || `<tr><td colspan="4">정리된 담보가 없습니다.</td></tr>`}</tbody></table>
 ${missing.length ? `<p>표에서 찾지 못한 기본 항목: ${esc(missing.join(", "))} — 증권 원문에서 확인하세요.</p>` : ""}
+
+<h2>기준금액 대비 판정</h2>
+${
+  judgeRows
+    ? `<table><thead><tr><th>그룹</th><th class="r">가입</th><th class="r">기준</th><th class="r">충족률</th><th class="r">판정</th></tr></thead><tbody>${judgeRows}</tbody></table><p class="sub" style="margin:4px 0 0">${esc(
+        summary.targetsNote
+      )}</p>`
+    : `<p>기준금액을 넣으면 부족·적정·충분을 표시합니다.</p>`
+}
 
 ${
   cmp
@@ -261,12 +299,28 @@ export default function BojangSummary({ compact = false }: { compact?: boolean }
   const [name, setName] = useState("");
   const [copied, setCopied] = useState(false);
   const fileRef = useRef<HTMLInputElement | null>(null);
+  /** 기준일은 화면·인쇄·카드·파일이 모두 같은 날짜를 쓴다 */
+  const baseDate = useMemo(() => new Date().toLocaleDateString("ko-KR"), []);
+  /** 기준금액 — 만원 단위. 빈 칸이면 그 그룹은 판정하지 않는다 */
+  const [targets, setTargets] = useState<Record<string, string>>({
+    cancer: "3000",
+    brain: "2000",
+    surgery: "300",
+    death: "10000",
+    driver: "20000",
+  });
 
   const cur = sides[side];
 
   const summary = useMemo(
-    () => summarize(cur.rows, { label: side === "before" ? "보유" : "제안", premium: cur.premium }),
-    [cur.rows, cur.premium, side],
+    () =>
+      summarize(cur.rows, {
+        label: side === "before" ? "보유" : "제안",
+        premium: cur.premium,
+        targets: Object.fromEntries(Object.entries(targets).filter(([, v]) => String(v).trim() !== "").map(([k, v]) => [k, Number(v)])),
+        targetsAreManwon: true,
+      }),
+    [cur.rows, cur.premium, side, targets],
   );
   const both = sides.before.rows.length && sides.after.rows.length;
   const cmp = useMemo(() => (both ? compare(sides.before.rows, sides.after.rows) : null), [both, sides.before.rows, sides.after.rows]);
@@ -312,6 +366,7 @@ export default function BojangSummary({ compact = false }: { compact?: boolean }
           name: "",
           group: "etc",
           kind: "lump",
+          sub: "",
           tags: [],
           amount: null,
           rate: "",
@@ -320,6 +375,10 @@ export default function BojangSummary({ compact = false }: { compact?: boolean }
           product: "",
           startDate: "",
           term: "",
+          payTerm: "",
+          coverTerm: "",
+          renew: "",
+          paidTotal: null,
           note: "",
           raw: "",
           confidence: "low",
@@ -335,7 +394,7 @@ export default function BojangSummary({ compact = false }: { compact?: boolean }
   };
 
   const printSheet = () => {
-    const html = buildPrintHTML(summary, cmp, name.trim());
+    const html = buildPrintHTML(summary, cmp, name.trim(), baseDate);
     const w = window.open("", "_blank", "width=920,height=1200");
     if (!w) return;
     w.document.open();
@@ -343,6 +402,32 @@ export default function BojangSummary({ compact = false }: { compact?: boolean }
     w.document.close();
     w.focus();
     setTimeout(() => w.print(), 350);
+  };
+
+  /** 증권북형 HTML — 표지·탭별 요약·보험사 연락처. 파일로 저장하거나 인쇄한다 */
+  const saveBook = () => {
+    const html = buildBookHTML(summary, { name: name.trim(), at: baseDate, insurers: INSURERS, compare: cmp });
+    const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `보장증권북_${name.trim() || "고객"}_${new Date().toISOString().slice(0, 10)}.html`;
+    document.body.append(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 3000);
+  };
+
+  /** 엑셀(CSV) — 담보 표·요약·판정. BOM을 붙여 한글이 깨지지 않게 한다 */
+  const saveCSV = () => {
+    const csv = "\uFEFF" + buildCSV(cur.rows, summary);
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `보장분석_${side === "before" ? "보유" : "제안"}_${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.append(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 3000);
   };
 
   const copyMsg = async () => {
@@ -444,7 +529,7 @@ export default function BojangSummary({ compact = false }: { compact?: boolean }
       "담보 이름을 기준으로 묶은 참고용 정리입니다. 그룹 구분은 법정 기준이 아닙니다.",
       "일당·한도 담보는 정액 합계에 더하지 않았고, 읽지 못한 금액은 '확인 필요'로 남겼습니다.",
       "실제 지급 여부·금액은 가입 약관과 보험사 심사에 따릅니다.",
-      `기준일 ${new Date().toLocaleDateString("ko-KR")} · buffetkimz.com`,
+      `기준일 ${baseDate} · buffetkimz.com`,
     ];
     let ny = 1194;
     for (const line of notes) {
@@ -632,6 +717,41 @@ export default function BojangSummary({ compact = false }: { compact?: boolean }
                   )}
                   <AmountInput label="월 보험료(선택)" unit="원" value={r.premium} onCommit={(v) => patchRow(i, { premium: v })} />
                 </div>
+                <div className="mt-2 grid grid-cols-2 gap-2 md:grid-cols-4">
+                  <label className="block">
+                    <span className="mb-1 block text-[11.5px] text-ink-faint">갱신</span>
+                    <select
+                      value={r.renew || ""}
+                      onChange={(e) => patchRow(i, { renew: e.target.value as Coverage["renew"] })}
+                      className="w-full rounded-lg border border-line bg-white px-2 py-1.5 text-[12.5px] text-ink focus:border-brand focus:outline-none"
+                    >
+                      <option value="">확인 필요</option>
+                      <option value="갱신">갱신형</option>
+                      <option value="비갱신">비갱신형</option>
+                    </select>
+                  </label>
+                  <label className="block">
+                    <span className="mb-1 block text-[11.5px] text-ink-faint">납입기간</span>
+                    <input
+                      value={r.payTerm || ""}
+                      onChange={(e) => patchRow(i, { payTerm: e.target.value })}
+                      placeholder="예: 20년납"
+                      className="w-full rounded-lg border border-line bg-white px-2.5 py-1.5 text-[12.5px] text-ink focus:border-brand focus:outline-none"
+                    />
+                  </label>
+                  <label className="block">
+                    <span className="mb-1 block text-[11.5px] text-ink-faint">만기(보장기간)</span>
+                    <input
+                      value={r.coverTerm || ""}
+                      onChange={(e) => patchRow(i, { coverTerm: e.target.value })}
+                      placeholder="예: 100세"
+                      className="w-full rounded-lg border border-line bg-white px-2.5 py-1.5 text-[12.5px] text-ink focus:border-brand focus:outline-none"
+                    />
+                  </label>
+                  <p className="self-end pb-1.5 text-[11.5px] text-ink-faint">
+                    {r.paidTotal ? `총납입 추정 ${formatMan(r.paidTotal)}` : "보험료·납입기간을 넣으면 총납입을 추정합니다"}
+                  </p>
+                </div>
                 {r.confidence !== "high" && (
                   <p className="mt-1.5 text-[11.5px] text-[#8a6320]">
                     {r.group === "etc" ? "그룹을 확인해 주세요" : r.amount == null && r.kind !== "limit" ? "가입금액을 읽지 못했습니다" : ""}
@@ -701,6 +821,53 @@ export default function BojangSummary({ compact = false }: { compact?: boolean }
               <p className="mt-2 text-[12px] text-ink-muted">표에서 확인할 점이 없습니다. 다만 이 정리는 담보 이름을 기준으로 묶은 것이라, 지급 조건은 약관으로 한 번 더 확인해 주세요.</p>
             )}
           </div>
+        </div>
+      )}
+
+      {/* ③-2 기준 대비 판정 */}
+      {summary.count > 0 && (
+        <div className="mt-4 rounded-xl border border-line bg-white p-4">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <p className="text-[13px] font-semibold text-ink">기준금액 대비 판정</p>
+            <p className="text-[11.5px] text-ink-faint">기준은 만원 단위 · 직접 고칠 수 있습니다</p>
+          </div>
+          <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-5">
+            {TARGET_FIELDS.map((t) => (
+              <label key={t.id} className="block">
+                <span className="mb-1 block text-[11.5px] text-ink-faint">{t.label}</span>
+                <input
+                  inputMode="numeric"
+                  value={targets[t.id] ?? ""}
+                  onChange={(e) => setTargets((prev) => ({ ...prev, [t.id]: e.target.value.replace(/[^\d]/g, "") }))}
+                  placeholder="0"
+                  aria-label={`${t.label} 기준금액(만원)`}
+                  className="w-full rounded-lg border border-line bg-white px-2 py-1.5 text-right text-[12.5px] tabular-nums text-ink focus:border-brand focus:outline-none"
+                />
+              </label>
+            ))}
+          </div>
+          <div className="mt-3 space-y-1.5">
+            {summary.groups
+              .filter((g) => g.target)
+              .map((g) => (
+                <div key={g.id} className="grid grid-cols-[minmax(0,1fr)_auto_auto_auto] items-baseline gap-2 border-b border-line-soft pb-1.5 last:border-0">
+                  <span className="truncate text-[12.5px] text-ink">{g.label}</span>
+                  <span className="text-right text-[12px] font-semibold tabular-nums text-ink">{formatMan(g.lump)}</span>
+                  <span className="text-right text-[11.5px] tabular-nums text-ink-faint">/ {formatMan(g.target)}</span>
+                  <span className={"rounded px-1.5 py-0.5 text-[11px] font-semibold " + levelTone(g.level)}>{g.levelLabel}</span>
+                </div>
+              ))}
+          </div>
+          {(summary.groups.find((g) => g.id === "cancer")?.count || 0) > 0 && (
+            <p className="mt-2 text-[11.5px] leading-relaxed text-ink-muted">
+              암 진단비 — 일반암 {formatMan(summary.groups.find((g) => g.id === "cancer")!.generalCancer)} · 유사암·소액암{" "}
+              {formatMan(summary.groups.find((g) => g.id === "cancer")!.similarCancer)}
+              {(summary.groups.find((g) => g.id === "cancer")!.surgery || 0) > 0
+                ? ` · 암 수술비 ${formatMan(summary.groups.find((g) => g.id === "cancer")!.surgery)}(진단비 합계에 더하지 않음)`
+                : ""}
+            </p>
+          )}
+          <p className="mt-2 text-[11.5px] leading-relaxed text-ink-faint">{summary.targetsNote}</p>
         </div>
       )}
 
@@ -802,6 +969,22 @@ export default function BojangSummary({ compact = false }: { compact?: boolean }
           className="rounded-lg border border-line bg-white px-3.5 py-2 text-[12.5px] font-semibold text-ink hover:border-ink disabled:opacity-40"
         >
           요약 카드 PNG
+        </button>
+        <button
+          type="button"
+          onClick={saveBook}
+          disabled={!summary.count}
+          className="rounded-lg border border-line bg-white px-3.5 py-2 text-[12.5px] font-semibold text-ink hover:border-ink disabled:opacity-40"
+        >
+          증권북형 HTML 저장
+        </button>
+        <button
+          type="button"
+          onClick={saveCSV}
+          disabled={!summary.count}
+          className="rounded-lg border border-line bg-white px-3.5 py-2 text-[12.5px] font-semibold text-ink hover:border-ink disabled:opacity-40"
+        >
+          엑셀(CSV) 내보내기
         </button>
         <button
           type="button"
