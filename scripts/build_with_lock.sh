@@ -175,10 +175,20 @@ git_running() {
 }
 
 cleanup_stale_git_locks() {
+  local age="${1:-120}"
   local dirs=() removed=0 f
   [ -d "$APP_DIR/.git" ] && dirs+=("$APP_DIR/.git")
   [ -d "$APP_DIR/../.gh-pages-mirror/.git" ] && dirs+=("$APP_DIR/../.gh-pages-mirror/.git")
   [ "${#dirs[@]}" -gt 0 ] || return 0
+  if [ "${DRY_RUN:-0}" -eq 1 ]; then
+    say "   (dry-run — 락을 지우지 않고 무엇을 지울지만 보여 줍니다)"
+    for dir in "${dirs[@]}"; do
+      find "$dir" -type f -name '*.lock' ! -newermt "-${age} seconds" 2>/dev/null | while IFS= read -r f; do
+        say "   지울 대상: $f"
+      done
+    done
+    return 0
+  fi
   if git_running; then
     say "   git 프로세스가 실행 중입니다 — 오래된 락 정리를 건너뜁니다."
     return 0
@@ -187,7 +197,7 @@ cleanup_stale_git_locks() {
     while IFS= read -r f; do
       [ -n "$f" ] || continue
       rm -f "$f" 2>/dev/null && { say "   오래된 락 정리: $f"; removed=$((removed + 1)); }
-    done < <(find "$dir" -type f -name '*.lock' ! -newermt '-2 minutes' 2>/dev/null)
+    done < <(find "$dir" -type f -name '*.lock' ! -newermt "-${age} seconds" 2>/dev/null)
   done
   [ "$removed" -eq 0 ] && say "   오래된 git 락 없음"
   return 0
@@ -228,11 +238,19 @@ step_deploy() {
   step_verify_tax || return $?
   hr
   say "▶ 오래된 git 락 점검"
-  cleanup_stale_git_locks
+  cleanup_stale_git_locks 120
   hr
   say "▶ dist 준비 검사(배포 직전)"
   if [ "$DRY_RUN" -eq 1 ]; then say "   (dry-run — 검사 생략)"; else assert_dist_ready "배포 직전" || return $?; fi
-  run_step "npm run deploy:pages (gh-pages 델타 미러)" npm run deploy:pages || return $?
+  # 2026-11-28 — 배포가 락 때문에 실패하면, 남은 락을 정리하고 **한 번만** 다시 시도한다.
+  #   (실제로 `cannot lock ref 'HEAD'`로 한 번 서고, 그 실패가 만든 HEAD.lock 때문에 또 서는 일이 있었다.)
+  if ! run_step "npm run deploy:pages (gh-pages 델타 미러)" npm run deploy:pages; then
+    hr
+    say "▶ 배포 실패 — 남은 git 락을 정리하고 한 번 다시 시도합니다"
+    sleep 2
+    cleanup_stale_git_locks 5
+    run_step "npm run deploy:pages (재시도)" npm run deploy:pages || return $?
+  fi
   hr
   say "▶ 배포 후 dist 재확인"
   if [ "$DRY_RUN" -eq 1 ]; then say "   (dry-run — 검사 생략)"; else assert_dist_ready "배포 후" || return $?; fi
