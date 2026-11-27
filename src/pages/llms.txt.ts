@@ -75,6 +75,7 @@ export const GET: APIRoute = async () => {
     link("금융생활학교(아카데미)", "/academy", `6 STEP ${ACADEMY.counts.lessons}강 중 ${openLessonCount}강 공개 · 초등·청소년·첫 월급·가계·자산형성·은퇴 6트랙`),
   );
   lines.push(link("골든타임", "/calendar", "1~12월 보험·연금·건강보험·절세 기한"));
+  lines.push(link("13월의 월급 지도", "/year-end-tax", "2026년 귀속 연말정산 3단계 · 내 조건 체크리스트"));
   lines.push(link("데일리 브리프", "/board", "매일 세 차례 모이는 시황·제도·AI 메모"));
   lines.push(link("소식지", "/letters", "확인한 기록을 한 장에 묶은 아카이브"));
   lines.push("");

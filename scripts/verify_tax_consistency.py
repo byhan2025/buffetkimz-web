@@ -80,7 +80,13 @@ ACTUAL = {
     "isaTransferMax": num(r"isaTransferMax:\s*([\d_.,]+)"),
     "isaTransferPct": (lambda v: None if v is None else round(v * 100, 4))(num(r"isaTransferRate:\s*([\d.]+)")),
     "standardCredit": num(r"standardCredit:\s*([\d_.,]+)"),
-    "healthRatePct": (lambda v: None if v is None else round(v * 100, 4))(num(r"\brate:\s*([\d.]+)", rules_text)),
+    # HEALTH_INSURANCE 블록 안의 rate만 본다 — 다른 표에 `rate:` 키가 생겨도 오탐이 나지 않게.
+    "healthRatePct": (lambda v: None if v is None else round(v * 100, 4))(
+        num(
+            r"\brate:\s*([\d.]+)",
+            rules_text[rules_text.find("export const HEALTH_INSURANCE") : rules_text.find("export const SOCIAL_INSURANCE")],
+        )
+    ),
     "longTermCareRatioPct": (lambda v: None if v is None else round(v * 100, 4))(num(r"longTermCareRatio:\s*([\d.]+)")),
     "dividendPct": (lambda v: None if v is None else round(v * 100, 4))(num(r"dividendWithLocal:\s*([\d.]+)")),
 }
@@ -103,12 +109,57 @@ check(
     "TAX_EXPECTED가 상수와 어긋나면 이 검사가 실패",
 )
 
+# ⑧ 신용카드 소득공제 상수 — 2026년 귀속 조세특례제한법 제126조의2 (2026-11-28 추가)
+CREDIT_EXPECTED = {
+    "thresholdRate": 25.0,  # 최저사용금액 25%
+    "rateCard": 15.0,
+    "rateDebit": 30.0,
+    "rateCulture": 30.0,
+    "rateMarket": 40.0,
+    "rateTransport": 40.0,
+}
+credit_block = rules_text[
+    rules_text.find("export const CREDIT_CARD") : rules_text.find("export function creditCardBaseLimit")
+]
+credit_actual = {
+    key: (lambda v: None if v is None else round(v * 100, 4))(num(rf"{key}:\s*([\d.]+)", credit_block))
+    for key in CREDIT_EXPECTED
+}
+credit_bad = [
+    f"{k}: 기대 {v} ≠ 실제 {credit_actual[k]}"
+    for k, v in CREDIT_EXPECTED.items()
+    if credit_actual[k] is None or round(abs(credit_actual[k] - v), 4) > 1e-6
+]
+check("A4 신용카드 공제율 상수 = 견본표(25·15·30·30·40·40%)", not credit_bad, " · ".join(credit_bad))
+
+limits_norm = ["".join(x.split()) for x in re.findall(r"limitLow:\s*\[([^\]]+)\]", credit_block)]
+limits_high_norm = ["".join(x.split()) for x in re.findall(r"limitHigh:\s*\[([^\]]+)\]", credit_block)]
+check(
+    "A5 신용카드 기본 한도 = 300·350·400 / 250·275·300만원",
+    limits_norm == ["300,350,400"] and limits_high_norm == ["250,275,300"],
+    f"{limits_norm} / {limits_high_norm}",
+)
+extra_pair = (
+    num(r"extraLimitLow:\s*([\d_.,]+)", credit_block),
+    num(r"extraLimitHigh:\s*([\d_.,]+)", credit_block),
+)
+check("A6 신용카드 추가 한도 = 300·200만원", extra_pair == (300.0, 200.0), str(extra_pair))
+check(
+    "A7 신용카드 산식이 함수 하나에 있음(최저사용금액 → 신용카드 → 직불등 → 전통시장 순)",
+    "export function creditCardDeduction" in rules_text
+    and "take(card)" in rules_text
+    and "take(debit)" in rules_text
+    and "take(market)" in rules_text,
+    "",
+)
+
 # 표기 문자열이 상수에서 만들어지는가
 check(
     "A3 화면 표기(TAX_TEXT)가 상수에서 파생됨",
     "export const TAX_TEXT" in rules_text
     and "pct(PENSION_ACCOUNT.creditRateLow)" in rules_text
-    and "pct(INCOME_TAX.otherIncomeWithLocal)" in rules_text,
+    and "pct(INCOME_TAX.otherIncomeWithLocal)" in rules_text
+    and "pct(CREDIT_CARD.thresholdRate" in rules_text,
     "",
 )
 

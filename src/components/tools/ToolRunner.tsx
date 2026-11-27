@@ -5,6 +5,7 @@ import DisclosureConsent from "./DisclosureConsent";
 import SilsonCompare from "./SilsonCompare";
 import BojangSummary from "./BojangSummary";
 import PensionTax from "./PensionTax";
+import CreditCardDeduction from "./CreditCardDeduction";
 import PensionDraw from "./PensionDraw";
 import RetirementFlow from "./RetirementFlow";
 import CompoundReturn from "./CompoundReturn";
@@ -54,6 +55,7 @@ import MoneyRing from "./MoneyRing";
  */
 const MAP: Record<string, (props: { compact?: boolean }) => React.ReactElement> = {
   "pension-tax": PensionTax,
+  "credit-card-deduction": CreditCardDeduction,
   "pension-draw": PensionDraw,
   "retirement-flow": RetirementFlow,
   "compound-return": CompoundReturn,

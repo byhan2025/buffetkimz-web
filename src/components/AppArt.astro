@@ -15,6 +15,7 @@ interface Props {
     | "silson"
     | "bojang"
     | "pension"
+    | "credit-card"
     | "pension-draw"
     | "retirement"
     | "compound"
@@ -244,6 +245,29 @@ const utilSteps = utilArtRows[art];
           </div>
         </div>
         <p class="mt-3 text-[12px] text-ink-faint">단위 만원 · 12월 31일까지</p>
+      </div>
+    )
+  }
+
+  {
+    art === "credit-card" && (
+      /* 기존 'pension' 아트의 두 막대 구조를 그대로 쓴다(새 창작물을 승인 없이 만들지 않는다).
+         라벨과 숫자만 신용카드 소득공제의 두 문턱(25%·한도)에 맞춘다. */
+      <div class="relative">
+        <p class="text-[12px] font-semibold tracking-[0.01em] text-ink-faint">두 개의 문턱</p>
+        <div class="mt-4 flex items-end gap-4">
+          <div class="flex-1">
+            <p class="text-[12px] text-ink-muted">총급여의 25%</p>
+            <div class="mt-2 h-[70px] w-full bg-line-soft"><div class="mt-auto h-[50%] w-full bg-brand/80"></div></div>
+            <p class="mt-1.5 serif text-[15px] tabular-nums text-ink">문턱</p>
+          </div>
+          <div class="flex-1">
+            <p class="text-[12px] text-ink-muted">공제 한도</p>
+            <div class="mt-2 h-[70px] w-full bg-line-soft"><div class="mt-auto h-[100%] w-full bg-brand"></div></div>
+            <p class="mt-1.5 serif text-[15px] tabular-nums text-ink">300</p>
+          </div>
+        </div>
+        <p class="mt-3 text-[12px] text-ink-faint">단위 만원 · 신용 15% / 체크 30%</p>
       </div>
     )
   }

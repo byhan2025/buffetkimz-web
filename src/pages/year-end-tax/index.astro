@@ -1,0 +1,218 @@
+---
+import Base from "@/layouts/Base.astro";
+import HomePill from "@/components/HomePill.astro";
+import AdSlot from "@/components/AdSlot.astro";
+import YearEndTaxMap from "@/components/year-end-tax/YearEndTaxMap.tsx";
+import { withBase, site } from "@/config/site";
+import { allPosts, postPath, formatDate } from "@/lib/posts";
+import { HUB_CALCULATORS, HUB_POSTS, MILESTONES, STEPS, TAX_HUB } from "@/data/year-end-tax";
+import { ddayOf, isUpcoming } from "@/lib/dday";
+import { breadcrumbList, graph, pageUrl, partOfWebsite } from "@/lib/schema";
+
+/**
+ * 13월의 월급 지도 — /year-end-tax/ (v9.8.0, 2026-11-28).
+ *
+ * 왜 만들었나
+ *  · 연말정산 정보는 12월에 몰려 나오지만, 사용자가 알고 싶은 것은 "지금 내가 무엇을 해야 하나"다.
+ *    단계(12월·1월·2~5월)와 내 조건(총급여·자녀·월세)으로 걸러 주는 한 장이 필요했다.
+ *
+ * 지키는 것
+ *  · 모든 화면에 '2026년 귀속 (2027년 1~2월 정산)'을 적는다 — 다음 해 1~2월에 정산되는 귀속분이다.
+ *  · 날짜는 확정된 것만 D-데이로 센다. 2027년 1월 간소화 개통은 날짜가 없으므로 D-데이를 만들지 않는다.
+ *  · 진단 답은 브라우저 안에서만 쓴다(서버 저장 0건). 화면에는 그 사실을 먼저 적는다.
+ */
+const posts = await allPosts();
+const byId = new Map(posts.map((p) => [p.id, p]));
+const linked = HUB_POSTS.map((id) => byId.get(id)).filter(Boolean);
+const missing = HUB_POSTS.filter((id) => !byId.has(id));
+if (missing.length) {
+  throw new Error(`13월의 월급 지도가 없는 글을 가리킵니다: ${missing.join(", ")}`);
+}
+
+const today = site.today;
+const milestones = MILESTONES.map((m) => ({
+  ...m,
+  dday: m.dueDate ? ddayOf(m.dueDate, today) : undefined,
+  past: m.dueDate ? !isUpcoming(m.dueDate, today) : false,
+}));
+
+const jsonLd = graph([
+  {
+    "@type": "WebPage",
+    "@id": `${pageUrl("/year-end-tax")}#page`,
+    url: pageUrl("/year-end-tax"),
+    name: "13월의 월급 지도 — 2026년 귀속 연말정산 3단계",
+    description:
+      "2026년 귀속 연말정산을 12월·1월·2~5월 세 단계로 나눠, 내 총급여·자녀 수·월세에 맞는 항목만 남겨 보여 줍니다.",
+    inLanguage: "ko-KR",
+    isPartOf: partOfWebsite,
+    dateModified: site.baseDate,
+  },
+  breadcrumbList([
+    { name: "홈", path: "/" },
+    { name: "13월의 월급 지도", path: "/year-end-tax" },
+  ]),
+]);
+---
+
+<Base
+  title="13월의 월급 지도 — 2026년 귀속 연말정산 3단계"
+  description="2026년 귀속 연말정산을 12월 31일 마감, 2027년 1월 자료 제출, 2~5월 환급 확인으로 나눴습니다. 총급여·자녀 수·월세를 고르면 내게 해당하는 항목만 남습니다."
+  path="/year-end-tax"
+  jsonLd={jsonLd}
+>
+  <section class="scene-sky border-b border-line/70">
+    <div class="wrap py-9 md:py-12">
+      <HomePill />
+      <nav class="flex flex-wrap items-center gap-2 text-[12px] text-ink-faint" aria-label="위치">
+        <a href={withBase("/")} class="inline-flex min-h-[44px] md:min-h-[24px] items-center hover:text-ink">홈</a>
+        <span aria-hidden="true">/</span>
+        <span class="text-ink-muted">13월의 월급 지도</span>
+      </nav>
+
+      <p class="kicker mt-2">13월의 월급 지도</p>
+      <h1 class="h-display mt-3 max-w-[20ch]">12월에 채우고,<br />1월에 모으고, 2월에 받습니다.</h1>
+      <p class="lede mt-4 max-w-[56ch]">{TAX_HUB.lede}</p>
+
+      <div class="mt-5 flex flex-wrap items-center gap-2">
+        <span class="chip !border-brand/30 !bg-brand-soft !text-brand-deep" data-tax-badge>
+          {TAX_HUB.badge}
+        </span>
+        <span class="chip">근로소득 연말정산 기준</span>
+        <span class="chip mono">기준일 {site.baseDateLabel}</span>
+      </div>
+
+      {/* D-데이 띠 */}
+      <ul class="mt-6 grid gap-3 md:grid-cols-3" data-tax-milestones>
+        {milestones.map((m) => (
+          <li class="rounded-xl border border-line bg-white p-4">
+            <div class="flex items-baseline justify-between gap-2">
+              <span class="mono text-[12px] text-ink-faint">{m.dateLabel}</span>
+              {m.dday && !m.past ? (
+                <span class="dday dday--later" aria-label={m.dday.aria}>{m.dday.label}</span>
+              ) : m.past ? (
+                <span class="text-[12px] text-ink-faint">지난 일정</span>
+              ) : (
+                <span class="text-[12px] text-ink-faint">일정 미발표</span>
+              )}
+            </div>
+            <p class="mt-1.5 text-[14px] font-bold leading-snug text-ink">{m.title}</p>
+            <p class="mt-1 text-[12.5px] leading-[1.7] text-ink-muted">{m.body}</p>
+            <p class="mt-1.5 text-[12px] text-ink-faint">출처 · {m.source}</p>
+          </li>
+        ))}
+      </ul>
+      <p class="mt-2 text-[12px] leading-relaxed text-ink-faint">
+        D-데이는 사이트 기준일 {site.baseDateLabel}로 셉니다. 날짜가 정해지지 않은 일정(2027년 1월 간소화 개통)은
+        세지 않고 '일정 미발표'로 둡니다.
+      </p>
+    </div>
+  </section>
+
+  <section class="scene-white border-b border-line">
+    <div class="wrap py-8 md:py-11">
+      <YearEndTaxMap client:visible />
+    </div>
+  </section>
+
+  <section class="scene-cream border-b border-line">
+    <div class="wrap py-9 md:py-12">
+      <div class="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-14">
+        <div>
+          <p class="eyebrow">계산기</p>
+          <h2 class="sec-title mt-2">숫자로 확인하고<br />12월을 정합니다</h2>
+          <p class="mt-3 max-w-[52ch] text-[13.5px] leading-[1.75] text-ink-muted">
+            체크리스트에서 '확인'만 하고 끝내면 결정이 남습니다. 세 계산기는 같은 기준일·같은 세율 상수
+            (<span class="mono text-[12.5px]">src/data/tax-rules.ts</span>)를 쓰므로, 화면마다 숫자가 달라지지 않습니다.
+            입력값은 브라우저에서만 계산합니다.
+          </p>
+          <ul class="mt-4 divide-y divide-line-soft border-y border-line-soft">
+            {HUB_CALCULATORS.map((c) => (
+              <li class="flex flex-wrap items-center justify-between gap-2 py-3">
+                <div class="min-w-0">
+                  <p class="flex items-center gap-2 text-[14px] font-bold text-ink">
+                    {c.name}
+                    {"tag" in c && c.tag && (
+                      <span class="rounded-full bg-brand-soft px-2 py-0.5 text-[11.5px] font-semibold text-brand-deep">
+                        {c.tag}
+                      </span>
+                    )}
+                  </p>
+                  <p class="mt-0.5 text-[12.5px] text-ink-muted">{c.line}</p>
+                </div>
+                <a href={withBase(c.href)} class="btn btn-secondary btn-sm shrink-0">계산하러 가기</a>
+              </li>
+            ))}
+          </ul>
+          <p class="mt-3 text-[12px] leading-relaxed text-ink-faint">
+            계산 결과는 4:5 PNG 카드로 저장할 수 있습니다. 그림은 기기 안에서만 그립니다.
+          </p>
+        </div>
+
+        <div>
+          <p class="eyebrow">읽을거리</p>
+          <h2 class="sec-title mt-2">이 지도와 이어지는 기록</h2>
+          <ul class="mt-4 space-y-3">
+            {linked.map((p) => (
+              <li class="rounded-xl border border-line bg-white p-4">
+                <a href={withBase(postPath(p!))} class="block">
+                  <p class="text-[14px] font-bold leading-snug text-ink">{p!.data.title}</p>
+                  <p class="mt-1 clamp-2 text-[12.5px] leading-[1.65] text-ink-muted">{p!.data.description}</p>
+                  <p class="mt-1.5 text-[12px] text-ink-faint">
+                    {formatDate(p!.data.publishedAt)} · {p!.data.readingMinutes}분
+                  </p>
+                </a>
+              </li>
+            ))}
+          </ul>
+          <p class="mt-3 text-[12px] leading-relaxed text-ink-faint">
+            글의 기준일은 각 글에 적힌 날짜를 따릅니다. 제도가 바뀌면 이 지도와 글이 함께 갱신됩니다.
+          </p>
+        </div>
+      </div>
+
+      <div class="mt-8">
+        <AdSlot id="year-end-tax-bottom" size="leaderboard" region="tools-bottom" />
+      </div>
+    </div>
+  </section>
+
+  <section class="scene-mist border-b border-line">
+    <div class="wrap py-9 md:py-12">
+      <p class="eyebrow">한 장 요약</p>
+      <h2 class="sec-title mt-2">세 단계를 시간표로</h2>
+      <div class="mt-4 grid gap-3 md:grid-cols-3">
+        {STEPS.map((s) => (
+          <div class="rounded-xl border border-line bg-white p-4">
+            <p class="text-[12px] font-bold tracking-[0.02em] text-ink-faint">{s.tab}</p>
+            <p class="mt-1 text-[14px] font-bold leading-snug text-ink">{s.title}</p>
+            <p class="mono mt-1 text-[12px] text-ink-faint">{s.when}</p>
+            <ul class="mt-2 space-y-1.5">
+              {s.items.map((it) => (
+                <li class="flex gap-2 text-[12.5px] leading-[1.6] text-ink-muted">
+                  <span class="mt-[7px] h-[3px] w-[3px] shrink-0 rounded-full bg-ink-faint" aria-hidden="true" />
+                  {it.title}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+
+      <div class="mt-6 note-box">
+        <p>
+          <strong class="font-semibold text-ink">이 지도는 판정이 아닙니다.</strong>
+          제도가 정한 기한과 공제 요건을 정리해 확인할 순서를 보여 주는 참고 자료입니다. 실제 환급·추납 금액은 산출세액과
+          다른 공제에 따라 달라지므로, 최종 확인은 국세청 안내와 회사(원천징수 의무자)의 처리 결과에 따릅니다.
+          세율·한도는 <span class="mono text-[12.5px]">src/data/tax-rules.ts</span> 한 곳에서 가져옵니다.
+        </p>
+      </div>
+      <p class="mt-3 text-[12px] leading-relaxed text-ink-faint">
+        기준과 출처 · 국세청 연말정산 안내·미리보기 안내(2026. 10. 23.), 소득세법 제59조의2·제59조의3·제59조의4,
+        조세특례제한법 제58조·제126조의2·제132조의2. 기준일 {site.baseDateLabel}.
+      </p>
+
+      <HomePill position="bottom" />
+    </div>
+  </section>
+</Base>

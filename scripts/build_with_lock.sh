@@ -32,6 +32,10 @@
 #   BUILD_LOCK_EXTRA  기본 /workspace/tmp/buffetkimz-build.lock — /tmp가 호출마다 초기화되는
 #                     환경에서도 직렬화가 걸리도록 함께 잡는 작업공간 락(빈 값이면 끔)
 #   BUILD_LOCK_WAIT   기본 300(초). 락을 못 잡으면 exit 75로 끝난다(다른 빌드가 도는 중).
+#
+# 2026-11-28 — deploy/all 앞에 '오래된 git 락 점검' 단계를 넣었다. 실행 중인 계산서 git 프로세스가 없을 때만,
+#   저장소와 gh-pages 미러의 2분 넘은 *.lock(logs·refs·index)을 지운다. `cannot lock ref 'HEAD'`로 배포가
+#   서는 일(11-28 실측)을 손으로 고치지 않아도 되게 하려는 것이다.
 #   BUFFETKIMZ_NODE_BIN  PATH 앞에 붙일 node 디렉터리(콜론 구분). 기본은 v22 → v26 순.
 #   SITE_URL / BASE_PATH  build-pages·deploy에 쓸 배포 주소(기본 https://byhan2025.github.io, /buffetkimz-web)
 #
@@ -153,6 +157,42 @@ assert_dist_ready() {  # $1 = 어느 단계에서 검사했는지
   say "   dist 준비 OK: index.html + HTML ${count}개"
 }
 
+# ── 오래된 git 락 정리(⑤) — 2026-11-28 보완.
+#   사고: 배포가 `cannot lock ref 'HEAD'`로 실패했다. 죽은 git 프로세스가 남긴
+#   .gh-pages-mirror/.git/logs/**/*.lock 파일이 원인이었다. 손으로 지우고 다시 돌려 성공했다.
+#   원칙: **git 프로세스가 하나도 없을 때만**, 그리고 **2분 넘게 손대지 않은 락만** 지운다.
+#         지금 도는 git 이 있으면 아무것도 건드리지 않고 그대로 진행한다(락은 git 이 관리한다).
+git_running() {
+  local d name
+  for d in /proc/[0-9]*; do
+    [ -r "$d/comm" ] || continue
+    name="$(cat "$d/comm" 2>/dev/null || true)"
+    case "$name" in
+      git|git-*) return 0 ;;
+    esac
+  done
+  return 1
+}
+
+cleanup_stale_git_locks() {
+  local dirs=() removed=0 f
+  [ -d "$APP_DIR/.git" ] && dirs+=("$APP_DIR/.git")
+  [ -d "$APP_DIR/../.gh-pages-mirror/.git" ] && dirs+=("$APP_DIR/../.gh-pages-mirror/.git")
+  [ "${#dirs[@]}" -gt 0 ] || return 0
+  if git_running; then
+    say "   git 프로세스가 실행 중입니다 — 오래된 락 정리를 건너뜁니다."
+    return 0
+  fi
+  for dir in "${dirs[@]}"; do
+    while IFS= read -r f; do
+      [ -n "$f" ] || continue
+      rm -f "$f" 2>/dev/null && { say "   오래된 락 정리: $f"; removed=$((removed + 1)); }
+    done < <(find "$dir" -type f -name '*.lock' ! -newermt '-2 minutes' 2>/dev/null)
+  done
+  [ "$removed" -eq 0 ] && say "   오래된 git 락 없음"
+  return 0
+}
+
 run_step() {  # $1 = 이름, 나머지 = 명령
   local name="$1"; shift
   hr
@@ -187,6 +227,9 @@ step_verify_tax() {
 step_deploy() {
   step_verify_tax || return $?
   hr
+  say "▶ 오래된 git 락 점검"
+  cleanup_stale_git_locks
+  hr
   say "▶ dist 준비 검사(배포 직전)"
   if [ "$DRY_RUN" -eq 1 ]; then say "   (dry-run — 검사 생략)"; else assert_dist_ready "배포 직전" || return $?; fi
   run_step "npm run deploy:pages (gh-pages 델타 미러)" npm run deploy:pages || return $?
@@ -198,6 +241,9 @@ step_deploy() {
 step_all() {
   step_build || return $?
   step_verify_tax || return $?
+  hr
+  say "▶ 오래된 git 락 점검"
+  cleanup_stale_git_locks
   hr
   say "▶ dist 준비 검사"
   assert_dist_ready "배포 직전" || return $?

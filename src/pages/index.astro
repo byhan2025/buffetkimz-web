@@ -1,6 +1,7 @@
 ---
 import Base from "@/layouts/Base.astro";
 import BrandFilm from "@/components/home/BrandFilm.tsx";
+import StartHere from "@/components/home/StartHere.astro";
 import TodayHub from "@/components/home/TodayHub.astro";
 import AudiencePick from "@/components/home/AudiencePick.astro";
 import UsageGuide from "@/components/home/UsageGuide.astro";
@@ -15,7 +16,6 @@ import { channels } from "@/data/channels";
 import { mainTools } from "@/data/tools";
 import { APP_CATEGORIES } from "@/data/apps";
 import { categoryCount, storeCount, toolCount } from "@/data/store";
-import { today as hub } from "@/data/today";
 import { depthOfTool } from "@/data/depth";
 import { calendar } from "@/data/calendar";
 import { galleryCount, gallerySlideCount } from "@/data/gallery";
@@ -73,22 +73,6 @@ const previewVariant: Record<string, "pension" | "pension-draw" | "retirement" |
   "compound-return": "compound",
 };
 
-/**
- * 일간 머리글(2026-11-25 깃밥 벤치마킹 3항) — 날짜와 확인 시각은 손으로 적지 않는다.
- *  · 날짜: site.baseDate(글·게시판·허브의 가장 늦은 확인 날짜, 빌드마다 자동 승계)
- *  · 요일: 그 날짜의 한국 요일
- *  · 확인: 허브가 마지막으로 값을 확인한 시각(today.asOf)의 시·분
- */
-const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"] as const;
-const [baseYear, baseMonth, baseDay] = site.baseDate.split("-").map(Number);
-const weekdayLabel = `${WEEKDAYS[new Date(Date.UTC(baseYear, baseMonth - 1, baseDay)).getUTCDay()]}요일`;
-const checkClock = new Intl.DateTimeFormat("ko-KR", {
-  timeZone: "Asia/Seoul",
-  hour: "2-digit",
-  minute: "2-digit",
-  hour12: false,
-}).format(new Date(hub.asOf));
-
 const jsonLd = graph([websiteNode(), organizationNode(), personNode()]);
 ---
 
@@ -98,57 +82,10 @@ const jsonLd = graph([websiteNode(), organizationNode(), personNode()]);
   path="/"
   jsonLd={jsonLd}
 >
-  <!-- ① 1페이지 — 6컷 12초 브랜드 모션그래픽 (three.js + GSAP) -->
-  <section data-area="1" id="film" class="hero-film">
-    <BrandFilm client:load appsHref={withBase("/apps")} aboutHref={withBase("/about")} />
+  <!-- ① 첫 화면 — 3초 재무 진단 · 13월의 월급 지도 · 이달의 기한 · 계산기 4개 (v9.8.0) -->
+  <StartHere />
 
-    <!--
-      크레딧 1줄 — 상영관에서 종이로 돌아오는 경계 (v8.7.0: 5줄 + 기준일 2줄 → 1줄)
-      v9.5.0(2026-11-24 1단계) — 필름 아래 첫 문장이 '무엇을 하는 곳인지'를 말하게 했다.
-        필름 12초는 그대로 두고, 필름 바로 아래(첫 화면 안)에 정의 한 줄 + 버튼 1개를 둔다.
-        정의문은 전수 감사 §2-4의 B안 — 이 사이트가 미리 계산해 두는 곳이라는 약속만 말한다.
-    -->
-    <div class="film-credits" id="film-credits">
-      {/* 일간 머리글 — 날짜 · 무엇을 하는 곳인지 · 확인 시각 (v9.7.0 깃밥 벤치마킹 3항) */}
-      <div class="daily-head">
-        <p class="daily-date">
-          <span class="daily-date-label">기준일</span>
-          <time datetime={site.baseDate}>{site.baseDateLabel}</time>
-          <span class="daily-weekday">{weekdayLabel}</span>
-        </p>
-        <p class="daily-line">금융과 투자, 연금과 재무를 원문과 계산으로 확인하는 기록</p>
-        <p class="daily-check mono">확인 {checkClock}</p>
-      </div>
-
-      <div class="hero-def" id="hero-def">
-        {/*
-          v9.6.0(2026-11-25) — 첫 화면의 h1.
-            감사 P0-1: 화면에서 가장 큰 첫 화면 글자가 24px(필름 정적 록업)이고 섹션 h2가 34px이라
-            위계가 뒤집혀 있었다. sr-only h1을 지우고, 이 정의문을 실제 h1(모바일 27px · 넓은 화면 40px)으로
-            승격해 h2(24~34px) 위에 세운다. 카피는 확정된 B안 그대로다.
-        */}
-        <h1 class="hero-def-line">
-          받을 때 알게 되는 연금,<br />5월에 알게 되는 세금 — <span class="hero-def-tail">미리 계산해 두는 곳</span>
-        </h1>
-        <a class="btn btn-primary hero-def-cta" href={withBase("/apps")}>계산기 열어 보기</a>
-      </div>
-
-      <p class="film-credit-line">
-        <a href={withBase("/posts")}><b>{posts.length}</b>편 기록</a>
-        <span aria-hidden="true">·</span>
-        <a href={withBase("/gallery")}><b>{galleryCount}</b>세트 카드 {gallerySlideCount}장</a>
-        <span aria-hidden="true">·</span>
-        <a href={withBase("/apps")}><b>{toolCount}</b>종 도구</a>
-        <span aria-hidden="true">·</span>
-        <a href={withBase("/calendar")}><b>{sourcedCalendar.length}</b>건 일정</a>
-      </p>
-    </div>
-  </section>
-
-  <!-- ①-2 상황별 맞춤 — 한 번 고르면 그 상황의 계산기·글이 바뀐다 (깃밥 벤치마킹 1항) -->
-  <AudiencePick />
-
-  <!-- ② 오늘 확인 허브 — 필름 아래 첫 화면. 지표 4 · 3줄 · 기한 인용 · 확인 카드 -->
+  <!-- ② 오늘 확인 허브 — 지표 4 · 3줄 · 기한 인용 · 확인 카드 -->
   <TodayHub />
 
   <!-- ②-1 데일리 브리프 게시판 — 허브에 다 담지 못한 확인 메모로 가는 한 줄 (v9.2.0) -->
@@ -170,10 +107,13 @@ const jsonLd = graph([websiteNode(), organizationNode(), personNode()]);
   <!-- ②-2 사용법 5탭 안내 — 왼쪽 설명, 오른쪽 화면 예시, 자동 순환 (깃밥 벤치마킹 2항) -->
   <UsageGuide />
 
+  <!-- ⑥-1 상황별 맞춤 — 한 번 고르면 그 상황의 계산기·글이 바뀐다 (깃밥 벤치마킹 1항) -->
+  <AudiencePick />
+
   <!-- ③ 읽고 열어 보기 — 자산리포트 최신 3편 + 앱스토어 추천 4종 -->
   <PortalPicks />
 
-  <!-- ④ 미스트 — 대표 계산기 4개 -->
+  <!-- ④ 미스트 — 대표 계산기 4개 (첫 화면의 빠른 계산기 4개와 다른 도구) -->
   <section class="scene-mist border-b border-line" data-area="4" id="tools">
     <div class="wrap py-10 md:py-14">
       <div class="sec-head" data-guide="tools">
@@ -229,6 +169,45 @@ const jsonLd = graph([websiteNode(), organizationNode(), personNode()]);
       </p>
     </div>
   </section>
+
+  <!-- ⑤ 필름 — 소개 영역의 마지막. 첫 화면에서 내려 브랜드 이야기로 남긴다 (v9.8.0)
+       · h1은 첫 화면(StartHere)이 갖는다. 여기 문장은 h2로 같은 모양을 유지한다.
+       · 일간 머리글(기준일·확인 시각)은 첫 화면으로 옮겼다 — 같은 날짜를 두 번 쓰지 않는다. -->
+  <section data-area="1" id="film" class="hero-film">
+    <BrandFilm client:load appsHref={withBase("/apps")} aboutHref={withBase("/about")} />
+
+    <!--
+      크레딧 1줄 — 상영관에서 종이로 돌아오는 경계 (v8.7.0: 5줄 + 기준일 2줄 → 1줄)
+      v9.5.0(2026-11-24 1단계) — 필름 아래 첫 문장이 '무엇을 하는 곳인지'를 말하게 했다.
+        필름 12초는 그대로 두고, 필름 바로 아래(첫 화면 안)에 정의 한 줄 + 버튼 1개를 둔다.
+        정의문은 전수 감사 §2-4의 B안 — 이 사이트가 미리 계산해 두는 곳이라는 약속만 말한다.
+    -->
+    <div class="film-credits" id="film-credits">
+      <div class="hero-def" id="hero-def">
+        {/*
+          v9.6.0(2026-11-25) — 첫 화면의 h1.
+            감사 P0-1: 화면에서 가장 큰 첫 화면 글자가 24px(필름 정적 록업)이고 섹션 h2가 34px이라
+            위계가 뒤집혀 있었다. sr-only h1을 지우고, 이 정의문을 실제 h1(모바일 27px · 넓은 화면 40px)으로
+            승격해 h2(24~34px) 위에 세운다. 카피는 확정된 B안 그대로다.
+        */}
+        <h2 class="hero-def-line">
+          받을 때 알게 되는 연금,<br />5월에 알게 되는 세금 — <span class="hero-def-tail">미리 계산해 두는 곳</span>
+        </h2>
+        <a class="btn btn-primary hero-def-cta" href={withBase("/apps")}>계산기 열어 보기</a>
+      </div>
+
+      <p class="film-credit-line">
+        <a href={withBase("/posts")}><b>{posts.length}</b>편 기록</a>
+        <span aria-hidden="true">·</span>
+        <a href={withBase("/gallery")}><b>{galleryCount}</b>세트 카드 {gallerySlideCount}장</a>
+        <span aria-hidden="true">·</span>
+        <a href={withBase("/apps")}><b>{toolCount}</b>종 도구</a>
+        <span aria-hidden="true">·</span>
+        <a href={withBase("/calendar")}><b>{sourcedCalendar.length}</b>건 일정</a>
+      </p>
+    </div>
+  </section>
+
 
   <!-- ⑤ 신뢰 2단 스플릿 (이번 달 달력 카드는 v8.7.0에서 걷어냈다 — 허브·/calendar와 중복) -->
   <TrustSplit postsCount={posts.length} toolCount={toolCount} channelCount={channelCount} />

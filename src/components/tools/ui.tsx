@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { site } from "@/config/site";
+import { downloadDataUrl, renderResultCard, type ResultCardRow } from "@/lib/result-card";
 
 export function formatWon(value: number): string {
   if (!Number.isFinite(value)) return "0원";
@@ -322,6 +323,58 @@ export function Bar({ ratio, tone = "brand" }: { ratio: number; tone?: "brand" |
   return (
     <div className="h-2 w-full overflow-hidden rounded-full bg-line-soft">
       <div className={`h-full rounded-full ${bg} transition-[width] duration-500`} style={{ width: `${w}%` }} />
+    </div>
+  );
+}
+
+/**
+ * 결과 카드 이미지 저장 — 캔버스로 그려 PNG로 내려받는다(기기 안에서만, 외부 전송 0건).
+ * 누른 뒤에는 무엇이 저장되었는지 버튼 옆 글자로 알린다(aria-live).
+ */
+export function SaveResultCard({
+  title,
+  subtitle,
+  rows,
+  notes,
+  fileBase,
+}: {
+  title: string;
+  subtitle?: string;
+  rows: ResultCardRow[];
+  notes?: string[];
+  fileBase?: string;
+}) {
+  const [saved, setSaved] = useState(false);
+  const [failed, setFailed] = useState(false);
+  const onClick = () => {
+    try {
+      const url = renderResultCard({
+        title,
+        subtitle,
+        rows,
+        notes: [...(notes ?? []), `기준일 ${site.baseDateLabel}`],
+      });
+      const stamp = site.baseDate.replace(/-/g, "");
+      downloadDataUrl(url, `${fileBase ?? "buffetkimz-결과"}-${stamp}.png`);
+      setFailed(false);
+      setSaved(true);
+    } catch {
+      setFailed(true);
+      setSaved(false);
+    }
+  };
+  return (
+    <div className="mt-4 flex flex-wrap items-center gap-3">
+      <button type="button" onClick={onClick} className="btn btn-secondary btn-sm" data-save-result-card>
+        결과 카드 이미지 저장
+      </button>
+      <span className="text-[12px] leading-relaxed text-ink-faint" aria-live="polite">
+        {failed
+          ? "이 브라우저에서는 이미지를 만들지 못했습니다. 화면 숫자를 그대로 옮겨 적으세요."
+          : saved
+            ? "PNG 파일로 저장했습니다. 입력값은 기기 밖으로 나가지 않았습니다."
+            : "계산 결과를 4:5 이미지로 저장합니다(기기 안에서 그림)."}
+      </span>
     </div>
   );
 }

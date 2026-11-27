@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { withBase } from "@/config/site";
 import { PENSION_ACCOUNT, TAX_TEXT } from "@/data/tax-rules";
-import { Bar, MoneySlider, Note, ResultStat, RunnerShell, Segmented, StickySummary, formatKrw, formatMan } from "./ui";
+import { Bar, MoneySlider, Note, ResultStat, RunnerShell, SaveResultCard, Segmented, StickySummary, formatKrw, formatMan } from "./ui";
 
 type Bracket = "low" | "high";
 
@@ -173,6 +173,18 @@ export default function PensionTax({ compact = false }: { compact?: boolean }) {
           </table>
         </div>
       )}
+
+      <SaveResultCard
+        title="연금저축·IRP 세액공제 계산"
+        subtitle={`총급여 ${bracket === "low" ? "5,500만원 이하" : "5,500만원 초과"} · 연금저축 ${formatMan(pension)} · IRP ${formatMan(irp)}`}
+        rows={[
+          { label: "예상 세액공제액", value: formatKrw(calc.credit), sub: `공제 대상 ${formatMan(calc.eligible)} × ${(calc.appliedRate * 100).toFixed(1)}%` },
+          { label: "남은 한도", value: formatMan(calc.remainingTotal) },
+          { label: "한도까지 더 넣으면", value: formatKrw(calc.extraCredit) },
+        ]}
+        notes={["소득세법 제59조의3 기준. 세액공제는 그해 산출세액을 넘을 수 없습니다.", "12월 31일까지 입금된 금액만 올해 공제 대상입니다."]}
+        fileBase="buffetkimz-연금세액공제"
+      />
 
       <StickySummary
         items={[

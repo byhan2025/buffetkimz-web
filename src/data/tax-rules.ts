@@ -100,6 +100,153 @@ export const ISA = {
 } as const;
 
 /* ------------------------------------------------------------------
+   ③-2 신용카드 등 사용금액 소득공제 — 조세특례제한법 제126조의2
+   ------------------------------------------------------------------ */
+export const CREDIT_CARD = {
+  /** 최저사용금액 = 총급여액의 100분의 25 (제1항) */
+  thresholdRate: 0.25,
+  /** 신용카드 사용분 공제율 (제2항 제1호) */
+  rateCard: 0.15,
+  /** 직불·선불카드·현금영수증 사용분 공제율 (제2항 제2호) */
+  rateDebit: 0.3,
+  /** 문화체육 사용분 공제율 (제2항 제3호) — 총급여 7,000만원 이하만 별도 칸 */
+  rateCulture: 0.3,
+  /** 전통시장 사용분 공제율 (제2항 제4호) */
+  rateMarket: 0.4,
+  /** 대중교통 이용분 공제율 (제2항 제5호) */
+  rateTransport: 0.4,
+  /** 문화체육 별도 칸이 사라지는 총급여 경계(만원) */
+  cultureSalaryCut: 7000,
+  /** 기본 한도 — 총급여 7,000만원 이하 (제10항) */
+  limitLow: [300, 350, 400] as const,
+  /** 기본 한도 — 총급여 7,000만원 초과 (제10항) */
+  limitHigh: [250, 275, 300] as const,
+  /** 기본 한도가 갈리는 총급여 경계(만원) */
+  salaryCut: 7000,
+  /** 추가 한도 — 전통시장·대중교통(7,000만원 이하이면 문화체육 포함) 공제 몫 (제11항) */
+  extraLimitLow: 300,
+  extraLimitHigh: 200,
+} as const;
+
+/**
+ * 공제액 1만원이 실제로 줄여 주는 세금 — 과세표준 구간별 기본세율(소득세법 제55조)에
+ * 개인지방소득세 10%(지방세법 제103조의13)를 더한 값.
+ * 소득공제는 과세표준을 낮추므로, 줄어드는 세금은 그 사람의 한계세율만큼이다.
+ */
+export const MARGINAL_RATES = [
+  { label: "1,400만원 이하", withLocal: 0.066 },
+  { label: "5,000만원 이하", withLocal: 0.165 },
+  { label: "8,800만원 이하", withLocal: 0.264 },
+  { label: "8,800만원 초과", withLocal: 0.385 },
+] as const;
+
+/** 자녀등 수(0·1·2 이상) → 배열 인덱스 */
+export function creditCardBaseLimit(salaryMan: number, children: number): number {
+  const idx = Math.min(Math.max(children, 0), 2);
+  return salaryMan > CREDIT_CARD.salaryCut ? CREDIT_CARD.limitHigh[idx] : CREDIT_CARD.limitLow[idx];
+}
+
+/** 추가 한도(만원) — 총급여 7,000만원 이하면 300만원, 넘으면 200만원 */
+export function creditCardExtraLimit(salaryMan: number): number {
+  return salaryMan > CREDIT_CARD.salaryCut ? CREDIT_CARD.extraLimitHigh : CREDIT_CARD.extraLimitLow;
+}
+
+/**
+ * 공제액(만원) — 제126조의2 제2항 산식 그대로.
+ *
+ *   ①~⑤ 사용분별 공제 몫의 합계에서 제6호의 금액(최저사용금액 몫)을 뺀다.
+ *   제6호 가·나·다목은 결국 **신용카드 → 직불등(7,000만원 이하면 문화체육 포함) → 전통시장·대중교통**
+ *   순서로 최저사용금액을 채운 것과 같은 값이 된다. 그래서 여기서도 그 순서로 계산한다.
+ */
+export function creditCardDeduction(input: {
+  salaryMan: number;
+  children: number;
+  card: number;
+  debit: number;
+  culture: number;
+  market: number;
+  transport: number;
+}): {
+  threshold: number;
+  used: number;
+  overThreshold: number;
+  deduction: number;
+  baseDeduction: number;
+  extraDeduction: number;
+  total: number;
+  baseLimit: number;
+  extraLimit: number;
+  baseHit: boolean;
+  extraHit: boolean;
+  cultureCounted: boolean;
+} {
+  const lowSalary = input.salaryMan <= CREDIT_CARD.cultureSalaryCut;
+  /* 총급여 7,000만원을 넘으면 문화체육은 별도 칸이 없다 — 결제수단(여기서는 신용카드) 사용분으로 본다. */
+  const card = input.card + (lowSalary ? 0 : input.culture);
+  const debit = input.debit;
+  const culture = lowSalary ? input.culture : 0;
+  const market = input.market;
+  const transport = input.transport;
+
+  const threshold = Math.round(input.salaryMan * CREDIT_CARD.thresholdRate * 10) / 10;
+  const used = card + debit + culture + market + transport;
+  const overThreshold = Math.max(0, Math.round((used - threshold) * 10) / 10);
+
+  /* 제2항 제6호 — 최저사용금액을 낮은 공제율부터 채운다: 신용카드 → 직불등 → 문화체육 → 전통시장 → 대중교통 */
+  let rest = Math.min(Math.round(threshold * 10) / 10, Math.round(used * 10) / 10);
+  const take = (pool: number) => {
+    const usedUp = Math.min(Math.max(pool, 0), rest);
+    rest = Math.round((rest - usedUp) * 10) / 10;
+    return Math.max(0, pool - usedUp);
+  };
+  const cardPart = take(card);
+  const debitPart = take(debit);
+  const culturePart = take(culture);
+  const marketPart = take(market);
+  const transportPart = take(transport);
+
+  const deduction =
+    Math.round(
+      (cardPart * CREDIT_CARD.rateCard +
+        debitPart * CREDIT_CARD.rateDebit +
+        culturePart * CREDIT_CARD.rateCulture +
+        marketPart * CREDIT_CARD.rateMarket +
+        transportPart * CREDIT_CARD.rateTransport) *
+        10,
+    ) / 10;
+
+  const baseLimit = creditCardBaseLimit(input.salaryMan, input.children);
+  const extraLimit = creditCardExtraLimit(input.salaryMan);
+  const baseDeduction = Math.round(Math.min(deduction, baseLimit) * 10) / 10;
+  /* 제11항 — 기본 한도를 넘는 공제액 중 전통시장·대중교통(7,000만원 이하이면 문화체육 포함) 몫과
+     추가 한도 중 작은 값을 더한다. 기본 한도에 닿지 않으면 추가분은 붙지 않는다. */
+  const extraShare =
+    Math.round(
+      (marketPart * CREDIT_CARD.rateMarket +
+        transportPart * CREDIT_CARD.rateTransport +
+        culturePart * CREDIT_CARD.rateCulture) *
+        10,
+    ) / 10;
+  const extraRoom = Math.round(Math.max(0, deduction - baseLimit) * 10) / 10;
+  const extraDeduction = Math.round(Math.min(extraRoom, extraShare, extraLimit) * 10) / 10;
+
+  return {
+    threshold,
+    used: Math.round(used * 10) / 10,
+    overThreshold,
+    deduction,
+    baseDeduction,
+    extraDeduction,
+    total: Math.round((baseDeduction + extraDeduction) * 10) / 10,
+    baseLimit,
+    extraLimit,
+    baseHit: deduction >= baseLimit,
+    extraHit: extraDeduction >= extraLimit && extraLimit > 0,
+    cultureCounted: lowSalary,
+  };
+}
+
+/* ------------------------------------------------------------------
    ④ 이자·배당·기타소득 — 원천징수
    ------------------------------------------------------------------ */
 export const INCOME_TAX = {
@@ -191,6 +338,18 @@ export const TAX_TEXT = {
   isaTransfer: `${pct(PENSION_ACCOUNT.isaTransferRate, 0)} · 최대 ${manLabel(PENSION_ACCOUNT.isaTransferMax)}`,
   /** '13만원' */
   standardCredit: manLabel(INCOME_TAX.standardCredit),
+  /** '25%' — 신용카드 등 최저사용금액(총급여의 25%) */
+  creditCardThreshold: pct(CREDIT_CARD.thresholdRate, 0),
+  /** '15%' — 신용카드 사용분 */
+  creditCardCard: pct(CREDIT_CARD.rateCard, 0),
+  /** '30%' — 직불·현금영수증·문화체육 */
+  creditCardDebit: pct(CREDIT_CARD.rateDebit, 0),
+  /** '40%' — 전통시장·대중교통 */
+  creditCardMarket: pct(CREDIT_CARD.rateMarket, 0),
+  /** '300만원' — 총급여 7,000만원 이하 기본 한도 */
+  creditCardLimitLow: manLabel(CREDIT_CARD.limitLow[0]),
+  /** '250만원' — 총급여 7,000만원 초과 기본 한도 */
+  creditCardLimitHigh: manLabel(CREDIT_CARD.limitHigh[0]),
   /** '7.19%' */
   healthRate: pct(HEALTH_INSURANCE.rate, 2),
   /** '13.14%' */
@@ -213,4 +372,14 @@ export const TAX_EXPECTED = {
   healthRatePct: 7.19,
   longTermCareRatioPct: 13.14,
   dividendPct: 15.4,
+  creditCardThresholdPct: 25,
+  creditCardCardPct: 15,
+  creditCardDebitPct: 30,
+  creditCardMarketPct: 40,
+  creditCardCulturePct: 30,
+  creditCardLimitLow: 300,
+  creditCardLimitHigh: 250,
+  creditCardExtraLow: 300,
+  creditCardExtraHigh: 200,
+  creditCardSalaryCut: 7000,
 } as const;

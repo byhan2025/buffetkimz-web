@@ -23,8 +23,63 @@ const ddayClass: Record<string, string> = {
   past: "dday dday--later",
 };
 
+/** iCalendar 텍스트 이스케이프 — 쉼표·세미콜론·역슬래시·줄바꿈 */
+function icsEscape(value: string): string {
+  return value
+    .replace(/\\/g, "\\\\")
+    .replace(/;/g, "\\;")
+    .replace(/,/g, "\\,")
+    .replace(/\r?\n/g, "\\n");
+}
+
+/** 한 일정을 .ics 파일 본문으로 만든다. 기한일이 없으면 그 달 1일에 두고 설명에 시기를 적는다. */
+function icsFor(item: CalendarItem, year: number): string {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const day = item.dueDate ? item.dueDate.replace(/-/g, "") : `${year}${pad(item.month)}01`;
+  const next = (() => {
+    const d = new Date(`${day.slice(0, 4)}-${day.slice(4, 6)}-${day.slice(6, 8)}T00:00:00Z`);
+    d.setUTCDate(d.getUTCDate() + 1);
+    return d.toISOString().slice(0, 10).replace(/-/g, "");
+  })();
+  const stamp = new Date().toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+  const when = item.dueDate ? item.when : `${item.when} (정확한 날짜가 정해지지 않은 항목 — 이 달 1일에 두었습니다)`;
+  const lines = [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//buffetkimz//golden-time//KO",
+    "CALSCALE:GREGORIAN",
+    "METHOD:PUBLISH",
+    "BEGIN:VEVENT",
+    `UID:golden-${year}-${item.month}-${day}-${encodeURIComponent(item.title).slice(0, 40)}@buffetkimz.com`,
+    `DTSTAMP:${stamp}`,
+    `DTSTART;VALUE=DATE:${day}`,
+    `DTEND;VALUE=DATE:${next}`,
+    `SUMMARY:${icsEscape(`[골든타임] ${item.title}`)}`,
+    `DESCRIPTION:${icsEscape(`${when}\n할 일: ${item.action}\n${item.body}\n출처: ${item.source}\nbuffetkimz.com/calendar`)}`,
+    "URL:https://buffetkimz.com/calendar/",
+    "TRANSP:TRANSPARENT",
+    "END:VEVENT",
+    "END:VCALENDAR",
+  ];
+  return lines.join("\r\n");
+}
+
+function downloadIcs(item: CalendarItem, year: number) {
+  const blob = new Blob([icsFor(item, year)], { type: "text/calendar;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `buffetkimz-골든타임-${item.month}월-${item.title.replace(/[\\/:*?"<>|]/g, "")}.ics`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+
 export default function CalendarBoard({ items, initialMonth, note, todayIso }: Props) {
   const today = useMemo(() => (todayIso ? new Date(`${todayIso}T09:00:00+09:00`) : new Date()), [todayIso]);
+  /** 달력 데이터의 연도 — 기한일이 없는 항목의 자리(그 달 1일)를 만들 때 쓴다. */
+  const calendarYear = Number((todayIso ?? "").slice(0, 4)) || today.getFullYear();
   /** 화면 표기 — 사이트 전체와 같은 점 표기 (2026. 11. 21.) */
   const todayLabel = useMemo(
     () => (todayIso ? todayIso.replace(/^(\d{4})-(\d{2})-(\d{2})$/, "$1. $2. $3.") : "오늘"),
@@ -276,14 +331,30 @@ export default function CalendarBoard({ items, initialMonth, note, todayIso }: P
                       <p className="mt-1.5 text-[12px] text-ink-faint">출처: {item.source}</p>
                     )}
                     {item.toolHref && (
-                      <a
-                        href={withBase(item.toolHref)}
-                        className="mt-1 inline-flex min-h-[44px] items-center text-[13px] font-semibold text-brand-deep underline decoration-brand/30 underline-offset-4"
-                        data-calendar-tool={item.toolHref}
-                      >
-                        {item.toolLabel ?? "관련 도구 열기"} →
-                      </a>
+                      /* 출처 링크와 같은 줄에 붙어 글자가 겹치지 않게 한 줄을 따로 쓴다(2026-11-28 실측). */
+                      <div className="mt-1">
+                        <a
+                          href={withBase(item.toolHref)}
+                          className="inline-flex min-h-[44px] items-center text-[13px] font-semibold text-brand-deep underline decoration-brand/30 underline-offset-4"
+                          data-calendar-tool={item.toolHref}
+                        >
+                          {item.toolLabel ?? "관련 도구 열기"} →
+                        </a>
+                      </div>
                     )}
+                    <div className="mt-1 flex flex-wrap items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => downloadIcs(item, calendarYear)}
+                        className="inline-flex min-h-[44px] items-center text-[12.5px] font-semibold text-ink-soft underline decoration-line underline-offset-4 hover:text-ink"
+                        data-ics-button={item.dueDate ?? `${item.month}-01`}
+                      >
+                        내 달력에 추가 (.ics)
+                      </button>
+                      <span className="text-[11.5px] text-ink-faint">
+                        {item.dueDate ? "기한일에 종일 일정으로" : "그 달 1일에 두고 시기를 설명에 적습니다"}
+                      </span>
+                    </div>
                   </div>
                 </li>
               );

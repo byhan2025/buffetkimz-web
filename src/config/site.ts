@@ -252,6 +252,8 @@ export const nav: NavItem[] = [
     children: [
       { href: "/calendar", label: "연간 금융·세제 캘린더", note: "1–12월 기한과 절차" },
       { href: "/calendar/#calendar", label: "이번 달 주요 일정", note: "이 달에 확인할 것만" },
+      /* v9.8.0 — 메뉴 이름은 그대로 두고, 연말정산 지도로 가는 줄 하나만 더한다(역할 부제). */
+      { href: "/year-end-tax", label: "13월의 월급 지도", note: "2026년 귀속 연말정산 3단계" },
     ],
   },
   {

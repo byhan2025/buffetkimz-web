@@ -19,7 +19,7 @@ import {
   type ProfileId,
   type Variant23,
 } from "@/lib/silson/engine";
-import { Note, ResultStat, RunnerShell, Segmented, StickySummary, formatKrw } from "./ui";
+import { Note, ResultStat, RunnerShell, SaveResultCard, Segmented, StickySummary, formatKrw } from "./ui";
 
 /**
  * 세대별 실손 계산기 (1~5세대 · 유병력자)
@@ -1033,6 +1033,19 @@ export default function SilsonCompare({ compact = false }: { compact?: boolean }
           </ul>
         </div>
       )}
+
+      <SaveResultCard
+        title="실손 세대 비교"
+        subtitle={`${visit === "inpatient" ? "입원" : "통원"} · ${HOSPITALS[hospital].label} · 진료 1건 기준`}
+        rows={[
+          { label: `${p.label} 예상 보험금`, value: formatKrw(p.payout), sub: `보장률 ${(p.payoutRate * 100).toFixed(1)}%` },
+          { label: "병원비 합계", value: formatKrw(result.total) },
+          { label: "본인부담", value: formatKrw(p.self) },
+          { label: "한도 삭감", value: formatKrw(p.capped) },
+        ]}
+        notes={["진료 1건 기준입니다. 연간 누적 한도와 보험료는 반영하지 않았습니다.", "지급 여부·금액은 가입 약관과 보험사 심사에 따릅니다."]}
+        fileBase="buffetkimz-실손비교"
+      />
 
       <StickySummary
         items={[

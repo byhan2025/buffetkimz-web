@@ -21,7 +21,7 @@ import {
   type Summary,
 } from "@/lib/bojang/engine";
 import { INSURERS } from "@/lib/bojang/insurers";
-import { Note, ResultStat, RunnerShell, Segmented, StickySummary } from "./ui";
+import { Note, ResultStat, RunnerShell, SaveResultCard, Segmented, StickySummary } from "./ui";
 
 /**
  * 보장분석 요약기 (공개 도구)
@@ -1379,6 +1379,22 @@ export default function BojangSummary({ compact = false }: { compact?: boolean }
         아닙니다. 실제 지급 여부·금액·면책은 가입 약관과 보험사 심사에 따릅니다. PDF는 이 브라우저 안에서 글자만
         뽑고, 파일과 입력값은 서버로 보내지 않습니다.
       </Note>
+
+      <SaveResultCard
+        title="보장분석 요약"
+        subtitle={`${side === "before" ? "보유" : "제안"} 설계 · 담보 ${summary.count}건`}
+        rows={[
+          { label: "월 보험료", value: summary.premiumKnown ? won(summary.premium) : "확인 필요", sub: "담보 보험료 합" },
+          {
+            label: "암 진단비",
+            value: summary.groups.find((g) => g.id === "cancer")?.lump ? man(summary.groups.find((g) => g.id === "cancer")!.lump) : "—",
+          },
+          { label: "확인할 점", value: `${summary.checks.filter((c) => c.level === "check").length}개` },
+          { label: "실손", value: summary.silson.label ?? "확인 필요" },
+        ]}
+        notes={["담보 이름으로 묶은 참고용 정리입니다. 지급 여부·금액·면책은 약관과 보험사 심사에 따릅니다.", "파일과 입력값은 브라우저 안에서만 처리했습니다."]}
+        fileBase="buffetkimz-보장분석"
+      />
 
       <StickySummary
         items={[

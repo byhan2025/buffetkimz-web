@@ -14,6 +14,7 @@ import { galleryCount, gallerySlideCount } from "./gallery.ts";
 
 export type StoreIcon =
   | "pension"
+  | "credit-card"
   | "pension-draw"
   | "retirement"
   | "compound"
@@ -104,6 +105,7 @@ const artToIcon: Record<App["art"], StoreIcon> = {
   silson: "silson",
   bojang: "bojang",
   pension: "pension",
+  "credit-card": "credit-card",
   "pension-draw": "pension-draw",
   retirement: "retirement",
   compound: "compound",
@@ -186,11 +188,13 @@ const metaBySlug: Record<string, string> = {
   "deposit-savings": "15.4% · 서버 미전송",
   "simpyeong-disclosure": "진료자료 · 서버 미전송",
   "disclosure-consent": "동의서 · 서버 미전송",
+  "credit-card-deduction": "25% 문턱 · 서버 미전송",
 };
 
 /** 홈 진열 순서 — 금융·연금 계산이 먼저, 앱이 뒤, 보험이 마지막. */
 const orderBySlug: Record<string, number> = {
   "pension-tax": 10,
+  "credit-card-deduction": 15,
   "retirement-flow": 20,
   "compound-return": 30,
   "account-tax-compare": 35,
