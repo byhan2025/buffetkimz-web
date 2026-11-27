@@ -109,6 +109,43 @@ const sitemapLastmod = (() => {
   }
 })();
 
+/**
+ * 빌드 결과의 href/src 안에 남은 `&#x26;`(본문 자동 링크가 만드는 숫자 문자 참조)를 `&amp;`로 바꾼다.
+ *
+ * 2026-11-28 전수 점검: 소식지 본문의 국세청 링크처럼 `&`가 든 주소를 GFM 자동 링크가 만들면
+ *   속성값이 `…?cntntsId=7875&#x26;mi=2304`로 나간다. 브라우저는 둘을 같이 읽지만, 주소를 문자열로
+ *   읽는 검사기·수집기는 `#x26;mi=2304`를 프래그먼트로 보아 주소가 잘린 것으로 판단한다.
+ *   두 표기는 같은 값이므로 속성 안만 표준 표기(`&amp;`)로 통일한다.
+ */
+function normalizeAmpInHref() {
+  return {
+    name: 'buffetkimz:normalize-amp-in-href',
+    hooks: {
+      'astro:build:done': async ({ dir }) => {
+        const { readdir, readFile, writeFile } = await import('node:fs/promises');
+        const { join } = await import('node:path');
+        const root = fileURLToPath(dir);
+        const walk = async (path) => {
+          for (const entry of await readdir(path, { withFileTypes: true })) {
+            const full = join(path, entry.name);
+            if (entry.isDirectory()) {
+              await walk(full);
+              continue;
+            }
+            if (!entry.name.endsWith('.html')) continue;
+            const html = await readFile(full, 'utf8');
+            const next = html.replace(/(\s(?:href|src)="[^"]*)"|(\s(?:href|src)='[^']*)'/g, (m) =>
+              m.includes('&#x26;') ? m.replaceAll('&#x26;', '&amp;') : m,
+            );
+            if (next !== html) await writeFile(full, next, 'utf8');
+          }
+        };
+        await walk(root);
+      },
+    },
+  };
+}
+
 export default defineConfig({
   site: SITE,
   base: BASE,
@@ -173,6 +210,7 @@ export default defineConfig({
   },
   integrations: [
     react(),
+    normalizeAmpInHref(),
     sitemap({
       // 실행 화면·검색·옛 주소 이동 페이지는 사이트맵에서 뺀다
       // v8.8.0 — 보관함(archived) 도구도 뺀다. 앱스토어·검색에서 숨긴 페이지를 사이트맵에 올리면
