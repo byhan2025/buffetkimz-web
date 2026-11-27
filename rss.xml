@@ -9,7 +9,7 @@
     <managingEditor>buffetkimz</managingEditor>
     <generator>buffetkimz-web (Astro)</generator>
     <ttl>60</ttl>
-    <lastBuildDate>Fri, 27 Nov 2026 04:42:53 GMT</lastBuildDate>
+    <lastBuildDate>Fri, 27 Nov 2026 05:18:52 GMT</lastBuildDate>
     <atom:link href="https://byhan2025.github.io/buffetkimz-web/rss.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>신용카드 리볼빙 수수료 계산법과 이월잔액 줄이는 4단계</title>
@@ -18,6 +18,14 @@
       <category>금융</category>
       <pubDate>Fri, 27 Nov 2026 00:00:00 GMT</pubDate>
       <description>리볼빙은 최소결제액을 내면 나머지가 다음 달로 넘어가고 그 잔액에 수수료가 붙는 결제 방식입니다. 신용카드 표준약관 산식으로 300만 원·최소결제비율 10%·연 18%를 계산해 39개월과 총수수료 39만 2,165원을 확인했습니다.</description>
+    </item>
+    <item>
+      <title>폐암: 비흡연자에게도 생기는 이유와 담보가 갈리는 코드</title>
+      <link>https://byhan2025.github.io/buffetkimz-web/posts/insurance-lung-cancer-never-smoker/</link>
+      <guid isPermaLink="true">https://byhan2025.github.io/buffetkimz-web/posts/insurance-lung-cancer-never-smoker/</guid>
+      <category>보험</category>
+      <pubDate>Fri, 27 Nov 2026 00:00:00 GMT</pubDate>
+      <description>2023년 국내 폐암은 32,953건으로 전체 암의 11.4%, 5년 생존율 42.5%입니다. 국가 폐암 검진은 54~74세 30갑년 흡연자에게 2년마다 저선량 CT로 열리고, 비흡연자는 대상이 아닙니다. C34·D02.2·D38.1이 약관에서 갈리는 지점까지 정리했습니다.</description>
     </item>
     <item>
       <title>2026 해외주식 양도세 계산법: 손익통산·250만 원 공제·환율</title>
@@ -242,14 +250,6 @@
       <category>노후준비</category>
       <pubDate>Sun, 22 Nov 2026 00:00:00 GMT</pubDate>
       <description>같은 1억 원이라도 근속 3년이면 퇴직소득세가 1,599만 원, 20년이면 123만 원입니다. 근속연수로 나눠 1년치로 환산해 세율을 매기는 구조와 DB·DC·IRP에서 갈리는 지점을 정리했습니다.</description>
-    </item>
-    <item>
-      <title>ISA 만기 자금, 60일 안에 옮길 때 늘어나는 한도</title>
-      <link>https://byhan2025.github.io/buffetkimz-web/posts/isa-pension-300/</link>
-      <guid isPermaLink="true">https://byhan2025.github.io/buffetkimz-web/posts/isa-pension-300/</guid>
-      <category>연금</category>
-      <pubDate>Sat, 21 Nov 2026 00:00:00 GMT</pubDate>
-      <description>ISA 만기 후 60일 안에 연금계좌로 옮기면 전환액의 10%, 최대 300만원이 세액공제 한도에 더해집니다. 12월 31일 납입 마감과 겹칠 때 확인할 순서를 정리했습니다.</description>
     </item>
   </channel>
 </rss>
