@@ -651,6 +651,11 @@ export default function BojangSummary({ compact = false }: { compact?: boolean }
 
   /** 가상 비교 예시 — 보유·제안을 한 번에 채워 기둥 이동과 보험료 변화를 바로 보게 한다 */
   const loadPair = () => {
+    /* 직접 넣은 자료가 화면에 있으면 먼저 묻는다 — 저장되지 않은 입력을 말없이 지우지 않는다 */
+    const typed = (["before", "after"] as Side[]).some(
+      (s) => sides[s].rows.length > 0 && !String(sides[s].source || "").startsWith("예시"),
+    );
+    if (typed && !window.confirm("지금 화면의 담보를 가상 예시(보유+제안)로 바꿉니다. 저장되지 않은 입력은 사라집니다.")) return;
     applyText("before", SAMPLES.before, "예시 자료(가상) · 보유");
     applyText("after", SAMPLES.after, "예시 자료(가상) · 제안");
     setSide("before");
