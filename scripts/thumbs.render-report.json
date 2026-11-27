@@ -1,21 +1,16 @@
 [
   {
-    "slug": "pension-fund-loss-recovery-math",
-    "out": "public/thumbs/pension-fund-loss-recovery-math.webp",
-    "bytes": 44530,
+    "slug": "year-end-credit-card-deduction-2026",
+    "out": "public/thumbs/year-end-credit-card-deduction-2026.webp",
+    "bytes": 44492,
     "lines": [
       {
-        "text": "국민연금 3개월",
+        "text": "같은 2,000만 원",
         "size": 64,
         "overflow": false
       },
       {
-        "text": "202조 감소",
-        "size": 64,
-        "overflow": false
-      },
-      {
-        "text": "회복은 12.1%",
+        "text": "공제 75만 vs 150만",
         "size": 64,
         "overflow": false
       }

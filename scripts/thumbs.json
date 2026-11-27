@@ -1089,6 +1089,24 @@
    "sub": "내 연금액은 왜 그대로인가",
    "date": "2026.11.28",
    "alt": "이른 새벽 어두운 원목 책상 위에 펼친 두꺼운 운용 보고서와 놋쇠 회중시계, 낡은 지폐 묶음과 만년필, 왼쪽 창의 푸른 빛과 오른쪽 스탠드의 따뜻한 불빛이 겹친 정물"
+  },
+  {
+   "slug": "year-end-credit-card-deduction-2026",
+   "out": "public/thumbs/year-end-credit-card-deduction-2026.webp",
+   "art": "downloads/thumbs-raw/year-end-credit-card-deduction-2026.png",
+   "badge": [
+    "금융 · 연말정산",
+    "2026.11"
+   ],
+   "accent": "#F2D08C",
+   "headline": [
+    "같은 2,000만 원",
+    "공제 75만 vs 150만"
+   ],
+   "accentLine": 1,
+   "sub": "총급여 25% 문턱을 넘긴 결제수단이 공제율을 정합니다",
+   "date": "2026.11.28",
+   "alt": "어두운 책상 위에 펼친 카드 명세서와 계산기, 그 옆에 기준선을 그은 자와 접힌 영수증 — 총급여 25% 기준선을 넘긴 금액을 세는 자리"
   }
  ]
 }
