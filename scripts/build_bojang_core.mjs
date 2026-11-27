@@ -55,6 +55,7 @@ ${body}
     SAMPLES,
     parseAmount,
     formatMan,
+    isoDate,
     classify,
     silsonGeneration,
     splitCells,

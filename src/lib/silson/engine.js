@@ -215,8 +215,12 @@ export function normalizeInput(input = {}) {
     gen2Early: Boolean(input.gen2Early),
     coveredPartial,
     coveredFull,
-    /** 처방조제비(급여) — 통원에서만 쓴다 */
-    prescription: won(input.prescription),
+    /**
+     * 처방조제비(급여) — 통원에서만 쓴다.
+     * 입원으로 바꾸면 0으로 둔다. 화면에서 통원일 때 넣은 값이 남아 있어도 병원비 합계(total)와
+     * 계산 상세에 처방조제비가 따라오지 않게 하기 위해서다(입원에는 약국 처방조제 건이 없다).
+     */
+    prescription: visit === "inpatient" ? 0 : won(input.prescription),
     non,
     /** 상급병실료 차액과 입원일수 */
     room: won(input.room != null ? input.room : (input.non || {}).room),
@@ -335,19 +339,30 @@ function calcGen1(profile, ctx) {
     );
   } else {
     const base = ctx.coveredAll + ctx.prescription + ctx.nonAll;
+    /*
+     * 1세대 통원 공제는 상품별 외래 정액(5천~2만원)과 자기부담률(생보 20%) 중 큰 금액을 한 번 뺀다.
+     * 다만 외래 병원비가 0인 약국 영수증 단독 건에는 외래 정액을 붙이지 않고 약국 정액 8,000원만 뺀다 —
+     * 예전에는 종합병원을 고르면 1만원 정액이 붙어 약국 10,000원이 0원 지급이 됐다.
+     */
     const fixed = ctx.fixed1;
-    const self = deduct(base, rate, fixed);
+    const visitBase = ctx.coveredAll + ctx.nonAll;
+    const pharmacySelf = ctx.prescription ? Math.min(ctx.prescription, PHARMACY_FIXED) : 0;
+    const self = Math.min(base, visitBase ? deduct(base, rate, fixed) : pharmacySelf);
     items.push(
       item("covered", "급여·비급여 통원", base, {
         deductible: self,
         cap: ctx.gen1Cap,
-        reason: `통원 1회 정액 공제 ${comma(fixed)}원${rate ? `과 ${pct(rate)}(${comma(base * rate)}원)` : " (손보 자기부담 0%)"} 중 큰 금액 ${comma(
-          self
-        )}원을 뺐습니다. 통원 회당 한도 ${comma(ctx.gen1Cap)}원을 적용합니다.`,
+        reason: `${
+          visitBase
+            ? `통원 1회 정액 공제 ${comma(fixed)}원${rate ? `과 ${pct(rate)}(${comma(base * rate)}원)` : " (손보 자기부담 0%)"} 중 큰 금액 ${comma(
+                self
+              )}원`
+            : `외래 병원비가 0원이라 외래 정액 대신 약국 처방조제 정액 ${comma(pharmacySelf)}원`
+        }을 뺐습니다. 통원 회당 한도 ${comma(ctx.gen1Cap)}원을 적용합니다.`,
       })
     );
     notes.push(
-      "1세대 통원 공제는 상품별로 5천원~2만원이었습니다(약국 8천원 수준). 여기서는 다수 상품의 5천원(의원·병원)·1만원(종합·상급)을 적용했고, 통원 회당 한도는 상품별 10만~30만원이라 최대(30만원)를 기본으로 두었습니다. 증권의 가입금액으로 바꿔 주세요."
+      "1세대 통원 공제는 상품별로 5천원~2만원이었습니다(약국 8천원 수준). 여기서는 다수 상품의 5천원(의원·병원)·1만원(종합·상급)을 적용했고, 통원 회당 한도는 상품별 10만~30만원이라 최대(30만원)를 기본으로 두었습니다. 증권의 가입금액으로 바꿔 주세요. 약국 영수증만 있는 건은 약국 정액 8,000원만 적용합니다."
     );
   }
   roomItem(ctx, items, notes);
@@ -380,10 +395,16 @@ function calcGen2(profile, ctx) {
     notes.push("2세대 입원은 급여+비급여 자기부담을 합쳐 연 200만원을 넘으면 초과분을 보상합니다(현대해상 Hi0910 p.7, ABL생명 2013 p.13).");
   } else {
     const base = ctx.coveredAll + ctx.prescription + ctx.nonAll;
-    /* 외래 공제 = 병원 정액 vs 비율 중 큰 금액. 2013.1 이전 판은 정액만(현대해상 Hi0910 p.7). */
+    /*
+     * 외래 공제 = min(외래비, max(병원 정액, 비율)). 2013.1 이전 판은 정액만(현대해상 Hi0910 p.7).
+     * 외래비가 0이면(예: 약국 처방조제비만 넣은 경우) 외래 공제도 0이다 — 정액을 그대로 빼면
+     * 처방 10,000원이 0원 지급이 된다. 처방조제는 따로 min(처방비, 8,000원)만 뺀다.
+     */
     const fixed = ctx.h.fixed;
     const rateSelf = Math.round(ctx.coveredAll * coveredRate);
-    const visitSelf = ctx.gen2Early ? Math.min(ctx.coveredAll, fixed) : Math.max(fixed, rateSelf);
+    const visitSelf = ctx.gen2Early
+      ? Math.min(ctx.coveredAll, fixed)
+      : Math.min(ctx.coveredAll, Math.max(fixed, rateSelf));
     const pharmacySelf = ctx.prescription ? Math.min(ctx.prescription, PHARMACY_FIXED) : 0;
     const nonSelf = Math.round(ctx.nonAll * nonRate);
     const self = Math.min(base, visitSelf + pharmacySelf + nonSelf);
@@ -394,10 +415,14 @@ function calcGen2(profile, ctx) {
         reason: ctx.gen2Early
           ? `2013.1 이전 판으로 통원 정액 공제 ${comma(visitSelf)}원만 적용했습니다(20%와 비교하지 않음). 비급여는 ${pct(nonRate)}인 ${comma(
               nonSelf
-            )}원을 뺐습니다. 외래와 처방조제를 합쳐 회당 ${comma(ctx.gen23Cap)}원 한도입니다.${sel2Note}`
+            )}원을 뺐습니다. 외래와 처방조제를 합쳐 회당 ${comma(ctx.gen23Cap)}원 한도입니다.${
+              ctx.coveredAll ? "" : " 외래 병원비가 0원이라 외래 공제는 적용하지 않았습니다."
+            }${sel2Note}`
           : `통원 정액 공제 ${comma(fixed)}원과 ${pct(coveredRate)}(${comma(rateSelf)}원) 중 큰 ${comma(visitSelf)}원${
               pharmacySelf ? `, 처방조제 정액 ${comma(pharmacySelf)}원` : ""
-            }, 비급여 ${pct(nonRate)}(${comma(nonSelf)}원)을 뺐습니다. 외래와 처방조제를 합쳐 회당 ${comma(ctx.gen23Cap)}원 한도입니다.${sel2Note}`,
+            }, 비급여 ${pct(nonRate)}(${comma(nonSelf)}원)을 뺐습니다. 외래와 처방조제를 합쳐 회당 ${comma(ctx.gen23Cap)}원 한도입니다.${
+              ctx.coveredAll ? "" : " 외래 병원비가 0원이라 외래 공제는 적용하지 않았습니다."
+            }${sel2Note}`,
       })
     );
     notes.push(
@@ -437,9 +462,10 @@ function calcGen3(profile, ctx) {
     notes.push("3세대 입원은 급여+일반 비급여 자기부담을 합쳐 연 200만원을 넘으면 초과분을 보상합니다(삼성화재 1704.1 p.17).");
   } else {
     const base = ctx.coveredAll + ctx.prescription + ctx.non.general;
+    /* 외래 공제 = min(외래비, max(정액, 비율)). 외래 0원이면 공제도 0 — 처방조제만 따로 8,000원까지 뺀다. */
     const fixed = ctx.h.fixed;
     const rateSelf = Math.round(ctx.coveredAll * coveredRate);
-    const visitSelf = Math.max(fixed, rateSelf);
+    const visitSelf = Math.min(ctx.coveredAll, Math.max(fixed, rateSelf));
     const pharmacySelf = ctx.prescription ? Math.min(ctx.prescription, PHARMACY_FIXED) : 0;
     const nonSelf = Math.round(ctx.non.general * nonRate);
     const self = Math.min(base, visitSelf + pharmacySelf + nonSelf);
@@ -449,7 +475,9 @@ function calcGen3(profile, ctx) {
         cap: ctx.gen23Cap,
         reason: `통원 정액 공제 ${comma(fixed)}원과 ${pct(coveredRate)}(${comma(rateSelf)}원) 중 큰 ${comma(visitSelf)}원${
           pharmacySelf ? `, 처방조제 정액 ${comma(pharmacySelf)}원` : ""
-        }, 일반 비급여 ${pct(nonRate)}(${comma(nonSelf)}원)을 뺐습니다. 외래와 처방조제를 합쳐 회당 ${comma(ctx.gen23Cap)}원 한도입니다.`,
+        }, 일반 비급여 ${pct(nonRate)}(${comma(nonSelf)}원)을 뺐습니다. 외래와 처방조제를 합쳐 회당 ${comma(ctx.gen23Cap)}원 한도입니다.${
+          ctx.coveredAll ? "" : " 외래 병원비가 0원이라 외래 공제는 적용하지 않았습니다."
+        }`,
       })
     );
     notes.push(

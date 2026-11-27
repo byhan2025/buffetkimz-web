@@ -240,7 +240,8 @@ export default function SilsonCompare({ compact = false }: { compact?: boolean }
     gen2Early,
     coveredPartial,
     coveredFull,
-    prescription,
+    /* 입원에는 약국 처방조제 건이 없다 — 통원에서 넣어 둔 값이 합계·상세에 남지 않게 0으로 넘긴다 */
+    prescription: visit === "inpatient" ? 0 : prescription,
     non,
     room,
     roomDays,

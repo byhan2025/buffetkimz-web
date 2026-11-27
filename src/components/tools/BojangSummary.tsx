@@ -9,6 +9,7 @@ import {
   compare,
   estimatePaidTotal,
   formatMan,
+  isoDate,
   parseAmount,
   readDocument,
   summarize,
@@ -300,8 +301,8 @@ export default function BojangSummary({ compact = false }: { compact?: boolean }
   const [name, setName] = useState("");
   const [copied, setCopied] = useState(false);
   const fileRef = useRef<HTMLInputElement | null>(null);
-  /** 기준일은 화면·인쇄·카드·파일이 모두 같은 날짜를 쓴다 */
-  const baseDate = useMemo(() => new Date().toLocaleDateString("ko-KR"), []);
+  /** 기준일은 화면·인쇄·카드·CSV·증권북이 모두 같은 날짜를 쓴다 — YYYY-MM-DD 그대로 찍힌다 */
+  const baseDate = useMemo(() => isoDate(new Date()), []);
   /** 기준금액 — 만원 단위. 빈 칸이면 그 그룹은 판정하지 않는다 */
   const [targets, setTargets] = useState<Record<string, string>>({
     cancer: "3000",
@@ -318,10 +319,11 @@ export default function BojangSummary({ compact = false }: { compact?: boolean }
       summarize(cur.rows, {
         label: side === "before" ? "보유" : "제안",
         premium: cur.premium,
+        at: baseDate,
         targets: Object.fromEntries(Object.entries(targets).filter(([, v]) => String(v).trim() !== "").map(([k, v]) => [k, Number(v)])),
         targetsAreManwon: true,
       }),
-    [cur.rows, cur.premium, side, targets],
+    [cur.rows, cur.premium, side, targets, baseDate],
   );
   const both = sides.before.rows.length && sides.after.rows.length;
   const cmp = useMemo(() => (both ? compare(sides.before.rows, sides.after.rows) : null), [both, sides.before.rows, sides.after.rows]);

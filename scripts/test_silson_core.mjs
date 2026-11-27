@@ -15,6 +15,7 @@
  *  4. 한도 삭감(capped)과 공제(deductible)의 분리 — 본인부담률 50% 오해 방지
  *  5. 5세대 중증/비중증, 500만원 상한, 건보 본인부담률 입력
  *  6. 상급병실료 차액·처방조제·전액본인부담
+ *  7. 약국 처방조제만 넣은 건(외래 0원)과 입원 전환 시 처방조제비 제거 — 2026-11-27 회의실 교차검증
  */
 import assert from "node:assert/strict";
 import fs from "node:fs";
@@ -298,6 +299,74 @@ test("세대가 뒤로 갈수록 같은 병원비에서 보험금이 줄어든�
 test("병원비 합계에 상급병실료 차액이 들어간다", () => {
   const r = compare({ ...base, room: 200000, roomDays: 2 });
   assert.equal(r.total, 800000);
+});
+
+console.log("\n[7] 처방조제만 넣은 통원 · 입원 전환 (2026-11-27 교차검증)");
+/* 약국 10,000원만 입력 — 외래 병원비 0원. 외래 공제는 min(외래비, max(정액, 비율)) = 0,
+   처방조제는 min(10,000, 8,000) = 8,000 만 빼서 2,000원이 남아야 한다. */
+const pharmOnly = { ...base, coveredKind: "partial", coveredAmount: 0, non: {}, prescription: 10000 };
+test("2세대 표준형: 약국 10,000원만 → 2,000원", () => {
+  const r = compare(pharmOnly);
+  const g2 = r.rows.find((x) => x.id === "gen2");
+  assert.equal(g2.payout, 2000);
+  assert.equal(g2.deductible, 8000);
+  assert.equal(r.total, 10000);
+});
+test("2세대 선택형Ⅰ: 약국 10,000원만 → 2,000원", () => assert.equal(calculateProfile("gen2", { ...pharmOnly, variant23: "selective" }).payout, 2000));
+test("2세대 선택형Ⅱ: 약국 10,000원만 → 2,000원", () => assert.equal(calculateProfile("gen2", { ...pharmOnly, variant23: "sel2" }).payout, 2000));
+test("2세대 2013.1 이전 판: 약국 10,000원만 → 2,000원", () => assert.equal(calculateProfile("gen2", { ...pharmOnly, gen2Early: true }).payout, 2000));
+test("3세대 표준형: 약국 10,000원만 → 2,000원", () => assert.equal(calculateProfile("gen3", pharmOnly).payout, 2000));
+test("3세대 선택형Ⅰ: 약국 10,000원만 → 2,000원", () => assert.equal(calculateProfile("gen3", { ...pharmOnly, variant23: "selective" }).payout, 2000));
+test("3세대 선택형Ⅱ: 약국 10,000원만 → 2,000원", () => assert.equal(calculateProfile("gen3", { ...pharmOnly, variant23: "sel2" }).payout, 2000));
+test("2·3세대 상세 설명에 '외래 공제 미적용'을 적는다", () => {
+  assert.match(calculateProfile("gen2", pharmOnly).items[0].reason, /외래 병원비가 0원/);
+  assert.match(calculateProfile("gen3", pharmOnly).items[0].reason, /외래 병원비가 0원/);
+});
+test("외래 정액은 비급여에 붙지 않는다 — 2세대 일반 비급여 10만만 → 80,000원", () => {
+  const r = calculateProfile("gen2", { ...base, coveredAmount: 0, non: { general: 100000 } });
+  assert.equal(r.deductible, 20000);
+  assert.equal(r.payout, 80000);
+});
+test("외래 정액은 비급여에 붙지 않는다 — 3세대 일반 비급여 10만만 → 80,000원", () => {
+  const r = calculateProfile("gen3", { ...base, coveredAmount: 0, non: { general: 100000 } });
+  assert.equal(r.deductible, 20000);
+  assert.equal(r.payout, 80000);
+});
+/* 나머지 세대도 외래 0·처방만일 때 모순(0원 지급·음수·이중 공제)이 없는지 */
+test("4세대: 약국 10,000원만 → 0원 (최소 공제 1만원, 약관대로)", () => {
+  const r = calculateProfile("gen4", pharmOnly);
+  assert.equal(r.deductible, 10000);
+  assert.equal(r.payout, 0);
+});
+test("5세대: 약국 10,000원만 → 0원 (최소 공제 1만원, 약관대로)", () => assert.equal(calculateProfile("gen5", pharmOnly).payout, 0));
+test("유병력자: 처방조제비는 보장 제외 → 0원", () => assert.equal(calculateProfile("chronic", pharmOnly).payout, 0));
+test("1세대: 약국 10,000원만 → 약국 정액 8,000원을 빼고 2,000원", () => {
+  const r = compare(pharmOnly);
+  for (const id of ["gen1d", "gen1l"]) {
+    const row = r.rows.find((x) => x.id === id);
+    assert.equal(row.deductible, 8000, `${id}: 공제`);
+    assert.equal(row.payout, 2000, `${id}: 보험금`);
+  }
+});
+/* 입원으로 바꾸면 통원에서 넣어 둔 처방조제비가 합계·상세에 남지 않는다 */
+test("입원 전환 — 처방조제비 0으로 정규화, 병원비 합계에 안 들어감", () => {
+  const r = compare({ ...base, visit: "inpatient", coveredAmount: 10000000, prescription: 8000, non: {} });
+  assert.equal(r.input.prescription, 0);
+  assert.equal(r.total, 10000000);
+});
+test("입원 전환 — 7개 세대 모두 처방조제 항목이 사라진다", () => {
+  for (const id of ["gen1d", "gen1l", "gen2", "gen3", "gen4", "gen5", "chronic"]) {
+    const r = calculateProfile(id, { ...base, visit: "inpatient", coveredAmount: 10000000, prescription: 8000, non: {} });
+    assert.ok(!r.items.some((i) => i.key === "prescription"), `${id}: 처방조제 항목이 남았습니다`);
+    assert.equal(r.base, 10000000, `${id}: 보장대상 합계에 처방조제비가 섞였습니다`);
+  }
+});
+test("입원 → 통원으로 되돌리면 처방조제비가 다시 계산된다", () => {
+  const out = calculateProfile("gen2", pharmOnly);
+  const inp = compare({ ...pharmOnly, visit: "inpatient" });
+  assert.equal(out.payout, 2000);
+  assert.equal(inp.rows.find((x) => x.id === "gen2").payout, 0);
+  assert.equal(inp.input.prescription, 0);
 });
 
 const failed = cases.filter((c) => !c.ok);

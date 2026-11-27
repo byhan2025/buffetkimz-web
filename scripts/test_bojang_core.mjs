@@ -26,6 +26,7 @@ import {
   compareLines,
   estimatePaidTotal,
   formatMan,
+  isoDate,
   normalizeRows,
   parsePayYears,
   parseAmount,
@@ -317,6 +318,20 @@ const book = buildBookHTML(s, { name: "김가상", at: "2026-11-27", insurers: I
 ok("증권북 표지", book.includes("김가상님 보장 정리"));
 ok("증권북 보험사 번호", book.includes("1588-3114"));
 ok("증권북 기준 판정", book.includes("기준 대비 판정"));
+
+/* ── 12. 기준일 — CSV 요약 행·증권북 표지에 화면 기준일이 그대로 찍히는지 (2026-11-27 회의실 교차검증) ── */
+eq("isoDate Date", isoDate(new Date(2026, 10, 27)), "2026-11-27");
+eq("isoDate ISO", isoDate("2026-11-27"), "2026-11-27");
+eq("isoDate 한국어 표기", isoDate("2026. 11. 27."), "2026-11-27");
+eq("isoDate 빈 값", isoDate(""), "");
+eq("isoDate 슬래시", isoDate("2026/11/27"), "2026-11-27");
+const atSum = summarize(doc.coverages, { label: "보유", premium: doc.premium, at: "2026-11-27" });
+eq("요약이 기준일을 보존", atSum.at, "2026-11-27");
+ok("CSV 요약 행 기준일", buildCSV(doc.coverages, atSum).split("\r\n").some((r) => r.endsWith(",2026-11-27")), buildCSV(doc.coverages, atSum).split("\r\n").find((r) => r.startsWith("보유")));
+ok("증권북 표지에 일자까지", buildBookHTML(atSum, { name: "김가상", at: "2026-11-27" }).includes("2026-11-27 기준"));
+ok("표지가 '2026. 11. '로 잘리지 않는다(옛 결함)", !buildBookHTML(atSum, { name: "김가상", at: "2026. 11. 27." }).includes("2026. 11. 기준"));
+ok("한국어 표기가 와도 표지에 2026-11-27", buildBookHTML(atSum, { name: "김가상", at: "2026. 11. 27." }).includes("2026-11-27 기준"));
+ok("기준일이 없으면 빈 칸(0원·오늘 날짜를 지어내지 않는다)", buildCSV(doc.coverages, s).split("\r\n").some((r) => r.startsWith("보유") && r.endsWith(",")));
 
 /* ── 11. 생성 파일이 원본과 같은지 ── */
 const corePath = path.resolve(HERE, "../../insure-crm/bojang-core.js");

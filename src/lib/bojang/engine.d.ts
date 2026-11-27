@@ -152,6 +152,7 @@ export const SAMPLES: { before: string; after: string };
 
 export function parseAmount(input: unknown, opts?: { unit?: "원" | "만원" }): number | null;
 export function formatMan(won: number | null): string;
+export function isoDate(v: string | Date | null | undefined): string;
 export function classify(name: string): { group: GroupId; kind: PayKind; tags: string[]; sub: CoverageSub; rule: string | null };
 export function silsonGeneration(dateStr: string): { id: string; label: string } | null;
 export function splitCells(line: string): string[];

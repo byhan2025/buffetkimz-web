@@ -1033,6 +1033,23 @@ export const SAMPLES = {
 
 /* ────────────────────────── 내보내기(CSV·증권북) ────────────────────────── */
 
+/**
+ * 기준일 표기 — Date·'2026-11-27'·'2026. 11. 27.' 어느 것이 와도 `YYYY-MM-DD` 로 맞춘다.
+ * 화면이 넘긴 기준일(baseDate)이 CSV 요약 행·증권북 표지에 그대로 찍히게 하는 자리다.
+ * (기존에는 '2026. 11. 27.' 을 10자로 잘라 '2026. 11. ' 만 남아 일자가 빠졌다.)
+ */
+export function isoDate(v) {
+  if (v == null || v === "") return "";
+  if (v instanceof Date && !Number.isNaN(v.getTime())) {
+    const pad = (n) => String(n).padStart(2, "0");
+    return `${v.getFullYear()}-${pad(v.getMonth() + 1)}-${pad(v.getDate())}`;
+  }
+  const s = String(v).trim();
+  const m = s.match(/^(\d{4})\s*[-./]\s*(\d{1,2})\s*[-./]\s*(\d{1,2})/);
+  if (m) return `${m[1]}-${m[2].padStart(2, "0")}-${m[3].padStart(2, "0")}`;
+  return s.slice(0, 10);
+}
+
 const csvCell = (v) => {
   const s = String(v == null ? "" : v);
   return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
@@ -1073,7 +1090,7 @@ export function buildCSV(coverages, summary) {
     summary && summary.premium != null ? summary.premium : "",
     summary && summary.paidTotal ? summary.paidTotal : "",
     summary && summary.silson && summary.silson.label ? summary.silson.label : "확인 필요",
-    summary && summary.at ? String(summary.at).slice(0, 10) : "",
+    isoDate(summary && summary.at),
   ]);
   rows.push([]);
   rows.push(["그룹", "정액", "수술·치료", "일당", "기준금액", "충족률(%)", "판정"]);
@@ -1100,7 +1117,7 @@ export function buildCSV(coverages, summary) {
 export function buildBookHTML(summary, opts = {}) {
   const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
   const man = (v) => formatMan(v);
-  const at = opts.at || (summary && summary.at) || "";
+  const at = isoDate(opts.at || (summary && summary.at) || "");
   const insurers = Array.isArray(opts.insurers) ? opts.insurers : [];
   const days = [
     { key: "silson", tab: "실손" },
@@ -1193,7 +1210,7 @@ export function buildBookHTML(summary, opts = {}) {
 <div class="cover">
   <div>
     <h1>${esc(opts.name ? opts.name + "님" : "고객")} 보장 정리</h1>
-    <div class="sub">${esc(at ? String(at).slice(0, 10) + " 기준" : "")} · 담보 ${summary ? summary.count : 0}건${
+    <div class="sub">${esc(at ? `${at} 기준` : "")} · 담보 ${summary ? summary.count : 0}건${
       summary && summary.contracts != null ? ` · 계약 ${summary.contracts}건` : ""
     }</div>
     <div class="box">
