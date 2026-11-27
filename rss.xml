@@ -9,7 +9,7 @@
     <managingEditor>buffetkimz</managingEditor>
     <generator>buffetkimz-web (Astro)</generator>
     <ttl>60</ttl>
-    <lastBuildDate>Fri, 27 Nov 2026 21:11:19 GMT</lastBuildDate>
+    <lastBuildDate>Fri, 27 Nov 2026 21:34:42 GMT</lastBuildDate>
     <atom:link href="https://byhan2025.github.io/buffetkimz-web/rss.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>국민연금 3개월 202조 감소, 회복은 12.1%, 내 연금액은 그대로</title>
@@ -18,6 +18,14 @@
       <category>연금</category>
       <pubDate>Sat, 28 Nov 2026 00:00:00 GMT</pubDate>
       <description>국민연금 기금적립금이 3개월 만에 1,865.6조 원에서 1,663.7조 원으로 10.8% 줄었습니다. 이 손실을 메우려면 12.1%가 필요하고, 연 8.04% 수익이면 1년 6개월입니다. 내가 받는 연금액이 왜 기금 성적표로 정해지지 않는지, 같은 산수를 3,000만 원 계좌에 넣어 계산했습니다.</description>
+    </item>
+    <item>
+      <title>2026 신용카드 소득공제 계산법: 총급여 25% 문턱과 12월 체크리스트</title>
+      <link>https://byhan2025.github.io/buffetkimz-web/posts/year-end-credit-card-deduction-2026/</link>
+      <guid isPermaLink="true">https://byhan2025.github.io/buffetkimz-web/posts/year-end-credit-card-deduction-2026/</guid>
+      <category>금융</category>
+      <pubDate>Sat, 28 Nov 2026 00:00:00 GMT</pubDate>
+      <description>2026년 귀속 신용카드 소득공제는 총급여 25%를 넘긴 금액부터 계산합니다. 총급여 6,000만 원이면 기준선 1,500만 원이고, 같은 2,000만 원을 써도 결제 구성에 따라 공제는 75만 원과 150만 원으로 갈립니다. 공제율·한도·12월 점검 순서를 정리했습니다.</description>
     </item>
     <item>
       <title>신용카드 리볼빙 수수료 계산법과 이월잔액 줄이는 4단계</title>
@@ -242,14 +250,6 @@
       <category>투자</category>
       <pubDate>Sun, 22 Nov 2026 00:00:00 GMT</pubDate>
       <description>같은 S&amp;P500을 담아도 환헤지형과 환노출형의 1년 수익률은 5%포인트 넘게 벌어집니다. 헤지 비용은 두 나라 금리 차이에서 나오고 매년 다시 걸리기 때문에, 장기 적립에서는 조용히 쌓입니다.</description>
-    </item>
-    <item>
-      <title>해외주식 250만 원 공제, 12월 31일에 팔면 다음 해로 넘어간다</title>
-      <link>https://byhan2025.github.io/buffetkimz-web/posts/invest-overseas-stock-tax/</link>
-      <guid isPermaLink="true">https://byhan2025.github.io/buffetkimz-web/posts/invest-overseas-stock-tax/</guid>
-      <category>투자</category>
-      <pubDate>Sun, 22 Nov 2026 00:00:00 GMT</pubDate>
-      <description>해외주식은 소액 투자자도 과세 대상이고, 같은 해 이익과 손실을 합쳐 250만 원을 넘는 금액에 22%를 냅니다. 어느 해 소득인지는 체결일이 아니라 결제일로 정해져 연말 매도 계획이 달라집니다.</description>
     </item>
   </channel>
 </rss>
