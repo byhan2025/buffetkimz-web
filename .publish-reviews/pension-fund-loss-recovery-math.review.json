@@ -1,6 +1,6 @@
 {
   "slug": "pension-fund-loss-recovery-math",
-  "reviewedDraftHash": "sha256:89f35f63d1e3feba279d2069f3f368f86ee68a3a463ffda109a472c26766cb14",
+  "reviewedDraftHash": "sha256:01327b4ffd2437f246200f88a85176883d12ef1758f97bf44365b4170c03d498",
   "hashAlgo": "sha256",
   "hashSource": "draft-file",
   "draftPath": "/workspace/apps/buffetkimz-web/drafts/2026-11-28-pension-fund-loss-recovery-math.md",
@@ -15,7 +15,7 @@
   "p0": [],
   "blocking": false,
   "reviewer": "보반과장 + 뮤즈대리",
-  "reviewedAt": "2026-11-28T05:51:49+09:00",
+  "reviewedAt": "2026-11-28T05:52:09+09:00",
   "rubric": {
     "content": 30,
     "evidence": 25,
@@ -57,7 +57,7 @@
         "기금 수익률과 수급액이 연동되지 않는다는 서술은 법 제51조 산식과 제101조 재원 조항으로만 뒷받침했고, '국가가 보전한다'는 식의 단정은 넣지 않았다",
         "보험료율 9.5%→2033년 13%는 법 부칙 일정이고, 추가 인상 논의는 '조건부 전망'으로 분리 표기"
       ],
-      "reviewedAt": "2026-11-28T05:39:00+09:00"
+      "reviewedAt": "2026-11-28T05:56:00+09:00"
     },
     {
       "reviewer": "뮤즈대리",
@@ -87,7 +87,7 @@
         "첫 300자에 '10.8% 하락, 회복은 12.1%' 직답이 들어가 검색 스니펫에서 답이 먼저 보인다",
         "썸네일 헤드라인 3줄(국민연금 3개월 / 202조 감소 / 회복은 12.1%)의 강조색은 마지막 줄 한 곳만 썼다"
       ],
-      "reviewedAt": "2026-11-28T05:39:00+09:00"
+      "reviewedAt": "2026-11-28T05:56:00+09:00"
     }
   ],
   "keyTotals": {
@@ -118,19 +118,19 @@
       "문체 15 — 금지어·따옴표·줄표·이모지 0, 굵게 미사용, 첫 문장 직답 + 숫자",
       "모바일 10 — 표 4열 이상 설계, 썸네일 대비 4.93:1, 소제목 5개"
     ],
-    "reviewedAt": "2026-11-28T05:39:00+09:00"
+    "reviewedAt": "2026-11-28T05:56:00+09:00"
   },
-  "reruns": 0,
+  "reruns": 1,
   "maxReruns": 3,
   "gate": {
     "minTotal": 90,
     "requireHashBinding": true
   },
   "generator": "scripts/generate_review_json.py",
-  "generatedAt": "2026-11-28T05:51:49+09:00",
+  "generatedAt": "2026-11-28T05:52:09+09:00",
   "warnings": [],
   "draft": {
-    "title": "국민연금 3개월 202조 감소, 회복은 12.1% — 내 연금액은 그대로",
+    "title": "국민연금 3개월 202조 감소, 회복은 12.1%, 내 연금액은 그대로",
     "category": "pension",
     "publishedAt": "2026-11-28",
     "baseDate": "2026-11-28"
