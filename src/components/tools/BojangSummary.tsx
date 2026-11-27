@@ -1074,12 +1074,17 @@ export default function BojangSummary({ compact = false }: { compact?: boolean }
                         className={"rounded-lg border px-2 py-1.5 " + PILLAR_TONE[it.status]}
                       >
                         <div className="flex items-baseline justify-between gap-1">
-                          <span className={"truncate text-[11.5px] font-semibold " + (it.status === "none" ? "text-ink-faint" : "text-ink")}>
+                          <span
+                            className={
+                              "line-clamp-2 text-[11.5px] font-semibold leading-tight " +
+                              (it.status === "none" ? "text-ink-faint" : "text-ink")
+                            }
+                          >
                             {it.label}
                           </span>
                           <span className={"shrink-0 text-[10px] font-semibold " + PILLAR_TEXT[it.status]}>{it.statusLabel}</span>
                         </div>
-                        <div className="mt-0.5 truncate text-[10.5px] tabular-nums text-ink-muted">{pillarValueText(it)}</div>
+                        <div className="mt-0.5 text-[10.5px] leading-tight tabular-nums text-ink-muted">{pillarValueText(it)}</div>
                         {it.common && (
                           <span className="mt-0.5 inline-block rounded bg-white/70 px-1 text-[9.5px] text-ink-faint">공통</span>
                         )}
