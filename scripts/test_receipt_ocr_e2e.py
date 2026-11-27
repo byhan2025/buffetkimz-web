@@ -59,6 +59,7 @@ facts: dict[str, object] = {}
 httpd = start_local() if MODE == "local" else None
 
 DROP = "영수증 사진·PDF 올려서 자동 채우기"
+MARK = {"n": 0}          # 영수증을 읽기 시작한 시점의 요청 수(그 뒤 요청만 개인정보 관점에서 본다)
 BANNER = "인식한 내용으로 칸을 채웠습니다"
 
 
@@ -140,6 +141,7 @@ def run_viewport(page, label: str) -> None:
             failures.append(f"{label}: 가상② {k}={v2[k]!r} (기대 {want})")
 
     # ③ 진짜 OCR — 합성 영수증 이미지 업로드
+    MARK["n"] = len(reqs)     # 영수증을 읽는 동안 나가는 요청만 따로 본다
     page.set_input_files('input[type="file"]', str(FIX / "receipt-clinic.png"))
     t0 = time.time()
     page.wait_for_selector('[data-receipt-ocr="result"], [data-receipt-ocr="error"]', timeout=240000)
@@ -227,12 +229,27 @@ try:
             ctx = browser.new_context(viewport=vp, device_scale_factor=2 if label == "390x844" else 1, locale="ko-KR")
             page = ctx.new_page()
             errors: list[str] = []
+            reqs: list[str] = []
             page.on("console", lambda m: errors.append(m.text) if m.type == "error" else None)
+            page.on("request", lambda r: reqs.append(r.url))
             page.on("pageerror", lambda e: errors.append(str(e)))
             try:
                 run_viewport(page, label)
             except Exception as e:  # noqa: BLE001
                 failures.append(f"{label}: 예외 {e}")
+            # 개인정보 약속 확인 — 영수증을 읽는 동안 사이트 밖으로 나가는 요청이 없어야 한다.
+            # (페이지 글꼴은 사이트 공통 디자인이 CDN에서 받는다 — 영수증 파일과는 무관하므로 뺀다)
+            FONT_HOSTS = ("https://cdn.jsdelivr.net", "https://fonts.googleapis.com", "https://fonts.gstatic.com")
+            outside = [
+                u for u in reqs[MARK["n"]:]
+                if not u.startswith("http://127.0.0.1")
+                and not u.startswith("https://byhan2025.github.io")
+                and not u.startswith(FONT_HOSTS)
+                and not u.startswith(("data:", "blob:"))
+            ]
+            facts[f"outside_requests_{label}"] = outside[:10]
+            if outside:
+                failures.append(f"{label}: 사이트 밖 요청 {len(outside)}건 {outside[:3]}")
             real = [e for e in errors if "favicon" not in e.lower()]
             facts[f"console_errors_{label}"] = real
             if real:
