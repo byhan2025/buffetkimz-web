@@ -370,6 +370,45 @@ export function splitCells(line) {
   return [s];
 }
 
+/*
+ * 계약 머리글 — 증권·설계서는 보통 계약마다 "보험사 / 상품명 / 계약일 / 납입기간 / 만기"를 한 줄씩 적고
+ * 그 아래에 담보 표를 둔다. 이 줄을 읽어 두면 담보가 어느 계약(상품)에 들어 있는지 묶을 수 있다.
+ *  · 계약자·피보험자 이름은 읽지 않는다(개인정보).
+ */
+const CONTRACT_INSURER = /^(?:보험사명?|보험회사|회사명)\s*[:：]?\s*(.+)$/;
+const CONTRACT_PRODUCT = /^(?:상품명?|계약명|보험종목|종목명)\s*[:：]?\s*(.+)$/;
+const CONTRACT_START = /^(?:최초\s*)?(?:계약일|가입일|청약일|가입\s*예정일)\s*[:：]?\s*(.+)$/;
+const CONTRACT_PAY = /^(?:납입기간|납기|납입년수)\s*[:：]?\s*(.+)$/;
+const CONTRACT_TERM = /^(?:만기|보험기간|보장기간)\s*[:：]?\s*(.+)$/;
+
+/**
+ * 한 줄이 계약 머리글인지 본다. 맞으면 { reset, fields } 를 낸다.
+ *  · reset — 새 계약이 시작되어 앞 계약의 상품명·계약일 등을 지운다.
+ *  · '[한결생명] 무배당 ○○보험' 처럼 대괄호로 회사·상품을 함께 적은 줄도 계약 머리글로 본다.
+ */
+function contractLine(line) {
+  const s = String(line || "").trim();
+  if (!s) return null;
+  const bracket = s.match(/^[\[【]\s*([^\]】]{2,24})\s*[\]】]\s*(.+)$/);
+  if (bracket && /(보험|연금|보장|저축|공제)/.test(bracket[2]) && !/\d[\d,.]*\s*(?:원|만)/.test(bracket[2])) {
+    return { reset: true, fields: { insurer: bracket[1].trim(), product: bracket[2].trim() } };
+  }
+  let m = s.match(CONTRACT_INSURER);
+  if (m && !/\d[\d,.]*\s*(?:원|만)/.test(m[1])) return { reset: true, fields: { insurer: m[1].trim() } };
+  m = s.match(CONTRACT_PRODUCT);
+  if (m && !/\d[\d,.]*\s*(?:원|만)/.test(m[1])) {
+    /* 상품명 줄은 새 계약의 시작이지만 회사명은 그대로 쓴다 */
+    return { reset: "soft", fields: { product: m[1].trim() } };
+  }
+  m = s.match(CONTRACT_START);
+  if (m) return { reset: false, fields: { startDate: isoDate(m[1].trim()) } };
+  m = s.match(CONTRACT_PAY);
+  if (m && /\d|전기|종신/.test(m[1])) return { reset: false, fields: { payTerm: m[1].trim() } };
+  m = s.match(CONTRACT_TERM);
+  if (m && /\d|종신|만기/.test(m[1])) return { reset: false, fields: { coverTerm: m[1].trim() } };
+  return null;
+}
+
 const HEADER_NAME = /(담보명|보장명|보장내용|특약명|급부명|담보|보장항목|지급사유)/;
 const HEADER_AMOUNT = /(가입금액|보장금액|지급금액|보험가입금액|보장한도|가입금액\(|금액)/;
 const HEADER_PREMIUM = /(보험료|월보험료|납입보험료)/;
@@ -392,6 +431,8 @@ export function parseText(text) {
   let unit = "원";
   let premiumSum = 0;
   let sawPremiumLabel = false;
+  /** 지금 읽고 있는 계약 — 아래 담보 줄에 회사·상품·계약일·납입·만기를 붙인다 */
+  let ctx = { insurer: "", product: "", startDate: "", payTerm: "", coverTerm: "" };
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].trim();
@@ -400,6 +441,16 @@ export function parseText(text) {
       continue;
     }
     const cells = splitCells(line);
+
+    /* 계약 머리글 — 담보 줄로 읽지 않고, 아래 담보에 붙일 값으로 기억한다.
+       칸이 하나인 줄만 본다(표 머리글·담보 줄을 계약 머리글로 잘못 읽지 않게). */
+    const ctxLine = cells.length === 1 ? contractLine(line) : null;
+    if (ctxLine) {
+      if (ctxLine.reset === true) ctx = { insurer: "", product: "", startDate: "", payTerm: "", coverTerm: "" };
+      if (ctxLine.reset === "soft") ctx = { ...ctx, startDate: "", payTerm: "", coverTerm: "" };
+      for (const [k, v] of Object.entries(ctxLine.fields)) if (v) ctx[k] = v;
+      continue;
+    }
 
     /* 표 머리글 — 열 위치와 단위를 기억한다 */
     if (cells.length >= 2 && HEADER_NAME.test(cells[0]) && cells.some((c) => HEADER_AMOUNT.test(c))) {
@@ -473,8 +524,8 @@ export function parseText(text) {
     const amount = parseAmount(amountRaw, { unit });
     const premium = premiumRaw ? parseAmount(premiumRaw, { unit: "원" }) : null;
     const isRate = /%/.test(amountRaw);
-    const payTerm = (line.match(/\d{1,2}\s*년\s*납/) || [""])[0];
-    const coverTerm = (line.match(/\d{1,3}\s*(?:세|년)\s*만기|종신/) || [""])[0];
+    const payTerm = (line.match(/\d{1,2}\s*년\s*납/) || [""])[0] || ctx.payTerm;
+    const coverTerm = (line.match(/\d{1,3}\s*(?:세|년)\s*만기|종신/) || [""])[0] || ctx.coverTerm;
     const renew = /비갱신/.test(line) ? "비갱신" : /갱신/.test(line) ? "갱신" : "";
     rows.push({
       name,
@@ -485,6 +536,9 @@ export function parseText(text) {
       coverTerm,
       renew,
       term: term || payTerm || coverTerm || "",
+      insurer: ctx.insurer,
+      product: ctx.product,
+      startDate: ctx.startDate,
       raw: line,
       unit,
     });
@@ -611,6 +665,7 @@ export function readDocument(text, opts = {}) {
  *  · label      자료 이름('보유', '제안' 등)
  *  · premium    월 보험료 합계(원)
  *  · contracts  계약 건수
+ *  · contractsMeta 계약 원장([{insurer, product, startDate, premium, payTerm, coverTerm}]) — 계약 단위 표에 보험료를 채운다
  *  · targets    { [groupId]: 원 } — 있으면 충족률·부족 판정을 계산한다
  *  · targetsAreManwon  targets 가 만원 단위인지
  */
@@ -707,6 +762,10 @@ export function summarize(coverages, opts = {}) {
     groups,
     silson,
     checks,
+    /* 25개 기둥 체크리스트 — 화면·인쇄·증권북이 같은 값을 읽는다 */
+    pillars: pillars(list, { at: opts.at }),
+    /* 계약(상품) 단위 표 — 담보에 적힌 보험사·상품명·계약일로 묶는다 */
+    contractTable: groupContracts(list, { contracts: opts.contractsMeta }),
     /* 기준 대비 판정 — 공개 화면·인쇄가 그대로 읽는다 */
     judge: groups
       .filter((g) => g.target)
@@ -944,7 +1003,7 @@ export function compare(before, after) {
     after: b.premium,
     delta: a.premium != null && b.premium != null ? b.premium - a.premium : null,
   };
-  return { a, b, groups, rows, premium, changed: rows.filter((r) => r.status !== "same").length };
+  return { a, b, groups, rows, premium, changed: rows.filter((r) => r.status !== "same").length, pillars: comparePillars(before, after) };
 }
 
 /** 비교 결과를 한 줄 요약 문장들로 */
@@ -961,15 +1020,644 @@ export function compareLines(cmp) {
   return out;
 }
 
+/* ────────────────────────── 보장 기둥 25 ────────────────────────── */
+
+/**
+ * 25대 핵심 보장 기둥 — 보장분석 체크리스트의 기준표.
+ *
+ * 구조: 뿌리(실손의료비) 위에 25개 기둥을 세운다. 기둥은 우리 10개 보장 그룹을 그대로 쓰고
+ * (group), 그룹 안에서 다시 '무엇을 보는지'(include·exclude·cause)로 나눈다. 그래서 새 분류 체계를
+ * 하나 더 만들지 않고도 기존 담보 분류 결과를 그대로 재사용한다.
+ *
+ *  · measure  무엇으로 재는지
+ *      sum      같은 성격의 담보 금액을 더한다(계약이 여러 건이면 각각 지급되므로)
+ *      causeMax 원인(질병·재해)별로 더한 뒤 큰 쪽을 쓴다 — 서로 다른 사고라 한 번에 지급되지 않는다
+ *      max      가장 큰 금액 하나(한도·1회 지급 담보)
+ *      daily    하루 금액 중 가장 큰 값(일당)
+ *      presence 금액을 읽지 않아도 가입 여부로 본다(실손)
+ *  · target   실무 참고 기준금액(원). 법정 기준이 아니고, 화면에서 고치는 기준금액(그룹)과도 별개다.
+ *  · cause    'disease' | 'accident' — 담보 이름의 원인 표기로 가른다. 원인 표기가 없는 담보는
+ *             양쪽에 함께 센다(공통). 하나의 담보로 두 기둥이 차는 대신, 화면에 '공통'으로 밝힌다.
+ *  · include / exclude  담보 이름에서 이 기둥에 넣을 말 / 뺄 말. include 가 null 이면 그룹 전체.
+ */
+export const PILLAR_ROOT = {
+  label: "실손의료비",
+  short: "실손",
+  note: "입원·통원 의료비를 한도 안에서 보상하는 뿌리입니다. 1~5세대에 따라 자기부담률이 달라지고, 두 건이면 비례보상됩니다.",
+};
+
+export const PILLARS = [
+  {
+    id: "cancer-general",
+    label: "일반암 진단비",
+    short: "일반암",
+    group: "cancer",
+    measure: "sum",
+    target: 30000000,
+    include: /암/,
+    exclude: /(유사암|소액암|갑상선|피부암|자궁경부|제자리|경계성|수술|항암|표적|면역|호르몬|방사선|치료|입원|일당|통원|처방)/,
+  },
+  {
+    id: "cancer-similar",
+    label: "유사암·소액암 진단비",
+    short: "유사암",
+    group: "cancer",
+    measure: "sum",
+    target: 10000000,
+    include: /(유사암|소액암|갑상선|피부암|자궁경부|제자리|경계성)/,
+    exclude: /(수술|항암|표적|치료|입원|일당)/,
+  },
+  {
+    id: "cancer-surgery",
+    label: "암 수술비",
+    short: "암수술",
+    group: "cancer",
+    measure: "sum",
+    target: 5000000,
+    include: /수술/,
+    exclude: /(입원|일당)/,
+  },
+  {
+    id: "cancer-treatment",
+    label: "항암 치료비",
+    short: "항암치료",
+    group: "cancer",
+    measure: "max",
+    target: 20000000,
+    include: /(항암|표적|면역|호르몬|방사선|약물|치료비)/,
+    exclude: /수술/,
+    note: "치료 종류(수술·방사선·약물)별로 지급되므로 더하지 않고 큰 금액 하나로 봅니다.",
+  },
+  {
+    id: "cancer-daily",
+    label: "암 입원일당",
+    short: "암입원",
+    group: "cancer",
+    measure: "daily",
+    target: 50000,
+    include: /(입원|일당)/,
+    exclude: null,
+  },
+  {
+    id: "brain-vascular",
+    label: "뇌혈관질환 진단비",
+    short: "뇌혈관",
+    group: "brain",
+    measure: "sum",
+    target: 10000000,
+    include: /뇌/,
+    exclude: /(수술|치료|입원|일당|후유장해|장해|치매)/,
+  },
+  {
+    id: "brain-heart",
+    label: "허혈성심장질환 진단비",
+    short: "허혈성심장",
+    group: "brain",
+    measure: "sum",
+    target: 10000000,
+    include: /(심장|심근|협심|허혈|관상동맥)/,
+    exclude: /(수술|치료|입원|일당|후유장해|장해)/,
+  },
+  {
+    id: "brain-surgery",
+    label: "뇌·심장 수술비",
+    short: "뇌심수술",
+    group: "brain",
+    measure: "sum",
+    target: 5000000,
+    include: /수술/,
+    exclude: /(입원|일당)/,
+  },
+  {
+    id: "brain-treatment",
+    label: "뇌·심장 주요치료비",
+    short: "뇌심치료",
+    group: "brain",
+    measure: "max",
+    target: 10000000,
+    include: /(주요치료|치료|중환자실|혈전용해|스텐트)/,
+    exclude: /수술/,
+    note: "혈전용해·수술·중환자실처럼 치료 종류별로 지급되어 큰 금액 하나로 봅니다.",
+  },
+  {
+    id: "surgery-disease",
+    label: "질병 수술비",
+    short: "질병수술",
+    group: "surgery",
+    measure: "sum",
+    target: 3000000,
+    include: null,
+    exclude: /(화상|골절|치아|치과|화재|산재|장기이식)/,
+    cause: "disease",
+  },
+  {
+    id: "surgery-accident",
+    label: "상해 수술비",
+    short: "상해수술",
+    group: "surgery",
+    measure: "sum",
+    target: 3000000,
+    include: null,
+    exclude: /(화상|골절|치아|치과|화재|산재|장기이식)/,
+    cause: "accident",
+  },
+  {
+    id: "hospital-disease",
+    label: "질병 입원일당",
+    short: "질병입원",
+    group: "hospital",
+    measure: "daily",
+    target: 50000,
+    include: /(입원|일당)/,
+    exclude: /(간병|간호|요양|치매)/,
+    cause: "disease",
+  },
+  {
+    id: "hospital-accident",
+    label: "상해 입원일당",
+    short: "상해입원",
+    group: "hospital",
+    measure: "daily",
+    target: 50000,
+    include: /(입원|일당)/,
+    exclude: /(간병|간호|요양|치매)/,
+    cause: "accident",
+  },
+  {
+    id: "care-daily",
+    label: "간병인 사용 일당",
+    short: "간병",
+    group: "hospital",
+    measure: "daily",
+    target: 100000,
+    include: /(간병|간호|요양)/,
+    exclude: /치매/,
+  },
+  {
+    id: "care-dementia",
+    label: "중증 치매 진단비",
+    short: "치매",
+    group: "hospital",
+    measure: "sum",
+    target: 10000000,
+    include: /치매/,
+    exclude: null,
+  },
+  {
+    id: "outpatient",
+    label: "통원·처방비",
+    short: "통원",
+    group: "outpatient",
+    measure: "max",
+    target: 10000,
+    include: null,
+    exclude: null,
+    note: "통원 1회당 정액입니다. 횟수 한도는 담보마다 달라 약관으로 확인합니다.",
+  },
+  {
+    id: "death-disease",
+    label: "질병 사망보험금",
+    short: "질병사망",
+    group: "death",
+    measure: "sum",
+    target: 100000000,
+    include: /사망/,
+    exclude: null,
+    cause: "disease",
+  },
+  {
+    id: "death-accident",
+    label: "재해 사망보험금",
+    short: "재해사망",
+    group: "death",
+    measure: "sum",
+    target: 100000000,
+    include: /사망/,
+    exclude: null,
+    cause: "accident",
+  },
+  {
+    id: "disability-disease",
+    label: "질병 후유장해",
+    short: "질병장해",
+    group: "death",
+    measure: "sum",
+    target: 100000000,
+    include: /(후유장해|장해)/,
+    exclude: /사망/,
+    cause: "disease",
+    note: "가입금액의 3~100%를 지급하는 비율 담보입니다. 금액을 읽지 못하면 '확인 필요'로 둡니다.",
+  },
+  {
+    id: "disability-accident",
+    label: "상해 후유장해",
+    short: "상해장해",
+    group: "death",
+    measure: "sum",
+    target: 100000000,
+    include: /(후유장해|장해)/,
+    exclude: /사망/,
+    cause: "accident",
+    note: "가입금액의 3~100%를 지급하는 비율 담보입니다. 금액을 읽지 못하면 '확인 필요'로 둡니다.",
+  },
+  {
+    id: "injury-fracture",
+    label: "골절 진단비",
+    short: "골절",
+    group: "etc",
+    measure: "sum",
+    target: 500000,
+    include: /(골절|깁스)/,
+    exclude: /(화상|화재)/,
+  },
+  {
+    id: "injury-burn",
+    label: "화상 진단비",
+    short: "화상",
+    group: "etc",
+    measure: "sum",
+    target: 500000,
+    include: /화상/,
+    exclude: /화재/,
+  },
+  {
+    id: "driver-traffic",
+    label: "교통사고처리지원금",
+    short: "교통사고",
+    group: "driver",
+    measure: "max",
+    target: 200000000,
+    include: /(교통사고|사고처리)/,
+    exclude: /(변호사|법률|벌금|합의)/,
+  },
+  {
+    id: "driver-lawyer",
+    label: "변호사선임·벌금",
+    short: "변호사",
+    group: "driver",
+    measure: "max",
+    target: 50000000,
+    include: /(변호사|법률|벌금|합의)/,
+    exclude: null,
+  },
+  {
+    id: "liability",
+    label: "일상생활배상책임",
+    short: "배상책임",
+    group: "liability",
+    measure: "max",
+    target: 100000000,
+    include: null,
+    exclude: null,
+  },
+];
+
+export const PILLAR_TOTAL = PILLARS.length;
+export const PILLAR_STATUS_LABELS = { met: "충족", short: "부족", none: "미보유", check: "확인 필요" };
+export const PILLAR_NOTE =
+  "기둥 기준금액은 보장분석 실무에서 쓰는 참고값(당사 기준)이며 법정 기준이 아닙니다. 원인(질병·재해) 표기가 없는 담보는 두 기둥에 함께 세고, 금액을 읽지 못한 담보는 0원이 아니라 '확인 필요'로 둡니다.";
+
+const CAUSE_WORDS = { disease: /질병|질환/, accident: /재해|상해|교통|사고/ };
+
+/** 담보 이름의 원인 표기 — 질병 / 재해 / 둘 다 / 구분 없음(공통) */
+export function causeOf(name) {
+  const s = String(name || "");
+  const d = CAUSE_WORDS.disease.test(s);
+  const a = CAUSE_WORDS.accident.test(s);
+  if (d && a) return "both";
+  if (d) return "disease";
+  if (a) return "accident";
+  return "common";
+}
+
+function causeFits(name, cause) {
+  const c = causeOf(name);
+  return c === "both" || c === "common" || c === cause;
+}
+
+/** 기둥 하나에 들어가는 담보를 고른다 */
+export function pillarItems(pillar, coverages) {
+  const p = PILLARS.find((x) => x.id === pillar) || pillar;
+  if (!p) return [];
+  return (Array.isArray(coverages) ? coverages : []).filter((c) => {
+    if (c.group !== p.group) return false;
+    const name = String(c.name || "");
+    if (p.include && !p.include.test(name)) return false;
+    if (p.exclude && p.exclude.test(name)) return false;
+    if (p.cause && !causeFits(name, p.cause)) return false;
+    return true;
+  });
+}
+
+/** 고른 담보들에서 기둥의 한 숫자를 낸다. 읽지 못했으면 null(0원이 아니다). */
+function pillarValue(measure, items) {
+  if (measure === "presence") return null;
+  const nums = items.filter((c) => c.kind !== "rate" && Number(c.amount) > 0).map((c) => Number(c.amount));
+  if (!nums.length) return null;
+  if (measure === "daily" || measure === "max") return Math.max(...nums);
+  if (measure === "causeMax") {
+    const buckets = {};
+    for (const c of items) {
+      if (c.kind === "rate" || !(Number(c.amount) > 0)) continue;
+      const k = causeOf(c.name);
+      buckets[k] = (buckets[k] || 0) + Number(c.amount);
+    }
+    const vals = Object.values(buckets);
+    return vals.length ? Math.max(...vals) : null;
+  }
+  return nums.reduce((a, v) => a + v, 0);
+}
+
+/**
+ * 보유 담보(또는 보유+제안) → 25개 기둥의 충족·부족·미보유와 '보장 기둥 N / 25'.
+ *  · 충족(met)   : 기준금액 이상
+ *  · 부족(short) : 담보는 있지만 기준금액에 못 미침
+ *  · 미보유(none): 표에 없음(0원이 아니라 '없음')
+ *  · 확인(check) : 담보는 있는데 금액을 읽지 못함(비율 담보 등) — 0원으로 바꾸지 않는다
+ * N(보장 기둥)은 충족만 센다. 부족·확인을 충족으로 올리지 않는다.
+ */
+export function pillars(coverages, opts = {}) {
+  const list = Array.isArray(coverages) ? coverages : [];
+  const items = PILLARS.map((p) => {
+    const matched = pillarItems(p, list);
+    const value = pillarValue(p.measure, matched);
+    let status;
+    if (!matched.length) status = "none";
+    else if (p.measure === "presence") status = "met";
+    else if (value == null) status = "check";
+    else status = value >= p.target ? "met" : "short";
+    const g = GROUP_BY_ID[p.group] || {};
+    const common = Boolean(p.cause) && matched.some((c) => ["common", "both"].includes(causeOf(c.name)));
+    return {
+      id: p.id,
+      label: p.label,
+      short: p.short,
+      group: p.group,
+      groupLabel: g.label || p.group,
+      tone: g.tone || "#55626e",
+      measure: p.measure,
+      cause: p.cause || "",
+      target: p.target,
+      value,
+      status,
+      statusLabel: PILLAR_STATUS_LABELS[status],
+      ratio: value != null && p.target ? value / p.target : null,
+      count: matched.length,
+      names: matched.map((c) => c.name),
+      common,
+      note: p.note || "",
+    };
+  });
+  const count = (s) => items.filter((i) => i.status === s).length;
+  const met = count("met");
+  const silsonItems = list.filter((c) => c.group === "silson");
+  const sil = detectSilson(silsonItems);
+  const groups = GROUPS.filter((g) => items.some((i) => i.group === g.id)).map((g) => {
+    const gi = items.filter((i) => i.group === g.id);
+    return {
+      id: g.id,
+      label: g.label,
+      short: g.short,
+      tone: g.tone,
+      met: gi.filter((i) => i.status === "met").length,
+      total: gi.length,
+    };
+  });
+  const pick = (s) => items.filter((i) => i.status === s);
+  return {
+    at: opts.at || "",
+    total: PILLARS.length,
+    met,
+    short: count("short"),
+    none: count("none"),
+    check: count("check"),
+    ratio: PILLARS.length ? met / PILLARS.length : 0,
+    summaryLine: `보장 기둥 ${met} / ${PILLARS.length}`,
+    items,
+    groups,
+    thin: pick("short"),
+    empty: pick("none"),
+    unconfirmed: pick("check"),
+    root: {
+      label: PILLAR_ROOT.label,
+      short: PILLAR_ROOT.short,
+      note: PILLAR_ROOT.note,
+      status: silsonItems.length ? "met" : "none",
+      statusLabel: silsonItems.length ? "가입" : "미보유",
+      count: silsonItems.length,
+      generation: sil.generation,
+      generationLabel: sil.label,
+      from: sil.from,
+      names: silsonItems.map((c) => c.name),
+    },
+    note: PILLAR_NOTE,
+  };
+}
+
+/**
+ * 기존 vs 제안 — 기둥 단위 이동.
+ *  change: new(미보유→충족, 새로 세워짐) · filled(부족→충족) · up(부족끼리 증액) ·
+ *          lost(충족→아래로) · dropped(있던 담보가 빠짐) · same · none(여전히 미보유)
+ */
+export function comparePillars(before, after) {
+  const a = pillars(before);
+  const b = pillars(after);
+  const items = a.items.map((x, i) => {
+    const y = b.items[i];
+    let change = "same";
+    if (x.status !== "met" && y.status === "met") change = x.status === "none" ? "new" : "filled";
+    else if (x.status === "met" && y.status !== "met") change = "lost";
+    else if (x.status === "none" && y.status !== "none") change = "raised";
+    else if (x.status !== "none" && y.status === "none") change = "dropped";
+    else if (y.status === "short" && x.status === "short" && (y.value || 0) > (x.value || 0)) change = "up";
+    return {
+      id: x.id,
+      label: x.label,
+      short: x.short,
+      group: x.group,
+      groupLabel: x.groupLabel,
+      tone: x.tone,
+      measure: x.measure,
+      target: x.target,
+      before: { status: x.status, value: x.value, count: x.count },
+      after: { status: y.status, value: y.value, count: y.count },
+      delta: x.value != null || y.value != null ? (y.value || 0) - (x.value || 0) : null,
+      change,
+    };
+  });
+  const built = items.filter((i) => i.change === "new");
+  const filled = items.filter((i) => i.change === "filled");
+  const lost = items.filter((i) => ["lost", "dropped", "down"].includes(i.change));
+  const empty = items.filter((i) => i.after.status !== "met");
+  return {
+    before: a,
+    after: b,
+    items,
+    built,
+    filled,
+    lost,
+    empty,
+    metDelta: b.met - a.met,
+    summaryLine: `보장 기둥 ${a.met} / ${a.total} → ${b.met} / ${b.total}`,
+    changed: items.filter((i) => i.change !== "same" && i.change !== "none").length,
+  };
+}
+
+/** 기둥 비교를 한 줄 문장들로 — 화면·인쇄·증권북이 같은 문구를 쓴다 */
+export function pillarCompareLines(cmp) {
+  if (!cmp) return [];
+  const out = [cmp.summaryLine];
+  if (cmp.metDelta) out.push(`충족 ${cmp.metDelta > 0 ? "+" : "−"}${Math.abs(cmp.metDelta)}개`);
+  if (cmp.built.length) out.push(`새로 세워지는 기둥 — ${cmp.built.map((i) => i.label).join(", ")}`);
+  if (cmp.filled.length) out.push(`부족에서 충족으로 — ${cmp.filled.map((i) => i.label).join(", ")}`);
+  if (cmp.empty.length) out.push(`제안 후에도 비어 있는 기둥 ${cmp.empty.length}개`);
+  if (cmp.lost.length) out.push(`약해지는 기둥 — ${cmp.lost.map((i) => i.label).join(", ")}`);
+  return out;
+}
+
+/* ────────────────────────── 계약(상품) 단위 묶음 ────────────────────────── */
+
+/** 담보가 어느 계약에 속하는지 가르는 열쇠 — 보험사·상품명·계약일 */
+export function contractKeyOf(c) {
+  const s = (v) => String(v == null ? "" : v).trim();
+  return [s(c.insurer), s(c.product), s(c.startDate).slice(0, 10)].join("|");
+}
+
+/**
+ * 담보 목록 → 계약(상품) 단위 표.
+ *
+ *  · 담보마다 붙은 보험사·상품명·계약일로 묶는다(같은 계약의 담보는 같은 값이 붙어 있다).
+ *  · opts.contracts 로 계약 원장([{insurer, product, startDate, premium, payTerm, coverTerm, paidTotal}])을
+ *    넘기면 담보에 보험료가 없어도 그 계약의 월 보험료를 채운다(InsureCRM).
+ *  · 성격이 다른 정액 담보를 하나로 더한 '총 보장금액'은만들지 않는다. 합산은 월 보험료·총납입 추정만.
+ */
+export function groupContracts(coverages, opts = {}) {
+  const list = Array.isArray(coverages) ? coverages : [];
+  const extra = Array.isArray(opts.contracts) ? opts.contracts : [];
+  const map = new Map();
+  const upsert = (key, seed) => {
+    let g = map.get(key);
+    if (!g) {
+      g = {
+        key,
+        insurer: seed.insurer || "",
+        product: seed.product || "",
+        startDate: seed.startDate || "",
+        payTerm: seed.payTerm || "",
+        coverTerm: seed.coverTerm || "",
+        premiumSum: 0,
+        premiumKnown: false,
+        ledgerPremium: seed.premium == null ? null : Number(seed.premium) || 0,
+        paidTotalSum: 0,
+        ledgerPaidTotal: seed.paidTotal == null ? null : Number(seed.paidTotal) || 0,
+        items: [],
+      };
+      map.set(key, g);
+    } else {
+      /* 원장이 먼저 들어온 경우 비어 있던 값을 채운다 */
+      for (const k of ["insurer", "product", "startDate", "payTerm", "coverTerm"]) {
+        if (!g[k] && seed[k]) g[k] = seed[k];
+      }
+      if (g.ledgerPremium == null && seed.premium != null) g.ledgerPremium = Number(seed.premium) || 0;
+      if (g.ledgerPaidTotal == null && seed.paidTotal != null) g.ledgerPaidTotal = Number(seed.paidTotal) || 0;
+    }
+    return g;
+  };
+
+  for (const k of extra) {
+    upsert(contractKeyOf(k), {
+      insurer: k.insurer,
+      product: k.product,
+      startDate: isoDate(k.startDate),
+      payTerm: k.payTerm || "",
+      coverTerm: k.coverTerm || "",
+      premium: k.premium,
+      paidTotal: k.paidTotal,
+    });
+  }
+  for (const c of list) {
+    const g = upsert(contractKeyOf(c), { insurer: c.insurer, product: c.product, startDate: isoDate(c.startDate) });
+    g.items.push(c);
+    if (c.premium != null && Number(c.premium) > 0) {
+      g.premiumSum += Number(c.premium);
+      g.premiumKnown = true;
+    }
+    if (c.paidTotal != null && Number(c.paidTotal) > 0) g.paidTotalSum += Number(c.paidTotal);
+    if (!g.payTerm && c.payTerm) g.payTerm = c.payTerm;
+    if (!g.coverTerm && c.coverTerm) g.coverTerm = c.coverTerm;
+  }
+
+  const groups = [...map.values()]
+    .map((g) => {
+      /* 계약 원장(InsureCRM)이 있으면 그 계약의 월 보험료가 우선이다 — 담보 행의 보험료를 고쳐도
+         계약 자체의 보험료는 남아 있기 때문. 원장이 없으면(웹) 담보별 보험료를 더한다. */
+      const premium = g.ledgerPremium != null ? g.ledgerPremium : g.premiumKnown ? g.premiumSum : null;
+      const paidTotal = g.paidTotalSum > 0 ? g.paidTotalSum : g.ledgerPaidTotal != null ? g.ledgerPaidTotal : estimatePaidTotal(premium, g.payTerm);
+      const withAmount = g.items
+        .filter((c) => c.kind !== "rate" && Number(c.amount) > 0)
+        .sort((a, b) => Number(b.amount) - Number(a.amount));
+      const top = (withAmount.length ? withAmount : g.items).slice(0, 3).map((c) => (c.kind === "daily" ? `${c.name} 일당` : c.name));
+      return {
+        key: g.key,
+        insurer: g.insurer,
+        product: g.product,
+        startDate: g.startDate,
+        payTerm: g.payTerm,
+        coverTerm: g.coverTerm,
+        count: g.items.length,
+        premium,
+        premiumKnown: premium != null && premium > 0,
+        paidTotal: paidTotal || null,
+        top,
+        kinds: {
+          lump: g.items.filter((c) => c.kind === "lump").length,
+          daily: g.items.filter((c) => c.kind === "daily").length,
+          limit: g.items.filter((c) => c.kind === "limit").length,
+          rate: g.items.filter((c) => c.kind === "rate").length,
+        },
+        /** 보험사·상품명이 모두 비어 있으면 '계약 구분 없음'으로 보여 준다 */
+        unnamed: !g.insurer && !g.product,
+        items: g.items,
+      };
+    })
+    .sort((a, b) => {
+      if (a.unnamed !== b.unnamed) return a.unnamed ? 1 : -1;
+      const d = String(a.startDate || "").localeCompare(String(b.startDate || ""));
+      if (d) return d;
+      return String(a.insurer + a.product).localeCompare(String(b.insurer + b.product), "ko");
+    });
+
+  const premiumTotal = groups.reduce((a, g) => a + (g.premiumKnown ? g.premium : 0), 0);
+  const paidTotal = groups.reduce((a, g) => a + (g.paidTotal || 0), 0);
+  return {
+    groups,
+    count: groups.length,
+    premium: premiumTotal > 0 ? premiumTotal : null,
+    paidTotal: paidTotal > 0 ? paidTotal : null,
+    unnamed: groups.filter((g) => g.unnamed).reduce((a, g) => a + g.count, 0),
+    note:
+      "계약 단위 표는 담보에 적힌 보험사·상품명·계약일로 묶습니다. 성격이 다른 정액 담보 금액은 더하지 않고, 월 보험료와 총납입 추정만 합산합니다.",
+  };
+}
+
 /* ────────────────────────────── 복사용 문구 ────────────────────────────── */
 
 /** 카톡·문자로 보낼 요약 문구 — 숫자는 요약 결과를 그대로 옮긴다 */
 export function buildMessage(summary, opts = {}) {
   const name = opts.name ? `${opts.name}님 ` : "";
   const lines = [`${name}보장 정리 요약`, ""];
+  const pil = opts.pillars || (summary && summary.pillars) || null;
   if (summary.count) {
     lines.push(`· 담보 ${summary.count}건${summary.contracts ? ` · 계약 ${summary.contracts}건` : ""}`);
     if (summary.premiumKnown) lines.push(`· 월 보험료 합계 ${summary.premium.toLocaleString("ko-KR")}원`);
+    if (pil) {
+      const extra = [];
+      if (pil.short) extra.push(`부족 ${pil.short}`);
+      if (pil.check) extra.push(`확인 ${pil.check}`);
+      if (pil.none) extra.push(`미보유 ${pil.none}`);
+      lines.push(`· ${pil.summaryLine}${extra.length ? ` (${extra.join(" · ")})` : ""}`);
+      if (pil.root.status !== "met") lines.push("· 뿌리 실손: 미보유 — 의료비 담보가 표에 없습니다");
+    }
     if (summary.silson.found) {
       lines.push(`· 실손 ${summary.silson.label ? `${summary.silson.label}${summary.silson.from === "계약일" ? "(계약일 기준)" : ""}` : "세대 확인 필요"}`);
     }
@@ -999,11 +1687,23 @@ export function buildMessage(summary, opts = {}) {
 
 /* ────────────────────────────── 샘플 ────────────────────────────── */
 
-/** 화면 예시용 가상 자료(실제 고객 아님) — 두 설계의 차이를 보여 준다 */
+/** 화면 예시용 가상 자료(실제 고객 아님) — 두 설계의 차이를 보여 준다. 보험사·상품명도 가상이다. */
 export const SAMPLES = {
-  before: `담보명\t가입금액\t월보험료
+  before: `보험사: 한결생명
+상품명: 무배당 한결 종신보험
+계약일: 2014-03-12
+납입기간: 20년납
+만기: 100세
+담보명\t가입금액\t월보험료
 질병사망\t1,000만원\t3,000원
 재해사망\t5,000만원\t2,000원
+
+보험사: 한결생명
+상품명: 무배당 한결 건강보험
+계약일: 2016-09-05
+납입기간: 20년납
+만기: 100세
+담보명\t가입금액\t월보험료
 암진단비\t2,000만원\t9,800원
 유사암진단비\t500만원\t1,200원
 뇌혈관질환진단비\t1,000만원\t4,300원
@@ -1011,12 +1711,38 @@ export const SAMPLES = {
 질병수술비\t200만원\t2,100원
 상해수술비\t200만원\t1,500원
 질병입원일당\t3만원\t1,800원
+
+보험사: 바른손해보험
+상품명: 무배당 바른 실손의료보험
+계약일: 2021-11-02
+납입기간: 20년납
+만기: 100세
+담보명\t가입금액\t월보험료
 실손의료비(4세대)\t\t18,400원
+
+보험사: 바른손해보험
+상품명: 무배당 바른 운전자보험
+계약일: 2019-06-18
+납입기간: 20년납
+만기: 80세
+담보명\t가입금액\t월보험료
 교통사고처리지원금\t2,000만원\t1,100원
 `,
-  after: `담보명\t가입금액\t월보험료
+  after: `보험사: 한결생명
+상품명: 무배당 한결 종신보험(개편)
+가입예정일: 2026-12-01
+납입기간: 20년납
+만기: 100세
+담보명\t가입금액\t월보험료
 질병사망\t1억원\t12,000원
 재해사망\t1억원\t6,000원
+
+보험사: 한결생명
+상품명: 무배당 한결 건강보험(개편)
+가입예정일: 2026-12-01
+납입기간: 20년납
+만기: 100세
+담보명\t가입금액\t월보험료
 암진단비\t5,000만원\t21,000원
 유사암진단비\t1,000만원\t2,400원
 뇌혈관질환진단비\t2,000만원\t7,600원
@@ -1025,7 +1751,21 @@ export const SAMPLES = {
 상해수술비\t500만원\t2,600원
 질병입원일당\t5만원\t2,900원
 간병인사용일당\t10만원\t4,200원
+
+보험사: 바른손해보험
+상품명: 무배당 바른 실손의료보험
+계약일: 2021-11-02
+납입기간: 20년납
+만기: 100세
+담보명\t가입금액\t월보험료
 실손의료비(4세대)\t\t18,400원
+
+보험사: 바른손해보험
+상품명: 무배당 바른 운전자보험(개편)
+가입예정일: 2026-12-01
+납입기간: 20년납
+만기: 80세
+담보명\t가입금액\t월보험료
 교통사고처리지원금\t1억원\t2,800원
 변호사선임비용\t5,000만원\t1,600원
 `,
@@ -1107,6 +1847,65 @@ export function buildCSV(coverages, summary) {
       g.levelLabel || "",
     ]);
   }
+
+  /* 계약(상품) 단위 — 정액 담보 금액은 더하지 않고 월 보험료·총납입만 합산한다 */
+  const ct = (summary && summary.contractTable) || groupContracts(list);
+  if (ct.groups.length) {
+    rows.push([]);
+    rows.push(["계약", "보험사", "상품명", "계약일", "납입기간", "만기", "월 보험료(원)", "총납입 추정(원)", "담보 수", "주요 담보"]);
+    for (const g2 of ct.groups) {
+      rows.push([
+        summary && summary.label ? summary.label : "",
+        g2.unnamed ? "(미기재)" : g2.insurer || "",
+        g2.unnamed ? "계약 구분 없음" : g2.product || "",
+        g2.startDate || "",
+        g2.payTerm || "",
+        g2.coverTerm || "",
+        g2.premiumKnown ? g2.premium : "",
+        g2.paidTotal || "",
+        g2.count,
+        g2.top.join(" · "),
+      ]);
+    }
+    rows.push([
+      "합계",
+      `계약 ${ct.count}건`,
+      "",
+      "",
+      "",
+      "",
+      ct.premium == null ? "" : ct.premium,
+      ct.paidTotal == null ? "" : ct.paidTotal,
+      ct.groups.reduce((a, g2) => a + g2.count, 0),
+      "정액 담보 금액은 더하지 않음",
+    ]);
+  }
+
+  /* 25개 보장 기둥 체크리스트 */
+  const pil = (summary && summary.pillars) || pillars(list);
+  rows.push([]);
+  rows.push(["보장 기둥", pil.summaryLine, `부족 ${pil.short}`, `확인 ${pil.check}`, `미보유 ${pil.none}`, "", ""]);
+  rows.push([
+    "뿌리 실손",
+    pil.root.statusLabel,
+    pil.root.generationLabel || "",
+    "",
+    "",
+    "",
+    pil.root.names.join(" · "),
+  ]);
+  rows.push(["기둥", "보장 그룹", "상태", "가입 금액(원)", "기준(원)", "가입 담보", ""]);
+  for (const it of pil.items) {
+    rows.push([
+      it.label,
+      it.groupLabel,
+      it.statusLabel,
+      it.value == null ? "" : it.value,
+      it.target == null ? "" : it.target,
+      it.names.join(" · "),
+      it.common ? "공통" : "",
+    ]);
+  }
   return rows.map((r) => r.map(csvCell).join(",")).join("\r\n");
 }
 
@@ -1156,11 +1955,62 @@ export function buildBookHTML(summary, opts = {}) {
   const judgeRows = ((summary && summary.judge) || [])
     .map((j) => `<tr><td>${esc(j.label)}</td><td class="r">${man(j.value)}</td><td class="r">${man(j.target)}</td><td class="r">${j.ratio == null ? "" : `${Math.round(j.ratio * 100)}%`}</td><td class="r"><span class="lv ${esc(j.level)}">${esc(j.levelLabel)}</span></td></tr>`)
     .join("");
+  /* 25개 기둥 — 표지 통계와 본문 체크리스트 */
+  const pil = (summary && summary.pillars) || pillars([]);
+  const pillarGroups = pil.groups
+    .map(
+      (g) => `<div class="pgrp"><div class="pgh"><span class="dot" style="background:${esc(g.tone)}"></span>${esc(g.label)}<small>${g.met}/${g.total}</small></div><div class="pills">${pil.items
+        .filter((it) => it.group === g.id)
+        .map(
+          (it) => `<span class="pill ${esc(it.status)}"><b>${esc(it.label)}</b><i>${esc(
+            it.measure === "presence" ? "가입" : it.value == null ? "—" : `${it.measure === "daily" ? "일 " : ""}${man(it.value)}`
+          )}</i></span>`,
+        )
+        .join("")}</div></div>`,
+    )
+    .join("");
+  const pillarHTML = `<section class="day"><h2>보장 기둥 <span class="cnt">${pil.summaryLine}</span></h2>
+    <div class="pscore"><b>${pil.met} / ${pil.total}</b><span>층족 ${pil.met} · 부족 ${pil.short} · 확인 ${pil.check} · 미보유 ${pil.none}</span></div>
+    <p class="judge">뿌리 · ${esc(pil.root.label)} — <b>${esc(pil.root.status === "met" ? pil.root.generationLabel || "가입" : "미보유")}</b>${
+      pil.root.names.length ? `<span class="sub2">${esc(pil.root.names.slice(0, 3).join(", "))}</span>` : ""
+    }</p>
+    ${pillarGroups}
+    <p class="foot">${esc(pil.note)}</p></section>`;
+  /* 계약(상품) 단위 표 — 정액 담보 금액은 더하지 않고 보험료·총납입만 합산 */
+  const ct = (summary && summary.contractTable) || null;
+  const contractHTML =
+    ct && ct.groups.length
+      ? `<section class="day"><h2>계약(상품) 단위 <span class="cnt">계약 ${ct.count}건 · 월 ${ct.premium != null ? man(ct.premium) : "보험료 미확인"}</span></h2><table><thead><tr><th>보험사</th><th>상품명</th><th class="r">계약일</th><th class="r">납입·만기</th><th class="r">월 보험료</th><th class="r">담보</th></tr></thead><tbody>${ct.groups
+          .map(
+            (g) => `<tr><td>${esc(g.unnamed ? "(미기재)" : g.insurer || "-")}</td><td>${esc(g.unnamed ? "계약 구분 없음" : g.product || "-")}<div class="s">${esc(g.top.join(" · "))}</div></td><td class="r">${esc(g.startDate || "-")}</td><td class="r">${esc([g.payTerm, g.coverTerm].filter(Boolean).join(" · ") || "-")}</td><td class="r">${g.premiumKnown ? `${g.premium.toLocaleString("ko-KR")}원` : "-"}</td><td class="r">${g.count}건</td></tr>`,
+          )
+          .join("")}</tbody></table><p class="foot">${esc(ct.note)}</p></section>`
+      : "";
   const cmp = opts.compare;
+  const cpil = cmp && cmp.pillars ? cmp.pillars : null;
+  const cmpPillarHTML = cpil
+    ? `<h3 class="sub3">보장 기둥 이동</h3><p class="judge"><b>${esc(cpil.summaryLine)}</b> (${
+        cpil.metDelta >= 0 ? "+" : "−"
+      }${Math.abs(cpil.metDelta)}) · 월 보험료 ${man(cmp.premium.before)} → ${man(cmp.premium.after)}${
+        cmp.premium.delta == null ? "" : ` (${cmp.premium.delta > 0 ? "+" : cmp.premium.delta < 0 ? "−" : ""}${man(Math.abs(cmp.premium.delta))})`
+      }</p>${
+        cpil.built.length
+          ? `<p class="judge">새로 세워지는 기둥 <span class="cnt">${cpil.built.length}</span> — ${cpil.built.map((i) => `<span class="chip2 ok">${esc(i.label)}</span>`).join(" ")}</p>`
+          : ""
+      }${
+        cpil.filled.length
+          ? `<p class="judge">부족에서 충족으로 — ${cpil.filled.map((i) => `<span class="chip2 ok">${esc(i.label)}</span>`).join(" ")}</p>`
+          : ""
+      }${
+        cpil.empty.length
+          ? `<p class="judge">제안 후에도 비어 있는 기둥 <span class="cnt">${cpil.empty.length}</span> — ${cpil.empty.map((i) => `<span class="chip2 none">${esc(i.label)}</span>`).join(" ")}</p>`
+          : ""
+      }${
+        cpil.lost.length ? `<p class="judge">약해지는 기둥 — ${cpil.lost.map((i) => `<span class="chip2 warn">${esc(i.label)}</span>`).join(" ")}</p>` : ""
+      }`
+    : "";
   const cmpHTML = cmp
-    ? `<section class="day"><h2>제안 비교</h2><p class="judge">월 보험료 ${man(cmp.premium.before)} → ${man(cmp.premium.after)}${
-        cmp.premium.delta == null ? "" : ` (${cmp.premium.delta > 0 ? "+" : ""}${man(cmp.premium.delta)})`
-      }</p><table><thead><tr><th>그룹</th><th class="r">보유</th><th class="r">제안</th><th class="r">증감</th></tr></thead><tbody>${cmp.groups
+    ? `<section class="day"><h2>제안 비교</h2>${cmpPillarHTML}<table><thead><tr><th>그룹</th><th class="r">보유</th><th class="r">제안</th><th class="r">증감</th></tr></thead><tbody>${cmp.groups
         .filter((g) => g.status !== "none")
         .map((g) => `<tr><td>${esc(g.label)}</td><td class="r">${g.before.count ? man(g.before.lump) : "—"}</td><td class="r">${g.after.count ? man(g.after.lump) : "—"}</td><td class="r">${g.delta === 0 ? "—" : `${g.delta > 0 ? "+" : ""}${man(g.delta)}`}</td></tr>`)
         .join("")}</tbody></table></section>`
@@ -1206,6 +2056,28 @@ export function buildBookHTML(summary, opts = {}) {
   .tel div { display: flex; justify-content: space-between; border-bottom: 1px dotted #dde3e8; padding: 2px 0; }
   .foot { margin-top: 10px; color: #55626e; font-size: 10px; }
   ul { margin: 4px 0 0 16px; padding: 0; }
+  .pscore { display: flex; align-items: baseline; gap: 8px; margin: 2px 0 6px; }
+  .pscore b { font-size: 22px; letter-spacing: -0.02em; }
+  .pscore span { color: #55626e; font-size: 10.5px; }
+  .pgrp { margin-bottom: 7px; }
+  .pgh { display: flex; align-items: center; gap: 5px; font-size: 10.5px; font-weight: 700; color: #26333f; margin-bottom: 3px; }
+  .pgh small { font-weight: 500; color: #55626e; }
+  .pgh .dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+  .pills { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; }
+  .pill { border: 1px solid #e6ebef; border-radius: 5px; padding: 3px 5px; display: flex; justify-content: space-between; gap: 4px; font-size: 9.5px; }
+  .pill b { font-weight: 600; }
+  .pill i { font-style: normal; font-variant-numeric: tabular-nums; white-space: nowrap; color: #55626e; }
+  .pill.met { background: #e6f2ec; border-color: #cfe4d9; }
+  .pill.short { background: #fdf1e0; border-color: #f0dfc4; }
+  .pill.none { background: #fafafa; color: #8a949e; }
+  .pill.check { background: #f1f3f6; border-color: #e2e7ec; }
+  .sub2 { margin-left: 6px; color: #8a949e; font-size: 9.5px; }
+  .sub3 { font-size: 11px; margin: 10px 0 3px; color: #26333f; }
+  .chip2 { display: inline-block; border-radius: 3px; padding: 0 4px; font-size: 9.5px; }
+  .chip2.ok { background: #e6f2ec; color: #1f7a62; }
+  .chip2.none { background: #f6e7ea; color: #a8455c; }
+  .chip2.warn { background: #fdf1e0; color: #8a6320; }
+  td .s { color: #55626e; font-size: 9.5px; margin-top: 1px; }
 </style></head><body>
 <div class="cover">
   <div>
@@ -1217,6 +2089,7 @@ export function buildBookHTML(summary, opts = {}) {
       <div><span>월 보험료</span><b>${summary && summary.premium != null ? man(summary.premium) : "확인 필요"}</b></div>
       <div><span>총납입보험료(추정)</span><b>${summary && summary.paidTotal ? man(summary.paidTotal) : "—"}</b></div>
       <div><span>실손</span><b>${esc(summary && summary.silson && summary.silson.label ? summary.silson.label : "확인 필요")}</b></div>
+      <div><span>보장 기둥</span><b>${(summary && summary.pillars ? summary.pillars.met : 0)} / ${(summary && summary.pillars ? summary.pillars.total : PILLAR_TOTAL)}</b></div>
     </div>
   </div>
   <div class="mt">
@@ -1226,6 +2099,9 @@ export function buildBookHTML(summary, opts = {}) {
 </div>
 
 <section class="day"><h2>기준 대비 판정</h2>${judgeRows ? `<table><thead><tr><th>그룹</th><th class="r">가입</th><th class="r">기준</th><th class="r">충족률</th><th class="r">판정</th></tr></thead><tbody>${judgeRows}</tbody></table>` : `<p class="judge">기준금액을 넣으면 그룹별 부족·적정·충분을 표시합니다.</p>`}<p class="foot">${esc((summary && summary.targetsNote) || "")}</p></section>
+
+${pillarHTML}
+${contractHTML}
 
 ${checks ? `<section class="day"><h2>확인할 점</h2><ul>${checks}</ul></section>` : ""}
 ${tabs}

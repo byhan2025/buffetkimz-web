@@ -17,6 +17,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
+  PILLARS,
+  PILLAR_TOTAL,
   SAMPLES,
   buildBookHTML,
   buildCSV,
@@ -24,17 +26,22 @@ import {
   classify,
   compare,
   compareLines,
+  comparePillars,
   estimatePaidTotal,
   formatMan,
+  groupContracts,
   isoDate,
   normalizeRows,
   parsePayYears,
   parseAmount,
   parseJSON,
   parseText,
+  pillarCompareLines,
+  pillars,
   readDocument,
   silsonGeneration,
   summarize,
+  GROUP_IDS,
 } from "../src/lib/bojang/engine.js";
 import { generationFromDate } from "../src/lib/silson/engine.js";
 import { INSURERS, INSURER_CHECKED_AT } from "../src/lib/bojang/insurers.js";
@@ -332,6 +339,103 @@ ok("증권북 표지에 일자까지", buildBookHTML(atSum, { name: "김가상",
 ok("표지가 '2026. 11. '로 잘리지 않는다(옛 결함)", !buildBookHTML(atSum, { name: "김가상", at: "2026. 11. 27." }).includes("2026. 11. 기준"));
 ok("한국어 표기가 와도 표지에 2026-11-27", buildBookHTML(atSum, { name: "김가상", at: "2026. 11. 27." }).includes("2026-11-27 기준"));
 ok("기준일이 없으면 빈 칸(0원·오늘 날짜를 지어내지 않는다)", buildCSV(doc.coverages, s).split("\r\n").some((r) => r.startsWith("보유") && r.endsWith(",")));
+
+/* ── 13. 25개 보장 기둥 ── */
+eq("기둥 수 25", PILLAR_TOTAL, 25);
+eq("기둥 id 중복 없음", PILLARS.length, new Set(PILLARS.map((p) => p.id)).size);
+ok("기둥마다 보장 그룹이 있다", PILLARS.every((p) => GROUP_IDS.includes(p.group)));
+ok("기둥마다 기준금액이 있다", PILLARS.every((p) => Number(p.target) > 0));
+
+const P = pillars(doc.coverages);
+eq("보유 기둥 2/25", [P.met, P.total], [2, 25]);
+eq("부족·미보유 수", [P.short, P.none, P.check], [8, 15, 0]);
+eq("기둥 요약 배지", P.summaryLine, "보장 기둥 2 / 25");
+eq("뿌리 실손 4세대", [P.root.status, P.root.generationLabel], ["met", "4세대"]);
+const PI = Object.fromEntries(P.items.map((i) => [i.id, i]));
+eq("일반암 2,000만 → 부족", [PI["cancer-general"].status, PI["cancer-general"].value], ["short", 20000000]);
+eq("뇌혈관 1,000만 → 충족", PI["brain-vascular"].status, "met");
+eq("질병사망 1,000만 → 부족", PI["death-disease"].status, "short");
+eq("재해사망과 따로 센다", PI["death-accident"].value, 50000000);
+eq("암 수술비 미보유", PI["cancer-surgery"].status, "none");
+eq("질병입원일당 3만 → 부족(기준 5만)", [PI["hospital-disease"].status, PI["hospital-disease"].value], ["short", 30000]);
+eq("간병 일당 미보유", PI["care-daily"].status, "none");
+eq("교통사고처리지원금 2,000만 → 부족", [PI["driver-traffic"].status, PI["driver-traffic"].value], ["short", 20000000]);
+eq("변호사 비용 미보유", PI["driver-lawyer"].status, "none");
+ok("기둥마다 가입 담보 이름을 남긴다", PI["cancer-general"].names.includes("암진단비"));
+eq("기둥 그룹 요약", P.groups.reduce((a, g) => a + g.total, 0), 25);
+
+const PAfter = pillars(readDocument(SAMPLES.after).coverages);
+eq("제안 기둥 11/25", PAfter.met, 11);
+eq("제안 간병 일당 충족", PAfter.items.find((i) => i.id === "care-daily").status, "met");
+
+/* 원인(질병·재해) 구분 — 표기가 없는 담보는 두 기둥에 함께 선다 */
+const dis = pillars(normalizeRows([{ name: "질병사망", amount: 100000000 }]));
+eq("질병사망만 있으면 질병 기둥만", [dis.items.find((i) => i.id === "death-disease").status, dis.items.find((i) => i.id === "death-accident").status], ["met", "none"]);
+const gen = pillars(normalizeRows([{ name: "사망보험금", amount: 100000000 }]));
+eq("원인 표기 없는 사망보험금은 두 기둥", [gen.items.find((i) => i.id === "death-disease").status, gen.items.find((i) => i.id === "death-accident").status], ["met", "met"]);
+ok("공통 표시", gen.items.find((i) => i.id === "death-disease").common === true);
+const rate = pillars(normalizeRows([{ name: "후유장해(3~100%)", amount: null }]));
+eq("후유장해 비율 담보는 금액이 아니라 '확인 필요'", rate.items.find((i) => i.id === "disability-accident").status, "check");
+ok("0원으로 바꾸지 않는다", rate.items.find((i) => i.id === "disability-accident").value === null);
+const daily = pillars(normalizeRows([{ name: "질병입원일당", amount: 30000 }, { name: "상해입원일당", amount: 80000 }]));
+eq("일당은 큰 금액 하나로", [daily.items.find((i) => i.id === "hospital-disease").value, daily.items.find((i) => i.id === "hospital-accident").status], [30000, "met"]);
+const burns = pillars(normalizeRows([{ name: "화상진단비", amount: 1000000 }, { name: "골절진단비", amount: 300000 }]));
+eq("화상 진단비 충족", burns.items.find((i) => i.id === "injury-burn").status, "met");
+eq("골절 진단비 부족(기준 50만)", burns.items.find((i) => i.id === "injury-fracture").status, "short");
+
+/* ── 14. 계약(상품) 단위 묶음 ── */
+const CT = groupContracts(doc.coverages);
+eq("계약 4건으로 묶임", CT.count, 4);
+eq("계약 월 보험료 합", CT.premium, 49100);
+eq("보험사·상품명·계약일", [CT.groups[0].insurer, CT.groups[0].product, CT.groups[0].startDate], ["한결생명", "무배당 한결 종신보험", "2014-03-12"]);
+eq("계약일 순서", CT.groups.map((g) => g.startDate), ["2014-03-12", "2016-09-05", "2019-06-18", "2021-11-02"]);
+eq("계약별 담보 수", CT.groups.map((g) => g.count), [2, 7, 1, 1]);
+eq("주요 담보 3개까지", CT.groups[1].top.length, 3);
+ok("계약 표에 정액 합계 열이 없다(성격 다른 금액을 더하지 않는다)", !("amount" in CT.groups[0]) && !("totalAmount" in CT));
+ok("계약 표 안내 문구", CT.note.includes("더하지 않") && CT.note.includes("합산"));
+const none = groupContracts(normalizeRows([{ name: "암진단비", amount: 30000000 }]));
+eq("보험사·상품이 없으면 한 묶음", none.count, 1);
+ok("계약 구분 없음 표시", none.groups[0].unnamed === true);
+ok("이름이 없으면 안내 문구", none.note.length > 10);
+const ledger = groupContracts(doc.coverages, {
+  contracts: [
+    { insurer: "한결생명", product: "무배당 한결 종신보험", startDate: "2014-03-12", premium: 50000, payTerm: "20년납" },
+  ],
+});
+eq("계약 원장의 월 보험료가 우선", ledger.groups.find((g) => g.startDate === "2014-03-12").premium, 50000);
+eq("원장에 없는 계약은 담보 보험료 합", ledger.groups.find((g) => g.startDate === "2016-09-05").premium, 24600);
+
+/* ── 15. 기존 vs 제안 — 기둥 비교 ── */
+const CP = cmp.pillars;
+eq("비교 기둥 2 → 11", [CP.before.met, CP.after.met], [2, 11]);
+eq("충족 +9", CP.metDelta, 9);
+eq("새로 세워지는 기둥", CP.built.map((i) => i.label), ["간병인 사용 일당", "변호사선임·벌금"]);
+ok("부족에서 충족으로", CP.filled.some((i) => i.label === "일반암 진단비"));
+eq("제안 후에도 빈 기둥 14", CP.empty.length, 14);
+eq("비교 요약 문장", CP.summaryLine, "보장 기둥 2 / 25 → 11 / 25");
+ok("기둥 비교 한 줄 문구", pillarCompareLines(CP).some((l) => l.includes("새로 세워지는 기둥")));
+ok("약해지는 기둥 없음", CP.lost.length === 0);
+
+/* 요약·CSV·증권북·문구에 기둥과 계약 표가 살아 있는지 */
+eq("요약에 기둥", s.pillars.summaryLine, "보장 기둥 2 / 25");
+eq("요약에 계약 표", s.contractTable.count, 4);
+const csv2 = buildCSV(doc.coverages, s);
+ok("CSV 계약 표", csv2.includes("계약,보험사,상품명") && csv2.includes("무배당 한결 종신보험"));
+ok("CSV 기둥", csv2.includes("보장 기둥,보장 기둥 2 / 25") && csv2.includes("기둥,보장 그룹,상태"));
+const book2 = buildBookHTML(s, { name: "김가상", at: "2026-11-27", insurers: INSURERS, compare: cmp });
+ok("증권북 기둥", book2.includes("보장 기둥") && book2.includes("2 / 25"));
+ok("증권북 계약 단위", book2.includes("계약(상품) 단위"));
+ok("증권북 기둥 이동", book2.includes("새로 세워지는 기둥"));
+ok("증권북에 새 기둥 이름", book2.includes("간병인 사용 일당"));
+ok("문구에 기둥", buildMessage(s, { name: "김가상" }).includes("보장 기둥 2 / 25"));
+
+/* 계약 머리글 읽기 — 표 머리글·담보 줄을 계약으로 잘못 읽지 않는다 */
+const hdr = readDocument("보험사: 한결생명\n상품명: 무배당 한결 건강보험\n계약일: 2016. 9. 5.\n납입기간: 20년납\n만기: 100세\n담보명\t가입금액\t월보험료\n암진단비\t3,000만원\t9,800원");
+eq("계약 머리글은 담보 줄이 아니다", hdr.rowCount, 1);
+eq("계약일 정규화", hdr.coverages[0].startDate, "2016-09-05");
+eq("보험사·상품명이 담보에 붙음", [hdr.coverages[0].insurer, hdr.coverages[0].product], ["한결생명", "무배당 한결 건강보험"]);
+eq("계약의 납입·만기를 물려받음", [hdr.coverages[0].payTerm, hdr.coverages[0].coverTerm], ["20년납", "100세"]);
+eq("계약 맺은 대로 총납입 추정", hdr.coverages[0].paidTotal, 2352000);
 
 /* ── 11. 생성 파일이 원본과 같은지 ── */
 const corePath = path.resolve(HERE, "../../insure-crm/bojang-core.js");

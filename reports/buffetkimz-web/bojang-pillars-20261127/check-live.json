@@ -1,0 +1,28 @@
+{
+  "390_overflow": {
+    "sw": 390,
+    "cw": 390
+  },
+  "390_tip_elements": 25,
+  "390_pillars": {
+    "want": 25,
+    "hits": 25
+  },
+  "compare": {
+    "delta": "42,700"
+  },
+  "sheet_chars": 2821,
+  "book_chars": 15533,
+  "csv_chars": 2464,
+  "1280_overflow": {
+    "sw": 1280,
+    "cw": 1280
+  },
+  "1280_tip_elements": 25,
+  "1280_pillars": {
+    "want": 25,
+    "hits": 25
+  },
+  "mode": "live",
+  "failures": []
+}

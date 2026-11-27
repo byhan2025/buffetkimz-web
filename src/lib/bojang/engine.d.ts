@@ -94,6 +94,111 @@ export type SilsonInfo = {
 
 export type Judge = { id: GroupId; label: string; value: number; target: number; ratio: number | null; level: Level; levelLabel: string };
 
+export type PillarStatus = "met" | "short" | "none" | "check";
+
+export type PillarItem = {
+  id: string;
+  label: string;
+  short: string;
+  group: GroupId;
+  groupLabel: string;
+  tone: string;
+  measure: "sum" | "causeMax" | "max" | "daily" | "presence";
+  cause: "disease" | "accident" | "";
+  target: number;
+  value: number | null;
+  status: PillarStatus;
+  statusLabel: string;
+  ratio: number | null;
+  count: number;
+  names: string[];
+  common: boolean;
+  note: string;
+};
+
+export type Pillars = {
+  at: string;
+  total: number;
+  met: number;
+  short: number;
+  none: number;
+  check: number;
+  ratio: number;
+  summaryLine: string;
+  items: PillarItem[];
+  groups: { id: GroupId; label: string; short: string; tone: string; met: number; total: number }[];
+  thin: PillarItem[];
+  empty: PillarItem[];
+  unconfirmed: PillarItem[];
+  root: {
+    label: string;
+    short: string;
+    note: string;
+    status: "met" | "none";
+    statusLabel: string;
+    count: number;
+    generation: string | null;
+    generationLabel: string | null;
+    from: "담보명" | "계약일" | null;
+    names: string[];
+  };
+  note: string;
+};
+
+export type PillarCompareItem = {
+  id: string;
+  label: string;
+  short: string;
+  group: GroupId;
+  groupLabel: string;
+  tone: string;
+  measure: PillarItem["measure"];
+  target: number;
+  before: { status: PillarStatus; value: number | null; count: number };
+  after: { status: PillarStatus; value: number | null; count: number };
+  delta: number | null;
+  change: "new" | "filled" | "up" | "lost" | "dropped" | "raised" | "same" | "none";
+};
+
+export type PillarComparison = {
+  before: Pillars;
+  after: Pillars;
+  items: PillarCompareItem[];
+  built: PillarCompareItem[];
+  filled: PillarCompareItem[];
+  lost: PillarCompareItem[];
+  empty: PillarCompareItem[];
+  metDelta: number;
+  summaryLine: string;
+  changed: number;
+};
+
+export type ContractGroup = {
+  key: string;
+  insurer: string;
+  product: string;
+  startDate: string;
+  payTerm: string;
+  coverTerm: string;
+  count: number;
+  premium: number | null;
+  premiumKnown: boolean;
+  paidTotal: number | null;
+  top: string[];
+  kinds: { lump: number; daily: number; limit: number; rate: number };
+  unnamed: boolean;
+  items: Coverage[];
+};
+
+export type ContractTable = {
+  groups: ContractGroup[];
+  count: number;
+  premium: number | null;
+  paidTotal: number | null;
+  unnamed: number;
+  note: string;
+};
+
 export type Summary = {
   format: string;
   label: string;
@@ -105,6 +210,8 @@ export type Summary = {
   groups: GroupSummary[];
   silson: SilsonInfo;
   checks: Check[];
+  pillars: Pillars;
+  contractTable: ContractTable;
   judge: Judge[];
   renew: { count: number; nonRenewCount: number; unknown: number; premium: number };
   paidTotal: number;
@@ -139,6 +246,7 @@ export type Comparison = {
   rows: CompareRow[];
   premium: { before: number | null; after: number | null; delta: number | null };
   changed: number;
+  pillars: PillarComparison;
 };
 
 export const FORMAT: string;
@@ -148,6 +256,22 @@ export const PAY_KINDS: Record<PayKind, string>;
 export const LEVEL_LABELS: Record<Level, string>;
 export const DEFAULT_TARGETS: Partial<Record<GroupId, number>>;
 export const DEFAULT_TARGET_NOTE: string;
+export const PILLAR_ROOT: { label: string; short: string; note: string };
+export const PILLAR_TOTAL: number;
+export const PILLAR_STATUS_LABELS: Record<PillarStatus, string>;
+export const PILLAR_NOTE: string;
+export const PILLARS: {
+  id: string;
+  label: string;
+  short: string;
+  group: GroupId;
+  measure: PillarItem["measure"];
+  target: number;
+  include: RegExp | null;
+  exclude: RegExp | null;
+  cause?: "disease" | "accident";
+  note?: string;
+}[];
 export const SAMPLES: { before: string; after: string };
 
 export function parseAmount(input: unknown, opts?: { unit?: "원" | "만원" }): number | null;
@@ -166,6 +290,9 @@ export function parseText(text: string): {
     coverTerm: string;
     renew: "갱신" | "비갱신" | "";
     term: string;
+    insurer: string;
+    product: string;
+    startDate: string;
     raw: string;
     unit: string;
   }[];
@@ -186,6 +313,7 @@ export function summarize(
     label?: string;
     premium?: number | null;
     contracts?: number;
+    contractsMeta?: Record<string, unknown>[];
     targets?: Partial<Record<GroupId, number>> | null;
     targetsAreManwon?: boolean;
     useDefaultTargets?: boolean;
@@ -194,6 +322,16 @@ export function summarize(
 ): Summary;
 export function compare(before: Coverage[], after: Coverage[]): Comparison;
 export function compareLines(cmp: Comparison): string[];
+export function pillars(coverages: Coverage[], opts?: { at?: string }): Pillars;
+export function pillarItems(pillar: string | (typeof PILLARS)[number], coverages: Coverage[]): Coverage[];
+export function comparePillars(before: Coverage[], after: Coverage[]): PillarComparison;
+export function pillarCompareLines(cmp: PillarComparison | null): string[];
+export function causeOf(name: string): "disease" | "accident" | "both" | "common";
+export function contractKeyOf(c: Partial<Coverage>): string;
+export function groupContracts(
+  coverages: Coverage[],
+  opts?: { contracts?: Partial<ContractGroup>[] },
+): ContractTable;
 export function buildMessage(summary: Summary, opts?: { name?: string }): string;
 export function buildCSV(coverages: Coverage[], summary: Summary): string;
 export function buildBookHTML(

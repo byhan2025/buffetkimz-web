@@ -7,14 +7,17 @@ import {
   buildCSV,
   buildMessage,
   compare,
+  comparePillars,
   estimatePaidTotal,
   formatMan,
+  groupContracts,
   isoDate,
   parseAmount,
   readDocument,
   summarize,
   type Coverage,
   type GroupId,
+  type PillarItem,
   type Summary,
 } from "@/lib/bojang/engine";
 import { INSURERS } from "@/lib/bojang/insurers";
@@ -64,6 +67,29 @@ function levelTone(level: string): string {
   if (level === "ok") return "bg-[#e6f2ec] text-[#1f7a62]";
   if (level === "rich") return "bg-[#e8eefc] text-[#1233b8]";
   return "bg-paper-deep text-ink-muted";
+}
+
+/** 기둥 상태 색 — 충족(초록) · 부족(주황) · 확인(회색) · 미보유(흐린 회색) */
+const PILLAR_TONE: Record<string, string> = {
+  met: "border-[#cfe4d9] bg-[#e6f2ec]",
+  short: "border-[#f0dfc4] bg-[#fdf1e0]",
+  check: "border-line bg-paper-deep",
+  none: "border-line bg-[#fafafa]",
+};
+const PILLAR_TEXT: Record<string, string> = {
+  met: "text-jade",
+  short: "text-[#8a6320]",
+  check: "text-ink-muted",
+  none: "text-ink-faint",
+};
+
+/** 기둥의 한 줄 값 — 일당은 '일 3만원', 금액을 못 읽었으면 '금액 확인' */
+function pillarValueText(it: PillarItem): string {
+  if (it.measure === "presence") return "가입";
+  if (it.value == null) return it.count ? "금액 확인" : "표에 없음";
+  const v = it.measure === "daily" ? `일 ${formatMan(it.value)}` : formatMan(it.value);
+  const t = it.measure === "daily" ? `일 ${formatMan(it.target)}` : formatMan(it.target);
+  return `${v} / 기준 ${t}`;
 }
 
 /** 기준금액 입력 항목 — 엔진의 기본값과 같은 그룹 */
@@ -221,6 +247,39 @@ function buildPrintHTML(summary: Summary, cmp: ReturnType<typeof compare> | null
     .map((c) => `<li>${esc(c.text)}</li>`)
     .join("");
 
+  /* 25개 기둥·계약 단위 표·기둥 이동 — 화면과 같은 값을 A4에 적는다 */
+  const pil = summary.pillars;
+  const ct = summary.contractTable;
+  const cpil = cmp && cmp.pillars ? cmp.pillars : null;
+  const pillHTML = pil
+    ? `<h2>보장 기둥 <span class="sub" style="margin:0">${esc(pil.summaryLine)} · 부족 ${pil.short} · 확인 ${pil.check} · 미보유 ${pil.none}</span></h2>
+  <p style="margin:2px 0 4px">뿌리 · ${esc(pil.root.label)} — <b>${esc(pil.root.status === "met" ? pil.root.generationLabel || "가입" : "미보유")}</b></p>
+  <div class="pills">${pil.items
+    .map(
+      (it) => `<div class="pill ${esc(it.status)}"><b>${esc(it.label)}</b><i>${esc(
+        it.measure === "presence" ? "가입" : it.value == null ? "—" : `${it.measure === "daily" ? "일 " : ""}${formatMan(it.value)}`
+      )}</i></div>`,
+    )
+    .join("")}</div>
+  <p class="sub" style="margin:4px 0 0">${esc(pil.note)}</p>`
+    : "";
+  const ctHTML = ct && ct.groups.length
+    ? `<h2>계약(상품) 단위 <span class="sub" style="margin:0">계약 ${ct.count}건 · 월 ${ct.premium != null ? esc(won(ct.premium)) : "보험료 미확인"}</span></h2>
+  <table><thead><tr><th>보험사</th><th>상품명</th><th class="r">계약일</th><th class="r">납입·만기</th><th class="r">월 보험료</th><th class="r">담보</th></tr></thead><tbody>${ct.groups
+    .map(
+      (g) => `<tr><td>${esc(g.unnamed ? "(미기재)" : g.insurer || "-")}</td><td>${esc(g.unnamed ? "계약 구분 없음" : g.product || "-")}<div class="s">${esc(g.top.join(" · "))}</div></td><td class="r">${esc(g.startDate || "-")}</td><td class="r">${esc([g.payTerm, g.coverTerm].filter(Boolean).join(" · ") || "-")}</td><td class="r">${g.premiumKnown ? esc(won(g.premium)) : "-"}</td><td class="r">${g.count}건</td></tr>`,
+    )
+    .join("")}</tbody></table>
+  <p class="sub" style="margin:4px 0 0">${esc(ct.note)}</p>`
+    : "";
+  const cpilHTML = cpil
+    ? `<div class="pillar-cmp"><p><b>${esc(cpil.summaryLine)}</b> (${cpil.metDelta >= 0 ? "+" : "−"}${Math.abs(cpil.metDelta)})</p>
+  ${cpil.built.length ? `<p>새로 세워지는 기둥 — ${cpil.built.map((i) => esc(i.label)).join(", ")}</p>` : ""}
+  ${cpil.filled.length ? `<p>부족에서 충족으로 — ${cpil.filled.map((i) => esc(i.label)).join(", ")}</p>` : ""}
+  ${cpil.empty.length ? `<p>제안 후에도 비어 있는 기둥 ${cpil.empty.length} — ${cpil.empty.map((i) => esc(i.label)).join(", ")}</p>` : ""}
+  ${cpil.lost.length ? `<p>약해지는 기둥 — ${cpil.lost.map((i) => esc(i.label)).join(", ")}</p>` : ""}</div>`
+    : "";
+
   return `<!doctype html><html lang="ko"><head><meta charset="utf-8">
 <title>보장 정리 요약</title>
 <style>
@@ -241,6 +300,17 @@ function buildPrintHTML(summary: Summary, cmp: ReturnType<typeof compare> | null
   .up { color: #1f7a62; } .down { color: #a8455c; }
   ul { margin: 4px 0 0 16px; padding: 0; }
   li { margin-bottom: 2px; }
+  .pills { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px; }
+  .pill { border: 1px solid #e6ebef; border-radius: 4px; padding: 3px 5px; display: flex; justify-content: space-between; gap: 4px; font-size: 9.5px; }
+  .pill b { font-weight: 600; }
+  .pill i { font-style: normal; white-space: nowrap; color: #55626e; }
+  .pill.met { background: #e6f2ec; border-color: #cfe4d9; }
+  .pill.short { background: #fdf1e0; border-color: #f0dfc4; }
+  .pill.none { background: #fafafa; color: #8a949e; }
+  .pill.check { background: #f1f3f6; }
+  td .s { color: #55626e; font-size: 9.5px; }
+  .pillar-cmp { border: 1px solid #e6ebef; border-radius: 6px; padding: 6px 9px; margin: 4px 0 6px; }
+  .pillar-cmp p { margin: 2px 0; font-size: 10.5px; }
   .foot { margin-top: 14px; border-top: 1px solid #dde3e8; padding-top: 6px; color: #55626e; font-size: 9.5px; line-height: 1.45; }
 </style></head><body>
 <h1>보장 정리 요약${name ? ` · ${esc(name)}` : ""}</h1>
@@ -249,6 +319,7 @@ function buildPrintHTML(summary: Summary, cmp: ReturnType<typeof compare> | null
 <div class="hero">
   <div><span>담보</span><b>${summary.count}건</b></div>
   <div><span>월 보험료</span><b>${summary.premiumKnown ? esc(won(summary.premium)) : "확인 필요"}</b></div>
+  <div><span>보장 기둥</span><b>${pil ? `${pil.met} / ${pil.total}` : "-"}</b></div>
   <div><span>실손 세대</span><b>${summary.silson.label ? esc(summary.silson.label) : "확인 필요"}</b></div>
   <div><span>확인할 점</span><b>${summary.checks.filter((c) => c.level === "check").length}개</b></div>
 </div>
@@ -267,9 +338,12 @@ ${
     : `<p>기준금액을 넣으면 부족·적정·충분을 표시합니다.</p>`
 }
 
+${pillHTML}
+${ctHTML}
+
 ${
   cmp
-    ? `<h2>기존 · 제안 비교</h2>
+    ? `<h2>기존 · 제안 비교</h2>${cpilHTML}
 <table><thead><tr><th>그룹</th><th class="r">기존</th><th class="r">제안</th><th class="r">증감</th></tr></thead><tbody>${cmpRows}</tbody>
 <tfoot><tr><th>월 보험료</th><th class="r">${COMPARE_MONEY(cmp.premium.before)}</th><th class="r">${COMPARE_MONEY(cmp.premium.after)}</th><th class="r">${
         cmp.premium.delta == null ? "-" : `${cmp.premium.delta > 0 ? "+" : "−"}${esc(formatMan(Math.abs(cmp.premium.delta)))}`
@@ -300,6 +374,10 @@ export default function BojangSummary({ compact = false }: { compact?: boolean }
   const [err, setErr] = useState("");
   const [name, setName] = useState("");
   const [copied, setCopied] = useState(false);
+  /** 담보 표를 '담보별'로 볼지 '계약(상품)별'로 볼지 — 같은 자료를 두 방식으로 보여 준다 */
+  const [tableView, setTableView] = useState<"rows" | "contracts">("rows");
+  /** 기둥 목록을 부족·미보유만 볼지 */
+  const [gapsOnly, setGapsOnly] = useState(false);
   const fileRef = useRef<HTMLInputElement | null>(null);
   /** 기준일은 화면·인쇄·카드·CSV·증권북이 모두 같은 날짜를 쓴다 — YYYY-MM-DD 그대로 찍힌다 */
   const baseDate = useMemo(() => isoDate(new Date()), []);
@@ -327,6 +405,10 @@ export default function BojangSummary({ compact = false }: { compact?: boolean }
   );
   const both = sides.before.rows.length && sides.after.rows.length;
   const cmp = useMemo(() => (both ? compare(sides.before.rows, sides.after.rows) : null), [both, sides.before.rows, sides.after.rows]);
+  /** 25개 기둥·계약 단위 표 — 요약 엔진이 같은 값을 함께 낸다 */
+  const pil = summary.pillars;
+  const ct = summary.contractTable;
+  const cpil = cmp?.pillars ?? null;
 
   const setSideState = (s: Side, patch: Partial<SideState>) =>
     setSides((prev) => ({ ...prev, [s]: { ...prev[s], ...patch } }));
@@ -484,6 +566,7 @@ export default function BojangSummary({ compact = false }: { compact?: boolean }
     ctx.font = `500 28px ${FONT}`;
     ctx.fillStyle = "#3f4b57";
     ctx.fillText(`담보 ${summary.count}건 · 월 보험료 ${summary.premiumKnown ? won(summary.premium) : "확인 필요"}`, 72, 220);
+    ctx.fillText(`보장 기둥 ${pil.met} / ${pil.total} (부족 ${pil.short} · 미보유 ${pil.none})`, 72, 262);
 
     /* 그룹별 막대 — 정액 담보가 있는 그룹만 */
     const bars = summary.groups.filter((g) => g.has);
@@ -566,11 +649,19 @@ export default function BojangSummary({ compact = false }: { compact?: boolean }
     applyText(s, SAMPLES[s], `예시 자료(${s === "before" ? "보유" : "제안"})`);
   };
 
+  /** 가상 비교 예시 — 보유·제안을 한 번에 채워 기둥 이동과 보험료 변화를 바로 보게 한다 */
+  const loadPair = () => {
+    applyText("before", SAMPLES.before, "예시 자료(가상) · 보유");
+    applyText("after", SAMPLES.after, "예시 자료(가상) · 제안");
+    setSide("before");
+    setStatus("가상 예시(보유+제안)를 넣었습니다. 아래 '기존 · 제안 비교'에서 기둥 이동과 보험료 변화를 보세요.");
+  };
+
   return (
     <RunnerShell
       title="보장분석 요약기"
-      subtitle="증권·설계서의 담보를 그룹으로 정리하고, 기존과 제안 설계를 나란히 비교합니다."
-      example="PDF를 올리거나 담보 목록을 붙여넣으면 그 자리에서 다시 정리합니다. 표의 이름·금액을 고치면 요약이 바로 바뀝니다."
+      subtitle="증권·설계서의 담보를 그룹·계약 단위로 정리하고, 25개 보장 기둥과 기존·제안 비교를 한 화면에서 봅니다."
+      example="PDF를 올리거나 담보 목록을 붙여넣으면 그 자리에서 다시 정리합니다. [가상 비교 예시]를 누르면 보유·제안 두 벌이 한 번에 들어가 기둥 이동과 보험료 변화를 바로 볼 수 있습니다."
     >
       <div className="grid gap-4 md:grid-cols-2">
         <Segmented
@@ -614,6 +705,13 @@ export default function BojangSummary({ compact = false }: { compact?: boolean }
               className="rounded-lg border border-line bg-white px-2.5 py-1.5 text-[12px] font-semibold text-ink hover:border-ink"
             >
               예시 넣기
+            </button>
+            <button
+              type="button"
+              onClick={loadPair}
+              className="rounded-lg border border-brand/40 bg-brand-soft px-2.5 py-1.5 text-[12px] font-semibold text-brand-deep hover:border-brand"
+            >
+              가상 비교 예시
             </button>
             <button
               type="button"
@@ -665,16 +763,126 @@ export default function BojangSummary({ compact = false }: { compact?: boolean }
         <div className="mt-5">
           <div className="flex flex-wrap items-end justify-between gap-2">
             <p className="text-[13px] font-semibold text-ink">
-              담보 {cur.rows.length}건 <span className="font-normal text-ink-faint">— 이름·그룹·금액을 고칠 수 있습니다</span>
+              담보 {cur.rows.length}건{" "}
+              <span className="font-normal text-ink-faint">
+                {tableView === "rows" ? "— 이름·그룹·금액을 고칠 수 있습니다" : `— 계약 ${ct.count}건으로 묶었습니다`}
+              </span>
             </p>
-            <button
-              type="button"
-              onClick={addRow}
-              className="rounded-lg border border-line bg-white px-2.5 py-1.5 text-[12px] font-semibold text-ink hover:border-ink"
-            >
-              + 담보 추가
-            </button>
+            <div className="flex flex-wrap items-center gap-1.5">
+              <div className="flex rounded-lg border border-line bg-white p-0.5" role="tablist" aria-label="담보 표 보기 방식">
+                {(
+                  [
+                    { v: "rows", t: "담보별" },
+                    { v: "contracts", t: "계약별" },
+                  ] as const
+                ).map((o) => (
+                  <button
+                    key={o.v}
+                    type="button"
+                    role="tab"
+                    aria-selected={tableView === o.v}
+                    onClick={() => setTableView(o.v)}
+                    className={
+                      "rounded-md px-2.5 py-1 text-[12px] font-semibold " +
+                      (tableView === o.v ? "bg-ink text-white" : "text-ink-muted hover:text-ink")
+                    }
+                  >
+                    {o.t}
+                  </button>
+                ))}
+              </div>
+              {tableView === "rows" && (
+                <button
+                  type="button"
+                  onClick={addRow}
+                  className="rounded-lg border border-line bg-white px-2.5 py-1.5 text-[12px] font-semibold text-ink hover:border-ink"
+                >
+                  + 담보 추가
+                </button>
+              )}
+            </div>
           </div>
+
+          {/* 계약(상품) 단위 표 — 같은 담보를 계약으로 묶어 본다. 정액 금액은 더하지 않는다. */}
+          {tableView === "contracts" && (
+            <div data-contracts className="mt-2 rounded-xl border border-line bg-white p-3">
+              <div className="flex flex-wrap items-baseline justify-between gap-2">
+                <p className="text-[12.5px] font-semibold text-ink">계약 {ct.count}건</p>
+                <p className="text-[11.5px] text-ink-muted">
+                  월 보험료 {ct.premium != null ? won(ct.premium) : "확인 필요"}
+                  {ct.paidTotal ? ` · 총납입 추정 ${formatMan(ct.paidTotal)}` : ""}
+                </p>
+              </div>
+              {/* 폰: 계약마다 카드로 */}
+              <div className="mt-2 space-y-2 md:hidden">
+                {ct.groups.map((g) => (
+                  <div key={g.key} className="rounded-lg border border-line p-2.5">
+                    <div className="flex items-baseline justify-between gap-2">
+                      <span className="min-w-0 truncate text-[12.5px] font-semibold text-ink">
+                        {g.unnamed ? "계약 구분 없음" : g.product || "상품명 미기재"}
+                      </span>
+                      <span className="shrink-0 text-[11px] text-ink-faint">{g.count}건</span>
+                    </div>
+                    <p className="text-[11.5px] text-ink-muted">{g.unnamed ? "보험사·상품명이 적힌 담보가 없습니다" : g.insurer || "보험사 미기재"}</p>
+                    <dl className="mt-1.5 grid grid-cols-2 gap-x-3 gap-y-0.5 text-[11.5px]">
+                      <div className="flex justify-between gap-1">
+                        <dt className="text-ink-faint">계약일</dt>
+                        <dd className="tabular-nums text-ink">{g.startDate || "-"}</dd>
+                      </div>
+                      <div className="flex justify-between gap-1">
+                        <dt className="text-ink-faint">납입·만기</dt>
+                        <dd className="tabular-nums text-ink">{[g.payTerm, g.coverTerm].filter(Boolean).join(" · ") || "-"}</dd>
+                      </div>
+                      <div className="flex justify-between gap-1">
+                        <dt className="text-ink-faint">월 보험료</dt>
+                        <dd className="tabular-nums text-ink">{g.premiumKnown ? won(g.premium) : "-"}</dd>
+                      </div>
+                      <div className="flex justify-between gap-1">
+                        <dt className="text-ink-faint">담보</dt>
+                        <dd className="tabular-nums text-ink">{g.count}건</dd>
+                      </div>
+                    </dl>
+                    <p className="mt-1 text-[11px] leading-relaxed text-ink-faint">주요 담보: {g.top.join(" · ") || "-"}</p>
+                  </div>
+                ))}
+              </div>
+              {/* 데스크톱: 표 */}
+              <div className="mt-2 hidden overflow-x-auto md:block">
+                <table className="w-full min-w-[680px] border-collapse text-[12px]">
+                  <thead>
+                    <tr className="border-b border-line text-[11px] text-ink-faint">
+                      <th className="py-1.5 pr-2 text-left font-semibold">보험사</th>
+                      <th className="py-1.5 pr-2 text-left font-semibold">상품명</th>
+                      <th className="py-1.5 pr-2 text-right font-semibold">계약일</th>
+                      <th className="py-1.5 pr-2 text-right font-semibold">납입·만기</th>
+                      <th className="py-1.5 pr-2 text-right font-semibold">월 보험료</th>
+                      <th className="py-1.5 text-right font-semibold">담보</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {ct.groups.map((g) => (
+                      <tr key={g.key} className="border-b border-line-soft align-top last:border-0">
+                        <td className="py-1.5 pr-2 text-ink">{g.unnamed ? "(미기재)" : g.insurer || "-"}</td>
+                        <td className="py-1.5 pr-2 text-ink">
+                          <span className="font-semibold">{g.unnamed ? "계약 구분 없음" : g.product || "-"}</span>
+                          <span className="mt-0.5 block text-[10.5px] text-ink-faint">{g.top.join(" · ")}</span>
+                        </td>
+                        <td className="py-1.5 pr-2 text-right tabular-nums text-ink-muted">{g.startDate || "-"}</td>
+                        <td className="py-1.5 pr-2 text-right tabular-nums text-ink-muted">
+                          {[g.payTerm, g.coverTerm].filter(Boolean).join(" · ") || "-"}
+                        </td>
+                        <td className="py-1.5 pr-2 text-right tabular-nums text-ink">{g.premiumKnown ? won(g.premium) : "-"}</td>
+                        <td className="py-1.5 text-right tabular-nums text-ink-muted">{g.count}건</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <p className="mt-2 text-[11.5px] leading-relaxed text-ink-faint">{ct.note}</p>
+            </div>
+          )}
+
+          {tableView === "rows" && (
           <div className="mt-2 space-y-2">
             {cur.rows.map((r, i) => (
               <div key={r.id + i} className="rounded-xl border border-line bg-white p-3">
@@ -773,6 +981,7 @@ export default function BojangSummary({ compact = false }: { compact?: boolean }
               </div>
             ))}
           </div>
+          )}
         </div>
       )}
 
@@ -802,6 +1011,88 @@ export default function BojangSummary({ compact = false }: { compact?: boolean }
           sub="0원이 아니라 '표에 없음'으로 남깁니다"
         />
       </div>
+
+      {/* ③-기둥 — 뿌리(실손) 위에 세운 25개 기둥 체크리스트 */}
+      {summary.count > 0 && (
+        <div data-pillars="25" className="mt-4 rounded-xl border border-line bg-white p-4">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <p className="text-[13px] font-semibold text-ink">보장 기둥 25 체크리스트</p>
+            <p className="text-[11.5px] tabular-nums text-ink-muted">
+              충족 {pil.met} · 부족 {pil.short} · 확인 {pil.check} · 미보유 {pil.none}
+            </p>
+          </div>
+          <div className="mt-2 flex flex-wrap items-center gap-2.5">
+            <div className="flex items-baseline gap-1">
+              <span className="text-[28px] font-bold leading-none tabular-nums text-ink">{pil.met}</span>
+              <span className="text-[13px] text-ink-faint">/ {pil.total}</span>
+            </div>
+            <div
+              className="h-2 min-w-[90px] flex-1 overflow-hidden rounded-full bg-[#eef1f4]"
+              role="img"
+              aria-label={`보장 기둥 ${pil.met} / ${pil.total}`}
+            >
+              <div className="h-full rounded-full bg-ink" style={{ width: `${(pil.met / pil.total) * 100}%` }} />
+            </div>
+            <span
+              className={
+                "rounded-full px-2 py-0.5 text-[11px] font-semibold " +
+                (pil.root.status === "met" ? "bg-jade-soft text-jade" : "bg-[#f6e7ea] text-[#a8455c]")
+              }
+            >
+              뿌리 실손 · {pil.root.status === "met" ? pil.root.generationLabel ?? "가입" : "미보유"}
+            </span>
+            <button
+              type="button"
+              aria-pressed={gapsOnly}
+              onClick={() => setGapsOnly((v) => !v)}
+              className={
+                "rounded-full border px-2.5 py-1 text-[11.5px] font-semibold " +
+                (gapsOnly ? "border-ink bg-ink text-white" : "border-line bg-white text-ink-muted hover:border-ink")
+              }
+            >
+              {gapsOnly ? "전체 보기" : "부족·미보유만"}
+            </button>
+          </div>
+          <div className="mt-3 space-y-3">
+            {pil.groups.map((g) => {
+              const items = pil.items.filter((it) => it.group === g.id && (!gapsOnly || it.status !== "met"));
+              if (!items.length) return null;
+              return (
+                <div key={g.id}>
+                  <div className="flex items-baseline gap-1.5">
+                    <span className="inline-block h-2 w-2 rounded-full" style={{ background: g.tone }} aria-hidden="true" />
+                    <span className="text-[11.5px] font-semibold text-ink-soft">{g.label}</span>
+                    <span className="text-[11px] tabular-nums text-ink-faint">
+                      {g.met}/{g.total}
+                    </span>
+                  </div>
+                  <div className="mt-1 grid grid-cols-2 gap-1 sm:grid-cols-3 lg:grid-cols-5">
+                    {items.map((it) => (
+                      <div
+                        key={it.id}
+                        title={`${it.names.join(", ") || "표에 없음"}${it.note ? ` — ${it.note}` : ""}`}
+                        className={"rounded-lg border px-2 py-1.5 " + PILLAR_TONE[it.status]}
+                      >
+                        <div className="flex items-baseline justify-between gap-1">
+                          <span className={"truncate text-[11.5px] font-semibold " + (it.status === "none" ? "text-ink-faint" : "text-ink")}>
+                            {it.label}
+                          </span>
+                          <span className={"shrink-0 text-[10px] font-semibold " + PILLAR_TEXT[it.status]}>{it.statusLabel}</span>
+                        </div>
+                        <div className="mt-0.5 truncate text-[10.5px] tabular-nums text-ink-muted">{pillarValueText(it)}</div>
+                        {it.common && (
+                          <span className="mt-0.5 inline-block rounded bg-white/70 px-1 text-[9.5px] text-ink-faint">공통</span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <p className="mt-2 text-[11.5px] leading-relaxed text-ink-faint">{pil.note}</p>
+        </div>
+      )}
 
       {summary.count > 0 && (
         <div className="mt-4 grid gap-4 lg:grid-cols-[1.35fr_1fr]">
@@ -905,14 +1196,73 @@ export default function BojangSummary({ compact = false }: { compact?: boolean }
               )}
             </p>
           </div>
-          <div className="mt-2">
-            <div>
-              <div className="grid grid-cols-[minmax(0,1fr)_minmax(44px,auto)_minmax(44px,auto)_minmax(54px,auto)] gap-x-1.5 border-b border-line pb-1 text-[11px] font-semibold text-ink-faint">
-                <span>그룹</span>
-                <span className="text-right">기존</span>
-                <span className="text-right">제안</span>
-                <span className="text-right">증감</span>
+
+          {/* 기둥 이동 — 새로 세워지는 기둥 · 제안 후에도 비어 있는 기둥 · 보험료 변화 */}
+          {cpil && (
+            <div data-pillar-cmp className="mt-3 rounded-lg border border-line-soft bg-[#fbfbf8] p-3">
+              <div className="flex flex-wrap items-baseline gap-2">
+                <p className="text-[12.5px] font-semibold text-ink">
+                  보장 기둥 <span className="tabular-nums">{cpil.before.met}</span> →{" "}
+                  <span className="tabular-nums">{cpil.after.met}</span>
+                  <span className="font-normal text-ink-faint"> / {cpil.after.total}</span>
+                </p>
+                <b className={cpil.metDelta > 0 ? "text-jade" : cpil.metDelta < 0 ? "text-[#a8455c]" : "text-ink-faint"}>
+                  ({cpil.metDelta > 0 ? "+" : cpil.metDelta < 0 ? "−" : ""}
+                  {Math.abs(cpil.metDelta)})
+                </b>
+                <span className="text-[11.5px] text-ink-muted">
+                  월 보험료 {won(cmp.premium.before)} → {won(cmp.premium.after)}
+                </span>
               </div>
+              <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                <div>
+                  <p className="text-[11.5px] font-semibold text-jade">
+                    새로 세워지는 기둥 <span className="tabular-nums">{cpil.built.length}</span>
+                  </p>
+                  <div className="mt-1 flex flex-wrap gap-1">
+                    {cpil.built.length ? (
+                      cpil.built.map((i) => (
+                        <span key={i.id} className="rounded bg-jade-soft px-1.5 py-0.5 text-[11px] font-semibold text-jade">
+                          {i.label}
+                        </span>
+                      ))
+                    ) : (
+                      <span className="text-[11px] text-ink-faint">없음 — 제안에 새로 들어간 담보가 기둥을 세우지 못했습니다</span>
+                    )}
+                  </div>
+                  {cpil.filled.length > 0 && (
+                    <p className="mt-1.5 text-[11px] leading-relaxed text-ink-muted">
+                      부족에서 충족으로: {cpil.filled.map((i) => i.label).join(" · ")}
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <p className="text-[11.5px] font-semibold text-[#a8455c]">
+                    제안 후에도 비어 있는 기둥 <span className="tabular-nums">{cpil.empty.length}</span>
+                  </p>
+                  <div className="mt-1 flex flex-wrap gap-1">
+                    {cpil.empty.slice(0, 12).map((i) => (
+                      <span key={i.id} className="rounded bg-white px-1.5 py-0.5 text-[11px] text-ink-muted ring-1 ring-line">
+                        {i.label}
+                      </span>
+                    ))}
+                    {cpil.empty.length > 12 && <span className="text-[11px] text-ink-faint">외 {cpil.empty.length - 12}개</span>}
+                  </div>
+                </div>
+              </div>
+              {cpil.lost.length > 0 && (
+                <p className="mt-2 text-[11px] text-[#8a6320]">약해지는 기둥: {cpil.lost.map((i) => i.label).join(" · ")}</p>
+              )}
+            </div>
+          )}
+
+          <div className="mt-3">
+            <div className="grid grid-cols-[minmax(0,1fr)_minmax(44px,auto)_minmax(44px,auto)_minmax(54px,auto)] gap-x-1.5 border-b border-line pb-1 text-[11px] font-semibold text-ink-faint">
+              <span>그룹</span>
+              <span className="text-right">기존</span>
+              <span className="text-right">제안</span>
+              <span className="text-right">증감</span>
+            </div>
               {cmp.groups
                 .filter((g) => g.status !== "none")
                 .map((g) => (
@@ -929,7 +1279,6 @@ export default function BojangSummary({ compact = false }: { compact?: boolean }
                     </span>
                   </div>
                 ))}
-            </div>
           </div>
           <div className="mt-3 border-t border-line-soft pt-2">
             <p className="text-[12px] font-semibold text-ink">달라진 담보</p>
@@ -1025,6 +1374,7 @@ export default function BojangSummary({ compact = false }: { compact?: boolean }
         items={[
           { label: "담보", value: `${summary.count}건` },
           { label: side === "before" ? "보유 보험료" : "제안 보험료", value: summary.premiumKnown ? won(summary.premium) : "확인 필요" },
+          { label: "보장 기둥", value: `${pil.met} / ${pil.total}` },
           { label: "실손", value: summary.silson.label ?? "확인 필요" },
         ]}
       />

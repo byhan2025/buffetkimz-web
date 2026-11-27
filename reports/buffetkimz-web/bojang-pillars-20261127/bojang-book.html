@@ -1,0 +1,87 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>고객님 보장 정리</title>
+<style>
+  @page { size: A4 portrait; margin: 14mm; }
+  * { box-sizing: border-box; }
+  body { font-family: "Pretendard Variable", Pretendard, -apple-system, "Malgun Gothic", sans-serif; color: #0b1b29; font-size: 11.5px; line-height: 1.55; margin: 0; }
+  .cover { min-height: 92vh; display: flex; flex-direction: column; justify-content: space-between; page-break-after: always; border-top: 6px solid #0b1b29; padding-top: 28px; }
+  .cover h1 { font-size: 30px; letter-spacing: -0.03em; margin: 0 0 4px; }
+  .cover .sub { color: #55626e; }
+  .cover .box { display: flex; gap: 8px; margin-top: 18px; }
+  .cover .box div { flex: 1; border: 1px solid #dde3e8; border-radius: 8px; padding: 8px 10px; }
+  .cover .box span { display: block; color: #55626e; font-size: 10.5px; }
+  .cover .box b { font-size: 15px; }
+  .cover .mt { margin-top: auto; color: #55626e; font-size: 10.5px; }
+  section.day { page-break-inside: avoid; margin-bottom: 16px; }
+  h2 { font-size: 13.5px; margin: 16px 0 6px; padding-bottom: 4px; border-bottom: 1.5px solid #0b1b29; }
+  h2 .cnt { font-weight: 500; color: #55626e; font-size: 10.5px; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { border-bottom: 1px solid #eaefF2; padding: 3.5px 5px; text-align: left; }
+  th { background: #f4f2ea; font-size: 10.5px; }
+  td.r, th.r { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  td.s { color: #55626e; font-size: 10.5px; }
+  .tag { margin-left: 4px; border: 1px solid #d8dfe5; border-radius: 3px; padding: 0 3px; font-size: 9.5px; color: #55626e; }
+  .judge { margin: 2px 0 6px; color: #3f4b57; font-size: 11px; }
+  .lv { padding: 0 4px; border-radius: 3px; font-weight: 700; }
+  .lv.none, .lv.vlow { background: #f6e7ea; color: #a8455c; }
+  .lv.low { background: #fdf1e0; color: #8a6320; }
+  .lv.ok { background: #e6f2ec; color: #1f7a62; }
+  .lv.rich { background: #e8eefc; color: #1233b8; }
+  .tel { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 12px; }
+  .tel div { display: flex; justify-content: space-between; border-bottom: 1px dotted #dde3e8; padding: 2px 0; }
+  .foot { margin-top: 10px; color: #55626e; font-size: 10px; }
+  ul { margin: 4px 0 0 16px; padding: 0; }
+  .pscore { display: flex; align-items: baseline; gap: 8px; margin: 2px 0 6px; }
+  .pscore b { font-size: 22px; letter-spacing: -0.02em; }
+  .pscore span { color: #55626e; font-size: 10.5px; }
+  .pgrp { margin-bottom: 7px; }
+  .pgh { display: flex; align-items: center; gap: 5px; font-size: 10.5px; font-weight: 700; color: #26333f; margin-bottom: 3px; }
+  .pgh small { font-weight: 500; color: #55626e; }
+  .pgh .dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+  .pills { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; }
+  .pill { border: 1px solid #e6ebef; border-radius: 5px; padding: 3px 5px; display: flex; justify-content: space-between; gap: 4px; font-size: 9.5px; }
+  .pill b { font-weight: 600; }
+  .pill i { font-style: normal; font-variant-numeric: tabular-nums; white-space: nowrap; color: #55626e; }
+  .pill.met { background: #e6f2ec; border-color: #cfe4d9; }
+  .pill.short { background: #fdf1e0; border-color: #f0dfc4; }
+  .pill.none { background: #fafafa; color: #8a949e; }
+  .pill.check { background: #f1f3f6; border-color: #e2e7ec; }
+  .sub2 { margin-left: 6px; color: #8a949e; font-size: 9.5px; }
+  .sub3 { font-size: 11px; margin: 10px 0 3px; color: #26333f; }
+  .chip2 { display: inline-block; border-radius: 3px; padding: 0 4px; font-size: 9.5px; }
+  .chip2.ok { background: #e6f2ec; color: #1f7a62; }
+  .chip2.none { background: #f6e7ea; color: #a8455c; }
+  .chip2.warn { background: #fdf1e0; color: #8a6320; }
+  td .s { color: #55626e; font-size: 9.5px; margin-top: 1px; }
+</style></head><body>
+<div class="cover">
+  <div>
+    <h1>고객 보장 정리</h1>
+    <div class="sub">2026-11-27 기준 · 담보 11건</div>
+    <div class="box">
+      <div><span>월 보험료</span><b>4만 9,100원</b></div>
+      <div><span>총납입보험료(추정)</span><b>1,178만 4,000원</b></div>
+      <div><span>실손</span><b>4세대</b></div>
+      <div><span>보장 기둥</span><b>2 / 25</b></div>
+    </div>
+  </div>
+  <div class="mt">
+    
+    <p>이 정리는 담보 이름을 기준으로 묶은 참고 자료입니다. 실제 지급 여부·금액·면책은 가입 약관과 보험사 심사에 따릅니다.</p>
+  </div>
+</div>
+
+<section class="day"><h2>기준 대비 판정</h2><table><thead><tr><th>그룹</th><th class="r">가입</th><th class="r">기준</th><th class="r">충족률</th><th class="r">판정</th></tr></thead><tbody><tr><td>암·유사암</td><td class="r">2,500만원</td><td class="r">3,000만원</td><td class="r">83%</td><td class="r"><span class="lv low">부족</span></td></tr><tr><td>뇌혈관·허혈성심장</td><td class="r">2,000만원</td><td class="r">2,000만원</td><td class="r">100%</td><td class="r"><span class="lv ok">적정</span></td></tr><tr><td>질병·상해 수술비</td><td class="r">400만원</td><td class="r">300만원</td><td class="r">133%</td><td class="r"><span class="lv ok">적정</span></td></tr><tr><td>운전자</td><td class="r">2,000만원</td><td class="r">2억원</td><td class="r">10%</td><td class="r"><span class="lv vlow">매우 부족</span></td></tr><tr><td>사망·후유장해</td><td class="r">6,000만원</td><td class="r">1억원</td><td class="r">60%</td><td class="r"><span class="lv low">부족</span></td></tr></tbody></table><p class="foot">권장 기준금액은 보장분석 실무에서 쓰는 참고값(당사 기준)이며 법정 기준이 아닙니다. 고객의 소득·가족력·부채에 따라 달라지므로 아래 칸에서 고쳐 쓸 수 있습니다.</p></section>
+
+<section class="day"><h2>보장 기둥 <span class="cnt">보장 기둥 2 / 25</span></h2>
+    <div class="pscore"><b>2 / 25</b><span>층족 2 · 부족 8 · 확인 0 · 미보유 15</span></div>
+    <p class="judge">뿌리 · 실손의료비 — <b>4세대</b><span class="sub2">실손의료비(4세대)</span></p>
+    <div class="pgrp"><div class="pgh"><span class="dot" style="background:#b1637a"></span>암·유사암<small>0/5</small></div><div class="pills"><span class="pill short"><b>일반암 진단비</b><i>2,000만원</i></span><span class="pill short"><b>유사암·소액암 진단비</b><i>500만원</i></span><span class="pill none"><b>암 수술비</b><i>—</i></span><span class="pill none"><b>항암 치료비</b><i>—</i></span><span class="pill none"><b>암 입원일당</b><i>—</i></span></div></div><div class="pgrp"><div class="pgh"><span class="dot" style="background:#7c5cbf"></span>뇌혈관·허혈성심장<small>2/4</small></div><div class="pills"><span class="pill met"><b>뇌혈관질환 진단비</b><i>1,000만원</i></span><span class="pill met"><b>허혈성심장질환 진단비</b><i>1,000만원</i></span><span class="pill none"><b>뇌·심장 수술비</b><i>—</i></span><span class="pill none"><b>뇌·심장 주요치료비</b><i>—</i></span></div></div><div class="pgrp"><div class="pgh"><span class="dot" style="background:#1f7a62"></span>질병·상해 수술비<small>0/2</small></div><div class="pills"><span class="pill short"><b>질병 수술비</b><i>200만원</i></span><span class="pill short"><b>상해 수술비</b><i>200만원</i></span></div></div><div class="pgrp"><div class="pgh"><span class="dot" style="background:#3d7f8c"></span>통원·처방<small>0/1</small></div><div class="pills"><span class="pill none"><b>통원·처방비</b><i>—</i></span></div></div><div class="pgrp"><div class="pgh"><span class="dot" style="background:#2c7be0"></span>입원·간병<small>0/4</small></div><div class="pills"><span class="pill short"><b>질병 입원일당</b><i>일 3만원</i></span><span class="pill none"><b>상해 입원일당</b><i>—</i></span><span class="pill none"><b>간병인 사용 일당</b><i>—</i></span><span class="pill none"><b>중증 치매 진단비</b><i>—</i></span></div></div><div class="pgrp"><div class="pgh"><span class="dot" style="background:#8a6320"></span>운전자<small>0/2</small></div><div class="pills"><span class="pill short"><b>교통사고처리지원금</b><i>2,000만원</i></span><span class="pill none"><b>변호사선임·벌금</b><i>—</i></span></div></div><div class="pgrp"><div class="pgh"><span class="dot" style="background:#a85a3b"></span>배상책임<small>0/1</small></div><div class="pills"><span class="pill none"><b>일상생활배상책임</b><i>—</i></span></div></div><div class="pgrp"><div class="pgh"><span class="dot" style="background:#0b1b29"></span>사망·후유장해<small>0/4</small></div><div class="pills"><span class="pill short"><b>질병 사망보험금</b><i>1,000만원</i></span><span class="pill short"><b>재해 사망보험금</b><i>5,000만원</i></span><span class="pill none"><b>질병 후유장해</b><i>—</i></span><span class="pill none"><b>상해 후유장해</b><i>—</i></span></div></div><div class="pgrp"><div class="pgh"><span class="dot" style="background:#55626e"></span>기타<small>0/2</small></div><div class="pills"><span class="pill none"><b>골절 진단비</b><i>—</i></span><span class="pill none"><b>화상 진단비</b><i>—</i></span></div></div>
+    <p class="foot">기둥 기준금액은 보장분석 실무에서 쓰는 참고값(당사 기준)이며 법정 기준이 아닙니다. 원인(질병·재해) 표기가 없는 담보는 두 기둥에 함께 세고, 금액을 읽지 못한 담보는 0원이 아니라 '확인 필요'로 둡니다.</p></section>
+<section class="day"><h2>계약(상품) 단위 <span class="cnt">계약 4건 · 월 4만 9,100원</span></h2><table><thead><tr><th>보험사</th><th>상품명</th><th class="r">계약일</th><th class="r">납입·만기</th><th class="r">월 보험료</th><th class="r">담보</th></tr></thead><tbody><tr><td>한결생명</td><td>무배당 한결 종신보험<div class="s">재해사망 · 질병사망</div></td><td class="r">2014-03-12</td><td class="r">20년납 · 100세</td><td class="r">5,000원</td><td class="r">2건</td></tr><tr><td>한결생명</td><td>무배당 한결 건강보험<div class="s">암진단비 · 뇌혈관질환진단비 · 허혈성심장질환진단비</div></td><td class="r">2016-09-05</td><td class="r">20년납 · 100세</td><td class="r">24,600원</td><td class="r">7건</td></tr><tr><td>바른손해보험</td><td>무배당 바른 운전자보험<div class="s">교통사고처리지원금</div></td><td class="r">2019-06-18</td><td class="r">20년납 · 80세</td><td class="r">1,100원</td><td class="r">1건</td></tr><tr><td>바른손해보험</td><td>무배당 바른 실손의료보험<div class="s">실손의료비(4세대)</div></td><td class="r">2021-11-02</td><td class="r">20년납 · 100세</td><td class="r">18,400원</td><td class="r">1건</td></tr></tbody></table><p class="foot">계약 단위 표는 담보에 적힌 보험사·상품명·계약일로 묶습니다. 성격이 다른 정액 담보 금액은 더하지 않고, 월 보험료와 총납입 추정만 합산합니다.</p></section>
+
+
+<section class="day"><h2>실손 <span class="cnt">1건</span></h2><table><thead><tr><th>담보</th><th class="r">금액</th><th class="r">월 보험료</th><th class="s">납입·만기</th></tr></thead><tbody><tr><td>실손의료비(4세대)</td><td class="r">가입</td><td class="r">18,400원</td><td class="s">20년납 · 100세</td></tr></tbody></table></section><section class="day"><h2>암·진단비 <span class="cnt">2건</span></h2><p class="judge">기준 3,000만원 대비 <b>부족</b> (83%)</p><table><thead><tr><th>담보</th><th class="r">금액</th><th class="r">월 보험료</th><th class="s">납입·만기</th></tr></thead><tbody><tr><td>암진단비</td><td class="r">2,000만원</td><td class="r">9,800원</td><td class="s">20년납 · 100세</td></tr><tr><td>유사암진단비</td><td class="r">500만원</td><td class="r">1,200원</td><td class="s">20년납 · 100세</td></tr></tbody></table></section><section class="day"><h2>뇌·심장 <span class="cnt">2건</span></h2><p class="judge">기준 2,000만원 대비 <b>적정</b> (100%)</p><table><thead><tr><th>담보</th><th class="r">금액</th><th class="r">월 보험료</th><th class="s">납입·만기</th></tr></thead><tbody><tr><td>뇌혈관질환진단비</td><td class="r">1,000만원</td><td class="r">4,300원</td><td class="s">20년납 · 100세</td></tr><tr><td>허혈성심장질환진단비</td><td class="r">1,000만원</td><td class="r">3,900원</td><td class="s">20년납 · 100세</td></tr></tbody></table></section><section class="day"><h2>수술·처치 <span class="cnt">2건</span></h2><p class="judge">기준 300만원 대비 <b>적정</b> (133%)</p><table><thead><tr><th>담보</th><th class="r">금액</th><th class="r">월 보험료</th><th class="s">납입·만기</th></tr></thead><tbody><tr><td>질병수술비</td><td class="r">200만원</td><td class="r">2,100원</td><td class="s">20년납 · 100세</td></tr><tr><td>상해수술비</td><td class="r">200만원</td><td class="r">1,500원</td><td class="s">20년납 · 100세</td></tr></tbody></table></section><section class="day"><h2>입원·간병 <span class="cnt">1건</span></h2><table><thead><tr><th>담보</th><th class="r">금액</th><th class="r">월 보험료</th><th class="s">납입·만기</th></tr></thead><tbody><tr><td>질병입원일당</td><td class="r">3만원</td><td class="r">1,800원</td><td class="s">20년납 · 100세</td></tr></tbody></table></section><section class="day"><h2>운전자 <span class="cnt">1건</span></h2><p class="judge">기준 2억원 대비 <b>매우 부족</b> (10%)</p><table><thead><tr><th>담보</th><th class="r">금액</th><th class="r">월 보험료</th><th class="s">납입·만기</th></tr></thead><tbody><tr><td>교통사고처리지원금</td><td class="r">2,000만원</td><td class="r">1,100원</td><td class="s">20년납 · 80세</td></tr></tbody></table></section><section class="day"><h2>사망·후유 <span class="cnt">2건</span></h2><p class="judge">기준 1억원 대비 <b>부족</b> (60%)</p><table><thead><tr><th>담보</th><th class="r">금액</th><th class="r">월 보험료</th><th class="s">납입·만기</th></tr></thead><tbody><tr><td>질병사망</td><td class="r">1,000만원</td><td class="r">3,000원</td><td class="s">20년납 · 100세</td></tr><tr><td>재해사망</td><td class="r">5,000만원</td><td class="r">2,000원</td><td class="s">20년납 · 100세</td></tr></tbody></table></section>
+<section class="day"><h2>제안 비교</h2><h3 class="sub3">보장 기둥 이동</h3><p class="judge"><b>보장 기둥 2 / 25 → 11 / 25</b> (+9) · 월 보험료 4만 9,100원 → 9만 1,800원 (+4만 2,700원)</p><p class="judge">새로 세워지는 기둥 <span class="cnt">2</span> — <span class="chip2 ok">간병인 사용 일당</span> <span class="chip2 ok">변호사선임·벌금</span></p><p class="judge">부족에서 충족으로 — <span class="chip2 ok">일반암 진단비</span> <span class="chip2 ok">유사암·소액암 진단비</span> <span class="chip2 ok">질병 수술비</span> <span class="chip2 ok">상해 수술비</span> <span class="chip2 ok">질병 입원일당</span> <span class="chip2 ok">질병 사망보험금</span> <span class="chip2 ok">재해 사망보험금</span></p><p class="judge">제안 후에도 비어 있는 기둥 <span class="cnt">14</span> — <span class="chip2 none">암 수술비</span> <span class="chip2 none">항암 치료비</span> <span class="chip2 none">암 입원일당</span> <span class="chip2 none">뇌·심장 수술비</span> <span class="chip2 none">뇌·심장 주요치료비</span> <span class="chip2 none">상해 입원일당</span> <span class="chip2 none">중증 치매 진단비</span> <span class="chip2 none">통원·처방비</span> <span class="chip2 none">질병 후유장해</span> <span class="chip2 none">상해 후유장해</span> <span class="chip2 none">골절 진단비</span> <span class="chip2 none">화상 진단비</span> <span class="chip2 none">교통사고처리지원금</span> <span class="chip2 none">일상생활배상책임</span></p><table><thead><tr><th>그룹</th><th class="r">보유</th><th class="r">제안</th><th class="r">증감</th></tr></thead><tbody><tr><td>실손의료비</td><td class="r">0원</td><td class="r">0원</td><td class="r">—</td></tr><tr><td>암·유사암</td><td class="r">2,500만원</td><td class="r">6,000만원</td><td class="r">+3,500만원</td></tr><tr><td>뇌혈관·허혈성심장</td><td class="r">2,000만원</td><td class="r">4,000만원</td><td class="r">+2,000만원</td></tr><tr><td>질병·상해 수술비</td><td class="r">400만원</td><td class="r">1,000만원</td><td class="r">+600만원</td></tr><tr><td>입원·간병</td><td class="r">0원</td><td class="r">0원</td><td class="r">—</td></tr><tr><td>운전자</td><td class="r">2,000만원</td><td class="r">1억 5,000만원</td><td class="r">+1억 3,000만원</td></tr><tr><td>사망·후유장해</td><td class="r">6,000만원</td><td class="r">2억원</td><td class="r">+1억 4,000만원</td></tr></tbody></table></section>
+<section class="day"><h2>보험사 고객센터</h2><div class="tel"><div><b>삼성생명</b><span>1588-3114</span></div><div><b>한화생명</b><span>1588-6363</span></div><div><b>교보생명</b><span>1588-1001</span></div><div><b>신한라이프</b><span>1588-5580</span></div><div><b>KB라이프</b><span>1588-3374</span></div><div><b>NH농협생명</b><span>1544-4000</span></div><div><b>미래에셋생명</b><span>1588-0220</span></div><div><b>동양생명</b><span>1577-1004</span></div><div><b>흥국생명</b><span>1588-2288</span></div><div><b>삼성화재</b><span>1588-5114</span></div><div><b>현대해상</b><span>1588-5656</span></div><div><b>DB손해보험</b><span>1588-0100</span></div><div><b>KB손해보험</b><span>1544-0114</span></div><div><b>메리츠화재</b><span>1566-7711</span></div><div><b>한화손해보험</b><span>1566-8000</span></div><div><b>NH농협손해보험</b><span>1644-9000</span></div><div><b>흥국화재</b><span>1688-1688</span></div><div><b>롯데손해보험</b><span>1588-3344</span></div></div><p class="foot">번호는 각 보험사 공식 홈페이지에서 확인한 값입니다. 표에 없는 보험사는 증권에 적힌 번호를 쓰세요.</p></section>
+<p class="foot">buffetkimz.com 보장분석 요약기에서 만든 자료입니다. 입력값은 브라우저 안에서만 처리됩니다.</p>
+</body></html>
