@@ -89,6 +89,7 @@ ROUTES = [
     ("post-new-revolving", "/posts/credit-card-revolving-fee-calculation/"),
     # 2026-11-27 13:15 — 해외주식 양도세 250만 원 공제 전 확인 4가지(표 2개·비교 카드·출처 4건)
     ("post-new-overseas-tax", "/posts/overseas-stock-capital-gains-tax-2026/"),
+    ("post-new-credit-score", "/posts/credit-score-check-and-management-2026/"),
     # v9.2.0 — 데일리 브리프 게시판(분류 필터 알약·회차 배지·출처 링크가 한 화면에 모인 곳)
     ("board", "/board/"),
 ]
