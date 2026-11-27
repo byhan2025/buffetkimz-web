@@ -186,15 +186,9 @@ export function generationFromDate(dateStr) {
   };
 }
 
-/** 세대 판매 시기 안에서의 상품형 — 2세대는 선택형Ⅱ(2015.9~2017.3)를 따로 본다 */
-export function variantFromDate(dateStr, variant23) {
-  const s = String(dateStr || "").slice(0, 10);
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) return variant23 === "sel2" ? "sel2" : variant23 === "selective" ? "selective" : "standard";
-  if (s < "2017-04-01") {
-    if (s < "2013-01-01") return { variant: variant23 === "selective" ? "selective" : "standard", early: true };
-    if (s >= "2015-09-01") return { variant: variant23 === "selective" ? "selective" : "standard", sel2Available: true, early: false };
-  }
-  return { variant: variant23 === "selective" ? "selective" : "standard", early: false };
+/** 세대 판매 시기 안에서의 상품형 이름 — 화면 라벨에 쓴다(2세대는 선택형Ⅱ가 2015.9~2017.3에만 있다) */
+export function variantLabel(variant23) {
+  return variant23 === "sel2" ? "선택형Ⅱ" : variant23 === "selective" ? "선택형Ⅰ" : "표준형";
 }
 
 /** 입력 정규화 — 화면·CRM 어디서 들어와도 같은 모양으로 만든다 */
