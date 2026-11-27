@@ -180,9 +180,18 @@ with sync_playwright() as p:
 
         # 진단 — 자녀 1명 + 월세로 바꾸면 항목이 늘고, 4,000만원·자녀 0·월세 없음이면 줄어든다
         before = info["count"]
-        pg.click('[data-tax-map] button:has-text("1명")')
-        pg.click('[data-tax-map] button:has-text("월세 살고 있음")')
-        pg.wait_for_timeout(350)
+        # sticky 헤더가 버튼을 가리지 않도록 스크롤 위치를 보정한 뒤 누른다(390 실측에서 클릭이 헤더에 먹혔다).
+        for label in ("1명", "월세 살고 있음"):
+            el = pg.query_selector(f'[data-tax-map] button:has-text("{label}")')
+            if el is None:
+                check(f"지도 {width} 진단 버튼 '{label}' 있음", False, "버튼을 찾지 못함")
+                continue
+            el.scroll_into_view_if_needed()
+            pg.wait_for_timeout(200)
+            pg.evaluate("window.scrollBy(0, -160)")
+            pg.wait_for_timeout(150)
+            el.click()
+            pg.wait_for_timeout(250)
         after = pg.eval_on_selector_all("[data-checklist] > li", "els => els.length")
         pg.screenshot(path=str(OUT / f"{MODE}-yearend-diagnosed-{width}.png"))
         check(f"지도 {width} 진단으로 항목이 바뀜", after != before, f"{before} → {after}")
