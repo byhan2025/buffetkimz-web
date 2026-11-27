@@ -26,6 +26,7 @@ import {
 } from "../useful/kit";
 import { ModeTabs, useMode } from "./ModeTabs";
 import DisclosureCheck from "./DisclosureCheck";
+import { withBase } from "@/config/site";
 import {
   EXAMPLE_TABLES,
   analyze,
@@ -89,6 +90,20 @@ export default function SimpyeongOrganizer({ compact = false }: { compact?: bool
   const [mode, setMode] = useMode<Mode>("file", MODES);
   return (
     <div data-merged-tool="simpyeong-disclosure">
+      {/* 2026-11-27 — 자료를 받기 전에 동의서를 먼저 받도록 실행 화면 맨 위에서 안내한다. */}
+      <div
+        data-consent-gate="1"
+        className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl border border-brand/25 bg-brand-soft/60 px-3.5 py-2.5"
+      >
+        <p className="text-[12.5px] leading-relaxed text-ink-soft">
+          진료자료를 받기 전에{" "}
+          <a href={withBase("/apps/disclosure-consent/run")} className="font-semibold text-brand-deep link">
+            진료자료 활용 동의서
+          </a>
+          로 목적·보관기간을 확인하고 서명을 먼저 받으세요.
+        </p>
+        <span className="text-[11.5px] text-ink-faint">안전 5대 약속 포함</span>
+      </div>
       <ModeTabs
         label="고지 정리 방법"
         value={mode}

@@ -185,6 +185,7 @@ const metaBySlug: Record<string, string> = {
   "overseas-stock-tax": "250만원 공제 · 서버 미전송",
   "deposit-savings": "15.4% · 서버 미전송",
   "simpyeong-disclosure": "진료자료 · 서버 미전송",
+  "disclosure-consent": "동의서 · 서버 미전송",
 };
 
 /** 홈 진열 순서 — 금융·연금 계산이 먼저, 앱이 뒤, 보험이 마지막. */
@@ -199,6 +200,7 @@ const orderBySlug: Record<string, number> = {
   "silson-compare": 20,
   "disclosure-check": 30,
   "simpyeong-disclosure": 25,
+  "disclosure-consent": 24,
   "exif-mosaic": 30,
   "url-cleaner": 40,
   "pdf-image": 50,

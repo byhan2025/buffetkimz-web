@@ -1,0 +1,44 @@
+{
+  "390_overflow": {
+    "sw": 390,
+    "cw": 390
+  },
+  "example_name": "홍길동",
+  "example_phone": "010-1234-5678",
+  "example_birth": "1981-08-23",
+  "signature_ink": 1403,
+  "consent_no": "DC-20261127-U0G3",
+  "png": {
+    "bytes": 267501,
+    "width": 1080,
+    "height": 1527
+  },
+  "pdf": {
+    "pages": 1,
+    "width_pt": 595.28,
+    "height_pt": 841.89,
+    "bytes": 238333
+  },
+  "pdf_render": {
+    "width": 910,
+    "height": 1287
+  },
+  "summary_chars": 234,
+  "guide_chars": 272,
+  "390_external_hosts": [
+    "cdn.jsdelivr.net",
+    "fonts.googleapis.com"
+  ],
+  "390_after_fill_external": [],
+  "1280_overflow": {
+    "sw": 1280,
+    "cw": 1280
+  },
+  "1280_external_hosts": [
+    "cdn.jsdelivr.net",
+    "fonts.googleapis.com"
+  ],
+  "1280_after_fill_external": [],
+  "mode": "local",
+  "failures": []
+}

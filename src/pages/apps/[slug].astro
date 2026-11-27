@@ -220,9 +220,11 @@ const jsonLd = graph([
             <div class="mt-10">
               <h2 class="border-t border-line pt-5 text-[13px] font-semibold tracking-[0.01em] text-ink-faint">먼저 보기</h2>
               <p class="mt-2 max-w-[62ch] text-[13px] leading-relaxed text-ink-muted">
-                {app.runMode === "tool"
-                  ? "파일이나 글자를 이 자리에서 바로 다뤄 볼 수 있습니다. 예시 데이터로 먼저 확인하고, 이어서 전체 화면에서 하세요."
-                  : "같은 계산을 이 자리에서 바로 해 볼 수 있습니다. 첫 화면은 예시 입력값으로 시작하고, 값을 바꾸면 결과가 즉시 달라집니다."}
+                {app.runMode === "form"
+                  ? "이 자리에서 동의 항목을 확인하고 서명할 수 있습니다. 완료하면 확인증을 PNG·A4 PDF로 내려받습니다."
+                  : app.runMode === "tool"
+                    ? "파일이나 글자를 이 자리에서 바로 다뤄 볼 수 있습니다. 예시 데이터로 먼저 확인하고, 이어서 전체 화면에서 하세요."
+                    : "같은 계산을 이 자리에서 바로 해 볼 수 있습니다. 첫 화면은 예시 입력값으로 시작하고, 값을 바꾸면 결과가 즉시 달라집니다."}
               </p>
               <div class="mt-4" data-nosnippet data-tool-input-area="true">
                 <ToolRunner slug={app.slug} compact={true} client:visible />
