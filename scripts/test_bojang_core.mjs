@@ -24,8 +24,10 @@ import {
   classify,
   compare,
   compareLines,
+  estimatePaidTotal,
   formatMan,
   normalizeRows,
+  parsePayYears,
   parseAmount,
   parseJSON,
   parseText,
@@ -282,6 +284,22 @@ ok("갱신형 안내", renewSum.checks.some((c) => c.code === "renew:count"));
 eq("총납입보험료 추정", renewSum.paidTotal, 2880000);
 const payParsed = readDocument("암진단비\t3,000만원\t20년납 100세만기\t12,000원");
 ok("납입기간·만기 분리", payParsed.coverages[0].payTerm.includes("20") && payParsed.coverages[0].coverTerm.includes("100"));
+
+/* 2026-11-27 화면 결함 — 표에서 읽은 뒤 보험료·납입기간을 손으로 고치면 총납입이 다시 계산되는지.
+   (결함 재현: 첫 담보에 3,000원·20년납을 넣어도 '보험료·납입기간을 넣으면…' 문구가 남았다) */
+eq("납입년수 읽기 — 20년납", parsePayYears("20년납"), 20);
+eq("납입년수 읽기 — 빈 값", parsePayYears(""), null);
+eq("총납입 추정 — 3,000원 × 20년", estimatePaidTotal(3000, "20년납"), 720000);
+eq("총납입 추정 — 보험료 없음", estimatePaidTotal(null, "20년납"), null);
+eq("총납입 추정 — 납입기간 없음", estimatePaidTotal(3000, ""), null);
+eq("총납입 추정 — 납입기간만 있던 행에 보험료를 넣음", estimatePaidTotal(3000, "20년"), 720000);
+const handRows = normalizeRows([{ name: "암진단비", amount: 30000000 }]);
+handRows[0].premium = 3000;
+handRows[0].payTerm = "20년납";
+handRows[0].paidTotal = estimatePaidTotal(handRows[0].premium, handRows[0].payTerm);
+eq("손으로 고친 행의 총납입", handRows[0].paidTotal, 720000);
+eq("요약 합계도 따라옴", summarize(handRows).paidTotal, 720000);
+eq("요약 합계 문구(만원)", formatMan(summarize(handRows).paidTotal), "72만원");
 
 const low = summarize(normalizeRows([{ name: "암진단비", amount: 10000000 }]));
 const okT = summarize(normalizeRows([{ name: "암진단비", amount: 30000000 }]));

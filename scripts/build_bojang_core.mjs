@@ -60,6 +60,8 @@ ${body}
     splitCells,
     parseText,
     normalizeRows,
+    parsePayYears,
+    estimatePaidTotal,
     parseJSON,
     readDocument,
     summarize,

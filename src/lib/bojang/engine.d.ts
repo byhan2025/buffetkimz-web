@@ -171,6 +171,8 @@ export function parseText(text: string): {
   premiumSum: number;
   sawPremiumLabel: boolean;
 };
+export function parsePayYears(payTerm: string): number | null;
+export function estimatePaidTotal(premium: number | null, payTerm: string): number | null;
 export function normalizeRows(rows: Record<string, unknown>[], opts?: { keepGroup?: boolean }): Coverage[];
 export function parseJSON(data: unknown): Coverage[];
 export function readDocument(

@@ -511,6 +511,26 @@ function cleanName(s) {
 }
 
 /**
+ * 납입기간 표기("20년납", "20년", "10년")에서 납입년수를 읽는다. 읽지 못하면 null.
+ * 화면에서 납입기간을 고칠 때도 같은 규칙을 쓰도록 함수로 둔다.
+ */
+export function parsePayYears(payTerm) {
+  const yrs = Number((String(payTerm || "").match(/(\d{1,2})/) || [])[1] || 0) || 0;
+  return yrs > 0 ? yrs : null;
+}
+
+/**
+ * 총납입보험료 추정 = 월보험료 × 12 × 납입년수.
+ * 보험료가 없거나 0, 또는 납입기간에서 년수를 읽지 못하면 null(0원이 아니라 '모름').
+ * 표를 읽을 때와 화면에서 손으로 고칠 때가 같은 값을 내도록 한 곳에서 계산한다.
+ */
+export function estimatePaidTotal(premium, payTerm) {
+  const p = premium == null ? 0 : Number(premium) || 0;
+  const yrs = parsePayYears(payTerm);
+  return p > 0 && yrs ? Math.round(p * 12 * yrs) : null;
+}
+
+/**
  * 읽은 행을 담보 객체로 정규화한다. 분류·지급방식·확신도를 붙인다.
  * `confidence` — high: 이름과 금액 모두 읽음 / mid: 분류는 됐지만 금액 없음 / low: 분류 불가(기타)
  */
@@ -527,7 +547,6 @@ export function normalizeRows(rows, opts = {}) {
     const payTerm = r.payTerm || "";
     const coverTerm = r.coverTerm || "";
     const renew = r.renew || (/비갱신/.test(name) ? "비갱신" : /갱신/.test(name) ? "갱신" : "");
-    const payYears = Number((String(payTerm).match(/(\d{1,2})/) || [])[1] || 0) || null;
     list.push({
       id: `${list.length + 1}`,
       name,
@@ -546,7 +565,7 @@ export function normalizeRows(rows, opts = {}) {
       coverTerm,
       renew,
       /** 납입기간이 있으면 총납입보험료를 추정한다(월보험료 × 12 × 납입년수) */
-      paidTotal: r.premium && payYears ? Math.round(Number(r.premium) * 12 * payYears) : null,
+      paidTotal: estimatePaidTotal(r.premium, payTerm),
       note: r.note || "",
       raw: r.raw || "",
       confidence,

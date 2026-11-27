@@ -7,6 +7,7 @@ import {
   buildCSV,
   buildMessage,
   compare,
+  estimatePaidTotal,
   formatMan,
   parseAmount,
   readDocument,
@@ -353,8 +354,18 @@ export default function BojangSummary({ compact = false }: { compact?: boolean }
     }
   };
 
+  /** 행을 고친다 — 보험료·납입기간이 바뀌면 총납입 추정도 그 자리에서 다시 계산한다. */
   const patchRow = (i: number, patch: Partial<Coverage>) => {
-    setSideState(side, { rows: cur.rows.map((r, idx) => (idx === i ? { ...r, ...patch } : r)) });
+    setSideState(side, {
+      rows: cur.rows.map((r, idx) => {
+        if (idx !== i) return r;
+        const next = { ...r, ...patch };
+        if ("premium" in patch || "payTerm" in patch) {
+          next.paidTotal = estimatePaidTotal(next.premium, next.payTerm);
+        }
+        return next;
+      }),
+    });
   };
   const removeRow = (i: number) => setSideState(side, { rows: cur.rows.filter((_, idx) => idx !== i) });
   const addRow = () =>
@@ -769,7 +780,13 @@ export default function BojangSummary({ compact = false }: { compact?: boolean }
         <ResultStat
           label="월 보험료"
           value={summary.premiumKnown ? won(summary.premium) : "확인 필요"}
-          sub={summary.premiumKnown ? "담보 보험료 합" : "합계 줄이나 담보별 보험료를 넣어 주세요"}
+          sub={
+            summary.paidTotal
+              ? `총납입 추정 ${formatMan(summary.paidTotal)} · 담보 보험료 합`
+              : summary.premiumKnown
+                ? "담보 보험료 합"
+                : "합계 줄이나 담보별 보험료를 넣어 주세요"
+          }
         />
         <ResultStat
           label="암 진단비"
