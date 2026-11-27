@@ -1016,6 +1016,24 @@
   "sub": "이월잔액에 붙는 수수료, 표준약관 산식으로",
   "date": "2026.11.27",
   "alt": "어두운 책상 위에 펼친 카드 명세서와 계산기, 옆으로 밀어 둔 카드 두 장과 접힌 영수증 — 이월잔액과 수수료를 계산하는 자리"
+ },
+ {
+  "slug": "overseas-stock-capital-gains-tax-2026",
+  "out": "public/thumbs/overseas-stock-capital-gains-tax-2026.webp",
+  "art": "downloads/thumbs-raw/overseas-stock-capital-gains-tax-2026.png",
+  "badge": [
+   "금융 · 세제",
+   "2026.11"
+  ],
+  "accent": "#F2D08C",
+  "headline": [
+   "이익 500만 원",
+   "세금 33만 원"
+  ],
+  "accentLine": 1,
+  "sub": "250만 원 공제 전에 확인할 네 가지",
+  "date": "2026.11.27",
+  "alt": "어두운 책상 위에 펼친 증권 거래 명세서와 계산기, 옆에 놓인 환율 표와 달력 — 해외주식 손익을 원화로 바꿔 세금을 계산하는 자리"
  }
  ]
 }
