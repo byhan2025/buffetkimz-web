@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
+import { RECEIPT_SAMPLES, parseReceiptLines, type ReceiptParse } from "@/lib/silson/receiptParser";
 import {
   buildMessage,
   capNotice,
@@ -107,6 +108,70 @@ function itemTag(key: string, era: number): string {
   if (key === "nonGeneral") return era >= 4 ? "비급여 특약" : "비급여";
   if (key === "physical" || key === "injection" || key === "mri") return era >= 3 ? "3대 비급여 특약" : "비급여";
   return "비급여";
+}
+
+/**
+ * 영수증 인식 결과 요약 배너.
+ * 값마다 **원문 줄**을 펼쳐 볼 수 있게 한다 — OCR이 숫자를 잘못 읽었는지 사용자가 직접 판단해야 한다.
+ */
+function ReceiptBanner({ result, onClose }: { result: ReceiptParse; onClose: () => void }) {
+  const confTone = (c: number) =>
+    c >= 0.9 ? { text: "정확", cls: "bg-[#eaf5ee] text-[#1f7a62]" } : c >= 0.75 ? { text: "보통", cls: "bg-[#fdf8ee] text-[#7a5b1f]" } : { text: "확인 필요", cls: "bg-[#fbeef1] text-[#a8455c]" };
+  return (
+    <div className="mt-3 overflow-hidden rounded-xl border border-brand/25 bg-[#f7fafc]" role="status" aria-live="polite" data-receipt-ocr="result">
+      <div className="flex flex-wrap items-start justify-between gap-2 border-b border-brand/15 px-3.5 py-2.5 sm:px-4">
+        <div className="min-w-0">
+          <p className="text-[12.5px] font-bold text-brand-deep">인식한 내용으로 칸을 채웠습니다</p>
+          <p className="mt-0.5 text-[12px] leading-relaxed text-ink-soft">{result.summary}</p>
+        </div>
+        <button
+          type="button"
+          onClick={onClose}
+          className="min-h-[36px] shrink-0 rounded-full border border-line bg-white px-3 text-[12px] font-semibold text-ink-muted hover:border-brand/40 hover:text-brand"
+        >
+          닫기
+        </button>
+      </div>
+
+      {result.warnings.length > 0 && (
+        <ul className="border-b border-brand/15 bg-[#fdf8ee] px-3.5 py-2 sm:px-4">
+          {result.warnings.map((w) => (
+            <li key={w.code} className="text-[12px] leading-relaxed text-[#7a5b1f]">
+              ⚠ {w.text}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <details className="px-3.5 py-2 sm:px-4">
+        <summary className="cursor-pointer text-[12.5px] font-semibold text-ink">
+          항목 {result.items.length}개 · 원문 근거 보기
+        </summary>
+        <ul className="mt-2 space-y-1.5">
+          {result.items.map((it) => (
+            <li key={it.key} className="rounded-lg bg-white px-2.5 py-2">
+              <div className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-0.5">
+                <span className="text-[12px] font-semibold text-ink">{it.label}</span>
+                <span className="flex items-center gap-1.5">
+                  <span className={`rounded px-1.5 py-0.5 text-[10.5px] font-semibold ${confTone(it.confidence).cls}`}>{confTone(it.confidence).text}</span>
+                  <span className="text-[12.5px] font-bold tabular-nums text-brand-deep">{it.value.toLocaleString("ko-KR")}원</span>
+                </span>
+              </div>
+              {it.evidence && (
+                <p className="mt-1 overflow-x-auto whitespace-nowrap text-[11px] tabular-nums text-ink-faint" title={it.evidence}>
+                  원문: {it.evidence}
+                </p>
+              )}
+              {it.note && <p className="mt-0.5 text-[11px] text-ink-faint">{it.note}</p>}
+            </li>
+          ))}
+        </ul>
+        <p className="mt-2 text-[11.5px] leading-relaxed text-ink-faint">
+          숫자가 틀렸으면 위 입력칸에서 직접 고치세요. 고친 값으로 계산이 바로 다시 됩니다.
+        </p>
+      </details>
+    </div>
+  );
 }
 
 /** A4 인쇄용 HTML — 새 창에서 인쇄한다(사이트 전체 인쇄 CSS를 건드리지 않는다) */
@@ -230,6 +295,70 @@ export default function SilsonCompare({ compact = false }: { compact?: boolean }
   const [gJoinDate, setJoinDate] = useState("");
   const [customer, setCustomer] = useState("");
   const [copied, setCopied] = useState(false);
+
+  /* 영수증 자동 입력 — 파일은 이 브라우저 안에서만 읽는다 */
+  const [receipt, setReceipt] = useState<ReceiptParse | null>(null);
+  const [ocr, setOcr] = useState<{ busy: boolean; msg: string; pct: number; error: string; modes: string[] }>({
+    busy: false,
+    msg: "",
+    pct: 0,
+    error: "",
+    modes: [],
+  });
+  const [dragging, setDragging] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  /** 인식 결과를 입력칸에 채운다 */
+  const applyReceipt = (p: ReceiptParse) => {
+    setReceipt(p);
+    const f = p.fields;
+    if (!f) return;
+    setVisit(f.visit);
+    setHospital(f.hospital);
+    setCoveredPartial(f.coveredPartial);
+    setCoveredFull(f.coveredFull);
+    setPrescription(f.prescription);
+    setNon({ general: f.non.general, physical: f.non.physical, injection: f.non.injection, mri: f.non.mri });
+    setRoom(f.room);
+    setRoomDays(f.room && f.visit === "inpatient" ? Math.max(1, f.roomDays) : 1);
+    setCoPayment(f.coPayment);
+  };
+
+  /** 사진·PDF 올리기 → 인식 → 자동 채움 */
+  const readFiles = async (files: File[]) => {
+    if (!files.length) return;
+    setOcr({ busy: true, msg: "파일 확인 중…", pct: 3, error: "", modes: [] });
+    setReceipt(null);
+    try {
+      const { readReceiptFiles } = await import("@/lib/silson/receiptOcr");
+      const read = await readReceiptFiles(files, (msg, pct) =>
+        setOcr((s) => ({ ...s, busy: true, msg, pct: Math.max(s.pct, Math.round(pct ?? s.pct)) }))
+      );
+      const parsed = parseReceiptLines(read.lines);
+      applyReceipt(parsed);
+      setOcr({
+        busy: false,
+        msg: "",
+        pct: 100,
+        error: parsed.fields ? "" : parsed.warnings[0]?.text || "영수증에서 금액을 찾지 못했습니다.",
+        modes: read.modes,
+      });
+    } catch (e) {
+      setOcr({ busy: false, msg: "", pct: 0, error: (e as Error).message || "파일을 읽지 못했습니다.", modes: [] });
+    }
+  };
+
+  /** 가상 영수증 체험 — OCR 없이 같은 파서를 그대로 돌린다 */
+  const trySample = (id: string) => {
+    const s = RECEIPT_SAMPLES.find((x) => x.id === id);
+    if (!s) return;
+    setOcr({ busy: true, msg: "가상 영수증을 읽는 중…", pct: 40, error: "", modes: [] });
+    setTimeout(() => {
+      const parsed = parseReceiptLines(s.lines);
+      applyReceipt(parsed);
+      setOcr({ busy: false, msg: "", pct: 100, error: "", modes: [`가상 영수증 · ${s.name}`] });
+    }, 220);
+  };
 
   const input = {
     visit,
@@ -377,7 +506,7 @@ export default function SilsonCompare({ compact = false }: { compact?: boolean }
   return (
     <RunnerShell
       title="세대별 실손 계산기"
-      subtitle="1세대부터 5세대·유병력자까지. 영수증 금액을 넣으면 내 세대의 예상 보험금과 다른 세대의 금액을 나란히 보여 줍니다."
+      subtitle="영수증 사진·PDF를 올리면 금액을 읽어 자동으로 채웁니다. 1세대부터 5세대·유병력자까지 내 세대의 예상 보험금과 다른 세대의 금액을 나란히 보여 줍니다."
       example="금액을 고치면 결과가 바로 바뀝니다. 진료 1건 기준이고, 새로 고치면 예시값으로 돌아갑니다."
     >
       <div className="grid gap-x-8 md:grid-cols-2">
@@ -406,6 +535,105 @@ export default function SilsonCompare({ compact = false }: { compact?: boolean }
               : undefined
           }
         />
+      </div>
+
+      {/* ⓪ 영수증으로 자동 채우기 — 파일은 이 브라우저 안에서만 읽는다 */}
+      <div className="mt-3 rounded-xl border border-line bg-white p-3 sm:p-4" data-receipt-ocr="drop">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+          <p className="text-[13px] font-bold text-ink">영수증 사진·PDF 올려서 자동 채우기</p>
+          <span className="rounded-full bg-[#eaf5ee] px-2 py-0.5 text-[11px] font-semibold text-[#1f7a62]">기기 안에서만 처리 · 전송 없음</span>
+        </div>
+
+        <div
+          className={
+            "mt-2 rounded-xl border-2 border-dashed px-3 py-4 text-center transition-colors " +
+            (dragging ? "border-brand bg-brand-soft/40" : "border-line bg-[#fcfcfa]")
+          }
+          onDragOver={(e) => {
+            e.preventDefault();
+            setDragging(true);
+          }}
+          onDragLeave={() => setDragging(false)}
+          onDrop={(e) => {
+            e.preventDefault();
+            setDragging(false);
+            void readFiles([...e.dataTransfer.files]);
+          }}
+        >
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/heic,application/pdf"
+            multiple
+            className="sr-only"
+            onChange={(e) => {
+              void readFiles([...(e.target.files ?? [])]);
+              e.target.value = "";
+            }}
+            aria-label="진료비 영수증 사진 또는 PDF 선택"
+          />
+          <p className="text-[12.5px] leading-relaxed text-ink-soft">
+            진료비 계산서·영수증 또는 약제비 영수증을 <strong className="font-semibold text-ink">사진으로 찍었거나 PDF로 받았으면</strong> 여기에 올리세요. 항목을 읽어 아래 칸을 채웁니다.
+          </p>
+          <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:justify-center">
+            <button
+              type="button"
+              onClick={() => fileRef.current?.click()}
+              disabled={ocr.busy}
+              className="min-h-[44px] rounded-full bg-brand px-5 text-[13px] font-semibold text-white transition-colors hover:bg-brand-deep disabled:opacity-60"
+            >
+              사진 · PDF 고르기
+            </button>
+            <button
+              type="button"
+              onClick={() => trySample(RECEIPT_SAMPLES[0].id)}
+              disabled={ocr.busy}
+              className="min-h-[44px] rounded-full border border-line bg-white px-5 text-[13px] font-semibold text-ink-soft transition-colors hover:border-brand/40 hover:text-brand disabled:opacity-60"
+            >
+              가상 영수증 체험
+            </button>
+          </div>
+          <p className="mt-2 text-[11.5px] leading-relaxed text-ink-faint">
+            사진(JPG·PNG·WEBP) 또는 PDF · 한 번에 3장까지 (영수증 + 약국 영수증) · 드래그해서 놓아도 됩니다
+          </p>
+        </div>
+
+        <div className="mt-2 flex flex-wrap items-center gap-1.5">
+          <span className="text-[11.5px] text-ink-faint">가상 영수증 3종:</span>
+          {RECEIPT_SAMPLES.map((s) => (
+            <button
+              key={s.id}
+              type="button"
+              onClick={() => trySample(s.id)}
+              disabled={ocr.busy}
+              title={s.note}
+              className="min-h-[36px] rounded-full border border-line bg-white px-3 text-[11.5px] font-semibold text-ink-soft transition-colors hover:border-brand/40 hover:text-brand disabled:opacity-60"
+            >
+              {s.name}
+            </button>
+          ))}
+        </div>
+
+        {ocr.busy && (
+          <div className="mt-3 rounded-lg border border-line-soft bg-white px-3 py-2.5" role="status" aria-live="polite" data-receipt-ocr="status">
+            <div className="flex items-center justify-between gap-2 text-[12px] font-semibold text-ink">
+              <span className="min-w-0 truncate">{ocr.msg || "읽는 중…"}</span>
+              <span className="tabular-nums text-brand">{ocr.pct}%</span>
+            </div>
+            <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-line-soft">
+              <div className="h-full rounded-full bg-brand transition-[width] duration-300" style={{ width: `${Math.max(4, ocr.pct)}%` }} />
+            </div>
+            <p className="mt-1.5 text-[11px] leading-relaxed text-ink-faint">파일은 이 기기 밖으로 나가지 않습니다. 첫 인식 때는 글자 인식 엔진을 받느라 몇 초 더 걸립니다.</p>
+          </div>
+        )}
+
+        {ocr.error && (
+          <p className="mt-3 rounded-lg border border-[#f2d7de] bg-[#fbeef1] px-3 py-2 text-[12px] leading-relaxed text-[#a8455c]" role="alert" data-receipt-ocr="error">
+            {ocr.error} 사진이 흐리면 밝은 곳에서 반듯하게 다시 찍거나, 병원 앱·홈페이지에서 받은 PDF를 올려 주세요.
+          </p>
+        )}
+
+        {receipt && !ocr.busy && <ReceiptBanner result={receipt} onClose={() => setReceipt(null)} />}
       </div>
 
       {/* ① 영수증 금액 */}

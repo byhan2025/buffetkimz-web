@@ -1,0 +1,187 @@
+{
+  "at": "2026-11-27T12:51:03.883Z",
+  "pass": 28,
+  "total": 28,
+  "cases": [
+    {
+      "name": "가상① 의원 외래+처방 — 급여 12,000·처방조제 4,500·합계 16,500",
+      "ok": true
+    },
+    {
+      "name": "가상② 상급종합 입원+MRI — 상급병실 500,000(2일)·MRI 700,000·일반 50,000",
+      "ok": true
+    },
+    {
+      "name": "가상③ 도수·주사 통원 — 도수 130,000(2건 합산)·주사 25,000·일반 0",
+      "ok": true
+    },
+    {
+      "name": "약국 약제비 영수증 — 본인부담금이 처방조제비로 (급여 본인부담 0)",
+      "ok": true
+    },
+    {
+      "name": "약국 영수증에 '본인부담금'만 있어도 처방조제비로 잡는다",
+      "ok": true
+    },
+    {
+      "name": "OCR 오인식(0→O, 1→l) 복원 — 12,000·45,000",
+      "ok": true
+    },
+    {
+      "name": "항목 이름 오인식(료→로, 주사→주사)도 받는다",
+      "ok": true
+    },
+    {
+      "name": "탭으로 나뉜 PDF 줄(구분·급여·비급여 3열)",
+      "ok": true
+    },
+    {
+      "name": "병원 등급 — 의원",
+      "ok": true
+    },
+    {
+      "name": "병원 등급 — 병원",
+      "ok": true
+    },
+    {
+      "name": "병원 등급 — 종합병원",
+      "ok": true
+    },
+    {
+      "name": "병원 등급 — 상급종합",
+      "ok": true
+    },
+    {
+      "name": "입원 판별 — '진료구분' 없이 '입원일수'만 있어도 입원",
+      "ok": true
+    },
+    {
+      "name": "외래 판별 — '외래' 문구",
+      "ok": true
+    },
+    {
+      "name": "비급여 합계만 있으면 전부 일반 비급여",
+      "ok": true
+    },
+    {
+      "name": "전액본인부담금 — 급여 전액본인부담 칸으로",
+      "ok": true
+    },
+    {
+      "name": "괄호 안 횟수·일수가 금액으로 잡히지 않는다(세부 항목은 가장 큰 수)",
+      "ok": true
+    },
+    {
+      "name": "상급병실 '특실' + 일수 표기",
+      "ok": true
+    },
+    {
+      "name": "합계 불일치 경고 — 총액 100,000 vs 세부 90,000",
+      "ok": true
+    },
+    {
+      "name": "총액이 없으면 '검산 못 함' 경고",
+      "ok": true
+    },
+    {
+      "name": "금액이 없으면 no_amounts 경고 + ok=false",
+      "ok": true
+    },
+    {
+      "name": "빈 입력 — empty 경고",
+      "ok": true
+    },
+    {
+      "name": "값마다 원문 줄 근거와 신뢰도가 붙는다",
+      "ok": true
+    },
+    {
+      "name": "공단부담금·전액본인부담금도 항목 목록에 근거와 함께 남는다",
+      "ok": true
+    },
+    {
+      "name": "비급여 합계에서 세부를 뺀 일반 비급여는 '계산값'으로 표시",
+      "ok": true
+    },
+    {
+      "name": "파싱 결과 → 계산 엔진 입력 → 4세대 보험금이 계산된다",
+      "ok": true
+    },
+    {
+      "name": "약국 영수증 → 계산 엔진 입력 → 처방조제비만 있는 통원",
+      "ok": true
+    },
+    {
+      "name": "parseReceiptText — 줄바꿈 텍스트도 같은 결과",
+      "ok": true
+    }
+  ],
+  "samples": [
+    {
+      "id": "clinic-cold",
+      "name": "의원 외래 + 처방",
+      "fields": {
+        "visit": "outpatient",
+        "hospital": "clinic",
+        "coveredPartial": 12000,
+        "coveredFull": 0,
+        "prescription": 4500,
+        "coPayment": 45000,
+        "non": {
+          "general": 0,
+          "physical": 0,
+          "injection": 0,
+          "mri": 0
+        },
+        "room": 0,
+        "roomDays": 0
+      },
+      "summary": "의원 외래 · 급여 12,000원 · 처방조제 4,500원",
+      "warnings": []
+    },
+    {
+      "id": "tertiary-mri",
+      "name": "상급종합 입원 + MRI",
+      "fields": {
+        "visit": "inpatient",
+        "hospital": "tertiary",
+        "coveredPartial": 850000,
+        "coveredFull": 0,
+        "prescription": 0,
+        "coPayment": 2400000,
+        "non": {
+          "general": 50000,
+          "physical": 0,
+          "injection": 0,
+          "mri": 700000
+        },
+        "room": 500000,
+        "roomDays": 2
+      },
+      "summary": "상급종합병원 입원 · 급여 850,000원 · 일반 비급여 50,000원 · MRI 700,000원 · 상급병실 500,000원(2일)",
+      "warnings": []
+    },
+    {
+      "id": "clinic-physical",
+      "name": "도수·주사 통원",
+      "fields": {
+        "visit": "outpatient",
+        "hospital": "clinic",
+        "coveredPartial": 9500,
+        "coveredFull": 0,
+        "prescription": 0,
+        "coPayment": 28000,
+        "non": {
+          "general": 0,
+          "physical": 130000,
+          "injection": 25000,
+          "mri": 0
+        },
+        "room": 0,
+        "roomDays": 0
+      },
+      "summary": "의원 외래 · 급여 9,500원 · 도수 130,000원 · 주사 25,000원",
+      "warnings": []
+    }
+  ]
+}
