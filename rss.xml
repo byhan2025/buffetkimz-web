@@ -9,8 +9,16 @@
     <managingEditor>buffetkimz</managingEditor>
     <generator>buffetkimz-web (Astro)</generator>
     <ttl>60</ttl>
-    <lastBuildDate>Fri, 27 Nov 2026 22:20:32 GMT</lastBuildDate>
+    <lastBuildDate>Fri, 27 Nov 2026 23:03:38 GMT</lastBuildDate>
     <atom:link href="https://byhan2025.github.io/buffetkimz-web/rss.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>고향사랑기부 20만원, 돌려받는 세금은 14만 3,999원</title>
+      <link>https://byhan2025.github.io/buffetkimz-web/posts/gohyang-love-donation-200k-2026/</link>
+      <guid isPermaLink="true">https://byhan2025.github.io/buffetkimz-web/posts/gohyang-love-donation-200k-2026/</guid>
+      <category>금융</category>
+      <pubDate>Sat, 28 Nov 2026 00:00:00 GMT</pubDate>
+      <description>고향사랑기부 20만원을 내면 소득세 13만 909원과 지방소득세 1만 3,090원, 합쳐 14만 3,999원이 줄어듭니다. 40% 공제는 10만원 초과 20만원 이하 구간에만 붙고, 20만원을 넘으면 15%로 내려갑니다. 한도·이월·답례품 규칙까지 정리했습니다.</description>
+    </item>
     <item>
       <title>국민연금 3개월 202조 감소, 회복은 12.1%, 내 연금액은 그대로</title>
       <link>https://byhan2025.github.io/buffetkimz-web/posts/pension-fund-loss-recovery-math/</link>
@@ -242,14 +250,6 @@
       <category>투자</category>
       <pubDate>Sun, 22 Nov 2026 00:00:00 GMT</pubDate>
       <description>듀레이션이 5년인 채권은 시장금리가 1%포인트 오르면 가격이 약 5% 떨어집니다. 만기가 아니라 현금흐름의 평균 회수기간으로 계산한 민감도이고, 같은 채권이라도 이자와 매매차익의 세금이 다릅니다.</description>
-    </item>
-    <item>
-      <title>환헤지 ETF의 연 2%p 비용 — 20년이면 최종 금액이 32% 줄어든다</title>
-      <link>https://byhan2025.github.io/buffetkimz-web/posts/invest-fx-hedge-cost/</link>
-      <guid isPermaLink="true">https://byhan2025.github.io/buffetkimz-web/posts/invest-fx-hedge-cost/</guid>
-      <category>투자</category>
-      <pubDate>Sun, 22 Nov 2026 00:00:00 GMT</pubDate>
-      <description>같은 S&amp;P500을 담아도 환헤지형과 환노출형의 1년 수익률은 5%포인트 넘게 벌어집니다. 헤지 비용은 두 나라 금리 차이에서 나오고 매년 다시 걸리기 때문에, 장기 적립에서는 조용히 쌓입니다.</description>
     </item>
   </channel>
 </rss>
