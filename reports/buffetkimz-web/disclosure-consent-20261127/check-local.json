@@ -7,9 +7,9 @@
   "example_phone": "010-1234-5678",
   "example_birth": "1981-08-23",
   "signature_ink": 1403,
-  "consent_no": "DC-20261127-U0G3",
+  "consent_no": "DC-20261127-RFAS",
   "png": {
-    "bytes": 267501,
+    "bytes": 268161,
     "width": 1080,
     "height": 1527
   },
@@ -17,7 +17,7 @@
     "pages": 1,
     "width_pt": 595.28,
     "height_pt": 841.89,
-    "bytes": 238333
+    "bytes": 238370
   },
   "pdf_render": {
     "width": 910,

@@ -249,6 +249,7 @@ export default function DisclosureConsent({ compact = false }: { compact?: boole
     setSaveMsg("");
     const canvas = canvasRef.current;
     if (canvas) {
+      clearSignature(); // 앞서 그린 서명이 있으면 지우고 예시 서명만 남긴다
       const ctx = canvas.getContext("2d");
       if (ctx) {
         ctx.save();
