@@ -106,23 +106,23 @@ export const galleryItems: GalleryItem[] = [
   /* quant-screening-daily:BEGIN — render_quant_cards.mjs --gallery가 매일 이 블록만 새로 씁니다 */
   {
     id: "quant-screening-daily",
-    title: "4대 시장 퀀트 스크리닝 (11/27)",
+    title: "4대 시장 퀀트 스크리닝 (11/28)",
     tagline: "골든 시그널로 본 4종목",
     summary:
-      "미국은 추수감사절 휴장으로 11월 25일 마감값이 그대로이고, 국내는 한은이 기준금리를 3.25%로 올린 다음 날입니다. 08:20 퀀트 스크리닝에서 200종목 중 68개가 골든 시그널이었고, 미국 주식 홈디포·미국 ETF TLT·국내 주식 카카오뱅크·국내 ETF TIGER 미국채30년스트립이 시장별 1위입니다. 방어 성격의 은행·장기 국채가 앞서고 반도체·성장주는 뒤처진 하루였습니다.",
+      "11월 27일 미국 단축장은 AI·반도체 반발 매수로 급등했고, 국내는 코스피 +4.34%·코스닥 +8.13%로 되돌렸습니다. 08:20 퀀트 스크리닝에서 200종목 중 134개가 골든 시그널이었고, 미국 주식 펩시코·미국 ETF XLP·국내 주식 셀트리온·국내 ETF KBSTAR 국고채30년이 시장별 1위입니다. 28일은 토요일 휴장이고 다음 개장은 30일(월)입니다.",
     category: "cardnews",
-    createdAt: "2026-11-27",
+    createdAt: "2026-11-28",
     tags: ["퀀트 스크리닝", "골든 시그널", "미국 주식", "국내 주식", "ETF"],
     slides: [
-      { src: "/gallery/quant-screening-daily/01.webp", width: 1080, height: 1350, alt: "표지 — 4대 시장 퀀트 스크리닝, 미국 주식 홈디포·미국 ETF TLT·국내 주식 카카오뱅크·국내 ETF 미국채30년", caption: "표지 — 골든 시그널로 본 4종목" },
-      { src: "/gallery/quant-screening-daily/02.webp", width: 1080, height: 1350, alt: "미국 주식 / 제공 스크리닝 1위 — 홈디포 $361.26 (+2.14%), 거래량 약 667만 주, RSI / 제공 59.6, 골든 시그널 / 제공 100점", caption: "미국 주식 1위 — 홈디포 $361.26 (+2.14%)" },
-      { src: "/gallery/quant-screening-daily/03.webp", width: 1080, height: 1350, alt: "미국 ETF / 제공 스크리닝 1위 — 아이셰어즈 20년+ 국채 $82.24 (+0.92%), 거래량 약 4,888만 주, RSI / 제공 52.6, 골든 시그널 / 제공 100점", caption: "미국 ETF 1위 — 아이셰어즈 20년+ 국채 $82.24 (+0.92%)" },
-      { src: "/gallery/quant-screening-daily/04.webp", width: 1080, height: 1350, alt: "국내 주식 / 제공 스크리닝 1위 — 카카오뱅크 22,100원 (+0.45%), 거래량 약 66.9만 주, RSI / 제공 63.1, 골든 시그널 / 제공 100점", caption: "국내 주식 1위 — 카카오뱅크 22,100원 (+0.45%)" },
-      { src: "/gallery/quant-screening-daily/05.webp", width: 1080, height: 1350, alt: "국내 ETF / 제공 스크리닝 1위 — TIGER 미국채30년 34,755원 (+0.64%), 거래량 약 10.9만 주, RSI / 제공 49.3, 골든 시그널 / 제공 100점", caption: "국내 ETF 1위 — TIGER 미국채30년 34,755원 (+0.64%)" },
-      { src: "/gallery/quant-screening-daily/06.webp", width: 1080, height: 1350, alt: "개장 전, 세 가지 체크포인트 — 미국장 S&P500 7,182.73 (-0.25%) / 다우 +0.33%, 개장 전 시그널 상장사 배당 30조7,000억 원 지급, 환율·제도 역외 원/달러 1,343.3원 (+0.6원)", caption: "마무리 — 개장 전 체크포인트 3" },
+      { src: "/gallery/quant-screening-daily/01.webp", width: 1080, height: 1350, alt: "표지 — 4대 시장 퀀트 스크리닝, 미국 주식 펩시코·미국 ETF XLP·국내 주식 셀트리온·국내 ETF 국고채30년", caption: "표지 — 골든 시그널로 본 4종목" },
+      { src: "/gallery/quant-screening-daily/02.webp", width: 1080, height: 1350, alt: "미국 주식 / 제공 스크리닝 1위 — 펩시코 $144.60 (+0.47%), 거래량 약 308.6만 주, RSI / 제공 57.4, 골든 시그널 / 제공 100점", caption: "미국 주식 1위 — 펩시코 $144.60 (+0.47%)" },
+      { src: "/gallery/quant-screening-daily/03.webp", width: 1080, height: 1350, alt: "미국 ETF / 제공 스크리닝 1위 — 미국 필수소비재 섹터 $92.68 (+0.41%), 거래량 약 1,221만 주, RSI / 제공 64.4, 골든 시그널 / 제공 100점", caption: "미국 ETF 1위 — 미국 필수소비재 섹터 $92.68 (+0.41%)" },
+      { src: "/gallery/quant-screening-daily/04.webp", width: 1080, height: 1350, alt: "국내 주식 / 제공 스크리닝 1위 — 셀트리온 221,000원 (+2.55%), 거래량 약 67.0만 주, RSI / 제공 58.1, 골든 시그널 / 제공 100점", caption: "국내 주식 1위 — 셀트리온 221,000원 (+2.55%)" },
+      { src: "/gallery/quant-screening-daily/05.webp", width: 1080, height: 1350, alt: "국내 ETF / 제공 스크리닝 1위 — KBSTAR 국고채30년 59,155원 (+0.38%), 거래량 약 6.8만 주, RSI / 제공 63.5, 골든 시그널 / 제공 100점", caption: "국내 ETF 1위 — KBSTAR 국고채30년 59,155원 (+0.38%)" },
+      { src: "/gallery/quant-screening-daily/06.webp", width: 1080, height: 1350, alt: "주말 정리, 세 가지 체크포인트 — 미국장 S&P500 7,297.49 (+1.60%) / 나스닥 +2.31%, 국내 마감 코스피 4,915.68 (+4.34%) / 코스닥 708.99 (+8.13%), 환율·일정 원/달러 1,333.0원 (-9.7원) / 달러지수 104.01", caption: "마무리 — 개장 전 체크포인트 3" },
     ],
     basis:
-      "기준 2026. 11. 27 08:20 · 시세 Yahoo Finance·KRX / 지수 S&P·Nasdaq / 환율 08:20 기준 · 투자 권유가 아닌 기록입니다",
+      "기준 2026. 11. 28 08:20 · 시세 Yahoo Finance·KRX / 지수 S&P·Nasdaq / 환율 08:20 기준 · 투자 권유가 아닌 기록입니다",
     related: [{ label: "오늘의 시장 확인 — 데일리 브리프", href: "/board/" }],
   },
   /* quant-screening-daily:END */

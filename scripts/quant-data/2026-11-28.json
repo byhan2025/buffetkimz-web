@@ -1,0 +1,146 @@
+{
+  "date": "2026-11-28",
+  "headerDate": "2026.11.28",
+  "basis": "2026-11-28 08:20 퀀트 스크리닝 결과 (국내 11-27 종가 / 미국 11-27 단축장 마감)",
+  "summary": "11월 27일 미국 단축장은 AI·반도체 반발 매수로 급등했고, 국내는 코스피 +4.34%·코스닥 +8.13%로 되돌렸습니다. 08:20 퀀트 스크리닝에서 200종목 중 134개가 골든 시그널이었고, 미국 주식 펩시코·미국 ETF XLP·국내 주식 셀트리온·국내 ETF KBSTAR 국고채30년이 시장별 1위입니다. 28일은 토요일 휴장이고 다음 개장은 30일(월)입니다.",
+  "cover": {
+    "eyebrow": "버핏킴즈의 생각",
+    "titleA": "4대 시장",
+    "titleB": "퀀트 스크리닝",
+    "lead": "골든 시그널로 본 4종목",
+    "note": "미국 단축장 급등 마감 뒤 주말, 금요일 종가로 본 4종목",
+    "boxes": [
+      { "label": "미국 주식", "value": "펩시코" },
+      { "label": "미국 ETF", "value": "XLP" },
+      { "label": "국내 주식", "value": "셀트리온" },
+      { "label": "국내 ETF", "value": "국고채30년" }
+    ],
+    "footerLeft": "11월 27일 미국·한국 종가 / 11월 28일 아침 정리",
+    "bg": "bg-01-wallstreet-bull.webp"
+  },
+  "screens": [
+    {
+      "badge": "미국 주식 / 제공 스크리닝 1위",
+      "ticker": "NASDAQ / PEP",
+      "name": "펩시코",
+      "sub": "음료·스낵 · 펩시·게토레이·프리토레이",
+      "priceLabel": "11월 27일 종가",
+      "price": "$144.60",
+      "changeLabel": "전일 대비",
+      "change": "+0.47%",
+      "tone": "up",
+      "metrics": [
+        { "label": "거래량", "value": "약 308.6만 주" },
+        { "label": "RSI / 제공", "value": "57.4" },
+        { "label": "골든 시그널 / 제공", "value": "100점", "emphasis": true }
+      ],
+      "note": "이동평균선 정배열 / 버크셔해서웨이 100점 동률·코카콜라 95점",
+      "headline": "반도체 급등일에도 1위는 음료·스낵",
+      "body": [
+        "27일 단축장은 나스닥 +2.31%, 반도체지수 +4.69%로 기술주가 앞섰다.",
+        "그래도 점수 1위는 펩시코였다. 코카콜라·맥도날드는 95점으로 뒤를 이었다."
+      ],
+      "source": "시세 Yahoo Finance / 업종 음료·스낵",
+      "bg": "bg-consumer-staples.png"
+    },
+    {
+      "badge": "미국 ETF / 제공 스크리닝 1위",
+      "ticker": "NYSE ARCA / XLP",
+      "name": "미국 필수소비재 섹터",
+      "sub": "Consumer Staples Select Sector SPDR",
+      "priceLabel": "11월 27일 종가",
+      "price": "$92.68",
+      "changeLabel": "전일 대비",
+      "change": "+0.41%",
+      "tone": "up",
+      "metrics": [
+        { "label": "거래량", "value": "약 1,221만 주" },
+        { "label": "RSI / 제공", "value": "64.4" },
+        { "label": "골든 시그널 / 제공", "value": "100점", "emphasis": true }
+      ],
+      "note": "이동평균선 정배열 / BNDX 100점 동률·TLT -1.18%는 85점",
+      "headline": "필수소비재 ETF는 100점, 채권형은 85점으로",
+      "body": [
+        "XLP는 +0.41%로 정배열을 지켰고, 같은 날 TLT -1.18%·AGG -0.32%는 85점이었다.",
+        "미 10년물이 4.936%로 8.6bp 오른 날이라 채권 점수가 밀렸다."
+      ],
+      "source": "시세 Yahoo Finance / 상품 State Street",
+      "bg": "bg-staples-warehouse.png"
+    },
+    {
+      "badge": "국내 주식 / 제공 스크리닝 1위",
+      "ticker": "KRX / 068270",
+      "name": "셀트리온",
+      "sub": "바이오의약품·항체 바이오시밀러",
+      "priceLabel": "11월 27일 종가",
+      "price": "221,000원",
+      "changeLabel": "전일 대비",
+      "change": "+2.55%",
+      "tone": "up",
+      "metrics": [
+        { "label": "거래량", "value": "약 67.0만 주" },
+        { "label": "RSI / 제공", "value": "58.1" },
+        { "label": "골든 시그널 / 제공", "value": "100점", "emphasis": true }
+      ],
+      "note": "이동평균선 정배열 / 유한양행·HMM·크래프톤 100점 동률",
+      "headline": "코스닥 +8.13% 급반등, 1위는 셀트리온",
+      "body": [
+        "27일 코스피 +4.34%, 코스닥 +8.13%(오전 10:22 매수 사이드카)로 되돌렸다.",
+        "낙폭과대 바이오·2차전지가 앞섰고 셀트리온은 221,000원에 마감했다."
+      ],
+      "source": "시세 Yahoo Finance·KRX / 업종 바이오",
+      "bg": "bg-yuhan-bio.png"
+    },
+    {
+      "badge": "국내 ETF / 제공 스크리닝 1위",
+      "ticker": "KRX / 385560",
+      "name": "KBSTAR 국고채30년",
+      "sub": "KIS국고채30년Enhanced · 국내 초장기 국채",
+      "priceLabel": "11월 27일 종가",
+      "price": "59,155원",
+      "changeLabel": "전일 대비",
+      "change": "+0.38%",
+      "tone": "up",
+      "metrics": [
+        { "label": "거래량", "value": "약 6.8만 주" },
+        { "label": "RSI / 제공", "value": "63.5" },
+        { "label": "골든 시그널 / 제공", "value": "100점", "emphasis": true }
+      ],
+      "note": "이동평균선 정배열 / KODEX 바이오 +7.99%·TIGER 국고채10년 85점",
+      "headline": "금리 오른 날, 30년 국채만 내렸다",
+      "body": [
+        "국고채 3년 3.685%·10년 3.832%는 올랐고, 30년 3.900%는 2.7bp 내렸다.",
+        "12월 국고채 발행 계획의 공급 부담 완화 인식이 초장기물에 붙었다."
+      ],
+      "source": "시세 Yahoo Finance·KRX / 상품 KB자산운용",
+      "bg": "bg-kr-longbond.png"
+    }
+  ],
+  "closing": {
+    "badge": "11.28 / 토요일 휴장 · 다음 개장 11.30(월)",
+    "titleA": "주말 정리,",
+    "titleB": "세 가지 체크포인트",
+    "items": [
+      {
+        "no": "01",
+        "title": "미국장",
+        "main": "S&P500 7,297.49 (+1.60%) / 나스닥 +2.31%",
+        "sub": "27일 단축장 마감(한국 28일 03:00). 주간 S&P500 +5.60%. 다음 개장 30일 밤 23:30."
+      },
+      {
+        "no": "02",
+        "title": "국내 마감",
+        "main": "코스피 4,915.68 (+4.34%) / 코스닥 708.99 (+8.13%)",
+        "sub": "외국인 1조1,298억·기관 2,388억 순매수, 개인 1조7,746억 순매도."
+      },
+      {
+        "no": "03",
+        "title": "환율·일정",
+        "main": "원/달러 1,333.0원 (-9.7원) / 달러지수 104.01",
+        "sub": "28일 07:00 주간거래 마감. 30일 중간예납 납부기한, 12월 8~9일 미 FOMC."
+      }
+    ],
+    "footerLeft": "지수 KRX·Nasdaq / 시세 Yahoo Finance / 11.28 08:20 기준",
+    "bg": "bg-06-yeouido-dawn.webp"
+  }
+}

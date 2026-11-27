@@ -1,37 +1,37 @@
 {
-  "dataFile": "scripts/quant-data/2026-11-27.json",
-  "date": "2026-11-27",
-  "headerDate": "2026.11.27",
-  "renderedAt": "2026-11-26T23:47:00.706Z",
-  "basis": "2026-11-27 08:20 퀀트 스크리닝 결과 (국내 11-26 종가 / 미국 11-25 마감)",
+  "dataFile": "scripts/quant-data/2026-11-28.json",
+  "date": "2026-11-28",
+  "headerDate": "2026.11.28",
+  "renderedAt": "2026-11-27T23:47:00.488Z",
+  "basis": "2026-11-28 08:20 퀀트 스크리닝 결과 (국내 11-27 종가 / 미국 11-27 단축장 마감)",
   "cards": [
     {
       "file": "01.webp",
-      "bytes": 56484
+      "bytes": 56230
     },
     {
       "file": "02.webp",
-      "bytes": 114850
+      "bytes": 103230
     },
     {
       "file": "03.webp",
-      "bytes": 100036
+      "bytes": 125028
     },
     {
       "file": "04.webp",
-      "bytes": 80144
+      "bytes": 87260
     },
     {
       "file": "05.webp",
-      "bytes": 111394
+      "bytes": 110914
     },
     {
       "file": "06.webp",
-      "bytes": 96814
+      "bytes": 97152
     }
   ],
   "previous": {
-    "date": "2026-11-26",
-    "renderedAt": "2026-11-25T23:48:49.236Z"
+    "date": "2026-11-28",
+    "renderedAt": "2026-11-27T23:46:08.637Z"
   }
 }
