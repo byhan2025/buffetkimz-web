@@ -1,0 +1,1 @@
+export{t as default}from"./SearchApp.B-I2wsU4.js";
