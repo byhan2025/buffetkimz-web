@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Bar, MoneySlider, Note, ResultStat, RunnerShell, Segmented, StickySummary, formatMan } from "./ui";
 import {
   COMPOUND_DOWNSIDE_RATE,
@@ -24,6 +24,21 @@ function CompoundReturnPane({ compact = false }: { compact?: boolean }) {
   const [rate, setRate] = useState(COMPOUND_EXAMPLE.rate * 100);
   const [fee, setFee] = useState((COMPOUND_EXAMPLE.fee ?? 0) * 100);
   const [mode, setMode] = useState<TaxMode>(COMPOUND_EXAMPLE.mode);
+  const [flashChip, setFlashChip] = useState<"rate" | "fee" | "mode" | null>(null);
+  const prevAssumption = useRef({ rate, fee, mode });
+
+  useEffect(() => {
+    const p = prevAssumption.current;
+    let changed: "rate" | "fee" | "mode" | null = null;
+    if (p.mode !== mode) changed = "mode";
+    else if (p.rate !== rate) changed = "rate";
+    else if (p.fee !== fee) changed = "fee";
+    prevAssumption.current = { rate, fee, mode };
+    if (!changed) return;
+    setFlashChip(changed);
+    const t = window.setTimeout(() => setFlashChip(null), 700);
+    return () => window.clearTimeout(t);
+  }, [rate, fee, mode]);
 
   const result: CompoundResult = useMemo(
     () => compoundProjection({ initial, monthly, years, rate: rate / 100, fee: fee / 100, mode }),
@@ -168,6 +183,40 @@ function CompoundReturnPane({ compact = false }: { compact?: boolean }) {
           tone="brand"
           sub={`평가손익 ${formatMan(result.gain)} · 원금 대비 ${pctLabel(result.grossReturn)} · 가정 기반`}
         />
+      </div>
+
+      {/* 가정 칩 — 바뀐 전제만 짧게 반짝여 결과와의 연결을 보여 준다 */}
+      <div className="mt-2.5 flex flex-wrap items-center gap-1.5" data-assumption-chips>
+        <span
+          className={
+            "rounded-full border px-2.5 py-0.5 text-[11.5px] tabular-nums transition-all duration-500 motion-reduce:transition-none " +
+            (flashChip === "rate"
+              ? "border-brand bg-brand-soft/80 font-semibold text-brand-deep ring-2 ring-brand/30"
+              : "border-line bg-white text-ink-muted")
+          }
+        >
+          기대 수익률 {pctPoint(rate)}
+        </span>
+        <span
+          className={
+            "rounded-full border px-2.5 py-0.5 text-[11.5px] tabular-nums transition-all duration-500 motion-reduce:transition-none " +
+            (flashChip === "fee"
+              ? "border-brand bg-brand-soft/80 font-semibold text-brand-deep ring-2 ring-brand/30"
+              : "border-line bg-white text-ink-muted")
+          }
+        >
+          연 보수 {pctFine(fee)}
+        </span>
+        <span
+          className={
+            "rounded-full border px-2.5 py-0.5 text-[11.5px] tabular-nums transition-all duration-500 motion-reduce:transition-none " +
+            (flashChip === "mode"
+              ? "border-brand bg-brand-soft/80 font-semibold text-brand-deep ring-2 ring-brand/30"
+              : "border-line bg-white text-ink-muted")
+          }
+        >
+          {TAX_MODE[mode].short} {pctLabel(result.taxRate)}
+        </span>
       </div>
 
       {/* 계산 결과 바로 옆에 세율의 기준을 붙인다 — 15.4%가 '이자·배당소득' 기준임을 분명히 */}

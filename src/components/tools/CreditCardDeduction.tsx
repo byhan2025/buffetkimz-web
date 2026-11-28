@@ -138,6 +138,26 @@ export default function CreditCardDeduction({ compact = false }: { compact?: boo
           <div className="mt-3 space-y-3.5">
             <div>
               <div className="flex justify-between text-[12px]">
+                <span className="text-ink-muted">공제 시작 문턱 (총급여 25%)</span>
+                <span className={"font-semibold tabular-nums " + (thresholdLeft === 0 ? "text-jade" : "text-ink")}>
+                  {formatMan(card + debit + market + culture)} / {formatMan(calc.threshold)}
+                  {thresholdLeft === 0 ? " · 돌파" : ""}
+                </span>
+              </div>
+              <div className="mt-1 h-2 overflow-hidden rounded-full bg-paper-deep">
+                <div
+                  className={
+                    "h-full rounded-full transition-all duration-500 ease-out motion-reduce:transition-none " +
+                    (thresholdLeft === 0 ? "bg-jade" : "bg-ink-faint/60")
+                  }
+                  style={{
+                    width: `${calc.threshold > 0 ? Math.min(100, Math.round(((card + debit + market + culture) / calc.threshold) * 100)) : 100}%`,
+                  }}
+                />
+              </div>
+            </div>
+            <div>
+              <div className="flex justify-between text-[12px]">
                 <span className="text-ink-muted">기본 한도 (자녀등 {childLabel[children]})</span>
                 <span className="font-semibold tabular-nums text-ink">
                   {formatMan(calc.baseDeduction)} / {formatMan(calc.baseLimit)}
