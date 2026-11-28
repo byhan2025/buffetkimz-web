@@ -273,28 +273,102 @@ const jsonLd = graph([
   <section class="ab-film ab-intro-film" id="film" aria-label="버핏킴즈 30초 브랜드 인트로 영상">
     <div class="wrap ab-intro-wrap">
       <div class="ab-intro-head">
-        <p class="ab-kicker ab-kicker--light">BRAND INTRO · 30s</p>
-        <h2 class="ab-h2 ab-h2--light">기다리는 게 아니라, 먼저 읽는 것</h2>
-        <p class="ab-intro-sub">
-          복잡한 변화는 쉽게, 중요한 흐름은 깊게 — 소리를 켜고 버핏킴즈가 만드는 네 가지 축을 확인해 보세요.
+        <p class="ab-kicker ab-kicker--light">BRAND FILM · 30s</p>
+        <h2 class="ab-h2 ab-h2--light" id="ab-film-title">숫자 너머의 기준, 먼저 읽는 것</h2>
+        <p class="ab-intro-sub" id="ab-film-sub">
+          복잡한 변화는 쉽게, 중요한 흐름은 깊게 — 소리를 켜고 버핏킴즈의 브랜드 필름 2편을 번갈아 확인해 보세요.
         </p>
+        <div class="mt-3 flex flex-wrap justify-center gap-2" role="tablist" aria-label="브랜드 필름 선택">
+          <button
+            type="button"
+            role="tab"
+            aria-selected="true"
+            data-film-btn="flagship"
+            class="min-h-[38px] rounded-full border border-[#6e93ff] bg-[#1a4ffd] px-4 py-1.5 text-[13px] font-semibold text-white transition"
+          >
+            플래그십 · 숫자 너머의 기준
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected="false"
+            data-film-btn="intro"
+            class="min-h-[38px] rounded-full border border-white/25 bg-white/10 px-4 py-1.5 text-[13px] font-semibold text-white/85 transition hover:bg-white/15"
+          >
+            브랜드 인트로 · 4대 축
+          </button>
+        </div>
       </div>
       <figure class="ab-intro-frame">
         <video
+          id="ab-film-video"
           class="ab-intro-video"
           controls
           playsinline
           preload="metadata"
-          poster={withBase("/media/buffetkimz-intro-poster.webp")}
-          aria-label="버핏킴즈 30초 브랜드 인트로 영상"
+          poster={withBase("/media/buffetkimz-flagship-poster.webp")}
+          aria-label="버핏킴즈 30초 브랜드 필름"
         >
-          <source src={withBase("/media/buffetkimz-intro-30s.mp4")} type="video/mp4" />
+          <source id="ab-film-src" src={withBase("/media/buffetkimz-flagship-30s.mp4")} type="video/mp4" />
           브라우저가 비디오 재생을 지원하지 않습니다.
         </video>
-        <figcaption class="ab-intro-cap">
-          머니로그 · 인사이트 · 디지털 전략 · 라이프 — 버핏킴즈(미래 설계자) 공식 브랜드 인트로
+        <figcaption class="ab-intro-cap" id="ab-film-cap">
+          숫자 너머의 기준 — 버핏킴즈(미래 설계자) 공식 플래그십 필름
         </figcaption>
       </figure>
+      <script is:inline define:vars={{
+        flagshipSrc: withBase("/media/buffetkimz-flagship-30s.mp4"),
+        flagshipPoster: withBase("/media/buffetkimz-flagship-poster.webp"),
+        introSrc: withBase("/media/buffetkimz-intro-30s.mp4"),
+        introPoster: withBase("/media/buffetkimz-intro-poster.webp"),
+      }}>
+        (function () {
+          var video = document.getElementById("ab-film-video");
+          var cap = document.getElementById("ab-film-cap");
+          var btns = document.querySelectorAll("[data-film-btn]");
+          if (!video || !btns.length) return;
+          var films = {
+            flagship: {
+              src: flagshipSrc,
+              poster: flagshipPoster,
+              cap: "숫자 너머의 기준 — 버핏킴즈(미래 설계자) 공식 플래그십 필름",
+            },
+            intro: {
+              src: introSrc,
+              poster: introPoster,
+              cap: "머니로그 · 인사이트 · 디지털 전략 · 라이프 — 버핏킴즈(미래 설계자) 공식 브랜드 인트로",
+            },
+          };
+          function selectFilm(key, autoplay) {
+            var f = films[key] || films.flagship;
+            video.pause();
+            video.poster = f.poster;
+            var srcEl = document.getElementById("ab-film-src");
+            if (srcEl) srcEl.src = f.src;
+            video.src = f.src;
+            if (cap) cap.textContent = f.cap;
+            btns.forEach(function (b) {
+              var active = b.getAttribute("data-film-btn") === key;
+              b.setAttribute("aria-selected", active ? "true" : "false");
+              b.className = active
+                ? "min-h-[38px] rounded-full border border-[#6e93ff] bg-[#1a4ffd] px-4 py-1.5 text-[13px] font-semibold text-white transition"
+                : "min-h-[38px] rounded-full border border-white/25 bg-white/10 px-4 py-1.5 text-[13px] font-semibold text-white/85 transition hover:bg-white/15";
+            });
+            if (autoplay) video.play().catch(function () {});
+          }
+          btns.forEach(function (b) {
+            b.addEventListener("click", function () {
+              selectFilm(b.getAttribute("data-film-btn"), true);
+            });
+          });
+          try {
+            var last = sessionStorage.getItem("bk_about_film");
+            var next = last === "flagship" ? "intro" : "flagship";
+            sessionStorage.setItem("bk_about_film", next);
+            if (next !== "flagship") selectFilm(next, false);
+          } catch (_) {}
+        })();
+      </script>
     </div>
   </section>
 
