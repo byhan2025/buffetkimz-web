@@ -26,11 +26,15 @@ export type DueSlotKey = "insurance-premium" | "pension-payment" | "yearend-prev
  *  · dated  : 연말정산 지도(MILESTONES)나 달력의 dueDate
  *  · 달력 항목은 id가 없으므로 month + title로 찾는다.
  */
-export const DUE_SLOTS: Record<DueSlotKey, { milestoneId?: string; calendarMonth?: number; calendarTitle?: string }> = {
-  "insurance-premium": { calendarMonth: 12, calendarTitle: "보장성보험료 공제 한도 마감" },
-  "pension-payment": { calendarMonth: 12, calendarTitle: "연금저축·IRP 세액공제 납입 마감" },
-  "yearend-preview": { milestoneId: "preview-close" },
-  "spend-close": { milestoneId: "spend-close" },
+export const DUE_SLOTS: Record<
+  DueSlotKey,
+  { milestoneId?: string; calendarMonth?: number; calendarTitle?: string; href?: string }
+> = {
+  /* 12월 31일 마감 셋은 13월의 월급 지도로 보낸다 — 달력 월 칸이나 다른 도구보다 그 페이지가 답이다. */
+  "insurance-premium": { calendarMonth: 12, calendarTitle: "보장성보험료 공제 한도 마감", href: "/year-end-tax" },
+  "pension-payment": { calendarMonth: 12, calendarTitle: "연금저축·IRP 세액공제 납입 마감", href: "/year-end-tax" },
+  "yearend-preview": { milestoneId: "preview-close", href: "/year-end-tax" },
+  "spend-close": { milestoneId: "spend-close", href: "/year-end-tax" },
 };
 
 export type ConciergeSituation = {
@@ -313,7 +317,7 @@ export function resolveDue(slot: DueSlotKey, note: string, today: Date = new Dat
         dday: ddayOf(m.dueDate, today),
         date: m.dueDate,
         title: m.title,
-        href: "/year-end-tax",
+        href: spec.href ?? "/year-end-tax",
         note,
       };
     }
@@ -327,7 +331,7 @@ export function resolveDue(slot: DueSlotKey, note: string, today: Date = new Dat
         dday: ddayOf(item.dueDate, today),
         date: item.dueDate,
         title: item.title,
-        href: item.toolHref ?? `/calendar#m${item.month}`,
+        href: spec.href ?? item.toolHref ?? `/calendar#m${item.month}`,
         note,
       };
     }
