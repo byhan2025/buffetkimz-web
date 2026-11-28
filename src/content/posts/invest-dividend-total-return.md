@@ -8,7 +8,7 @@ thumbAlt: "나무 그루터기 위의 사과와 황동 저울 — 배당(열매)
 question: "배당을 받으면 계좌엔 얼마나 남을까"
 publishedAt: 2026-11-17
 baseDate: 2026-11-21
-readingMinutes: 8
+readingMinutes: 4
 series:
   name: "내 돈 체크"
   no: 3

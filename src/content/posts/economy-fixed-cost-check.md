@@ -8,7 +8,7 @@ thumbAlt: "어두운 책상 위에 놓인 세 장의 명세서와 황동 저울 
 question: "금리·환율이 오르면 내 어느 지출이 먼저 오르나"
 publishedAt: 2026-11-23
 baseDate: 2026-11-23
-readingMinutes: 9
+readingMinutes: 13
 series:
   name: "내 돈 체크"
   no: 6
