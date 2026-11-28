@@ -9825,7 +9825,19 @@ body:has([data-track-dock]) .guide-dock {
   }
 
   main button:not(.guide-btn):not(.td-btn),
-  main .btn-sm {
+  main .btn-sm,
+  main input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not(.cq-radio):not(.aud-radio),
+  main select {
     min-height: 36px;
+  }
+
+  main p a,
+  main li a {
+    padding-block: 6px;
+    margin-block: -6px;
+  }
+
+  main small {
+    font-size: max(12px, 0.85em);
   }
 }
