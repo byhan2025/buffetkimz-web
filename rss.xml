@@ -9,8 +9,16 @@
     <managingEditor>buffetkimz</managingEditor>
     <generator>buffetkimz-web (Astro)</generator>
     <ttl>60</ttl>
-    <lastBuildDate>Sat, 28 Nov 2026 10:11:21 GMT</lastBuildDate>
+    <lastBuildDate>Sat, 28 Nov 2026 10:22:44 GMT</lastBuildDate>
     <atom:link href="https://byhan2025.github.io/buffetkimz-web/rss.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>CMA·파킹통장, 예금자보호 어디까지? 1억원 한도와 비상금 점검법</title>
+      <link>https://byhan2025.github.io/buffetkimz-web/posts/cma-parking-account-deposit-protection-1eok/</link>
+      <guid isPermaLink="true">https://byhan2025.github.io/buffetkimz-web/posts/cma-parking-account-deposit-protection-1eok/</guid>
+      <category>금융</category>
+      <pubDate>Sat, 28 Nov 2026 00:00:00 GMT</pubDate>
+      <description>2025년 9월부터 예금보호한도는 금융회사별 1억원입니다. 다만 증권사 CMA는 보호 대상이 아닙니다. 예금과 CMA의 차이, 한도 합산법, 비상금 계좌를 확인하는 순서를 공식 자료로 정리합니다.</description>
+    </item>
     <item>
       <title>정기예금 깨기 전, 예금담보대출과 중도해지 손익 계산법</title>
       <link>https://byhan2025.github.io/buffetkimz-web/posts/deposit-loan-vs-early-withdrawal/</link>
@@ -242,14 +250,6 @@
       <category>금융</category>
       <pubDate>Sun, 22 Nov 2026 00:00:00 GMT</pubDate>
       <description>피부양자는 소득 합계 연 2,000만원과 재산세 과세표준 5억 4천만원을 모두 채워야 유지됩니다. 11월에 전년도 소득과 6월 1일 재산 자료가 새로 반영되므로 탈락 통지도 그때 몰립니다.</description>
-    </item>
-    <item>
-      <title>버팀목 전세대출 연 2.5~3.5%, 한도 1억 2,000만 원의 조건</title>
-      <link>https://byhan2025.github.io/buffetkimz-web/posts/finance-jeonse-buttimok/</link>
-      <guid isPermaLink="true">https://byhan2025.github.io/buffetkimz-web/posts/finance-jeonse-buttimok/</guid>
-      <category>금융</category>
-      <pubDate>Sun, 22 Nov 2026 00:00:00 GMT</pubDate>
-      <description>버팀목 전세자금대출은 부부합산 소득과 임차보증금에 따라 연 2.5~3.5%가 적용되고, 일반가구 한도는 수도권 1억 2,000만 원입니다. 소득·순자산·보증금 상한과 시중은행과 비교할 지점을 정리했습니다.</description>
     </item>
   </channel>
 </rss>
