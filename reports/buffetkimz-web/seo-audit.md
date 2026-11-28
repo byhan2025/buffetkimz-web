@@ -1,6 +1,6 @@
 # SEO·GEO 감사 — buffetkimz-web
 
-- 감사 대상: `/workspace/apps/buffetkimz-web/dist` · HTML 378쪽(색인 153)
+- 감사 대상: `/workspace/apps/buffetkimz-web/dist` · HTML 380쪽(색인 154)
 - **건강 점수 100.0/100** (성능 항목은 Lighthouse 필요 — 이 감사에서 제외)
 
 | 분야 | 점수 | 가중치 |
@@ -15,7 +15,7 @@
 치명 0 · 높음 0 · 보통 0 · 낮음 0
 
 - robots.txt: 있음 · 검색 인용 봇 7/7 명시 · Sitemap 있음
-- llms.txt: 39,259B · 링크 148개 · 누락 구역 없음
+- llms.txt: 39,619B · 링크 149개 · 누락 구역 없음
 - sitemap-index: 있음 · 404: 있음
 
 ## 고칠 것 (심각도 순)

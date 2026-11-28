@@ -30,7 +30,6 @@ import HomePill from "@/components/HomePill.astro";
 import BrandLockup from "@/components/BrandLockup.astro";
 import ChannelIcon from "@/components/about/ChannelIcon.astro";
 import FinanceCheck from "@/components/about/FinanceCheck.tsx";
-import BrandFilm from "@/components/home/BrandFilm.tsx";
 import { withBase, site, menuLabel } from "@/config/site";
 import { confirmedLinks } from "@/data/channels";
 import { calendar } from "@/data/calendar";
@@ -266,13 +265,37 @@ const jsonLd = graph([
   </section>
 
   <!--
-    ①-1 브랜드 필름 — 소개를 보러 온 사람에게 12초로 먼저 말한다 (2026-11-28).
-      · 홈과 같은 필름이지만 소개 페이지에서는 한 화면을 다 쓰지 않는다(밴드 높이).
-      · `client:visible` — three.js·GSAP은 이 띠가 화면에 들어올 때만 받는다(첫 로딩 비용 0).
-      · 자동재생 없이 스크롤로 도착했을 때 시작하고, 모션 줄이기 설정이면 정적 록업만 보인다.
+    ①-1 브랜드 인트로 영상(30초) — 소개를 보러 온 사람에게 30초 브랜드 서사와 사운드로 먼저 말한다 (2026-11-28).
+      · 홈의 12초 모션그래픽(BrandFilm)과 역할을 나눠, 소개 페이지에서는 공식 브랜드 인트로 영상을 상영한다.
+      · `preload="metadata"` + 공식 로고 포스터 — 첫 화면 로딩 비용 없이 재생 버튼을 눌렀을 때만 영상을 받는다.
+      · 사운드가 포함된 영상이므로 자동재생을 걸지 않고 컨트롤을 제공한다.
   -->
-  <section class="ab-film" id="film" aria-label="버핏킴즈 12초 브랜드 필름">
-    <BrandFilm client:visible appsHref={withBase("/apps")} aboutHref={withBase("/about")} />
+  <section class="ab-film ab-intro-film" id="film" aria-label="버핏킴즈 30초 브랜드 인트로 영상">
+    <div class="wrap ab-intro-wrap">
+      <div class="ab-intro-head">
+        <p class="ab-kicker ab-kicker--light">BRAND INTRO · 30s</p>
+        <h2 class="ab-h2 ab-h2--light">기다리는 게 아니라, 먼저 읽는 것</h2>
+        <p class="ab-intro-sub">
+          복잡한 변화는 쉽게, 중요한 흐름은 깊게 — 소리를 켜고 버핏킴즈가 만드는 네 가지 축을 확인해 보세요.
+        </p>
+      </div>
+      <figure class="ab-intro-frame">
+        <video
+          class="ab-intro-video"
+          controls
+          playsinline
+          preload="metadata"
+          poster={withBase("/media/buffetkimz-intro-poster.webp")}
+          aria-label="버핏킴즈 30초 브랜드 인트로 영상"
+        >
+          <source src={withBase("/media/buffetkimz-intro-30s.mp4")} type="video/mp4" />
+          브라우저가 비디오 재생을 지원하지 않습니다.
+        </video>
+        <figcaption class="ab-intro-cap">
+          머니로그 · 인사이트 · 디지털 전략 · 라이프 — 버핏킴즈(미래 설계자) 공식 브랜드 인트로
+        </figcaption>
+      </figure>
+    </div>
   </section>
 
   <!-- ② 3초 재무 진단 -->
