@@ -9,8 +9,16 @@
     <managingEditor>buffetkimz</managingEditor>
     <generator>buffetkimz-web (Astro)</generator>
     <ttl>60</ttl>
-    <lastBuildDate>Sat, 28 Nov 2026 01:47:54 GMT</lastBuildDate>
+    <lastBuildDate>Sat, 28 Nov 2026 04:27:53 GMT</lastBuildDate>
     <atom:link href="https://byhan2025.github.io/buffetkimz-web/rss.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>정기예금 깨기 전, 예금담보대출과 중도해지 손익 계산법</title>
+      <link>https://byhan2025.github.io/buffetkimz-web/posts/deposit-loan-vs-early-withdrawal/</link>
+      <guid isPermaLink="true">https://byhan2025.github.io/buffetkimz-web/posts/deposit-loan-vs-early-withdrawal/</guid>
+      <category>금융</category>
+      <pubDate>Sat, 28 Nov 2026 00:00:00 GMT</pubDate>
+      <description>정기예금을 중도해지할지 예금담보대출을 받을지 고민된다면, 포기하는 이자와 남은 기간 대출이자를 같은 기준으로 계산해 보세요. 3,000만 원 예치 후 125일 남았을 때 가정 계산으로 약 46만 4,877원 차이를 비교했습니다.</description>
+    </item>
     <item>
       <title>고향사랑기부 20만원, 돌려받는 세금은 14만 3,999원</title>
       <link>https://byhan2025.github.io/buffetkimz-web/posts/gohyang-love-donation-200k-2026/</link>
@@ -242,14 +250,6 @@
       <category>금융</category>
       <pubDate>Sun, 22 Nov 2026 00:00:00 GMT</pubDate>
       <description>버팀목 전세자금대출은 부부합산 소득과 임차보증금에 따라 연 2.5~3.5%가 적용되고, 일반가구 한도는 수도권 1억 2,000만 원입니다. 소득·순자산·보증금 상한과 시중은행과 비교할 지점을 정리했습니다.</description>
-    </item>
-    <item>
-      <title>금리 1%p 오르면 채권 가격은 얼마나 빠지나 — 듀레이션 5년이면 5%</title>
-      <link>https://byhan2025.github.io/buffetkimz-web/posts/invest-bond-duration/</link>
-      <guid isPermaLink="true">https://byhan2025.github.io/buffetkimz-web/posts/invest-bond-duration/</guid>
-      <category>투자</category>
-      <pubDate>Sun, 22 Nov 2026 00:00:00 GMT</pubDate>
-      <description>듀레이션이 5년인 채권은 시장금리가 1%포인트 오르면 가격이 약 5% 떨어집니다. 만기가 아니라 현금흐름의 평균 회수기간으로 계산한 민감도이고, 같은 채권이라도 이자와 매매차익의 세금이 다릅니다.</description>
     </item>
   </channel>
 </rss>
