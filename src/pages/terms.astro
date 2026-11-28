@@ -2,12 +2,30 @@
 import Base from "@/layouts/Base.astro";
 import HomePill from "@/components/HomePill.astro";
 import { withBase, site } from "@/config/site";
+import { graph, organizationNode, pageUrl, partOfWebsite, websiteNode } from "@/lib/schema";
+
+/** 2026-11-28 — 정책 문서 WebPage 스키마(seo_audit.py 스키마 누락 보강, privacy.astro와 같은 이유) */
+const jsonLd = graph([
+  {
+    "@type": "WebPage",
+    "@id": `${pageUrl("/terms")}#webpage`,
+    url: pageUrl("/terms"),
+    name: "이용약관",
+    description: "buffetkimz 이용약관. 콘텐츠의 성격, 도구 사용의 한계, 저작권과 책임 범위.",
+    inLanguage: "ko-KR",
+    isPartOf: partOfWebsite,
+    dateModified: site.policyDate,
+  },
+  organizationNode(),
+  websiteNode(),
+]);
 ---
 
 <Base
   title="이용약관"
   description="buffetkimz 이용약관. 콘텐츠의 성격, 도구 사용의 한계, 저작권과 책임 범위를 안내합니다."
   path="/terms"
+  jsonLd={jsonLd}
 >
   <section class="border-b border-line">
     <div class="wrap py-9 md:py-12">

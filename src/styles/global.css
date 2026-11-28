@@ -7242,6 +7242,31 @@
     color: #ffffff;
   }
 
+  /* ---------- 2026-11-28 브랜드 필름 띠 (히어로 아래, 3초 진단 위) ----------
+     홈의 필름은 첫 화면 높이를 다 쓰지만, 소개 페이지에서는 한 화면을 다 먹지 않는 '상영관 한 칸'으로 둔다.
+     자동재생은 없다 — 이 띠가 화면에 들어올 때 컴포넌트가 붙고(client:visible), 모션 줄이기 설정이면 정적 록업만 남는다. */
+  .ab-film {
+    position: relative;
+    background-color: #050c1a;
+  }
+
+  .ab-film .film-stage {
+    /*
+     * 2026-11-28 실측 — 544px 이하에서는 장면3 제목이 상단 HUD('브랜드 필름')와 겹치고
+     * x축 라벨이 컨트롤 바에 가렸다. 688px에서 겹침 0. 그래서 홈보다 조금 높은 상영관으로 둔다.
+     */
+    height: clamp(660px, 86svh, 780px);
+    min-height: 660px;
+  }
+
+  @media (max-width: 767px) {
+    .ab-film .film-stage {
+      /* 390 실측 — 492px은 장면3이 HUD와 겹쳤고 620px에서 겹침 0 */
+      height: min(620px, 74svh);
+      min-height: 500px;
+    }
+  }
+
   .ab-check,
   .ab-acts,
   .ab-brand,

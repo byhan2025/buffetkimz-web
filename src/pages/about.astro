@@ -30,6 +30,7 @@ import HomePill from "@/components/HomePill.astro";
 import BrandLockup from "@/components/BrandLockup.astro";
 import ChannelIcon from "@/components/about/ChannelIcon.astro";
 import FinanceCheck from "@/components/about/FinanceCheck.tsx";
+import BrandFilm from "@/components/home/BrandFilm.tsx";
 import { withBase, site, menuLabel } from "@/config/site";
 import { confirmedLinks } from "@/data/channels";
 import { calendar } from "@/data/calendar";
@@ -262,6 +263,16 @@ const jsonLd = graph([
         </div>
       </div>
     </div>
+  </section>
+
+  <!--
+    ①-1 브랜드 필름 — 소개를 보러 온 사람에게 12초로 먼저 말한다 (2026-11-28).
+      · 홈과 같은 필름이지만 소개 페이지에서는 한 화면을 다 쓰지 않는다(밴드 높이).
+      · `client:visible` — three.js·GSAP은 이 띠가 화면에 들어올 때만 받는다(첫 로딩 비용 0).
+      · 자동재생 없이 스크롤로 도착했을 때 시작하고, 모션 줄이기 설정이면 정적 록업만 보인다.
+  -->
+  <section class="ab-film" id="film" aria-label="버핏킴즈 12초 브랜드 필름">
+    <BrandFilm client:visible appsHref={withBase("/apps")} aboutHref={withBase("/about")} />
   </section>
 
   <!-- ② 3초 재무 진단 -->

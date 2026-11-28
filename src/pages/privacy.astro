@@ -2,12 +2,35 @@
 import Base from "@/layouts/Base.astro";
 import HomePill from "@/components/HomePill.astro";
 import { withBase, site } from "@/config/site";
+import { graph, organizationNode, pageUrl, partOfWebsite, websiteNode } from "@/lib/schema";
+
+/**
+ * 2026-11-28 — 정책 문서에도 WebPage 스키마를 붙였다.
+ * seo_audit.py가 /privacy·/terms에서만 JSON-LD 누락을 잡았다(스키마 80/100).
+ * 약관·방침은 색인 대상인 공개 지면이므로, 문서 성격과 시행일을 기계가 읽게 한다.
+ */
+const jsonLd = graph([
+  {
+    "@type": "WebPage",
+    "@id": `${pageUrl("/privacy")}#webpage`,
+    url: pageUrl("/privacy"),
+    name: "개인정보처리방침",
+    description:
+      "buffetkimz 개인정보처리방침. 수집하지 않는 정보, 도구 입력값의 처리 방식, 쿠키와 광고, 이용자의 권리.",
+    inLanguage: "ko-KR",
+    isPartOf: partOfWebsite,
+    dateModified: site.policyDate,
+  },
+  organizationNode(),
+  websiteNode(),
+]);
 ---
 
 <Base
   title="개인정보처리방침"
   description="buffetkimz 개인정보처리방침. 수집하지 않는 정보, 도구 입력값의 처리 방식, 쿠키와 광고, 이용자의 권리를 안내합니다."
   path="/privacy"
+  jsonLd={jsonLd}
 >
   <section class="border-b border-line">
     <div class="wrap py-9 md:py-12">

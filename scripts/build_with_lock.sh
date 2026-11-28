@@ -234,8 +234,16 @@ step_verify_tax() {
   run_step "npm run verify:tax (세율 단일출처 22항목)" npm run verify:tax
 }
 
+# 2026-11-28 — SEO·GEO 정적 감사(scripts/seo_audit.py, claude-seo v2.6.3 기준).
+#   치명(색인 깨짐: title·canonical·H1 소실, JSON-LD 파싱 실패, JS 없이 본문 없음)만 실패로 본다.
+#   배포 뒤 사이트가 검색에서 빠지는 사고를 배포 전에 잡는 것이 목적이다.
+step_seo() {
+  run_step "npm run verify:seo (SEO·GEO 감사 — 치명 0)" npm run verify:seo
+}
+
 step_deploy() {
   step_verify_tax || return $?
+  step_seo || return $?
   hr
   say "▶ 오래된 git 락 점검"
   cleanup_stale_git_locks 120
@@ -259,6 +267,7 @@ step_deploy() {
 step_all() {
   step_build || return $?
   step_verify_tax || return $?
+  step_seo || return $?
   hr
   say "▶ 오래된 git 락 점검"
   cleanup_stale_git_locks
@@ -317,7 +326,7 @@ if [ "$DRY_RUN" -eq 1 ]; then
   case "$CMD" in
     build) step_build ;;
     build-pages) step_build_pages ;;
-    verify) step_verify_tax; say "▶ dist 준비 검사"; assert_dist_ready "verify" ;;
+    verify) step_verify_tax; step_seo; say "▶ dist 준비 검사"; assert_dist_ready "verify" ;;
     deploy) step_deploy ;;
     all) step_all ;;
     run) run_step "사용자 지정 명령" "${RUN_ARGS[@]}" ;;
@@ -350,10 +359,12 @@ case "$CMD" in
   build) step_build ;;
   build-pages) step_build_pages ;;
   verify)
-    step_verify_tax
-    hr
-    say "▶ dist 준비 검사"
-    assert_dist_ready "verify" ;;
+    # 두 검사 중 하나라도 실패하면 그 실패가 종료값이 되게 묶는다(뒤 단계 성공으로 덮이지 않게).
+    if step_verify_tax && step_seo; then
+      hr
+      say "▶ dist 준비 검사"
+      assert_dist_ready "verify"
+    fi ;;
   deploy) step_deploy ;;
   all) step_all ;;
   run)

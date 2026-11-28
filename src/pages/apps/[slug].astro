@@ -113,7 +113,7 @@ const jsonLd = graph([
 
 <Base
   title={`${app.name} — ${app.subtitle}`}
-  description={app.summary}
+  description={app.summary.length >= 50 ? app.summary : `${app.summary} 기준일 ${site.baseDateLabel} · 다루는 기준과 출처를 도구 화면에 함께 적었습니다.`}
   path={`/apps/${app.slug}`}
   noindex={Boolean(app.archived)}
   jsonLd={jsonLd}
