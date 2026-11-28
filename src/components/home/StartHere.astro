@@ -339,7 +339,7 @@ const ddayClass: Record<string, string> = {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    min-height: 32px;
+    min-height: 44px;
     padding: 0 12px;
     border: 1px solid rgb(147 169 255 / 0.42);
     border-radius: 999px;
@@ -368,7 +368,7 @@ const ddayClass: Record<string, string> = {
   .cq-skip {
     display: inline-flex;
     align-items: center;
-    min-height: 32px;
+    min-height: 44px;
     font-size: 12px;
     color: var(--color-on-night-muted);
     text-decoration: underline;
@@ -714,8 +714,8 @@ const ddayClass: Record<string, string> = {
   }
 
   .cq-source {
-    margin: 8px 0 0;
-    padding-top: 7px;
+    margin: 6px 0 0;
+    padding-top: 6px;
     border-top: 1px solid var(--color-line-soft);
     font-size: 11px;
     line-height: 1.45;
@@ -769,11 +769,11 @@ const ddayClass: Record<string, string> = {
   /* ---------- 좁은 화면 — 카드를 한 화면 안에 넣기 위한 압축 ---------- */
   @media (max-width: 767px) {
     .cq {
-      padding: 10px 0 10px;
+      padding: 10px 0 6px;
     }
 
     .cq-top {
-      gap: 4px 12px;
+      gap: 2px 12px;
     }
 
     .cq-branches,
@@ -788,7 +788,7 @@ const ddayClass: Record<string, string> = {
     .cq-title {
       font-size: 26px;
       line-height: 1.25;
-      margin-top: 8px;
+      margin-top: 6px;
     }
 
     .cq-q {
@@ -796,7 +796,7 @@ const ddayClass: Record<string, string> = {
     }
 
     .cq-soption {
-      min-height: 42px;
+      min-height: 44px;
       padding: 0 10px;
       font-size: 12px;
     }
@@ -804,7 +804,14 @@ const ddayClass: Record<string, string> = {
     .cq-row {
       grid-template-columns: 68px minmax(0, 1fr);
       gap: 6px;
-      padding: 6px 0;
+      /* 행 여백을 링크 안으로 옮긴다 — 링크 높이가 44px(터치 기준)가 되게 */
+      padding: 0;
+    }
+
+    .cq-row-link {
+      justify-content: center;
+      min-height: 44px;
+      padding: 4px 0;
     }
 
     .cq-row-kicker {

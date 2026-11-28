@@ -11,6 +11,12 @@
 결과: /workspace/reports/buffetkimz-web/yearend-20261128/{local|live}-*.png · report.json
 """
 from __future__ import annotations
+#
+# ※ 2026-11-28 오후(v9.9.0)에 홈 첫 화면이 2단계 질문형 컨시어지로 바뀌었다.
+#    이 스크립트가 보는 `.diag-option` 4칸·`.due-row` 3줄·`.quick-calc-link` 4개·`[data-start-map]`은
+#    그 이전 첫 화면의 구성이라 지금은 없다 — 첫 화면 캡처는 `capture_concierge_20261128.py`가 맡는다.
+#    13월의 월급 지도 페이지만 확인하려면 TARGETS에서 홈 검사를 빼고 돌린다.
+
 
 import http.server
 import json
