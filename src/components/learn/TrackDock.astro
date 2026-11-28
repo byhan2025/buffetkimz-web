@@ -265,10 +265,12 @@ const here = `${stage.no}단계·${stage.name}`;
   }
 
   .td-q-text {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
     overflow: hidden;
     min-width: 0;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+    word-break: keep-all;
   }
 
   @media (min-width: 768px) {

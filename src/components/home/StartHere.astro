@@ -41,8 +41,11 @@ const sourceOf = (slug: string) => {
   const line = (appBySlug(slug)?.sourceLine ?? "")
     .replace(/\s*·?\s*(?:확인\s*)?기준일\s*\d{4}\.\s*\d{1,2}\.\s*\d{1,2}\.\s*$/u, "")
     .trim();
-  const parts = line.split(" · ").map((p) => p.trim()).filter(Boolean);
-  if (parts.length === 0) return "각 도구의 기준·출처 문서";
+  const parts = line
+    .split(" · ")
+    .map((p) => p.trim())
+    .filter((p) => p && !p.includes("참고용 내부 예시"));
+  if (parts.length === 0) return "5대 핵심 담보 약관·지급 기준";
   return parts.length > 1 ? `${parts[0]} 외 ${parts.length - 1}건` : parts[0];
 };
 
@@ -258,6 +261,23 @@ const ddayClass: Record<string, string> = {
     </nav>
   </div>
 </section>
+
+<script is:inline>
+  (() => {
+    const root = document.getElementById("start-here");
+    if (!root) return;
+    root.querySelectorAll('input[name="cq-branch"]').forEach((branchInput) => {
+      branchInput.addEventListener("change", () => {
+        if (!branchInput.checked) return;
+        const panel = root.querySelector(`.cq-panel[data-branch="${branchInput.value}"]`);
+        if (!panel) return;
+        const subRadios = panel.querySelectorAll("input.cq-radio--s");
+        const hasChecked = Array.from(subRadios).some((r) => r.checked);
+        if (!hasChecked && subRadios[0]) subRadios[0].checked = true;
+      });
+    });
+  })();
+</script>
 
 <style>
   .cq {

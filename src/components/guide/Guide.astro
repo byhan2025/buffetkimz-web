@@ -218,7 +218,7 @@ const { mode, journey } = Astro.props;
           popover: {
             title: "④ 앱스토어",
             description:
-              "계산이 필요할 때는 앱스토어로. 입력한 값은 서버로 보내지 않고 브라우저 안에서만 계산합니다.",
+              "계산이 필요할 때는 앱스토어로. 입력한 값은 서버로 보내지 않고 브라우저 안에서만 계산합니다(단축 URL 생성만 외부 서비스 예외).",
             side: "top",
             align: "start",
           },
@@ -259,21 +259,36 @@ const { mode, journey } = Astro.props;
         window.setTimeout(() => tour.drive(0), 50);
       });
     } else if (bar) {
-      /* ②③ 여정 바 — `? 가이드`는 접힌 바를 다시 켜고, 이 바의 쓰임을 한 단계로 짚는다 */
+      /* ②③ 여정 바 — 트랙 독이 있으면 트랙 독 안내, 없으면 접힘 가능한 여정 바 안내 */
+      const trackDock = document.querySelector<HTMLElement>("[data-track-dock]");
       const hint = createTour(
-        [
-          {
-            element: '[data-journey-bar]',
-            popover: {
-              title: mode === "tool" ? "도구 여정 안내" : "읽기 여정 안내",
-              description: `${
-                bar.dataset.why ?? ""
-              } 이 바가 다음에 볼 것을 계속 알려 줍니다. 필요 없으면 바의 버튼으로 접어 두세요 — 이 ? 버튼으로 언제든 다시 켤 수 있습니다.`,
-              side: "top",
-              align: "end",
-            },
-          },
-        ],
+        trackDock
+          ? [
+              {
+                element: "[data-track-dock]",
+                popover: {
+                  title: "학습 트랙 여정 안내",
+                  description: `${
+                    bar.dataset.why ?? ""
+                  } 하단 바에서 이전·다음 단계와 이 단계의 계산기로 바로 이동할 수 있습니다.`,
+                  side: "top",
+                  align: "end",
+                },
+              },
+            ]
+          : [
+              {
+                element: "[data-journey-bar]",
+                popover: {
+                  title: mode === "tool" ? "도구 여정 안내" : "읽기 여정 안내",
+                  description: `${
+                    bar.dataset.why ?? ""
+                  } 이 바가 다음에 볼 것을 계속 알려 줍니다. 필요 없으면 바의 버튼으로 접어 두세요 — 이 ? 버튼으로 언제든 다시 켤 수 있습니다.`,
+                  side: "top",
+                  align: "end",
+                },
+              },
+            ],
         undefined
       );
 
