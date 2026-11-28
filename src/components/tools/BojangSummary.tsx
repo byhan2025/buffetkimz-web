@@ -117,7 +117,7 @@ function AmountInput({
   const shown = text ?? (value == null ? "" : formatMan(value));
   return (
     <label className="block">
-      <span className="mb-1 block text-[11.5px] text-ink-faint">{label}</span>
+      <span className="mb-1 block text-[12px] text-ink-faint">{label}</span>
       <input
         inputMode="text"
         value={shown}
@@ -755,7 +755,7 @@ export default function BojangSummary({ compact = false }: { compact?: boolean }
           >
             담보 정리하기
           </button>
-          <span className="text-[11.5px] text-ink-faint">
+          <span className="text-[12px] text-ink-faint">
             {cur.source ? `자료: ${cur.source}` : "PDF·텍스트 모두 이 브라우저 안에서만 처리합니다."}
           </span>
         </div>
@@ -813,7 +813,7 @@ export default function BojangSummary({ compact = false }: { compact?: boolean }
             <div data-contracts className="mt-2 rounded-xl border border-line bg-white p-3">
               <div className="flex flex-wrap items-baseline justify-between gap-2">
                 <p className="text-[12.5px] font-semibold text-ink">계약 {ct.count}건</p>
-                <p className="text-[11.5px] text-ink-muted">
+                <p className="text-[12px] text-ink-muted">
                   월 보험료 {ct.premium != null ? won(ct.premium) : "확인 필요"}
                   {ct.paidTotal ? ` · 총납입 추정 ${formatMan(ct.paidTotal)}` : ""}
                 </p>
@@ -826,10 +826,10 @@ export default function BojangSummary({ compact = false }: { compact?: boolean }
                       <span className="min-w-0 truncate text-[12.5px] font-semibold text-ink">
                         {g.unnamed ? "계약 구분 없음" : g.product || "상품명 미기재"}
                       </span>
-                      <span className="shrink-0 text-[11px] text-ink-faint">{g.count}건</span>
+                      <span className="shrink-0 text-[12px] text-ink-faint">{g.count}건</span>
                     </div>
-                    <p className="text-[11.5px] text-ink-muted">{g.unnamed ? "보험사·상품명이 적힌 담보가 없습니다" : g.insurer || "보험사 미기재"}</p>
-                    <dl className="mt-1.5 grid grid-cols-2 gap-x-3 gap-y-0.5 text-[11.5px]">
+                    <p className="text-[12px] text-ink-muted">{g.unnamed ? "보험사·상품명이 적힌 담보가 없습니다" : g.insurer || "보험사 미기재"}</p>
+                    <dl className="mt-1.5 grid grid-cols-2 gap-x-3 gap-y-0.5 text-[12px]">
                       <div className="flex justify-between gap-1">
                         <dt className="text-ink-faint">계약일</dt>
                         <dd className="tabular-nums text-ink">{g.startDate || "-"}</dd>
@@ -847,7 +847,7 @@ export default function BojangSummary({ compact = false }: { compact?: boolean }
                         <dd className="tabular-nums text-ink">{g.count}건</dd>
                       </div>
                     </dl>
-                    <p className="mt-1 text-[11px] leading-relaxed text-ink-faint">주요 담보: {g.top.join(" · ") || "-"}</p>
+                    <p className="mt-1 text-[12px] leading-relaxed text-ink-faint">주요 담보: {g.top.join(" · ") || "-"}</p>
                   </div>
                 ))}
               </div>
@@ -855,7 +855,7 @@ export default function BojangSummary({ compact = false }: { compact?: boolean }
               <div className="mt-2 hidden overflow-x-auto md:block">
                 <table className="w-full min-w-[680px] border-collapse text-[12px]">
                   <thead>
-                    <tr className="border-b border-line text-[11px] text-ink-faint">
+                    <tr className="border-b border-line text-[12px] text-ink-faint">
                       <th className="py-1.5 pr-2 text-left font-semibold">보험사</th>
                       <th className="py-1.5 pr-2 text-left font-semibold">상품명</th>
                       <th className="py-1.5 pr-2 text-right font-semibold">계약일</th>
@@ -883,7 +883,7 @@ export default function BojangSummary({ compact = false }: { compact?: boolean }
                   </tbody>
                 </table>
               </div>
-              <p className="mt-2 text-[11.5px] leading-relaxed text-ink-faint">{ct.note}</p>
+              <p className="mt-2 text-[12px] leading-relaxed text-ink-faint">{ct.note}</p>
             </div>
           )}
 
@@ -910,7 +910,7 @@ export default function BojangSummary({ compact = false }: { compact?: boolean }
                 </div>
                 <div className="mt-2 grid grid-cols-2 gap-2 md:grid-cols-3">
                   <label className="block">
-                    <span className="mb-1 block text-[11.5px] text-ink-faint">그룹</span>
+                    <span className="mb-1 block text-[12px] text-ink-faint">그룹</span>
                     <select
                       value={r.group}
                       onChange={(e) => patchRow(i, { group: e.target.value as GroupId })}
@@ -925,7 +925,7 @@ export default function BojangSummary({ compact = false }: { compact?: boolean }
                   </label>
                   {r.kind === "rate" ? (
                     <label className="block">
-                      <span className="mb-1 block text-[11.5px] text-ink-faint">지급 비율</span>
+                      <span className="mb-1 block text-[12px] text-ink-faint">지급 비율</span>
                       <input
                         value={r.rate}
                         onChange={(e) => patchRow(i, { rate: e.target.value })}
@@ -945,7 +945,7 @@ export default function BojangSummary({ compact = false }: { compact?: boolean }
                 </div>
                 <div className="mt-2 grid grid-cols-2 gap-2 md:grid-cols-4">
                   <label className="block">
-                    <span className="mb-1 block text-[11.5px] text-ink-faint">갱신</span>
+                    <span className="mb-1 block text-[12px] text-ink-faint">갱신</span>
                     <select
                       value={r.renew || ""}
                       onChange={(e) => patchRow(i, { renew: e.target.value as Coverage["renew"] })}
@@ -957,7 +957,7 @@ export default function BojangSummary({ compact = false }: { compact?: boolean }
                     </select>
                   </label>
                   <label className="block">
-                    <span className="mb-1 block text-[11.5px] text-ink-faint">납입기간</span>
+                    <span className="mb-1 block text-[12px] text-ink-faint">납입기간</span>
                     <input
                       value={r.payTerm || ""}
                       onChange={(e) => patchRow(i, { payTerm: e.target.value })}
@@ -966,7 +966,7 @@ export default function BojangSummary({ compact = false }: { compact?: boolean }
                     />
                   </label>
                   <label className="block">
-                    <span className="mb-1 block text-[11.5px] text-ink-faint">만기(보장기간)</span>
+                    <span className="mb-1 block text-[12px] text-ink-faint">만기(보장기간)</span>
                     <input
                       value={r.coverTerm || ""}
                       onChange={(e) => patchRow(i, { coverTerm: e.target.value })}
@@ -974,12 +974,12 @@ export default function BojangSummary({ compact = false }: { compact?: boolean }
                       className="w-full rounded-lg border border-line bg-white px-2.5 py-1.5 text-[12.5px] text-ink focus:border-brand focus:outline-none"
                     />
                   </label>
-                  <p className="self-end pb-1.5 text-[11.5px] text-ink-faint">
+                  <p className="self-end pb-1.5 text-[12px] text-ink-faint">
                     {r.paidTotal ? `총납입 추정 ${formatMan(r.paidTotal)}` : "보험료·납입기간을 넣으면 총납입을 추정합니다"}
                   </p>
                 </div>
                 {r.confidence !== "high" && (
-                  <p className="mt-1.5 text-[11.5px] text-[#8a6320]">
+                  <p className="mt-1.5 text-[12px] text-[#8a6320]">
                     {r.group === "etc" ? "그룹을 확인해 주세요" : r.amount == null && r.kind !== "limit" ? "가입금액을 읽지 못했습니다" : ""}
                   </p>
                 )}
@@ -1022,7 +1022,7 @@ export default function BojangSummary({ compact = false }: { compact?: boolean }
         <div data-pillars="25" className="mt-4 rounded-xl border border-line bg-white p-4">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <p className="text-[13px] font-semibold text-ink">보장 기둥 25 체크리스트</p>
-            <p className="text-[11.5px] tabular-nums text-ink-muted">
+            <p className="text-[12px] tabular-nums text-ink-muted">
               충족 {pil.met} · 부족 {pil.short} · 확인 {pil.check} · 미보유 {pil.none}
             </p>
           </div>
@@ -1043,7 +1043,7 @@ export default function BojangSummary({ compact = false }: { compact?: boolean }
             </div>
             <span
               className={
-                "rounded-full px-2 py-0.5 text-[11px] font-semibold " +
+                "rounded-full px-2 py-0.5 text-[12px] font-semibold " +
                 (pil.root.status === "met" ? "bg-jade-soft text-jade" : "bg-[#f6e7ea] text-[#a8455c]")
               }
             >
@@ -1054,7 +1054,7 @@ export default function BojangSummary({ compact = false }: { compact?: boolean }
               aria-pressed={gapsOnly}
               onClick={() => setGapsOnly((v) => !v)}
               className={
-                "rounded-full border px-2.5 py-1 text-[11.5px] font-semibold " +
+                "rounded-full border px-2.5 py-1 text-[12px] font-semibold " +
                 (gapsOnly ? "border-ink bg-ink text-white" : "border-line bg-white text-ink-muted hover:border-ink")
               }
             >
@@ -1069,7 +1069,7 @@ export default function BojangSummary({ compact = false }: { compact?: boolean }
                 <div key={g.id}>
                   <div className="flex items-center gap-2">
                     <span className="inline-block h-2 w-2 shrink-0 rounded-full" style={{ background: g.tone }} aria-hidden="true" />
-                    <span className="text-[11.5px] font-semibold text-ink-soft">{g.label}</span>
+                    <span className="text-[12px] font-semibold text-ink-soft">{g.label}</span>
                     <div className="h-1.5 w-16 overflow-hidden rounded-full bg-[#eef1f4]" aria-hidden="true">
                       <div
                         className="h-full rounded-full transition-all duration-500 ease-out motion-reduce:transition-none"
@@ -1079,7 +1079,7 @@ export default function BojangSummary({ compact = false }: { compact?: boolean }
                         }}
                       />
                     </div>
-                    <span className="text-[11px] tabular-nums text-ink-faint">
+                    <span className="text-[12px] tabular-nums text-ink-faint">
                       {g.met}/{g.total}
                     </span>
                   </div>
@@ -1093,13 +1093,13 @@ export default function BojangSummary({ compact = false }: { compact?: boolean }
                         <div className="flex items-baseline justify-between gap-1">
                           <span
                             className={
-                              "line-clamp-2 text-[11.5px] font-semibold leading-tight " +
+                              "line-clamp-2 text-[12px] font-semibold leading-tight " +
                               (it.status === "none" ? "text-ink-faint" : "text-ink")
                             }
                           >
                             {it.label}
                           </span>
-                          <span className={"shrink-0 text-[10px] font-semibold " + PILLAR_TEXT[it.status]}>{it.statusLabel}</span>
+                          <span className={"shrink-0 text-[12px] font-semibold " + PILLAR_TEXT[it.status]}>{it.statusLabel}</span>
                         </div>
                         <div className="mt-0.5 text-[10.5px] leading-tight tabular-nums text-ink-muted">{pillarValueText(it)}</div>
                         {it.common && (
@@ -1112,7 +1112,7 @@ export default function BojangSummary({ compact = false }: { compact?: boolean }
               );
             })}
           </div>
-          <p className="mt-2 text-[11.5px] leading-relaxed text-ink-faint">{pil.note}</p>
+          <p className="mt-2 text-[12px] leading-relaxed text-ink-faint">{pil.note}</p>
         </div>
       )}
 
@@ -1130,11 +1130,11 @@ export default function BojangSummary({ compact = false }: { compact?: boolean }
                   <span className="text-right text-[12.5px] font-semibold tabular-nums text-ink">
                     {g.lump ? formatMan(g.lump) : g.daily.length ? dailyText(g) : g.limits.length ? "가입" : "—"}
                   </span>
-                  <span className="w-8 text-right text-[11.5px] tabular-nums text-ink-faint">{g.count ? `${g.count}건` : ""}</span>
+                  <span className="w-8 text-right text-[12px] tabular-nums text-ink-faint">{g.count ? `${g.count}건` : ""}</span>
                 </div>
               ))}
             </div>
-            <p className="mt-2 text-[11.5px] leading-relaxed text-ink-faint">
+            <p className="mt-2 text-[12px] leading-relaxed text-ink-faint">
               일당·한도 담보는 정액 합계에 더하지 않고 따로 적었습니다. 암·뇌·심장 수술비는 각 그룹에 들어갑니다.
             </p>
           </div>
@@ -1161,12 +1161,12 @@ export default function BojangSummary({ compact = false }: { compact?: boolean }
         <div className="mt-4 rounded-xl border border-line bg-white p-4">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <p className="text-[13px] font-semibold text-ink">기준금액 대비 판정</p>
-            <p className="text-[11.5px] text-ink-faint">기준은 만원 단위 · 직접 고칠 수 있습니다</p>
+            <p className="text-[12px] text-ink-faint">기준은 만원 단위 · 직접 고칠 수 있습니다</p>
           </div>
           <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-5">
             {TARGET_FIELDS.map((t) => (
               <label key={t.id} className="block">
-                <span className="mb-1 block text-[11.5px] text-ink-faint">{t.label}</span>
+                <span className="mb-1 block text-[12px] text-ink-faint">{t.label}</span>
                 <input
                   inputMode="numeric"
                   value={targets[t.id] ?? ""}
@@ -1185,13 +1185,13 @@ export default function BojangSummary({ compact = false }: { compact?: boolean }
                 <div key={g.id} className="grid grid-cols-[minmax(0,1fr)_auto_auto_auto] items-baseline gap-2 border-b border-line-soft pb-1.5 last:border-0">
                   <span className="truncate text-[12.5px] text-ink">{g.label}</span>
                   <span className="text-right text-[12px] font-semibold tabular-nums text-ink">{formatMan(g.lump)}</span>
-                  <span className="text-right text-[11.5px] tabular-nums text-ink-faint">/ {formatMan(g.target)}</span>
-                  <span className={"rounded px-1.5 py-0.5 text-[11px] font-semibold " + levelTone(g.level)}>{g.levelLabel}</span>
+                  <span className="text-right text-[12px] tabular-nums text-ink-faint">/ {formatMan(g.target)}</span>
+                  <span className={"rounded px-1.5 py-0.5 text-[12px] font-semibold " + levelTone(g.level)}>{g.levelLabel}</span>
                 </div>
               ))}
           </div>
           {(summary.groups.find((g) => g.id === "cancer")?.count || 0) > 0 && (
-            <p className="mt-2 text-[11.5px] leading-relaxed text-ink-muted">
+            <p className="mt-2 text-[12px] leading-relaxed text-ink-muted">
               암 진단비 — 일반암 {formatMan(summary.groups.find((g) => g.id === "cancer")!.generalCancer)} · 유사암·소액암{" "}
               {formatMan(summary.groups.find((g) => g.id === "cancer")!.similarCancer)}
               {(summary.groups.find((g) => g.id === "cancer")!.surgery || 0) > 0
@@ -1199,7 +1199,7 @@ export default function BojangSummary({ compact = false }: { compact?: boolean }
                 : ""}
             </p>
           )}
-          <p className="mt-2 text-[11.5px] leading-relaxed text-ink-faint">{summary.targetsNote}</p>
+          <p className="mt-2 text-[12px] leading-relaxed text-ink-faint">{summary.targetsNote}</p>
         </div>
       )}
 
@@ -1232,54 +1232,54 @@ export default function BojangSummary({ compact = false }: { compact?: boolean }
                   ({cpil.metDelta > 0 ? "+" : cpil.metDelta < 0 ? "−" : ""}
                   {Math.abs(cpil.metDelta)})
                 </b>
-                <span className="text-[11.5px] text-ink-muted">
+                <span className="text-[12px] text-ink-muted">
                   월 보험료 {won(cmp.premium.before)} → {won(cmp.premium.after)}
                 </span>
               </div>
               <div className="mt-2 grid gap-2 sm:grid-cols-2">
                 <div>
-                  <p className="text-[11.5px] font-semibold text-jade">
+                  <p className="text-[12px] font-semibold text-jade">
                     새로 세워지는 기둥 <span className="tabular-nums">{cpil.built.length}</span>
                   </p>
                   <div className="mt-1 flex flex-wrap gap-1">
                     {cpil.built.length ? (
                       cpil.built.map((i) => (
-                        <span key={i.id} className="rounded bg-jade-soft px-1.5 py-0.5 text-[11px] font-semibold text-jade">
+                        <span key={i.id} className="rounded bg-jade-soft px-1.5 py-0.5 text-[12px] font-semibold text-jade">
                           {i.label}
                         </span>
                       ))
                     ) : (
-                      <span className="text-[11px] text-ink-faint">없음 — 제안에 새로 들어간 담보가 기둥을 세우지 못했습니다</span>
+                      <span className="text-[12px] text-ink-faint">없음 — 제안에 새로 들어간 담보가 기둥을 세우지 못했습니다</span>
                     )}
                   </div>
                   {cpil.filled.length > 0 && (
-                    <p className="mt-1.5 text-[11px] leading-relaxed text-ink-muted">
+                    <p className="mt-1.5 text-[12px] leading-relaxed text-ink-muted">
                       부족에서 충족으로: {cpil.filled.map((i) => i.label).join(" · ")}
                     </p>
                   )}
                 </div>
                 <div>
-                  <p className="text-[11.5px] font-semibold text-[#a8455c]">
+                  <p className="text-[12px] font-semibold text-[#a8455c]">
                     제안 후에도 비어 있는 기둥 <span className="tabular-nums">{cpil.empty.length}</span>
                   </p>
                   <div className="mt-1 flex flex-wrap gap-1">
                     {cpil.empty.slice(0, 12).map((i) => (
-                      <span key={i.id} className="rounded bg-white px-1.5 py-0.5 text-[11px] text-ink-muted ring-1 ring-line">
+                      <span key={i.id} className="rounded bg-white px-1.5 py-0.5 text-[12px] text-ink-muted ring-1 ring-line">
                         {i.label}
                       </span>
                     ))}
-                    {cpil.empty.length > 12 && <span className="text-[11px] text-ink-faint">외 {cpil.empty.length - 12}개</span>}
+                    {cpil.empty.length > 12 && <span className="text-[12px] text-ink-faint">외 {cpil.empty.length - 12}개</span>}
                   </div>
                 </div>
               </div>
               {cpil.lost.length > 0 && (
-                <p className="mt-2 text-[11px] text-[#8a6320]">약해지는 기둥: {cpil.lost.map((i) => i.label).join(" · ")}</p>
+                <p className="mt-2 text-[12px] text-[#8a6320]">약해지는 기둥: {cpil.lost.map((i) => i.label).join(" · ")}</p>
               )}
             </div>
           )}
 
           <div className="mt-3">
-            <div className="grid grid-cols-[minmax(0,1fr)_minmax(44px,auto)_minmax(44px,auto)_minmax(54px,auto)] gap-x-1.5 border-b border-line pb-1 text-[11px] font-semibold text-ink-faint">
+            <div className="grid grid-cols-[minmax(0,1fr)_minmax(44px,auto)_minmax(44px,auto)_minmax(54px,auto)] gap-x-1.5 border-b border-line pb-1 text-[12px] font-semibold text-ink-faint">
               <span>그룹</span>
               <span className="text-right">기존</span>
               <span className="text-right">제안</span>
@@ -1288,7 +1288,7 @@ export default function BojangSummary({ compact = false }: { compact?: boolean }
               {cmp.groups
                 .filter((g) => g.status !== "none")
                 .map((g) => (
-                  <div key={g.id} className="grid grid-cols-[minmax(0,1fr)_minmax(44px,auto)_minmax(44px,auto)_minmax(54px,auto)] items-baseline gap-x-1.5 border-b border-line-soft py-1.5 text-[11.5px] last:border-0">
+                  <div key={g.id} className="grid grid-cols-[minmax(0,1fr)_minmax(44px,auto)_minmax(44px,auto)_minmax(54px,auto)] items-baseline gap-x-1.5 border-b border-line-soft py-1.5 text-[12px] last:border-0">
                     <span className="truncate text-ink">{g.label}</span>
                     <span className="text-right tabular-nums text-ink-muted">{g.before.count ? (g.before.lump ? man(g.before.lump) : "가입") : "—"}</span>
                     <span className="text-right tabular-nums text-ink-muted">{g.after.count ? (g.after.lump ? man(g.after.lump) : "가입") : "—"}</span>
@@ -1333,10 +1333,10 @@ export default function BojangSummary({ compact = false }: { compact?: boolean }
                 ))}
             </div>
             {cmp.rows.filter((r) => r.status !== "same").length > 12 && (
-              <p className="mt-1 text-[11.5px] text-ink-faint">외 {cmp.rows.filter((r) => r.status !== "same").length - 12}건은 인쇄본에 담깁니다.</p>
+              <p className="mt-1 text-[12px] text-ink-faint">외 {cmp.rows.filter((r) => r.status !== "same").length - 12}건은 인쇄본에 담깁니다.</p>
             )}
           </div>
-          <p className="mt-2 text-[11.5px] leading-relaxed text-ink-faint">
+          <p className="mt-2 text-[12px] leading-relaxed text-ink-faint">
             같은 이름의 담보를 짝지어 비교합니다. 이름이 다르면 새 담보·빠진 담보로 보이니, 표에서 이름을 맞춰 주세요.
           </p>
         </div>

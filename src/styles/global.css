@@ -9813,3 +9813,19 @@ body:has([data-track-dock]) .guide-dock {
     padding-bottom: 118px;
   }
 }
+
+/* ==================================================================
+   v9.9.1 — 모바일(320/390) 터치 영역·가독성·티커 폭 공통 보완
+   ================================================================== */
+@media (max-width: 767px) {
+  .fs2-ticker-wrap,
+  .fs2-ticker {
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  main button:not(.guide-btn):not(.td-btn),
+  main .btn-sm {
+    min-height: 36px;
+  }
+}
