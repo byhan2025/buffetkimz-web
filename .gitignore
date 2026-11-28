@@ -40,3 +40,6 @@ automation/output/collected-*.md
 
 # 전용 도구실 평문 원문·비밀번호 — 절대 커밋하지 않는다
 .vault/
+
+# SEO 드리프트 기준선 이력 — 최신 baseline.json만 커밋한다(이력은 로컬)
+reports/buffetkimz-web/seo-drift/baseline-*.json
