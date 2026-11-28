@@ -231,7 +231,48 @@ function CompoundReturnPane({ compact = false }: { compact?: boolean }) {
 
       <div className="mt-3 grid gap-3 md:grid-cols-[1.1fr_0.9fr]">
         <div className="rounded-xl border border-line bg-white p-4">
-          <p className="text-[12px] font-bold tracking-[0.1em] text-ink-faint">원금 · 평가액 · 빠지는 돈</p>
+          <p className="text-[12px] font-bold tracking-[0.1em] text-ink-faint">돈이 불어나고 빠지는 흐름</p>
+          {/* 초경량 SVG 흐름선: 원금 → 세전 평가액 → 세금 차감 → 세후 실수령 */}
+          <div className="mt-2.5 rounded-lg bg-paper p-3" aria-hidden="true">
+            <svg viewBox="0 0 420 74" className="h-[74px] w-full overflow-visible">
+              <defs>
+                <linearGradient id="bk-flow-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#1d4ed8" />
+                  <stop offset="55%" stopColor="#2563eb" />
+                  <stop offset="100%" stopColor="#0f766e" />
+                </linearGradient>
+              </defs>
+              <line x1="28" y1="24" x2="392" y2="24" stroke="#e2e8f0" strokeWidth="4" strokeLinecap="round" />
+              <line
+                x1="28"
+                y1="24"
+                x2="392"
+                y2="24"
+                stroke="url(#bk-flow-grad)"
+                strokeWidth="4"
+                strokeLinecap="round"
+                strokeDasharray="364"
+                strokeDashoffset={Math.max(0, 364 - Math.round(364 * Math.min(1, result.net / Math.max(result.gross, 1))))}
+                className="transition-[stroke-dashoffset] duration-700 ease-out motion-reduce:transition-none"
+              />
+              {[
+                { x: 28, label: "원금", val: formatMan(result.principal), fill: "#1e3a8a" },
+                { x: 150, label: "세전", val: formatMan(result.gross), fill: "#2563eb" },
+                { x: 272, label: "세금", val: `−${manLabel(result.tax)}`, fill: "#b45309" },
+                { x: 392, label: "세후", val: formatMan(result.net), fill: "#0f766e" },
+              ].map((n) => (
+                <g key={n.label}>
+                  <circle cx={n.x} cy="24" r="7" fill="#ffffff" stroke={n.fill} strokeWidth="3" />
+                  <text x={n.x} y="48" textAnchor="middle" fontSize="10.5" fontWeight="700" fill="#475569">
+                    {n.label}
+                  </text>
+                  <text x={n.x} y="64" textAnchor="middle" fontSize="10.5" fontWeight="800" fill="#0f172a">
+                    {n.val}
+                  </text>
+                </g>
+              ))}
+            </svg>
+          </div>
           <ul className="mt-3 space-y-3.5">
             {[
               { label: "총 납입 원금", value: result.principal, tone: "brand" as const, note: "내가 넣은 돈" },

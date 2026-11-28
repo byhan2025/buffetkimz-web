@@ -212,6 +212,62 @@ export default function MoneyRing() {
             <h4 className="mt-1 text-[19px] font-bold tracking-[-0.03em] text-ink">{card.title}</h4>
             <p className="mt-2 text-[13.5px] leading-[1.7] text-ink-soft">{card.lead(ctx)}</p>
 
+            {/* 3층 돈의 나이테 SVG 동심원 모션 다이어그램 */}
+            <div className="mt-4 flex flex-col items-center gap-4 rounded-xl border border-line-soft bg-paper/70 p-3.5 sm:flex-row">
+              {(() => {
+                const rings = [
+                  { r: 52, share: calc.wShare, color: "#1d4ed8", label: "일하는 돈", amount: calc.W },
+                  { r: 38, share: calc.sShare, color: "#d97706", label: "잠자는 돈", amount: calc.S },
+                  { r: 24, share: calc.tShare, color: "#0f766e", label: "진짜 돈", amount: calc.T },
+                ];
+                return (
+                  <>
+                    <svg
+                      viewBox="0 0 132 132"
+                      className="h-[124px] w-[124px] shrink-0 -rotate-90"
+                      role="img"
+                      aria-label={`돈의 나이테 비중: 일하는 돈 ${pct1(calc.wShare)}, 잠자는 돈 ${pct1(calc.sShare)}, 진짜 돈 ${pct1(calc.tShare)}`}
+                    >
+                      {rings.map((rg) => {
+                        const c = 2 * Math.PI * rg.r;
+                        const offset = c * (1 - Math.max(0.02, Math.min(1, rg.share)));
+                        return (
+                          <g key={rg.label}>
+                            <circle cx="66" cy="66" r={rg.r} fill="none" stroke="#e2e8f0" strokeWidth="9" />
+                            <circle
+                              cx="66"
+                              cy="66"
+                              r={rg.r}
+                              fill="none"
+                              stroke={rg.color}
+                              strokeWidth="9"
+                              strokeLinecap="round"
+                              strokeDasharray={c.toFixed(2)}
+                              strokeDashoffset={offset.toFixed(2)}
+                              className="transition-[stroke-dashoffset] duration-700 ease-out motion-reduce:transition-none"
+                            />
+                          </g>
+                        );
+                      })}
+                    </svg>
+                    <ul className="w-full space-y-2 text-[12.5px]">
+                      {rings.map((rg) => (
+                        <li key={rg.label} className="flex items-center justify-between gap-2">
+                          <span className="flex items-center gap-2 font-semibold text-ink">
+                            <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ background: rg.color }} />
+                            {rg.label}
+                          </span>
+                          <span className="tabular-nums text-ink-soft">
+                            <strong className="font-bold text-ink">{pct1(rg.share)}</strong> · {manLabel(rg.amount)}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                );
+              })()}
+            </div>
+
             <div className="mt-4 grid grid-cols-2 gap-2 md:grid-cols-4">
               <div className="rounded-xl border border-line-soft bg-paper px-3 py-2.5">
                 <p className="text-[11.5px] text-ink-faint">버팀 개월수</p>
