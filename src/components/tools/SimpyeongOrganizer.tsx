@@ -139,6 +139,11 @@ function SimpyeongPane({ compact = false }: { compact?: boolean }) {
   const [surgeryThreshold, setSurgeryThreshold] = useState("200000");
   const [totalThreshold, setTotalThreshold] = useState("1000000");
   const [sections, setSections] = useState<string[]>(SECTION_LABELS.map((s) => s.key));
+  const [highlightQ, setHighlightQ] = useState<number | null>(null);
+  const triggerHighlight = (no: number) => {
+    setHighlightQ(no);
+    window.setTimeout(() => setHighlightQ((cur) => (cur === no ? null : cur)), 1400);
+  };
   const [copied, setCopied] = useState<"" | "summary" | "message">("");
 
   const result: Result | null = useMemo(() => {
@@ -391,8 +396,21 @@ function SimpyeongPane({ compact = false }: { compact?: boolean }) {
                   const obj = result.questions[key];
                   const open = q.no === 1;
                   return (
-                    <details key={q.no} id={`sp-q${q.no}`} open={open} className="scroll-mt-24 rounded-xl border border-line bg-white px-3 py-2.5">
-                      <summary className="flex cursor-pointer flex-wrap items-baseline gap-x-2 gap-y-1">
+                    <details
+                      key={q.no}
+                      id={`sp-q${q.no}`}
+                      open={open}
+                      className={
+                        "scroll-mt-24 rounded-xl border px-3 py-2.5 transition-all duration-500 motion-reduce:transition-none " +
+                        (highlightQ === q.no
+                          ? "border-amber-400 bg-amber-50/90 ring-2 ring-amber-300/60"
+                          : "border-line bg-white")
+                      }
+                    >
+                      <summary
+                        onClick={() => triggerHighlight(q.no)}
+                        className="flex cursor-pointer flex-wrap items-baseline gap-x-2 gap-y-1"
+                      >
                         <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand-soft text-[11px] font-bold text-brand-deep">
                           {q.no}
                         </span>

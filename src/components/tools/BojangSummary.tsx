@@ -1036,7 +1036,10 @@ export default function BojangSummary({ compact = false }: { compact?: boolean }
               role="img"
               aria-label={`보장 기둥 ${pil.met} / ${pil.total}`}
             >
-              <div className="h-full rounded-full bg-ink" style={{ width: `${(pil.met / pil.total) * 100}%` }} />
+              <div
+                className="h-full rounded-full bg-ink transition-all duration-700 ease-out motion-reduce:transition-none"
+                style={{ width: `${(pil.met / pil.total) * 100}%` }}
+              />
             </div>
             <span
               className={
@@ -1064,9 +1067,18 @@ export default function BojangSummary({ compact = false }: { compact?: boolean }
               if (!items.length) return null;
               return (
                 <div key={g.id}>
-                  <div className="flex items-baseline gap-1.5">
-                    <span className="inline-block h-2 w-2 rounded-full" style={{ background: g.tone }} aria-hidden="true" />
+                  <div className="flex items-center gap-2">
+                    <span className="inline-block h-2 w-2 shrink-0 rounded-full" style={{ background: g.tone }} aria-hidden="true" />
                     <span className="text-[11.5px] font-semibold text-ink-soft">{g.label}</span>
+                    <div className="h-1.5 w-16 overflow-hidden rounded-full bg-[#eef1f4]" aria-hidden="true">
+                      <div
+                        className="h-full rounded-full transition-all duration-500 ease-out motion-reduce:transition-none"
+                        style={{
+                          width: `${g.total ? (g.met / g.total) * 100 : 0}%`,
+                          background: g.tone,
+                        }}
+                      />
+                    </div>
                     <span className="text-[11px] tabular-nums text-ink-faint">
                       {g.met}/{g.total}
                     </span>
@@ -1076,7 +1088,7 @@ export default function BojangSummary({ compact = false }: { compact?: boolean }
                       <div
                         key={it.id}
                         title={`${it.names.join(", ") || "표에 없음"}${it.note ? ` — ${it.note}` : ""}`}
-                        className={"rounded-lg border px-2 py-1.5 " + PILLAR_TONE[it.status]}
+                        className={"rounded-lg border px-2 py-1.5 transition-colors duration-300 motion-reduce:transition-none " + PILLAR_TONE[it.status]}
                       >
                         <div className="flex items-baseline justify-between gap-1">
                           <span

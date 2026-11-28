@@ -178,22 +178,37 @@ export default function CalendarBoard({ items, initialMonth, note, todayIso }: P
             <span className="mono text-[11.5px] text-ink-faint">기준 {todayLabel}</span>
           </div>
           <ul className="mt-2 divide-y divide-line-soft">
-            {upcoming.map(({ item, dday }) => (
-              <li key={`up-${item.month}-${item.title}`}>
-                <button
-                  type="button"
-                  onClick={() => pick(item.month)}
-                  className="flex min-h-[44px] w-full items-center gap-2 py-1.5 text-left"
-                >
-                  <span className={ddayClass[dday.tone]} aria-label={dday.aria}>
-                    {dday.label}
-                  </span>
-                  <span className="mono shrink-0 text-[11.5px] text-ink-faint">{dday.dateLabel}</span>
-                  <span className="clamp-1 min-w-0 text-[13px] font-semibold text-ink">{item.title}</span>
-                  <span className="ml-auto shrink-0 text-[11.5px] text-ink-faint">{item.month}월 →</span>
-                </button>
-              </li>
-            ))}
+            {upcoming.map(({ item, dday }) => {
+              const pct = Math.max(12, Math.min(96, Math.round(100 - Math.min(30, Math.max(0, dday.days)) * 3)));
+              return (
+                <li key={`up-${item.month}-${item.title}`}>
+                  <button
+                    type="button"
+                    onClick={() => pick(item.month)}
+                    className="block min-h-[44px] w-full py-2 text-left"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className={ddayClass[dday.tone]} aria-label={dday.aria}>
+                        {dday.label}
+                      </span>
+                      <span className="mono shrink-0 text-[11.5px] text-ink-faint">{dday.dateLabel}</span>
+                      <span className="clamp-1 min-w-0 text-[13px] font-semibold text-ink">{item.title}</span>
+                      <span className="ml-auto shrink-0 text-[11.5px] text-ink-faint">{item.month}월 →</span>
+                    </div>
+                    <div className="mt-1.5 flex items-center gap-2" aria-hidden="true">
+                      <span className="text-[10px] text-ink-faint">오늘</span>
+                      <div className="h-1 flex-1 overflow-hidden rounded-full bg-[#eef1f4]">
+                        <div
+                          className="h-full rounded-full bg-brand/70 transition-all duration-700 ease-out motion-reduce:transition-none"
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+                      <span className="text-[10px] text-ink-faint">마감</span>
+                    </div>
+                  </button>
+                </li>
+              );
+            })}
           </ul>
         </div>
       )}
